@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026년 외주비 마감 내역 대시보드</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+
+:root{--dark:#1F3864;--mid:#2F5496;--mid-l:#DEEAF1;--green:#1D9E75;--green-l:#E2EFDA;--amber:#BA7517;--amber-l:#FFF2CC;--red:#C00000;--red-l:#FCE4D6;--border:#dee2e6;--bg:#f0f2f5;--card:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"맑은 고딕","Segoe UI","Noto Sans",sans-serif;background:var(--bg);color:#212529;font-size:13px}
+header{background:var(--dark);color:#fff;padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.logo{font-size:14px;font-weight:700;line-height:1.4}
+.logo sub{font-size:10px;font-weight:400;opacity:.6;display:block}
+.hdr-r{display:flex;align-items:center;gap:10px}
+.lang-toggle{display:flex;background:rgba(255,255,255,.1);border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.25)}
+.lang-btn{padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:transparent;color:rgba(255,255,255,.65);font-family:inherit;transition:all .2s}
+.lang-btn.active{background:rgba(255,255,255,.92);color:var(--dark);border-radius:16px}
+nav{background:#fff;border-bottom:2px solid var(--mid);display:flex;padding:0 20px;overflow-x:auto}
+.synopex-tab{padding:10px 14px;cursor:pointer;font-size:12px;font-weight:500;color:#666;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .15s}
+.synopex-tab.on{color:var(--mid);border-bottom-color:var(--mid)}
+.synopex-tab:hover:not(.on){background:#f5f7ff}
+.synopex-pane{display:none}
+.synopex-pane.on{display:block}
+main{padding:14px 20px;max-width:1440px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px;margin-bottom:13px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:13px}
+.kpi{background:var(--card);border-radius:8px;padding:12px 15px;border:1px solid var(--border);border-left:4px solid var(--mid);transition:transform .15s}
+.kpi:hover{transform:translateY(-1px)}
+.kv{font-size:18px;font-weight:700;margin-bottom:3px}.kl{font-size:10px;color:#6c757d}
+.card{background:var(--card);border-radius:8px;border:1px solid var(--border);padding:12px 15px;margin-bottom:12px}
+.card-title{font-size:11px;font-weight:600;color:#fff;background:var(--mid);padding:4px 11px;border-radius:4px;margin-bottom:10px;display:inline-flex;align-items:center;gap:6px}
+.card-title::before{content:"";width:5px;height:5px;background:#fff;border-radius:50%;opacity:.8}
+.tw{overflow-x:auto;border-radius:6px;border:1px solid var(--border)}
+.tw.sc{max-height:460px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+thead{position:sticky;top:0;z-index:5}
+th{background:var(--dark);color:#fff;padding:6px 7px;font-size:10.5px;font-weight:500;white-space:nowrap;text-align:center;border-right:1px solid rgba(255,255,255,.1)}
+td{border-bottom:1px solid #f1f3f5;padding:5px 7px;vertical-align:middle}
+td.r{text-align:right;font-variant-numeric:tabular-nums}td.c{text-align:center}
+tr:hover td{background:#f8f9ff}
+tr.grp td{background:var(--mid-l);color:var(--dark);font-weight:600;font-size:11px;padding:5px 12px}
+tr.total-row td{background:#EBF0FF;font-weight:700}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.b-ok{background:var(--green-l);color:#155724}.b-warn{background:var(--amber-l);color:#7c5103}
+.b-danger{background:var(--red-l);color:#842029}.b-info{background:var(--mid-l);color:#0c3547}
+.b-purple{background:#EDE7F6;color:#534AB7}
+.frow{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.frow label{font-size:11px;font-weight:500}
+select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit}
+.ch{position:relative;width:100%}
+.bw{display:flex;align-items:center;gap:5px}.bb{flex:1;height:7px;background:#e9ecef;border-radius:4px;overflow:hidden;min-width:40px}
+.bf{height:100%;border-radius:4px}.bp{font-size:10px;font-weight:600;min-width:38px;text-align:right}
+.green{color:var(--green)}.amber{color:var(--amber)}.red{color:var(--red)}.blue{color:var(--mid)}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:#adb5bd;border-radius:3px}
+@media(max-width:768px){.g4{grid-template-columns:1fr 1fr}.g2,.g3{grid-template-columns:1fr}}
+
+</style></head><body>
+<header>
+  <div class="logo"><span id="h-title">2026년 외주비 마감 내역 대시보드</span>
+    <sub id="h-sub">기준: 2026-03-31 | SYNOPEX VIETNAM | 단위: VND</sub></div>
+  <div class="hdr-r"><div class="lang-toggle">
+    <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">🇰🇷 한국어</button>
+    <button class="lang-btn" id="btn-vi" onclick="setLang('vi')">🇻🇳 Tiếng Việt</button>
+  </div></div>
+</header>
+<nav>
+  <div class="synopex-tab on" onclick="sw(0)" data-ko="① 종합 현황" data-vi="Tổng quan">① 종합 현황</div>
+  <div class="synopex-tab" onclick="sw(1)" data-ko="② 외주비 추이" data-vi="Xu hướng chi phí">② 외주비 추이</div>
+  <div class="synopex-tab" onclick="sw(2)" data-ko="③ 공정별 외주비" data-vi="Chi phí theo CĐ">③ 공정별 외주비</div>
+  <div class="synopex-tab" onclick="sw(3)" data-ko="④ 업체별 현황" data-vi="Theo nhà thầu">④ 업체별 현황</div>
+  <div class="synopex-tab" onclick="sw(4)" data-ko="⑤ 계획대비 실적" data-vi="KH vs Thực tế">⑤ 계획대비 실적</div>
+  <div class="synopex-tab" onclick="sw(5)" data-ko="⑥ NEGO 현황" data-vi="Tình trạng NEGO">⑥ NEGO 현황</div>
+</nav><main>
+<div class="synopex-pane on" id="t0">
+  <div class="g4">
+    <div class="kpi" style="border-left-color:#185FA5"><div class="kv" id="k-sales" style="color:#185FA5">-</div><div class="kl" data-ko="누적 매출(VND)" data-vi="Doanh thu lũy kế">누적 매출(VND)</div></div>
+    <div class="kpi" style="border-left-color:#C00000"><div class="kv" id="k-cost" style="color:#C00000">-</div><div class="kl" data-ko="누적 외주비(VND)" data-vi="Chi phí GC lũy kế">누적 외주비(VND)</div></div>
+    <div class="kpi" style="border-left-color:#BA7517"><div class="kv" id="k-ratio" style="color:#BA7517">-</div><div class="kl" data-ko="외주비 비율" data-vi="Tỷ lệ chi phí GC">외주비 비율</div></div>
+    <div class="kpi" style="border-left-color:#1D9E75"><div class="kv" id="k-nego" style="color:#1D9E75">-</div><div class="kl" data-ko="NEGO 절감액" data-vi="Tiết kiệm NEGO">NEGO 절감액</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-title" data-ko="월별 매출 vs 외주비 (VND)" data-vi="Doanh thu vs Chi phí GC theo tháng">월별 매출 vs 외주비 (VND)</div><div class="ch" style="height:250px"><canvas id="c-main"></canvas></div></div>
+    <div class="card"><div class="card-title" data-ko="필수외주 vs 병행외주 구성비" data-vi="Tỷ lệ GC bắt buộc vs song song">필수외주 vs 병행외주 구성비</div><div class="ch" style="height:250px"><canvas id="c-type"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-title" data-ko="월별 외주비 요약" data-vi="Tóm tắt chi phí GC theo tháng">월별 외주비 요약</div>
+    <div class="tw"><table><thead><tr>
+<th data-ko="구분" data-vi="Phân loại">구분</th>
+<th data-ko="1월" data-vi="T1">1월</th>
+<th data-ko="2월" data-vi="T2">2월</th>
+<th data-ko="3월" data-vi="T3">3월</th>
+<th data-ko="4월" data-vi="T4">4월</th>
+<th data-ko="5월" data-vi="T5">5월</th>
+<th data-ko="6월" data-vi="T6">6월</th>
+<th data-ko="7월" data-vi="T7">7월</th>
+<th data-ko="8월" data-vi="T8">8월</th>
+<th data-ko="9월" data-vi="T9">9월</th>
+<th data-ko="10월" data-vi="T10">10월</th>
+<th data-ko="11월" data-vi="T11">11월</th>
+<th data-ko="12월" data-vi="T12">12월</th>
+<th data-ko="누적합계" data-vi="Lũy kế">누적합계</th>
+</tr></thead><tbody id="summary-tbody"></tbody></table></div></div>
+</div>
+<div class="synopex-pane" id="t1">
+  <div class="g2">
+    <div class="card"><div class="card-title" data-ko="월별 외주비 추이 (VND)" data-vi="Xu hướng chi phí GC (VND)">월별 외주비 추이 (VND)</div><div class="ch" style="height:260px"><canvas id="c-trend"></canvas></div></div>
+    <div class="card"><div class="card-title" data-ko="외주비 비율 추이 (%)" data-vi="Xu hướng tỷ lệ chi phí GC (%)">외주비 비율 추이 (%)</div><div class="ch" style="height:260px"><canvas id="c-ratio-trend"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-title" data-ko="필수외주 / 병행외주 월별 추이" data-vi="Chi phí GC bắt buộc/song song theo tháng">필수외주 / 병행외주 월별 추이</div><div class="ch" style="height:230px"><canvas id="c-ep-trend"></canvas></div></div>
+</div>
+<div class="synopex-pane" id="t2">
+  <div class="frow">
+    <label data-ko="월 선택:" data-vi="Chọn tháng:">월 선택:</label>
+    <select id="f-month" onchange="renderProcCost()">
+      <option value="-1" data-ko="누적" data-vi="Lũy kế">누적</option>
+      <option value="0" data-ko="1월" data-vi="T1">1월</option>
+      <option value="1" data-ko="2월" data-vi="T2">2월</option>
+      <option value="2" data-ko="3월" data-vi="T3">3월</option>
+    </select>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-title" data-ko="공정별 외주비 (VND)" data-vi="Chi phí GC theo công đoạn">공정별 외주비 (VND)</div><div class="ch" style="height:280px"><canvas id="c-proc"></canvas></div></div>
+    <div class="card"><div class="card-title" data-ko="공정별 구성비" data-vi="Tỷ lệ theo công đoạn">공정별 구성비</div><div class="ch" style="height:280px"><canvas id="c-proc-pie"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-title" data-ko="공정별 외주비 상세 (VND)" data-vi="Chi tiết chi phí GC theo CĐ">공정별 외주비 상세 (VND)</div>
+    <div class="tw sc"><table><thead><tr>
+<th data-ko="공정" data-vi="Công đoạn">공정</th>
+<th data-ko="1월" data-vi="T1">1월</th>
+<th data-ko="2월" data-vi="T2">2월</th>
+<th data-ko="3월" data-vi="T3">3월</th>
+<th data-ko="누적합계" data-vi="Lũy kế">누적합계</th>
+<th data-ko="비중" data-vi="Tỷ lệ">비중</th>
+</tr></thead><tbody id="proc-tbody"></tbody></table></div></div>
+</div>
+<div class="synopex-pane" id="t3">
+  <div class="frow">
+    <label data-ko="구분:" data-vi="Phân loại:">구분:</label>
+    <select id="f-vtype" onchange="renderVendor()">
+      <option value="" data-ko="전체" data-vi="Tất cả">전체</option>
+      <option value="필수외주" data-ko="필수외주" data-vi="GC bắt buộc">필수외주</option>
+      <option value="병행외주" data-ko="병행외주" data-vi="GC song song">병행외주</option>
+    </select>
+    <label data-ko="위치:" data-vi="Vị trí:">위치:</label>
+    <select id="f-vloc" onchange="renderVendor()">
+      <option value="" data-ko="전체" data-vi="Tất cả">전체</option>
+      <option value="사내" data-ko="사내" data-vi="Nội bộ">사내</option>
+      <option value="사외" data-ko="사외" data-vi="Bên ngoài">사외</option>
+    </select>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-title" data-ko="업체별 외주비 TOP10" data-vi="Top 10 nhà thầu">업체별 외주비 TOP 10</div><div class="ch" style="height:280px"><canvas id="c-vendor"></canvas></div></div>
+    <div class="card"><div class="card-title" data-ko="사내/사외 구성비" data-vi="Tỷ lệ nội bộ/bên ngoài">사내 / 사외 구성비</div><div class="ch" style="height:280px"><canvas id="c-inout"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-title" data-ko="업체별 외주비 상세" data-vi="Chi tiết theo nhà thầu">업체별 외주비 상세</div>
+    <div class="tw sc"><table><thead><tr>
+<th data-ko="구분" data-vi="Loại">구분</th>
+<th data-ko="위치" data-vi="Vị trí">위치</th>
+<th data-ko="공정" data-vi="CĐ">공정</th>
+<th data-ko="업체명" data-vi="Nhà thầu">업체명</th>
+<th data-ko="1월" data-vi="T1">1월</th>
+<th data-ko="2월" data-vi="T2">2월</th>
+<th data-ko="3월" data-vi="T3">3월</th>
+<th data-ko="누적합계" data-vi="Lũy kế">누적합계</th>
+</tr></thead><tbody id="vendor-tbody"></tbody></table></div></div>
+</div>
+<div class="synopex-pane" id="t4">
+  <div class="g2">
+    <div class="card"><div class="card-title" data-ko="1월 계획대비 실적 달성율" data-vi="Tỷ lệ đạt KH tháng 1">1월 계획대비 실적 달성율</div><div class="ch" style="height:260px"><canvas id="c-ach1"></canvas></div></div>
+    <div class="card"><div class="card-title" data-ko="2월 계획대비 실적 달성율" data-vi="Tỷ lệ đạt KH tháng 2">2월 계획대비 실적 달성율</div><div class="ch" style="height:260px"><canvas id="c-ach2"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-title" data-ko="공정별 계획대비 실적 상세 (1~3월)" data-vi="Chi tiết KH vs Thực tế theo CĐ (T1~T3)">공정별 계획대비 실적 상세 (1~3월)</div>
+    <div class="tw sc"><table><thead><tr>
+      <th rowspan="2" data-ko="공정" data-vi="Công đoạn">공정</th>
+      <th colspan="3">1월</th>
+      <th colspan="3">2월</th>
+      <th colspan="3">3월</th>
+    </tr><tr>
+      <th data-ko="계획" data-vi="Kế hoạch">계획</th>
+      <th data-ko="실적" data-vi="Thực tế">실적</th>
+      <th data-ko="달성율" data-vi="Tỷ lệ đạt">달성율</th>
+      <th data-ko="계획" data-vi="Kế hoạch">계획</th>
+      <th data-ko="실적" data-vi="Thực tế">실적</th>
+      <th data-ko="달성율" data-vi="Tỷ lệ đạt">달성율</th>
+      <th data-ko="계획" data-vi="Kế hoạch">계획</th>
+      <th data-ko="실적" data-vi="Thực tế">실적</th>
+      <th data-ko="달성율" data-vi="Tỷ lệ đạt">달성율</th>
+    </tr></thead><tbody id="ach-tbody"></tbody></table></div></div>
+</div>
+<div class="synopex-pane" id="t5">
+  <div class="g3">
+    <div class="kpi" style="border-left-color:#1D9E75"><div class="kv" id="k-nego-total" style="color:#1D9E75">-</div><div class="kl" data-ko="누적 NEGO 절감액" data-vi="Tổng tiết kiệm NEGO">누적 NEGO 절감액</div></div>
+    <div class="kpi" style="border-left-color:#185FA5"><div class="kv" id="k-nego-cnt" style="color:#185FA5">-</div><div class="kl" data-ko="NEGO 적용 업체수" data-vi="Số nhà thầu NEGO">NEGO 적용 업체수</div></div>
+    <div class="kpi" style="border-left-color:#BA7517"><div class="kv" id="k-nego-rate" style="color:#BA7517">-</div><div class="kl" data-ko="평균 절감율" data-vi="Tỷ lệ tiết kiệm TB">평균 절감율</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-title" data-ko="업체별 NEGO 절감액" data-vi="Tiết kiệm NEGO theo nhà thầu">업체별 NEGO 절감액</div><div class="ch" style="height:260px"><canvas id="c-nego"></canvas></div></div>
+    <div class="card"><div class="card-title" data-ko="월별 NEGO 절감 추이" data-vi="Xu hướng tiết kiệm NEGO theo tháng">월별 NEGO 절감 추이</div><div class="ch" style="height:260px"><canvas id="c-nego-trend"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-title" data-ko="NEGO 상세 현황" data-vi="Chi tiết tình trạng NEGO">NEGO 상세 현황</div>
+    <div class="tw sc"><table><thead><tr>
+<th data-ko="위치" data-vi="Vị trí">위치</th>
+<th data-ko="구분" data-vi="Loại">구분</th>
+<th data-ko="공정" data-vi="CĐ">공정</th>
+<th data-ko="업체명" data-vi="Nhà thầu">업체명</th>
+<th data-ko="1월" data-vi="T1">1월</th>
+<th data-ko="2월" data-vi="T2">2월</th>
+<th data-ko="3월" data-vi="T3">3월</th>
+<th data-ko="누적 절감액" data-vi="Lũy kế tiết kiệm">누적 절감액</th>
+</tr></thead><tbody id="nego-tbody"></tbody></table></div></div>
+</div>
+</main>
+<footer style="background:var(--dark);color:rgba(255,255,255,.5);text-align:center;padding:10px;font-size:10px;margin-top:20px">SYNOPEX VIETNAM — 2026년 외주비 마감 내역 대시보드 | Chi phí nhà thầu 2026 | 기준: 2026-03-31</footer>
+<script>
+const SUMMARY={"sales_usd": [8358216.58, 4363654.02, 5806719.36, 0, 0, 0, 0, 0, 0, 0, 0, 0], "exchange": [25930, 26040, 26245, 0, 0, 0, 0, 0, 0, 0, 0, 0], "sales_vnd": [216728555919, 113629550680, 152397349603, 0, 0, 0, 0, 0, 0, 0, 0, 0], "cost_vat0": [12032329002, 7372325464, 7900128209, 0, 0, 0, 0, 0, 0, 0, 0, 0], "cost_ratio": [0.0555, 0.0649, 0.0518, 0, 0, 0, 0, 0, 0, 0, 0, 0], "essential": [7373461644, 4673249006, 5372749885, 0, 0, 0, 0, 0, 0, 0, 0, 0], "parallel": [4658867358, 2699076458, 2527378324, 0, 0, 0, 0, 0, 0, 0, 0, 0]};
+const PROC_COST={"CNC": [112455167, 97502226, 102636416, 0, 0, 0, 0, 0, 0, 0, 0, 0], "LASER DRILL": [178472727, 62369462, 19326027, 0, 0, 0, 0, 0, 0, 0, 0, 0], "동도금": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "AOI": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "GUIDE": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "PSR": [254456692, 135768330, 152712409, 0, 0, 0, 0, 0, 0, 0, 0, 0], "금도금": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "플라스마": [9637341, 10172908, 7261815, 0, 0, 0, 0, 0, 0, 0, 0, 0], "MARKING": [9850980, 5533740, 8221620, 0, 0, 0, 0, 0, 0, 0, 0, 0], "자동가접": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "적층": [0, 0, 133742350, 0, 0, 0, 0, 0, 0, 0, 0, 0], "BBT": [604998880, 212069240, 242170920, 0, 0, 0, 0, 0, 0, 0, 0, 0], "Router": [21503664, 29231156, 47954768, 0, 0, 0, 0, 0, 0, 0, 0, 0], "자동타발": [618531720, 305001735, 330214484, 0, 0, 0, 0, 0, 0, 0, 0, 0], "수동타발": [645062978, 437809376, 563426530, 0, 0, 0, 0, 0, 0, 0, 0, 0], "최종검사": [948561785, 664370280, 826644880, 0, 0, 0, 0, 0, 0, 0, 0, 0]};
+const VENDORS=[{"type": "필수외주", "loc": "사내", "proc": "CNC", "name": "디아이", "total": 4708707238, "m": [1653415705, 1517412624, 1537878909, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사내", "proc": "PSR", "name": "월드시스템", "total": 9768399718, "m": [4582750709, 2427216151, 2758432858, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사내", "proc": "MARKING", "name": "KORNIC", "total": 1592491160, "m": [632801180, 371912340, 587777640, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "CNC", "name": "KV TECH VINA", "total": 954600846, "m": [367999336, 291126440, 295475070, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER DRILL", "name": "CSY TECH VINA", "total": 34128000, "m": [34128000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER DRILL", "name": "JDI VINA", "total": 1198561458, "m": [906649900, 291911558, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER DRILL", "name": "HS VIỆT NAM", "total": 1144157362, "m": [680225444, 273924537, 190007381, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER DRILL", "name": "JOOYEON VINA ELECTRONICS", "total": 389352951, "m": [127362707, 64205880, 197784364, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "AOI", "name": "WORLD SOLUTION", "total": 47088500, "m": [10476500, 2916000, 33696000, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "AOI", "name": "SE JONG TECHNICAL VINA", "total": 286510500, "m": [0, 286510500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "적층", "name": "디아이", "total": 0, "m": [0, 0, 133742350, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "금도금", "name": "YMT VINA", "total": 34774110, "m": [14586600, 3422370, 16765140, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "플라스마", "name": "YT SOLUTION VINA", "total": 514369286, "m": [183109494, 193285277, 137974515, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "자동가접", "name": "NEW PROTEC VINA", "total": 346800, "m": [164400, 0, 182400, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "BBT", "name": "CSY TECH VINA", "total": 1054330960, "m": [602688480, 209471560, 242170920, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "BBT", "name": "ASIA PRECESION VINA", "total": 4908080, "m": [2310400, 2597680, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "Router", "name": "TECH WIN", "total": 98689588, "m": [21503664, 29231156, 47954768, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "자동타발", "name": "DIC VINA", "total": 1253747939, "m": [618531720, 305001735, 330214484, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "수동타발", "name": "MVT VINA", "total": 1110894074, "m": [444441568, 281344056, 385108450, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "수동타발", "name": "IB ENG VINA", "total": 534517770, "m": [200621410, 156465320, 177431040, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "수동타발", "name": "HAEYOUN INNOVATION VINA", "total": 887040, "m": [0, 0, 887040, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "최종검사", "name": "T&T VINA", "total": 2224867570, "m": [858633835, 634358355, 731875380, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "최종검사", "name": "WORLD SOLUTION", "total": 214709375, "m": [89927950, 30011925, 94769500, 0, 0, 0, 0, 0, 0, 0, 0, 0]}];
+const ACHIEVE=[{"proc": "CNC", "data": [{"plan": 3066836994, "actual": 2021415041, "rate": 0.6591}, {"plan": 1949343660, "actual": 1808539064, "rate": 0.9278}, {"plan": 2154198009, "actual": 1833353979, "rate": 0.8511}]}, {"proc": "LASER DRILL", "data": [{"plan": 2577490400, "actual": 1748366051, "rate": 0.6783}, {"plan": 739325143, "actual": 630041975, "rate": 0.8522}, {"plan": 473214978, "actual": 387791745, "rate": 0.8195}]}, {"proc": "AOI", "data": [{"plan": 56573901, "actual": 10476500, "rate": 0.1852}, {"plan": 283360500, "actual": 289426500, "rate": 1.0214}, {"plan": 0, "actual": 33696000, "rate": 0}]}, {"proc": "PSR", "data": [{"plan": 4816981085, "actual": 4582750709, "rate": 0.9514}, {"plan": 3871710297, "actual": 2427216151, "rate": 0.6269}, {"plan": 2588983228, "actual": 2758432858, "rate": 1.0655}]}, {"proc": "금도금", "data": [{"plan": 42000000, "actual": 14586600, "rate": 0.3473}, {"plan": 8547277, "actual": 3422370, "rate": 0.4004}, {"plan": 15739842, "actual": 16765140, "rate": 1.0651}]}, {"proc": "플라스마", "data": [{"plan": 368435500, "actual": 183109494, "rate": 0.497}, {"plan": 299967258, "actual": 193285277, "rate": 0.6444}, {"plan": 136800000, "actual": 137974515, "rate": 1.0086}]}, {"proc": "MARKING", "data": [{"plan": 742381180, "actual": 632801180, "rate": 0.8524}, {"plan": 428888525, "actual": 371912340, "rate": 0.8672}, {"plan": 650457516, "actual": 587777640, "rate": 0.9036}]}, {"proc": "자동가접", "data": [{"plan": 37282191, "actual": 164400, "rate": 0.0044}, {"plan": 0, "actual": 0, "rate": 0}, {"plan": 0, "actual": 182400, "rate": 0}]}, {"proc": "적층", "data": [{"plan": 0, "actual": 0, "rate": 0}, {"plan": 0, "actual": 0, "rate": 0}, {"plan": 603680000, "actual": 133742350, "rate": 0.2215}]}, {"proc": "BBT", "data": [{"plan": 624164471, "actual": 604998880, "rate": 0.9693}, {"plan": 208650140, "actual": 212069240, "rate": 1.0164}, {"plan": 56921129, "actual": 242170920, "rate": 4.2545}]}, {"proc": "Router", "data": [{"plan": 49235089, "actual": 21503664, "rate": 0.4368}, {"plan": 35840484, "actual": 29231156, "rate": 0.8156}, {"plan": 42128420, "actual": 47954768, "rate": 1.1383}]}, {"proc": "자동타발", "data": [{"plan": 537677416, "actual": 618531720, "rate": 1.1504}, {"plan": 305001735, "actual": 305001735, "rate": 1.0}, {"plan": 330214484, "actual": 330214484, "rate": 1.0}]}, {"proc": "수동타발", "data": [{"plan": 928177483, "actual": 645062978, "rate": 0.695}, {"plan": 584678507, "actual": 437809376, "rate": 0.7488}, {"plan": 500286250, "actual": 563426530, "rate": 1.1262}]}, {"proc": "최종검사", "data": [{"plan": 1079628723, "actual": 948561785, "rate": 0.8786}, {"plan": 663875022, "actual": 664370280, "rate": 1.0007}, {"plan": 1806001726, "actual": 826644880, "rate": 0.4577}]}];
+const NEGO=[{"loc": "사내", "type": "필수외주", "proc": "CNC", "name": "디아이", "total": 272818775, "m": [97121862, 85371958, 90324954, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"loc": "사내", "type": "필수외주", "proc": "PSR", "name": "월드시스템", "total": 542937431, "m": [254456692, 135768330, 152712409, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"loc": "사내", "type": "필수외주", "proc": "MARKING", "name": "KORNIC", "total": 23606340, "m": [9850980, 5533740, 8221620, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"loc": "사외", "type": "필수외주", "proc": "CNC", "name": "KV TECH VINA", "total": 39775034, "m": [15333305, 12130268, 12311461, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"loc": "사외", "type": "병행외주", "proc": "LASER DRILL", "name": "CSY TECH VINA", "total": 3792000, "m": [3792000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"loc": "사외", "type": "병행외주", "proc": "LASER DRILL", "name": "JDI VINA", "total": 129543137, "m": [98029957, 31513180, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"loc": "사외", "type": "병행외주", "proc": "LASER DRILL", "name": "HS VIỆT NAM", "total": 126833079, "m": [76650770, 30856282, 19326027, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"loc": "사외", "type": "병행외주", "proc": "플라스마", "name": "YT SOLUTION VINA", "total": 27072064, "m": [9637341, 10172908, 7261815, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"loc": "사외", "type": "병행외주", "proc": "BBT", "name": "CSY TECH VINA", "total": 48366880, "m": [24714960, 10966240, 12685680, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"loc": "사외", "type": "병행외주", "proc": "자동타발", "name": "DIC VINA", "total": 33028171, "m": [0, 15858615, 17169556, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"loc": "사외", "type": "병행외주", "proc": "수동타발", "name": "MVT VINA", "total": 40075746, "m": [16218902, 9974104, 13882740, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"loc": "사외", "type": "병행외주", "proc": "수동타발", "name": "IB ENG VINA", "total": 20162790, "m": [7794110, 5797160, 6571520, 0, 0, 0, 0, 0, 0, 0, 0, 0]}];
+
+const MONTHS_KO=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+const MONTHS_VI=['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
+const COLORS=['#1F3864','#2F5496','#1D9E75','#BA7517','#C00000','#534AB7','#D85A30','#0F6E56','#888','#EF9F27','#E91E63','#009688'];
+let LANG='ko';
+const ML=()=>LANG==='ko'?MONTHS_KO:MONTHS_VI;
+const t=k=>LANG==='ko'?k:({
+  '매출(VND)':'Doanh thu(VND)','외주비(VND)':'Chi phí GC(VND)',
+  '필수외주':'GC bắt buộc','병행외주':'GC song song',
+  '사내외주':'GC nội bộ','사외외주':'GC bên ngoài',
+  '누적합계':'Lũy kế','외주비 비율':'Tỷ lệ chi phí',
+  '계획':'Kế hoạch','실적':'Thực tế','달성율':'Tỷ lệ đạt',
+  '사내':'Nội bộ','사외':'Bên ngoài','전체':'Tất cả',
+}[k]||k);
+
+function setLang(lang){
+  LANG=lang;
+  document.getElementById('btn-ko').classList.toggle('active',lang==='ko');
+  document.getElementById('btn-vi').classList.toggle('active',lang==='vi');
+  document.querySelectorAll('[data-ko]').forEach(el=>{
+    const txt=lang==='ko'?el.dataset.ko:(el.dataset.vi||el.dataset.ko);
+    if(!txt)return;
+    if(el.childElementCount===0){el.textContent=txt;return;}
+    const tn=[...el.childNodes].filter(n=>n.nodeType===3&&n.textContent.trim());
+    if(tn.length)tn[tn.length-1].textContent=' '+txt;
+  });
+  document.querySelectorAll('select option[data-ko]').forEach(o=>{
+    o.textContent=lang==='ko'?o.dataset.ko:(o.dataset.vi||o.dataset.ko);
+  });
+  document.getElementById('h-title').textContent=lang==='ko'?'2026년 외주비 마감 내역 대시보드':'Bảng chi phí nhà thầu 2026';
+  document.getElementById('h-sub').textContent=lang==='ko'?'기준: 2026-03-31 | SYNOPEX VIETNAM | 단위: VND':'Chuẩn: 2026-03-31 | SYNOPEX VIETNAM | Đơn vị: VND';
+  buildAll();
+}
+function sw(i){
+  document.querySelectorAll('.synopex-tab').forEach((tb,j)=>tb.classList.toggle('on',j===i));
+  document.querySelectorAll('.synopex-pane').forEach((p,j)=>p.classList.toggle('on',j===i));
+}
+const N=v=>Math.round(v||0).toLocaleString();
+const NB=v=>{ // 억 단위
+  const a=Math.abs(v||0);
+  if(a>=1e9) return (v/1e9).toFixed(1)+'억';
+  if(a>=1e6) return (v/1e6).toFixed(0)+'백만';
+  return N(v);
+};
+const Nf=(v,d=1)=>(parseFloat(v)||0).toFixed(d);
+const rateColor=r=>r>=1?'#1D9E75':r>=0.8?'#BA7517':'#C00000';
+const rateBadge=r=>{
+  const p=(r*100).toFixed(1)+'%';
+  return r>=1?`<span class="badge b-ok">${p}</span>`:r>=0.8?`<span class="badge b-warn">${p}</span>`:`<span class="badge b-danger">${p}</span>`;
+};
+
+// 실적 있는 월 인덱스
+const activeIdx = SUMMARY.cost_vat0 ? SUMMARY.cost_vat0.map((v,i)=>v>0?i:-1).filter(i=>i>=0) : [0,1,2];
+
+let charts={};
+function dc(id){ if(charts[id]){charts[id].destroy();delete charts[id];} }
+
+/* ═══ TAB 0 종합현황 ═══ */
+function buildSummary(){
+  const s=SUMMARY;
+  const totalSales=( s.sales_vnd||[] ).reduce((a,b)=>a+b,0);
+  const totalCost =(s.cost_vat0 ||[]).reduce((a,b)=>a+b,0);
+  const avgRatio  =(s.cost_ratio||[]).filter(v=>v>0).reduce((a,b)=>a+b,0)/(s.cost_ratio||[]).filter(v=>v>0).length;
+  const totalNego =NEGO.reduce((s,n)=>s+n.total,0);
+
+  document.getElementById('k-sales').textContent=NB(totalSales);
+  document.getElementById('k-cost').textContent=NB(totalCost);
+  document.getElementById('k-ratio').textContent=(avgRatio*100).toFixed(2)+'%';
+  document.getElementById('k-nego').textContent=NB(totalNego);
+
+  // 요약 테이블
+  const rows=[
+    ['매출(VND)', s.sales_vnd||[]],
+    ['외주비(VND)', s.cost_vat0||[]],
+    ['필수외주', s.essential||[]],
+    ['병행외주', s.parallel||[]],
+  ];
+  let h='';
+  rows.forEach(([label,arr])=>{
+    const sum=arr.reduce((a,b)=>a+b,0);
+    h+=`<tr><td style="font-weight:600">${t(label)}</td>`;
+    arr.forEach((v,i)=>h+=`<td class="r" style="color:${v>0?'inherit':'#ccc'}">${v>0?NB(v):'-'}</td>`);
+    h+=`<td class="r" style="font-weight:700;color:#185FA5">${NB(sum)}</td></tr>`;
+  });
+  // 외주비 비율 행
+  h+='<tr style="background:#EBF0FF"><td style="font-weight:600">외주비 비율</td>';
+  (s.cost_ratio||[]).forEach(v=>h+=`<td class="c">${v>0?(v*100).toFixed(2)+'%':'-'}</td>`);
+  h+='<td class="c">-</td></tr>';
+  document.getElementById('summary-tbody').innerHTML=h;
+
+  // 메인 차트
+  const labels=activeIdx.map(i=>ML()[i]);
+  const salesData=activeIdx.map(i=>(s.sales_vnd||[])[i]||0);
+  const costData =activeIdx.map(i=>(s.cost_vat0||[])[i]||0);
+  dc('c-main');
+  charts['c-main']=new Chart(document.getElementById('c-main'),{type:'bar',
+    data:{labels,datasets:[
+      {label:t('매출(VND)'),data:salesData,backgroundColor:'#DEEAF1',borderColor:'#2F5496',borderWidth:1.5,borderRadius:3,yAxisID:'y'},
+      {label:t('외주비(VND)'),data:costData,backgroundColor:'#FCE4D6',borderColor:'#C00000',borderWidth:1.5,borderRadius:3,yAxisID:'y'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10}}}},
+      scales:{x:{ticks:{font:{size:11}},grid:{display:false}},y:{ticks:{font:{size:10},callback:v=>NB(v)},grid:{color:'rgba(0,0,0,.05)'}}}}});
+
+  // 도넛
+  const ess=(s.essential||[]).reduce((a,b)=>a+b,0);
+  const par=(s.parallel||[]).reduce((a,b)=>a+b,0);
+  dc('c-type');
+  charts['c-type']=new Chart(document.getElementById('c-type'),{type:'doughnut',
+    data:{labels:[t('필수외주'),t('병행외주')],datasets:[{data:[ess,par],backgroundColor:['#2F5496','#BA7517'],borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:10}},
+      tooltip:{callbacks:{label:v=>`${v.label}: ${NB(v.raw)} (${(v.raw/(ess+par)*100).toFixed(1)}%)`}}}}});
+}
+
+/* ═══ TAB 1 추이 ═══ */
+function buildTrend(){
+  const s=SUMMARY;
+  const labels=activeIdx.map(i=>ML()[i]);
+  dc('c-trend');
+  charts['c-trend']=new Chart(document.getElementById('c-trend'),{type:'line',
+    data:{labels,datasets:[
+      {label:t('외주비(VND)'),data:activeIdx.map(i=>(s.cost_vat0||[])[i]||0),borderColor:'#C00000',backgroundColor:'rgba(192,0,0,.08)',fill:true,tension:.3,pointRadius:4},
+      {label:t('필수외주'),data:activeIdx.map(i=>(s.essential||[])[i]||0),borderColor:'#2F5496',tension:.3,pointRadius:4,borderDash:[5,5]},
+      {label:t('병행외주'),data:activeIdx.map(i=>(s.parallel||[])[i]||0),borderColor:'#BA7517',tension:.3,pointRadius:4,borderDash:[5,5]},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10}}}},
+      scales:{x:{ticks:{font:{size:11}},grid:{display:false}},y:{ticks:{font:{size:10},callback:v=>NB(v)},grid:{color:'rgba(0,0,0,.05)'}}}}});
+
+  dc('c-ratio-trend');
+  charts['c-ratio-trend']=new Chart(document.getElementById('c-ratio-trend'),{type:'line',
+    data:{labels,datasets:[{label:'외주비 비율(%)',data:activeIdx.map(i=>((s.cost_ratio||[])[i]||0)*100),borderColor:'#534AB7',backgroundColor:'rgba(83,74,183,.08)',fill:true,tension:.3,pointRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10}}}},
+      scales:{x:{ticks:{font:{size:11}},grid:{display:false}},y:{ticks:{font:{size:10},callback:v=>v.toFixed(2)+'%'},grid:{color:'rgba(0,0,0,.05)'}}}}});
+
+  dc('c-ep-trend');
+  charts['c-ep-trend']=new Chart(document.getElementById('c-ep-trend'),{type:'bar',
+    data:{labels,datasets:[
+      {label:t('필수외주'),data:activeIdx.map(i=>(s.essential||[])[i]||0),backgroundColor:'#2F5496',borderRadius:3,stack:'s'},
+      {label:t('병행외주'),data:activeIdx.map(i=>(s.parallel||[])[i]||0),backgroundColor:'#BA7517',borderRadius:3,stack:'s'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10}}}},
+      scales:{x:{stacked:true,ticks:{font:{size:11}},grid:{display:false}},y:{stacked:true,ticks:{font:{size:10},callback:v=>NB(v)},grid:{color:'rgba(0,0,0,.05)'}}}}});
+}
+
+/* ═══ TAB 2 공정별 ═══ */
+function renderProcCost(){
+  const mi=parseInt(document.getElementById('f-month').value);
+  const entries=Object.entries(PROC_COST).map(([proc,arr])=>{
+    const val=mi===-1?arr.reduce((a,b)=>a+b,0):(arr[mi]||0);
+    return {proc,val,arr};
+  }).filter(e=>e.val>0).sort((a,b)=>b.val-a.val);
+
+  const total=entries.reduce((s,e)=>s+e.val,0);
+  const top=entries.slice(0,15);
+
+  dc('c-proc');
+  charts['c-proc']=new Chart(document.getElementById('c-proc'),{type:'bar',
+    data:{labels:top.map(e=>e.proc),datasets:[{data:top.map(e=>e.val),backgroundColor:top.map((_,i)=>COLORS[i%COLORS.length]),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>`${NB(v.raw)} (${(v.raw/total*100).toFixed(1)}%)`}}},
+      scales:{x:{ticks:{font:{size:9},callback:v=>NB(v)},grid:{color:'rgba(0,0,0,.05)'}},y:{ticks:{font:{size:10}},grid:{display:false}}}}});
+
+  dc('c-proc-pie');
+  charts['c-proc-pie']=new Chart(document.getElementById('c-proc-pie'),{type:'doughnut',
+    data:{labels:top.map(e=>e.proc),datasets:[{data:top.map(e=>e.val),backgroundColor:COLORS,borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:9},padding:6,boxWidth:10}}}}});
+
+  let h='';
+  entries.forEach(e=>{
+    h+=`<tr><td style="font-weight:500">${e.proc}</td>`;
+    for(let i=0;i<3;i++) h+=`<td class="r" style="color:${(e.arr[i]||0)>0?'inherit':'#ccc'}">${(e.arr[i]||0)>0?NB(e.arr[i]):'-'}</td>`;
+    const s=e.arr.reduce((a,b)=>a+b,0);
+    const pct=(total>0?s/total*100:0).toFixed(1);
+    h+=`<td class="r" style="color:#185FA5;font-weight:600">${NB(s)}</td>`;
+    h+=`<td class="c"><div class="bw"><div class="bb"><div class="bf" style="width:${pct}%;background:#2F5496"></div></div><span class="bp">${pct}%</span></div></td></tr>`;
+  });
+  if(entries.length){
+    h+=`<tr class="total-row"><td>TTL</td>`;
+    for(let i=0;i<3;i++) h+=`<td class="r">${NB(Object.values(PROC_COST).reduce((s,arr)=>s+(arr[i]||0),0))}</td>`;
+    h+=`<td class="r" style="color:#185FA5">${NB(total)}</td><td class="c">100%</td></tr>`;
+  }
+  document.getElementById('proc-tbody').innerHTML=h;
+}
+
+/* ═══ TAB 3 업체별 ═══ */
+function renderVendor(){
+  const ft=document.getElementById('f-vtype').value;
+  const fl=document.getElementById('f-vloc').value;
+  let data=VENDORS.filter(v=>(!ft||v.type===ft)&&(!fl||v.loc===fl)).sort((a,b)=>b.total-a.total);
+
+  const top10=data.slice(0,10);
+  dc('c-vendor');
+  charts['c-vendor']=new Chart(document.getElementById('c-vendor'),{type:'bar',
+    data:{labels:top10.map(v=>v.name.length>12?v.name.slice(0,12)+'…':v.name),datasets:[{data:top10.map(v=>v.total),backgroundColor:top10.map((_,i)=>COLORS[i%COLORS.length]),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>`${NB(v.raw)}`}}},
+      scales:{x:{ticks:{font:{size:9},callback:v=>NB(v)},grid:{color:'rgba(0,0,0,.05)'}},y:{ticks:{font:{size:9}},grid:{display:false}}}}});
+
+  const inTotal=VENDORS.filter(v=>v.loc==='사내').reduce((s,v)=>s+v.total,0);
+  const outTotal=VENDORS.filter(v=>v.loc==='사외').reduce((s,v)=>s+v.total,0);
+  dc('c-inout');
+  charts['c-inout']=new Chart(document.getElementById('c-inout'),{type:'doughnut',
+    data:{labels:[t('사내외주'),t('사외외주')],datasets:[{data:[inTotal,outTotal],backgroundColor:['#2F5496','#BA7517'],borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:10}}}}});
+
+  let h='';
+  data.forEach(v=>{
+    h+=`<tr>
+      <td class="c"><span class="badge ${v.type==='필수외주'?'b-info':'b-purple'}">${v.type}</span></td>
+      <td class="c"><span class="badge ${v.loc==='사내'?'b-ok':'b-warn'}">${v.loc}</span></td>
+      <td>${v.proc}</td>
+      <td style="font-weight:500">${v.name}</td>`;
+    for(let i=0;i<3;i++) h+=`<td class="r" style="color:${(v.m[i]||0)>0?'inherit':'#ccc'}">${(v.m[i]||0)>0?NB(v.m[i]):'-'}</td>`;
+    h+=`<td class="r" style="color:#185FA5;font-weight:600">${NB(v.total)}</td></tr>`;
+  });
+  document.getElementById('vendor-tbody').innerHTML=h||`<tr><td colspan="8" style="text-align:center;padding:20px;color:#aaa">-</td></tr>`;
+}
+
+/* ═══ TAB 4 계획대비 실적 ═══ */
+function buildAchieve(){
+  const labels=ACHIEVE.map(a=>a.proc);
+  for(let mi=0;mi<2;mi++){
+    dc(`c-ach${mi+1}`);
+    const rates=ACHIEVE.map(a=>a.data[mi]?.rate||0);
+    charts[`c-ach${mi+1}`]=new Chart(document.getElementById(`c-ach${mi+1}`),{type:'bar',
+      data:{labels,datasets:[{data:rates.map(r=>r*100),backgroundColor:rates.map(r=>r>=1?'#1D9E75':r>=0.8?'#BA7517':'#C00000'),borderRadius:3}]},
+      options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>`${v.raw.toFixed(1)}%`}},annotation:{annotations:{l100:{type:'line',xMin:100,xMax:100,borderColor:'#1F3864',borderWidth:1.5,borderDash:[5,5]}}}},
+        scales:{x:{min:0,ticks:{font:{size:9},callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.05)'}},y:{ticks:{font:{size:9}},grid:{display:false}}}}});
+  }
+  let h='';
+  ACHIEVE.forEach(a=>{
+    h+=`<tr><td style="font-weight:500">${a.proc}</td>`;
+    a.data.forEach(m=>{
+      h+=`<td class="r">${NB(m.plan)}</td>`;
+      h+=`<td class="r">${NB(m.actual)}</td>`;
+      h+=`<td class="c">${m.rate>0?rateBadge(m.rate):'-'}</td>`;
+    });
+    h+='</tr>';
+  });
+  document.getElementById('ach-tbody').innerHTML=h;
+}
+
+/* ═══ TAB 5 NEGO ═══ */
+function buildNego(){
+  const total=NEGO.reduce((s,n)=>s+n.total,0);
+  const cnt=NEGO.filter(n=>n.total>0).length;
+  document.getElementById('k-nego-total').textContent=NB(total);
+  document.getElementById('k-nego-cnt').textContent=`${cnt}개`;
+  // 평균 절감율 (외주비 대비)
+  const totalCost=( SUMMARY.cost_vat0||[]).reduce((a,b)=>a+b,0);
+  const rate=totalCost>0?total/totalCost:0;
+  document.getElementById('k-nego-rate').textContent=(rate*100).toFixed(2)+'%';
+
+  const sorted=NEGO.slice().sort((a,b)=>b.total-a.total);
+  dc('c-nego');
+  charts['c-nego']=new Chart(document.getElementById('c-nego'),{type:'bar',
+    data:{labels:sorted.map(n=>n.name.length>12?n.name.slice(0,12)+'…':n.name),datasets:[{data:sorted.map(n=>n.total),backgroundColor:'#1D9E75',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>`${NB(v.raw)}`}}},
+      scales:{x:{ticks:{font:{size:9},callback:v=>NB(v)},grid:{color:'rgba(0,0,0,.05)'}},y:{ticks:{font:{size:9}},grid:{display:false}}}}});
+
+  const activeLabels=activeIdx.map(i=>ML()[i]);
+  const negoMonth=activeIdx.map(i=>NEGO.reduce((s,n)=>s+(n.m[i]||0),0));
+  dc('c-nego-trend');
+  charts['c-nego-trend']=new Chart(document.getElementById('c-nego-trend'),{type:'bar',
+    data:{labels:activeLabels,datasets:[{data:negoMonth,backgroundColor:'#1D9E75',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{font:{size:11}},grid:{display:false}},y:{ticks:{font:{size:10},callback:v=>NB(v)},grid:{color:'rgba(0,0,0,.05)'}}}}});
+
+  let h='';
+  NEGO.forEach(n=>{
+    h+=`<tr>
+      <td class="c"><span class="badge ${n.loc==='사내'?'b-ok':'b-warn'}">${n.loc}</span></td>
+      <td class="c"><span class="badge ${n.type==='필수외주'?'b-info':'b-purple'}">${n.type}</span></td>
+      <td>${n.proc}</td>
+      <td style="font-weight:500">${n.name}</td>`;
+    for(let i=0;i<3;i++) h+=`<td class="r" style="color:${(n.m[i]||0)>0?'#1D9E75':'#ccc'}">${(n.m[i]||0)>0?NB(n.m[i]):'-'}</td>`;
+    h+=`<td class="r" style="color:#1D9E75;font-weight:700">${NB(n.total)}</td></tr>`;
+  });
+  document.getElementById('nego-tbody').innerHTML=h||`<tr><td colspan="8" style="text-align:center;padding:20px;color:#aaa">-</td></tr>`;
+}
+
+function buildAll(){
+  buildSummary();buildTrend();renderProcCost();renderVendor();buildAchieve();buildNego();
+}
+buildAll();
+
+</script></body></html>
