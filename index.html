@@ -4,42 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SYNOPEX VIETNAM — 생산관리 대시보드</title>
-
-<!-- 링크 공유 미리보기 (카카오톡, 메신저) -->
 <meta property="og:title" content="SYNOPEX VIETNAM 생산관리 대시보드">
-<meta property="og:description" content="2027년 생산운영계획 · 2026년 외주비 마감내역 | 한국어/베트남어 지원">
+<meta property="og:description" content="2027년 생산운영계획 · 외주비 마감 · 설비 가동율 | 한국어/베트남어 지원">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://min984719-byte.github.io/kimsungmin/">
 <meta property="og:site_name" content="SYNOPEX VIETNAM 생산관리 대시보드">
-<meta name="description" content="SYNOPEX VIETNAM 생산관리 대시보드 포털">
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:"맑은 고딕","Segoe UI",sans-serif;background:#f0f2f5;min-height:100vh}
-
-/* 헤더 */
 header{background:linear-gradient(135deg,#1F3864 0%,#2F5496 100%);color:#fff;padding:0 32px;height:68px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 3px 12px rgba(0,0,0,.35)}
 .logo-wrap{display:flex;align-items:center;gap:14px}
 .logo-icon{width:42px;height:42px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;border:1px solid rgba(255,255,255,.2)}
 .logo-text .main{font-size:16px;font-weight:700;letter-spacing:.01em}
 .logo-text .sub{font-size:10px;font-weight:400;opacity:.65;margin-top:2px}
 .clock-box{text-align:right;font-size:11px;opacity:.75;line-height:1.7}
-
-/* 메인 */
 main{max-width:980px;margin:0 auto;padding:32px 20px 40px}
-
-/* 환영 배너 */
 .banner{background:#fff;border-radius:14px;padding:28px 32px;margin-bottom:30px;display:flex;align-items:center;gap:22px;box-shadow:0 2px 12px rgba(0,0,0,.07);border:1px solid #e9ecef;border-left:5px solid #2F5496}
 .banner-emoji{font-size:44px;flex-shrink:0}
 .banner h2{font-size:17px;font-weight:700;color:#1F3864;margin-bottom:5px}
 .banner p{font-size:12px;color:#6c757d;line-height:1.85}
-
-/* 섹션 타이틀 */
 .sec{font-size:11.5px;font-weight:700;color:#495057;letter-spacing:.07em;text-transform:uppercase;margin-bottom:13px;padding-left:2px;display:flex;align-items:center;gap:7px}
 .sec::after{content:"";flex:1;height:1px;background:#dee2e6}
-
-/* 카드 그리드 */
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+/* 카드 공통 */
 .card{background:#fff;border-radius:12px;border:1px solid #e9ecef;padding:22px 22px 18px;text-decoration:none;color:#212529;display:flex;flex-direction:column;gap:11px;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.055);transition:all .22s}
 .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:12px 0 0 12px;transition:width .2s}
 .card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.12)}
@@ -47,7 +34,6 @@ main{max-width:980px;margin:0 auto;padding:32px 20px 40px}
 .card.c1::before{background:#2F5496}.card.c2::before{background:#BA7517}
 .card.c3::before{background:#C00000}.card.c4::before{background:#1D9E75}
 .card.c5::before{background:#534AB7}.card.c6::before{background:#D85A30}
-
 .ch{display:flex;align-items:center;gap:13px}
 .ci{width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:23px;flex-shrink:0}
 .ci1{background:#DEEAF1}.ci2{background:#FFF2CC}.ci3{background:#FCE4D6}
@@ -61,29 +47,18 @@ main{max-width:980px;margin:0 auto;padding:32px 20px 40px}
 .t5{background:#EDE7F6;color:#534AB7}.t6{background:#FDEBD0;color:#A04000}
 .arrow{font-size:17px;color:#ced4da;transition:all .2s}
 .card:hover .arrow{color:#2F5496;transform:translateX(4px)}
-
 /* 준비중 */
 .soon{opacity:.5;pointer-events:none;cursor:default}
 .soon-badge{position:absolute;top:11px;right:11px;background:#6c757d;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:.04em}
-
-/* 하단 정보 */
 .info-bar{background:#fff;border-radius:12px;border:1px solid #e9ecef;padding:15px 24px;display:flex;gap:28px;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,.055)}
 .ib{display:flex;flex-direction:column;gap:3px}
 .ib-l{font-size:9.5px;color:#adb5bd;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
 .ib-v{font-size:12.5px;font-weight:600;color:#343a40}
-
 footer{text-align:center;padding:24px;font-size:11px;color:#adb5bd;margin-top:4px}
-
-@media(max-width:640px){
-  .grid{grid-template-columns:1fr}
-  .banner{flex-direction:column;text-align:center;gap:14px}
-  .info-bar{gap:18px}
-  header{padding:0 18px}
-}
+@media(max-width:640px){.grid{grid-template-columns:1fr}.banner{flex-direction:column;text-align:center;gap:14px}.info-bar{gap:18px}header{padding:0 18px}}
 </style>
 </head>
 <body>
-
 <header>
   <div class="logo-wrap">
     <div class="logo-icon">🏭</div>
@@ -96,7 +71,6 @@ footer{text-align:center;padding:24px;font-size:11px;color:#adb5bd;margin-top:4p
 </header>
 
 <main>
-
   <div class="banner">
     <div class="banner-emoji">👋</div>
     <div>
@@ -166,21 +140,22 @@ footer{text-align:center;padding:24px;font-size:11px;color:#adb5bd;margin-top:4p
       </div>
     </a>
 
-    <div class="card c4 soon">
-      <div class="soon-badge">준비중</div>
+    <!-- ✅ 설비 가동율 — 활성화 -->
+    <a class="card c4" href="설비가동율 대시보드.html">
       <div class="ch">
         <div class="ci ci4">📈</div>
         <div class="ct">설비 가동율 대시보드<br><span style="font-size:11.5px;font-weight:500;color:#6c757d">Bảng theo dõi tỷ lệ hoạt động TB</span></div>
       </div>
       <div class="cd">
         공정별 설비 시간 가동율 현황<br>
-        엑셀 업로드 → 자동 차트 생성
+        엑셀 파일 업로드 → 자동 차트 생성<br>
+        🇰🇷 한국어 &nbsp;/&nbsp; 🇻🇳 베트남어 전환 지원
       </div>
       <div class="cf">
-        <span class="tag t4">준비중</span>
+        <span class="tag t4">Excel 업로드 연동</span>
         <span class="arrow">→</span>
       </div>
-    </div>
+    </a>
 
   </div>
 
@@ -229,7 +204,6 @@ footer{text-align:center;padding:24px;font-size:11px;color:#adb5bd;margin-top:4p
     <div class="ib"><span class="ib-l">담당</span><span class="ib-v">제조팀 &nbsp;/&nbsp; Phòng sản xuất</span></div>
     <div class="ib"><span class="ib-l">최종 업데이트</span><span class="ib-v" id="upd">-</span></div>
   </div>
-
 </main>
 
 <footer>
@@ -240,14 +214,12 @@ footer{text-align:center;padding:24px;font-size:11px;color:#adb5bd;margin-top:4p
 
 <script>
 function tick(){
-  const n=new Date();
+  var n=new Date();
   document.getElementById('clk').innerHTML=
     n.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'})+'<br>'+
     n.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 }
 tick(); setInterval(tick,1000);
-
-// 최종 업데이트 날짜
 document.getElementById('upd').textContent=
   new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
 </script>
