@@ -155,11 +155,15 @@ select:focus{border-color:var(--teal)}
   <div class="up-status idle" id="upStatus">
     💡 매월 파일만 교체하면 대시보드 자동 갱신
   </div>
-  <div style="display:flex;align-items:center;gap:10px;margin-left:auto">
-    <div id="savedInfo" style="display:none;font-size:10px;background:rgba(0,200,81,.08);border:1px solid rgba(0,200,81,.2);color:#00c851;padding:4px 12px;border-radius:6px"></div>
-    <button id="btnClear" onclick="clearSaved()" style="display:none;background:rgba(255,53,71,.08);border:1px solid rgba(255,53,71,.2);color:#ff3547;padding:4px 12px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit">↺ 초기화</button>
-    <div style="font-size:10px;color:var(--muted)">지원: <span style="color:var(--teal)">가동율 현황 엑셀 (.xlsx)</span></div>
-  </div>
+  <div style="font-size:10px;color:var(--muted);margin-left:auto">지원: <span style="color:var(--teal)">.xlsx</span></div>
+</div>
+<!-- 저장 정보 행 — 데이터 있을 때만 표시 -->
+<div id="savedRow" style="display:none;background:rgba(0,200,81,.05);border-bottom:1px solid rgba(0,200,81,.15);padding:8px 24px;align-items:center;gap:12px">
+  <span style="font-size:10px;font-weight:700;color:#00c851;letter-spacing:.08em;text-transform:uppercase">💾 저장된 데이터</span>
+  <div id="savedInfo" style="font-size:11px;color:var(--text)"></div>
+  <button onclick="clearSaved()" style="margin-left:auto;background:rgba(255,53,71,.1);border:1.5px solid rgba(255,53,71,.4);color:#ff3547;padding:7px 20px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.04em;transition:all .2s" onmouseover="this.style.background='rgba(255,53,71,.2)'" onmouseout="this.style.background='rgba(255,53,71,.1)'">
+    ↺ &nbsp;초기화 &nbsp;<span style="font-size:10px;font-weight:400;opacity:.7">(다음달 새 파일 업로드 전 클릭)</span>
+  </button>
 </div>
 
 <!-- 빈 상태 -->
@@ -258,11 +262,27 @@ select:focus{border-color:var(--teal)}
           <option value="proc">공정순</option>
         </select>
         <span id="fcnt" style="font-size:10px;color:var(--muted)"></span>
+        <span style="font-size:10px;color:var(--muted);margin-left:4px">· 행 클릭 시 월별 추이 표시</span>
       </div>
+
+      <!-- 선택 설비 월별 추이 패널 -->
+      <div id="equipPanel" style="display:none" class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="ct" style="margin-bottom:0"><span class="ct-pre">//</span><span id="equipPanelTitle">설비 월별 추이</span></div>
+          <button onclick="document.getElementById('equipPanel').style.display='none'"
+            style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:3px 10px;border-radius:4px;cursor:pointer;font-size:10px;font-family:inherit">✕ 닫기</button>
+        </div>
+        <div class="g2" style="gap:12px">
+          <div class="ch" style="height:220px"><canvas id="cEquipLine"></canvas></div>
+          <div class="ch" style="height:220px"><canvas id="cEquipBar"></canvas></div>
+        </div>
+        <div id="equipPanelStats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px"></div>
+      </div>
+
       <div class="card">
-        <div class="ct"><span class="ct-pre">//</span>설비 상세 목록</div>
+        <div class="ct"><span class="ct-pre">//</span>설비 상세 목록 <span style="font-size:9px;color:var(--muted);font-weight:400;margin-left:6px">클릭 → 월별 추이</span></div>
         <div class="tw sc"><table>
-          <thead><tr><th>NO</th><th>공정</th><th>세부공정</th><th>설비수</th><th>가동율</th><th>기준시간</th><th>실운행시간</th><th>계획비가동</th><th>운영유실</th><th>설비유실</th><th>생산면적</th><th>상태</th></tr></thead>
+          <thead><tr><th>NO</th><th>공정</th><th>세부공정</th><th>설비수</th><th>가동율</th><th>기준시간</th><th>실운행시간</th><th>계획비가동</th><th>운영유실</th><th>설비유실</th><th>생산면적</th><th>월별추이</th><th>상태</th></tr></thead>
           <tbody id="t3b"></tbody>
         </table></div>
       </div>
@@ -273,64 +293,57 @@ select:focus{border-color:var(--teal)}
 
 <script>
 // ── 전역 상태 ──
-var G = { summary:[], detail:[], trend:{}, period:'', overall:0 };
+var G = { summary:[], detail:[], trend:{}, equipTrend:{}, period:'', overall:0 };
 var CH = {};
 var TARGET = 60;
-var LS_KEY = 'synopex_oee_data';
+var LS_KEY = 'synopex_oee_v2';
 
-// ── localStorage 저장 ──
+// ── localStorage 저장/불러오기 ──
 function saveToLocal(fname){
   try{
-    var payload = JSON.stringify({
-      summary: G.summary, detail: G.detail, trend: G.trend,
-      period: G.period, overall: G.overall,
-      fname: fname, savedAt: new Date().toLocaleString('ko-KR')
-    });
-    localStorage.setItem(LS_KEY, payload);
-    showSavedInfo(fname, new Date().toLocaleString('ko-KR'));
-  }catch(e){ console.warn('localStorage 저장 실패:', e); }
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      summary:G.summary, detail:G.detail, trend:G.trend, equipTrend:G.equipTrend,
+      period:G.period, overall:G.overall, fname:fname,
+      savedAt: new Date().toLocaleString('ko-KR')
+    }));
+    showSavedBanner(fname, new Date().toLocaleString('ko-KR'));
+  }catch(e){}
 }
 
-// ── localStorage 불러오기 ──
 function loadFromLocal(){
   try{
     var raw = localStorage.getItem(LS_KEY);
     if(!raw) return false;
-    var data = JSON.parse(raw);
-    if(!data.summary || !data.summary.length) return false;
-    G.summary = data.summary; G.detail = data.detail;
-    G.trend   = data.trend;   G.period = data.period;
-    G.overall = data.overall;
-    showSavedInfo(data.fname, data.savedAt);
-    document.getElementById('dropText').textContent = '📄 ' + (data.fname||'이전 파일');
+    var v = JSON.parse(raw);
+    if(!v.summary || !v.summary.length) return false;
+    G.summary=v.summary; G.detail=v.detail; G.trend=v.trend; G.equipTrend=v.equipTrend||{};
+    G.period=v.period; G.overall=v.overall;
+    showSavedBanner(v.fname, v.savedAt);
+    document.getElementById('dropText').textContent = '📄 '+( v.fname||'이전 파일');
     document.getElementById('dropText').className = 'drop-text active';
-    setStatus('💾 저장된 데이터 불러옴 — ' + (data.fname||'') + ' (' + (data.savedAt||'') + ')', 'ok');
+    setStatus('💾 저장된 데이터 자동 복원 — '+(v.fname||'')+' ('+( v.savedAt||'')+')', 'ok');
     return true;
   }catch(e){ return false; }
 }
 
-// ── 저장 정보 표시 ──
-function showSavedInfo(fname, savedAt){
-  var el = document.getElementById('savedInfo');
-  var btn = document.getElementById('btnClear');
-  if(el){ el.style.display=''; el.textContent = '💾 ' + (fname||'') + ' · ' + (savedAt||''); }
-  if(btn){ btn.style.display=''; }
+function showSavedBanner(fname, savedAt){
+  var row = document.getElementById('savedRow');
+  var inf = document.getElementById('savedInfo');
+  if(row){ row.style.display='flex'; }
+  if(inf){ inf.innerHTML = '<b style="color:#00c851">'+( fname||'')+'</b> &nbsp;·&nbsp; 업로드: '+(savedAt||''); }
 }
 
-// ── 초기화 ──
 function clearSaved(){
-  if(!confirm('저장된 데이터를 삭제하고 초기화할까요?')) return;
+  if(!confirm('저장된 데이터를 초기화하고\n새 파일을 업로드하시겠습니까?')) return;
   localStorage.removeItem(LS_KEY);
-  G = { summary:[], detail:[], trend:{}, period:'', overall:0 };
-  CH = {};
+  G={summary:[],detail:[],trend:{},period:'',overall:0}; CH={};
   document.getElementById('emptyWrap').style.display='';
   document.getElementById('dashWrap').style.display='none';
   document.getElementById('dropText').textContent='설비 가동율 엑셀 파일 클릭 또는 드래그';
   document.getElementById('dropText').className='drop-text';
   document.getElementById('fileIn').value='';
-  document.getElementById('savedInfo').style.display='none';
-  document.getElementById('btnClear').style.display='none';
-  setStatus('💡 매월 파일만 교체하면 대시보드 자동 갱신', 'idle');
+  document.getElementById('savedRow').style.display='none';
+  setStatus('💡 매월 파일만 교체하면 대시보드 자동 갱신','idle');
 }
 
 // ── 유틸 ──
@@ -338,6 +351,94 @@ function gc(v){ return v>=TARGET?'#00c851':v>=40?'#ffbb00':'#ff3547'; }
 function N(v){ return Math.round(v||0).toLocaleString(); }
 function Nf(v,d){ return (parseFloat(v)||0).toFixed(d===undefined?1:d); }
 function sf(v){ try{ return isNaN(parseFloat(v))?0:parseFloat(v); }catch(e){ return 0; } }
+
+
+// ── 스파크라인 SVG 생성 ──
+function buildSparkline(arr, color){
+  if(!arr || !arr.length) return '<span style="color:var(--muted);font-size:10px">—</span>';
+  var valid = arr.filter(function(v){return v!==null&&v!==undefined;});
+  if(!valid.length) return '<span style="color:var(--muted);font-size:10px">—</span>';
+  var W=64, H=24, pad=2;
+  var max=Math.max.apply(null,valid), min=0;
+  var range=max-min||1;
+  var pts=[];
+  var xStep = (W-pad*2)/(arr.length-1||1);
+  arr.forEach(function(v,i){
+    if(v===null||v===undefined) return;
+    var x=pad+i*xStep;
+    var y=H-pad-(v-min)/range*(H-pad*2);
+    pts.push(x+','+y);
+  });
+  var path = pts.length>1 ? 'M'+pts.join('L') : '';
+  var last = valid[valid.length-1];
+  var dot = pts[pts.length-1];
+  var dx=dot?dot.split(',')[0]:0, dy=dot?dot.split(',')[1]:0;
+  return '<svg width="'+W+'" height="'+H+'" style="overflow:visible">'
+    +'<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+color+'" stroke-width="1.5" stroke-linejoin="round"/>'
+    +'<circle cx="'+dx+'" cy="'+dy+'" r="2.5" fill="'+color+'"/>'
+    +'</svg>';
+}
+
+// ── 선택 설비 추이 차트 ──
+function showEquipChart(d){
+  var key = d.proc+'_'+d.sub;
+  var mArr = G.equipTrend && G.equipTrend[key] ? G.equipTrend[key] : [];
+  var months = ['1월','2월','3월','4월'];
+  var c = gc(d.rate);
+  var panel = document.getElementById('equipPanel');
+  panel.style.display='block';
+  panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+  document.getElementById('equipPanelTitle').textContent
+    = '['+d.proc+'] '+d.sub+' — 월별 가동율 추이 (2026년)';
+
+  // 라인 차트
+  if(CH.cEL) CH.cEL.destroy();
+  CH.cEL = new Chart(document.getElementById('cEquipLine'),{
+    type:'line',
+    data:{labels:months, datasets:[
+      {label:'가동율(%)', data:mArr,
+       borderColor:c, backgroundColor:c.replace(')',', .1)').replace('rgb','rgba'),
+       fill:true, tension:.4, pointRadius:5, pointBackgroundColor:'#10141a',
+       pointBorderWidth:2, pointBorderColor:c, borderWidth:2},
+      {label:'목표(60%)', data:months.map(function(){return 60;}),
+       borderColor:'rgba(255,255,255,.2)', borderDash:[5,4], pointRadius:0, borderWidth:1}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,spanGaps:true,
+      plugins:{legend:{position:'top',labels:{color:'#7f8fa6',font:{size:10}}}},
+      scales:{x:{ticks:{color:'#7f8fa6'},grid:{color:'rgba(255,255,255,.04)'}},
+              y:{min:0,max:100,ticks:{color:'#7f8fa6',callback:function(v){return v+'%';}},
+                 grid:{color:'rgba(255,255,255,.04)'}}}}
+  });
+
+  // 바 차트
+  if(CH.cEB) CH.cEB.destroy();
+  CH.cEB = new Chart(document.getElementById('cEquipBar'),{
+    type:'bar',
+    data:{labels:months, datasets:[
+      {label:'가동율(%)', data:mArr,
+       backgroundColor:mArr.map(function(v){return v!==null?gc(v||0):'rgba(255,255,255,.1)';}),
+       borderRadius:5, borderSkipped:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},
+               tooltip:{callbacks:{label:function(v){return v.raw!==null?v.raw+'%':'데이터 없음';}}}},
+      scales:{x:{ticks:{color:'#7f8fa6'},grid:{display:false}},
+              y:{min:0,max:100,ticks:{color:'#7f8fa6',callback:function(v){return v+'%';}},
+                 grid:{color:'rgba(255,255,255,.04)'}}}}
+  });
+
+  // 하단 월별 수치 카드
+  var statsHtml='';
+  months.forEach(function(m,i){
+    var v = mArr[i];
+    var cv = v!==null&&v!==undefined ? gc(v) : '#7f8fa6';
+    statsHtml+='<div style="background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;text-align:center">'
+      +'<div style="font-size:10px;color:var(--muted);margin-bottom:4px">'+m+'</div>'
+      +'<div style="font-family:Orbitron,monospace;font-size:16px;font-weight:700;color:'+cv+'">'+(v!==null&&v!==undefined?v+'%':'—')+'</div>'
+      +'</div>';
+  });
+  document.getElementById('equipPanelStats').innerHTML=statsHtml;
+}
 
 // ── 탭 전환 ──
 function sw(i){
@@ -446,8 +547,9 @@ function parseWorkbook(wb, fname){
     }
   }
 
-  // 연간 추이 시트 파싱
+  // 연간 추이 시트 파싱 (공정별 + 설비별)
   var trend = {};
+  var equipTrend = {};  // 설비별 월별 추이
   var trendSheet = null;
   wb.SheetNames.forEach(function(sn){
     if(!trendSheet && sn.indexOf('2026')>=0) trendSheet = sn;
@@ -461,13 +563,19 @@ function parseWorkbook(wb, fname){
       var p2 = String(row2[2]).replace(/\n/g,' ').replace(/\s+/g,'').trim();
       var isStop2 = STOP.some(function(s){ return p2.indexOf(s)>=0; });
       if(isStop2) break;
-      if(row2[3]) continue; // 세부공정은 스킵 (소계만)
       var mVals = [];
       for(var mi=0; mi<4; mi++){
         var v = sf(row2[6+mi]);
         mVals.push(v>0 ? (v<=1?Math.round(v*1000)/10:Math.round(v*10)/10) : null);
       }
-      if(mVals.some(function(v){return v!==null;})) trend[p2] = mVals;
+      if(!mVals.some(function(v){return v!==null;})) continue;
+      if(!row2[3]){
+        trend[p2] = mVals; // 소계 → 공정 추이
+      } else {
+        var sub2 = String(row2[3]).trim();
+        var key = p2 + '_' + sub2;
+        equipTrend[key] = mVals; // 세부 → 설비 추이
+      }
     }
   }
 
@@ -485,9 +593,10 @@ function parseWorkbook(wb, fname){
   // 글로벌 저장
   G.summary = summary; G.detail = detail; G.trend = trend;
   G.period = period; G.overall = overall;
+  G.equipTrend = equipTrend;
 
   setStatus('✅ ' + summary.length + '개 공정 / ' + detail.length + '개 설비 로드 완료 — ' + fname, 'ok');
-  saveToLocal(fname);  // localStorage에 자동 저장
+  saveToLocal(fname);
   document.getElementById('dropText').textContent = '📄 ' + fname;
   document.getElementById('dropText').className = 'drop-text active';
 
@@ -692,7 +801,8 @@ function renderDetail(){
   list.forEach(function(d,i){
     var c  = gc(d.rate);
     var st = d.rate>=TARGET?'<span class="badge bok">정상</span>':d.rate>=40?'<span class="badge bwn">주의</span>':'<span class="badge brd">위험</span>';
-    h += '<tr><td class="c" style="color:var(--muted);font-size:10px">'+(i+1)+'</td>';
+    var dk = d.proc+'_'+d.sub;
+    h += '<tr style="cursor:pointer" onclick="showEquipChart('+JSON.stringify(d)+')" onmouseover="this.style.background=\'rgba(0,180,216,.06)\'" onmouseout="this.style.background=\'\'"><td class="c" style="color:var(--muted);font-size:10px">'+(i+1)+'</td>';
     h += '<td>'+d.proc+'</td><td style="font-weight:600">'+(d.sub||'-')+'</td>';
     h += '<td class="c" style="color:var(--muted)">'+d.cnt+'대</td>';
     h += '<td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:'+Math.min(d.rate,100)+'%;background:'+c+'"></div></div><span class="pval" style="color:'+c+'">'+Nf(d.rate)+'%</span></div></td>';
@@ -702,17 +812,18 @@ function renderDetail(){
     h += '<td class="r" style="color:var(--amber)">'+N(d.op_loss)+'</td>';
     h += '<td class="r" style="color:var(--red)">'+N(d.eq_loss+d.eq_fail)+'</td>';
     h += '<td class="r" style="color:var(--muted)">'+N(d.area)+'</td>';
+    // 스파크라인
+    var key = d.proc+'_'+d.sub;
+    var mArr = G.equipTrend && G.equipTrend[key] ? G.equipTrend[key] : [];
+    var spark = buildSparkline(mArr, c);
+    h += '<td class="c">'+spark+'</td>';
     h += '<td class="c">'+st+'</td></tr>';
   });
   document.getElementById('t3b').innerHTML = h || '<tr><td colspan="12" style="text-align:center;padding:20px;color:var(--muted)">해당 설비 없음</td></tr>';
 }
 
-// ── 페이지 로드 시 저장 데이터 자동 복원 ──
-(function(){
-  if(loadFromLocal()){
-    renderDashboard();
-  }
-})();
+// ── 자동 복원 ──
+(function(){ if(loadFromLocal()) renderDashboard(); })();
 </script>
 </body>
 </html>
