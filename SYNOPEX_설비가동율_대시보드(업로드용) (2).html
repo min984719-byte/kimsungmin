@@ -155,8 +155,10 @@ select:focus{border-color:var(--teal)}
   <div class="up-status idle" id="upStatus">
     💡 매월 파일만 교체하면 대시보드 자동 갱신
   </div>
-  <div style="margin-left:auto;font-size:10px;color:var(--muted)">
-    지원 형식: <span style="color:var(--teal)">가동율 현황 엑셀 (.xlsx)</span>
+  <div style="display:flex;align-items:center;gap:10px;margin-left:auto">
+    <div id="savedInfo" style="display:none;font-size:10px;background:rgba(0,200,81,.08);border:1px solid rgba(0,200,81,.2);color:#00c851;padding:4px 12px;border-radius:6px"></div>
+    <button id="btnClear" onclick="clearSaved()" style="display:none;background:rgba(255,53,71,.08);border:1px solid rgba(255,53,71,.2);color:#ff3547;padding:4px 12px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit">↺ 초기화</button>
+    <div style="font-size:10px;color:var(--muted)">지원: <span style="color:var(--teal)">가동율 현황 엑셀 (.xlsx)</span></div>
   </div>
 </div>
 
@@ -274,6 +276,62 @@ select:focus{border-color:var(--teal)}
 var G = { summary:[], detail:[], trend:{}, period:'', overall:0 };
 var CH = {};
 var TARGET = 60;
+var LS_KEY = 'synopex_oee_data';
+
+// ── localStorage 저장 ──
+function saveToLocal(fname){
+  try{
+    var payload = JSON.stringify({
+      summary: G.summary, detail: G.detail, trend: G.trend,
+      period: G.period, overall: G.overall,
+      fname: fname, savedAt: new Date().toLocaleString('ko-KR')
+    });
+    localStorage.setItem(LS_KEY, payload);
+    showSavedInfo(fname, new Date().toLocaleString('ko-KR'));
+  }catch(e){ console.warn('localStorage 저장 실패:', e); }
+}
+
+// ── localStorage 불러오기 ──
+function loadFromLocal(){
+  try{
+    var raw = localStorage.getItem(LS_KEY);
+    if(!raw) return false;
+    var data = JSON.parse(raw);
+    if(!data.summary || !data.summary.length) return false;
+    G.summary = data.summary; G.detail = data.detail;
+    G.trend   = data.trend;   G.period = data.period;
+    G.overall = data.overall;
+    showSavedInfo(data.fname, data.savedAt);
+    document.getElementById('dropText').textContent = '📄 ' + (data.fname||'이전 파일');
+    document.getElementById('dropText').className = 'drop-text active';
+    setStatus('💾 저장된 데이터 불러옴 — ' + (data.fname||'') + ' (' + (data.savedAt||'') + ')', 'ok');
+    return true;
+  }catch(e){ return false; }
+}
+
+// ── 저장 정보 표시 ──
+function showSavedInfo(fname, savedAt){
+  var el = document.getElementById('savedInfo');
+  var btn = document.getElementById('btnClear');
+  if(el){ el.style.display=''; el.textContent = '💾 ' + (fname||'') + ' · ' + (savedAt||''); }
+  if(btn){ btn.style.display=''; }
+}
+
+// ── 초기화 ──
+function clearSaved(){
+  if(!confirm('저장된 데이터를 삭제하고 초기화할까요?')) return;
+  localStorage.removeItem(LS_KEY);
+  G = { summary:[], detail:[], trend:{}, period:'', overall:0 };
+  CH = {};
+  document.getElementById('emptyWrap').style.display='';
+  document.getElementById('dashWrap').style.display='none';
+  document.getElementById('dropText').textContent='설비 가동율 엑셀 파일 클릭 또는 드래그';
+  document.getElementById('dropText').className='drop-text';
+  document.getElementById('fileIn').value='';
+  document.getElementById('savedInfo').style.display='none';
+  document.getElementById('btnClear').style.display='none';
+  setStatus('💡 매월 파일만 교체하면 대시보드 자동 갱신', 'idle');
+}
 
 // ── 유틸 ──
 function gc(v){ return v>=TARGET?'#00c851':v>=40?'#ffbb00':'#ff3547'; }
@@ -429,6 +487,7 @@ function parseWorkbook(wb, fname){
   G.period = period; G.overall = overall;
 
   setStatus('✅ ' + summary.length + '개 공정 / ' + detail.length + '개 설비 로드 완료 — ' + fname, 'ok');
+  saveToLocal(fname);  // localStorage에 자동 저장
   document.getElementById('dropText').textContent = '📄 ' + fname;
   document.getElementById('dropText').className = 'drop-text active';
 
@@ -647,6 +706,13 @@ function renderDetail(){
   });
   document.getElementById('t3b').innerHTML = h || '<tr><td colspan="12" style="text-align:center;padding:20px;color:var(--muted)">해당 설비 없음</td></tr>';
 }
+
+// ── 페이지 로드 시 저장 데이터 자동 복원 ──
+(function(){
+  if(loadFromLocal()){
+    renderDashboard();
+  }
+})();
 </script>
 </body>
 </html>
