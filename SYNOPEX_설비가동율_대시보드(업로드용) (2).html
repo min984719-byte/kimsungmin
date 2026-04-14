@@ -311,7 +311,9 @@ function curDB(){ return MODE==='day' ? DB.day : DB.month; }
 function sw(i){
   document.querySelectorAll('.ntab').forEach(function(t,j){t.classList.toggle('on',j===i);});
   document.querySelectorAll('.npane').forEach(function(p,j){p.classList.toggle('on',j===i);});
-  if(i===2) buildTrend();
+  if(i===1){ buildHeatmap(); }
+  if(i===2){ buildTrend(); }
+  if(i===3){ renderDetail(); }
 }
 
 // ════════════════════════════════
@@ -546,6 +548,11 @@ function renderAll(){
   // 탭 0으로 초기화
   document.querySelectorAll('.ntab').forEach(function(t,i){t.classList.toggle('on',i===0);});
   document.querySelectorAll('.npane').forEach(function(p,i){p.classList.toggle('on',i===0);});
+  // 히트맵/상세 캐시 리셋 (모드 전환 시 재빌드 보장)
+  document.getElementById('heatmap').innerHTML='';
+  document.getElementById('t1alert').innerHTML='';
+  document.getElementById('t3b').innerHTML='';
+  document.getElementById('equipPanel').style.display='none';
 }
 
 // ════════════════════════════════
