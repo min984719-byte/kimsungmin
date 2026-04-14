@@ -3,8 +3,7 @@ name: 설비 가동율 대시보드 자동 생성
 on:
   push:
     paths:
-      - 'data/*.xlsx'   # data 폴더에 엑셀 올라오면 자동 실행
-      - 'data/*.xls'
+      - 'data/**'
 
 permissions:
   contents: write
@@ -32,4 +31,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: '✅ 설비 가동율 대시보드 자동 업데이트'
-          file_pattern: '설비가동율 대시보드.html'
+          file_pattern: '설비가동율대시보드.html'
