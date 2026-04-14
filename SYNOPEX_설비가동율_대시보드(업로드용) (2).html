@@ -293,15 +293,19 @@ select:focus{border-color:var(--teal)}
 
 <script>
 // ── 전역 상태 ──
-var G = { summary:[], detail:[], trend:{}, equipTrend:{}, period:'', overall:0 };
+var G  = { summary:[], detail:[], trend:{}, equipTrend:{}, period:'', overall:0 };  // 월 누적
+var GD = { summary:[], detail:[], trend:{}, equipTrend:{}, period:'', overall:0 };  // 일 기준
+var VIEW_MODE = 'month'; // 'month' | 'day'
 var CH = {};
 var TARGET = 60;
-var LS_KEY = 'synopex_oee_v2';
+var LS_KEY_M = 'synopex_oee_month';
+var LS_KEY_D = 'synopex_oee_day';
 
 // ── localStorage 저장/불러오기 ──
 function saveToLocal(fname){
   try{
-    localStorage.setItem(LS_KEY, JSON.stringify({
+    var key = VIEW_MODE==='day' ? LS_KEY_D : LS_KEY_M;
+    localStorage.setItem(key, JSON.stringify({
       summary:G.summary, detail:G.detail, trend:G.trend, equipTrend:G.equipTrend,
       period:G.period, overall:G.overall, fname:fname,
       savedAt: new Date().toLocaleString('ko-KR')
@@ -335,8 +339,10 @@ function showSavedBanner(fname, savedAt){
 
 function clearSaved(){
   if(!confirm('저장된 데이터를 초기화하고\n새 파일을 업로드하시겠습니까?')) return;
-  localStorage.removeItem(LS_KEY);
-  G={summary:[],detail:[],trend:{},period:'',overall:0}; CH={};
+  localStorage.removeItem(LS_KEY_M); localStorage.removeItem(LS_KEY_D);
+  G={summary:[],detail:[],trend:{},equipTrend:{},period:'',overall:0};
+  GD={summary:[],detail:[],trend:{},equipTrend:{},period:'',overall:0};
+  CH={}; VIEW_MODE='month';
   document.getElementById('emptyWrap').style.display='';
   document.getElementById('dashWrap').style.display='none';
   document.getElementById('dropText').textContent='설비 가동율 엑셀 파일 클릭 또는 드래그';
@@ -352,6 +358,60 @@ function N(v){ return Math.round(v||0).toLocaleString(); }
 function Nf(v,d){ return (parseFloat(v)||0).toFixed(d===undefined?1:d); }
 function sf(v){ try{ return isNaN(parseFloat(v))?0:parseFloat(v); }catch(e){ return 0; } }
 
+
+
+// ── 뷰 전환 (월 누적 / 일 기준) ──
+function switchView(mode){
+  if(mode==='day' && (!GD.summary||!GD.summary.length)){
+    alert('일 기준 데이터가 없습니다.\n엑셀 파일을 다시 업로드해주세요.'); return;
+  }
+  if(mode==='month' && (!G.summary||!G.summary.length)){
+    alert('월 누적 데이터가 없습니다.\n엑셀 파일을 다시 업로드해주세요.'); return;
+  }
+  VIEW_MODE = mode;
+  // 토글 버튼 색상
+  document.getElementById('btnMonth').style.background = mode==='month'?'rgba(0,180,216,.9)':'transparent';
+  document.getElementById('btnMonth').style.color      = mode==='month'?'#fff':'rgba(255,255,255,.55)';
+  document.getElementById('btnDay').style.background   = mode==='day'?'rgba(255,187,0,.85)':'transparent';
+  document.getElementById('btnDay').style.color        = mode==='day'?'#10141a':'rgba(255,255,255,.55)';
+  // 활성 G 설정
+  var cur = mode==='day' ? GD : G;
+  // KPI 갱신
+  document.getElementById('h-avg').textContent    = cur.overall+'%';
+  document.getElementById('h-period').textContent = cur.period;
+  document.getElementById('h-tot').textContent    = cur.detail.length;
+  var wn=cur.summary.filter(function(s){return s.rate>=40&&s.rate<TARGET;}).length;
+  var cr=cur.summary.filter(function(s){return s.rate<40;}).length;
+  document.getElementById('h-warn').textContent = wn;
+  document.getElementById('h-crit').textContent = cr;
+  document.getElementById('hdr-sub').textContent =
+    'FPCB 설비 가동율 대시보드 | '+(mode==='day'?'일 기준: '+cur.period:'월 누적: '+cur.period);
+  // 대시보드 재렌더
+  CH = {};
+  // 임시로 G를 교체해서 buildTab0 재활용
+  var backup = {summary:G.summary,detail:G.detail,trend:G.trend,equipTrend:G.equipTrend,period:G.period,overall:G.overall};
+  if(mode==='day'){
+    G.summary=GD.summary; G.detail=GD.detail; G.trend=GD.trend;
+    G.equipTrend=GD.equipTrend; G.period=GD.period; G.overall=GD.overall;
+  }
+  buildTab0();
+  // 공정 필터 갱신
+  var fp=document.getElementById('fProc');
+  fp.innerHTML='<option value="">전체</option>';
+  var procs=[]; G.detail.forEach(function(d){if(procs.indexOf(d.proc)<0)procs.push(d.proc);});
+  procs.sort().forEach(function(p){fp.innerHTML+='<option value="'+p+'">'+p+'</option>';});
+  // 복원
+  if(mode==='day'){
+    G.summary=backup.summary; G.detail=backup.detail; G.trend=backup.trend;
+    G.equipTrend=backup.equipTrend; G.period=backup.period; G.overall=backup.overall;
+  }
+  // 탭 초기화
+  document.querySelectorAll('.dtab').forEach(function(t,i){t.classList.toggle('on',i===0);});
+  document.querySelectorAll('.dpane').forEach(function(p,i){p.classList.toggle('on',i===0);});
+  // 모드 표시
+  document.getElementById('nb-period').textContent = cur.period + (mode==='day'?' (일 기준)':' (월 누적)');
+  document.getElementById('hm-cnt').textContent    = cur.detail.length;
+}
 
 // ── 스파크라인 SVG 생성 ──
 function buildSparkline(arr, color){
@@ -485,29 +545,16 @@ function loadFile(file){
 
 // ── 엑셀 파싱 (SYNOPEX 형식) ──
 function parseWorkbook(wb, fname){
-  // 시트 탐색 — 월 누적 우선, 일별 제외
-  var sheetName = null;
-
-  // 1순위: 정확히 '월 누적' 포함 (가동율(일) 제외)
+  // ── 시트 탐색: 월 누적 + 일 기준 둘 다 찾기 ──
+  var sheetMonth = null, sheetDay = null;
   wb.SheetNames.forEach(function(sn){
-    if(!sheetName && sn.indexOf('월 누적')>=0) sheetName = sn;
+    if(!sheetMonth && sn.indexOf('월 누적')>=0)  sheetMonth = sn;
+    if(!sheetDay   && sn.indexOf('(일)')>=0)      sheetDay   = sn;
+    if(!sheetMonth && sn.indexOf('누적')>=0 && sn.indexOf('(일)')<0) sheetMonth=sn;
   });
-  // 2순위: '누적' 포함하고 '일' 포함하지 않는 시트
-  if(!sheetName){
-    wb.SheetNames.forEach(function(sn){
-      if(!sheetName && sn.indexOf('누적')>=0 && sn.indexOf('(일)')< 0) sheetName = sn;
-    });
-  }
-  // 3순위: '가동율' 포함하고 '일' 포함하지 않는 첫 번째 시트
-  if(!sheetName){
-    wb.SheetNames.forEach(function(sn){
-      if(!sheetName && sn.indexOf('가동율')>=0 && sn.indexOf('(일)')<0 && sn.indexOf('2026')<0) sheetName = sn;
-    });
-  }
-  // 최후: 첫 번째 시트
-  if(!sheetName) sheetName = wb.SheetNames[0];
-
-  console.log('📋 선택된 시트:', sheetName, '(전체:', wb.SheetNames.join(', ')+')');
+  if(!sheetMonth) sheetMonth = wb.SheetNames[0];
+  var sheetName = sheetMonth; // 기본은 월 누적
+  console.log('📋 월 누적:', sheetMonth, '/ 일 기준:', sheetDay);
 
   var ws = wb.Sheets[sheetName];
   var rows = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
@@ -630,9 +677,14 @@ function renderDashboard(){
   document.getElementById('nb-period').textContent = G.period;
   document.getElementById('hm-cnt').textContent = G.detail.length;
 
-  var ok   = G.summary.filter(function(s){return s.rate>=TARGET;}).length;
-  var warn = G.summary.filter(function(s){return s.rate>=40&&s.rate<TARGET;}).length;
-  var crit = G.summary.filter(function(s){return s.rate<40;}).length;
+  var cur  = VIEW_MODE==='day' ? GD : G;
+  document.getElementById('h-avg').textContent    = cur.overall+'%';
+  document.getElementById('h-period').textContent = cur.period;
+  document.getElementById('hm-cnt').textContent   = cur.detail.length;
+  document.getElementById('h-tot').textContent    = cur.detail.length;
+  var ok   = cur.summary.filter(function(s){return s.rate>=TARGET;}).length;
+  var warn = cur.summary.filter(function(s){return s.rate>=40&&s.rate<TARGET;}).length;
+  var crit = cur.summary.filter(function(s){return s.rate<40;}).length;
 
   document.getElementById('h-tot').textContent  = G.detail.length;
   document.getElementById('h-warn').textContent = warn;
@@ -837,7 +889,18 @@ function renderDetail(){
 }
 
 // ── 자동 복원 ──
-(function(){ if(loadFromLocal()) renderDashboard(); })();
+(function(){
+  var mOk = loadSheetFromLocal(LS_KEY_M, G);
+  var dOk = loadSheetFromLocal(LS_KEY_D, GD);
+  if(mOk){
+    var mData = null;
+    try{ mData=JSON.parse(localStorage.getItem(LS_KEY_M)); }catch(e){}
+    if(mData){ showSavedBanner(mData.fname, mData.savedAt);
+      document.getElementById('dropText').textContent='📄 '+(mData.fname||'이전 파일');
+      document.getElementById('dropText').className='drop-text active'; }
+    VIEW_MODE='month'; renderDashboard();
+  }
+})();
 </script>
 </body>
 </html>
