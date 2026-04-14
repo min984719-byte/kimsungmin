@@ -485,15 +485,29 @@ function loadFile(file){
 
 // ── 엑셀 파싱 (SYNOPEX 형식) ──
 function parseWorkbook(wb, fname){
-  // 시트 탐색: "가동율(월 누적기준)" 또는 유사 시트 찾기
+  // 시트 탐색 — 월 누적 우선, 일별 제외
   var sheetName = null;
-  var CANDIDATES = ['가동율(월 누적기준)', '월 누적', '누적', '가동율'];
+
+  // 1순위: 정확히 '월 누적' 포함 (가동율(일) 제외)
   wb.SheetNames.forEach(function(sn){
-    if(!sheetName){
-      CANDIDATES.forEach(function(c){ if(!sheetName && sn.indexOf(c)>=0) sheetName = sn; });
-    }
+    if(!sheetName && sn.indexOf('월 누적')>=0) sheetName = sn;
   });
-  if(!sheetName) sheetName = wb.SheetNames[0]; // 없으면 첫 시트
+  // 2순위: '누적' 포함하고 '일' 포함하지 않는 시트
+  if(!sheetName){
+    wb.SheetNames.forEach(function(sn){
+      if(!sheetName && sn.indexOf('누적')>=0 && sn.indexOf('(일)')< 0) sheetName = sn;
+    });
+  }
+  // 3순위: '가동율' 포함하고 '일' 포함하지 않는 첫 번째 시트
+  if(!sheetName){
+    wb.SheetNames.forEach(function(sn){
+      if(!sheetName && sn.indexOf('가동율')>=0 && sn.indexOf('(일)')<0 && sn.indexOf('2026')<0) sheetName = sn;
+    });
+  }
+  // 최후: 첫 번째 시트
+  if(!sheetName) sheetName = wb.SheetNames[0];
+
+  console.log('📋 선택된 시트:', sheetName, '(전체:', wb.SheetNames.join(', ')+')');
 
   var ws = wb.Sheets[sheetName];
   var rows = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
@@ -595,7 +609,7 @@ function parseWorkbook(wb, fname){
   G.period = period; G.overall = overall;
   G.equipTrend = equipTrend;
 
-  setStatus('✅ ' + summary.length + '개 공정 / ' + detail.length + '개 설비 로드 완료 — ' + fname, 'ok');
+  setStatus('✅ ' + summary.length + '개 공정 / ' + detail.length + '개 설비 로드 완료 — ' + fname + '  [시트: ' + sheetName + ']', 'ok');
   saveToLocal(fname);
   document.getElementById('dropText').textContent = '📄 ' + fname;
   document.getElementById('dropText').className = 'drop-text active';
