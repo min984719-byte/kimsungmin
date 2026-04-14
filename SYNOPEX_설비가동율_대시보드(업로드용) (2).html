@@ -294,10 +294,10 @@ var TREND = { month: {}, day: {} };       // 공정별 추이
 var EQUIP_TREND = {};                      // 설비별 추이 (2026년 시트)
 var CH    = {};                            // Chart 인스턴스
 var TARGET = 60;
-var LS_M  = 'syn_oee_month';
-var LS_D  = 'syn_oee_day';
-var LS_ET = 'syn_oee_etrend';
-var LS_TR = 'syn_oee_trend';
+var LS_M  = 'syn_oee_month_v2';  // v2: 동적파싱 적용
+var LS_D  = 'syn_oee_day_v2';
+var LS_ET = 'syn_oee_etrend_v2';
+var LS_TR = 'syn_oee_trend_v2';
 
 function gc(v){ return v>=TARGET?'#00c851':v>=40?'#ffbb00':'#ff3547'; }
 function N(v) { return Math.round(v||0).toLocaleString(); }
@@ -474,33 +474,69 @@ function parseAll(wb, fname){
 }
 
 // ────────────────────────────────
-//  시트 → 데이터 변환
+//  시트 → 데이터 변환 (동적 행 탐색)
 // ────────────────────────────────
 function parseSheet(ws){
-  var rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
-  var STOP = ['FPCB','합계','합 계','계획 비가동','Trouble'];
-  var period  = rows[4]&&rows[4][2] ? String(rows[4][2]).trim() : '';
-  var orRaw   = sf(rows[4]&&rows[4][8]);
-  var overall = orRaw>0 ? (orRaw<=1?Math.round(orRaw*1000)/10:Math.round(orRaw*10)/10) : 0;
-  var summary=[], detail=[];
+  // XLSX.js 는 완전히 빈 행을 건너뜀 → 고정 인덱스 사용 불가
+  // 시트 원본 범위에서 직접 셀 값을 읽어 정확한 행 탐색
+  var range = XLSX.utils.decode_range(ws['!ref']||'A1');
+  var STOP  = ['FPCB설비','합계','합 계','계획비가동','Trouble','비가동현황'];
 
-  for(var ri=9; ri<rows.length; ri++){
-    var row=rows[ri];
-    if(!row[2]) continue;
-    var proc=String(row[2]).replace(/\n/g,' ').replace(/\s+/g,'').trim();
-    if(!proc) continue;
+  var period  = '';
+  var overall = 0;
+  var summary = [], detail = [];
+  var dataStarted = false;  // '공장명' 헤더 행 이후부터 데이터
+
+  for(var R = range.s.r; R <= range.e.r; R++){
+    // 셀을 직접 읽는 헬퍼
+    function cell(C){
+      var addr = XLSX.utils.encode_cell({r:R,c:C});
+      var c = ws[addr];
+      if(!c || c.v===undefined || c.v===null) return '';
+      return c.v;
+    }
+
+    var c2 = String(cell(2)||'').replace(/\n/g,' ').trim();
+    var c3 = String(cell(3)||'').trim();
+
+    // 기간/가동율 행 탐색: C열이 날짜 패턴 (예: '4/1~4/12' 또는 '4/12')
+    if(!period && /^\d/.test(c2) && !dataStarted){
+      period  = c2;
+      var rr  = parseFloat(cell(9))||0;   // J열 = 평균가동율
+      overall = rr>0?(rr<=1?Math.round(rr*1000)/10:Math.round(rr*10)/10):0;
+      continue;
+    }
+
+    // 데이터 시작 마커: C열 = '공장명'
+    if(c2==='공장명'){ dataStarted=true; continue; }
+    if(!dataStarted) continue;
+
+    // 데이터 종료 조건
+    if(!c2) continue;
+    var proc = c2.replace(/\s+/g,'');
     if(STOP.some(function(s){return proc.indexOf(s)>=0;})) break;
-    var sub = row[3]?String(row[3]).trim():null;
-    var rr  = sf(row[8]);
-    var rate= rr>0?(rr<=1?Math.round(rr*1000)/10:Math.round(rr*10)/10):0;
-    var item={proc:proc, sub:sub, cnt:parseInt(sf(row[4]))||0,
-      area:Math.round(sf(row[5])*10)/10, base:Math.round(sf(row[6])),
-      run:Math.round(sf(row[7])), rate:rate,
-      plan_down:Math.round(sf(row[9])), op_loss:Math.round(sf(row[10])),
-      eq_loss:Math.round(sf(row[11])), eq_fail:Math.round(sf(row[12]))};
-    if(sub===null||sub==='') summary.push(item); else detail.push(item);
+
+    var sub  = c3 || null;
+    var cnt  = parseInt(sf(cell(4)))||0;
+    var area = Math.round(sf(cell(5))*10)/10;
+    var base = Math.round(sf(cell(6)));
+    var run  = Math.round(sf(cell(7)));
+    var rr2  = sf(cell(8));
+    var rate = rr2>0?(rr2<=1?Math.round(rr2*1000)/10:Math.round(rr2*10)/10):0;
+    var pd   = Math.round(sf(cell(9)));
+    var ol   = Math.round(sf(cell(10)));
+    var el   = Math.round(sf(cell(11)));
+    var ef   = Math.round(sf(cell(12)));
+
+    var item = {proc:proc, sub:sub, cnt:cnt, area:area,
+                base:base, run:run, rate:rate,
+                plan_down:pd, op_loss:ol, eq_loss:el, eq_fail:ef};
+
+    if(!sub) summary.push(item); else detail.push(item);
   }
-  if(overall===0&&summary.length){
+
+  // overall 보정
+  if(overall===0 && summary.length){
     var vv=summary.filter(function(s){return s.rate>0;});
     overall=vv.length?Math.round(vv.reduce(function(a,b){return a+b.rate;},0)/vv.length*10)/10:0;
   }
@@ -508,24 +544,32 @@ function parseSheet(ws){
 }
 
 // ────────────────────────────────
-//  2026년 추이 파싱
+//  2026년 추이 파싱 (동적 행 탐색)
 // ────────────────────────────────
 function parseTrend(ws){
-  var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-  var STOP=['FPCB','합계','합 계'];
+  var range = XLSX.utils.decode_range(ws['!ref']||'A1');
+  var STOP  = ['FPCB설비','합계','합 계','비가동현황'];
   TREND={month:{},day:{}};
   EQUIP_TREND={};
-  for(var ri=9;ri<rows.length;ri++){
-    var row=rows[ri];
-    if(!row[2]) continue;
-    var proc=String(row[2]).replace(/\n/g,' ').replace(/\s+/g,'').trim();
-    if(!proc) continue;
+  var dataStarted=false;
+
+  for(var R=range.s.r; R<=range.e.r; R++){
+    function tcell(C){
+      var addr=XLSX.utils.encode_cell({r:R,c:C});
+      var c=ws[addr];
+      return (!c||c.v===undefined||c.v===null)?'':c.v;
+    }
+    var c2=String(tcell(2)||'').replace(/\n/g,' ').trim();
+    if(c2==='공장명'){dataStarted=true;continue;}
+    if(!dataStarted) continue;
+    if(!c2) continue;
+    var proc=c2.replace(/\s+/g,'');
     if(STOP.some(function(s){return proc.indexOf(s)>=0;})) break;
-    var sub=row[3]?String(row[3]).trim():null;
+    var sub=String(tcell(3)||'').trim()||null;
     var vals=[];
     for(var mi=0;mi<4;mi++){
-      var v=sf(row[6+mi]);
-      vals.push(v>0?(v<=1?Math.round(v*1000)/10:Math.round(v*10)/10):null);
+      var vv=parseFloat(tcell(6+mi))||0;
+      vals.push(vv>0?(vv<=1?Math.round(vv*1000)/10:Math.round(vv*10)/10):null);
     }
     if(!vals.some(function(v){return v!==null;})) continue;
     if(!sub){
