@@ -1,34 +1,56 @@
 name: 설비 가동율 대시보드 자동 생성
-
+ 
 on:
   push:
+    branches: [ main ]
     paths:
       - 'data/**'
-
+  workflow_dispatch:   # 수동 실행 버튼 추가
+ 
 permissions:
   contents: write
-
+ 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: 저장소 체크아웃
+      - name: 체크아웃
         uses: actions/checkout@v4
-
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+ 
       - name: Python 설치
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: 필요 패키지 설치
+ 
+      - name: 패키지 설치
         run: pip install openpyxl
-
-      - name: 대시보드 HTML 자동 생성
+ 
+      - name: 파일 목록 확인 (디버그)
+        run: |
+          echo "=== 루트 파일 ==="
+          ls -la
+          echo "=== data 폴더 ==="
+          ls -la data/ || echo "data 폴더 없음"
+          echo "=== template.html 확인 ==="
+          ls -la template.html || echo "template.html 없음"
+ 
+      - name: 대시보드 생성
         run: python generate.py
-
-      - name: 생성된 HTML 자동 커밋
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: '✅ 설비 가동율 대시보드 자동 업데이트'
-          file_pattern: '설비가동율대시보드.html'
+ 
+      - name: 결과 확인
+        run: |
+          echo "=== 생성된 파일 ==="
+          ls -la 설비가동율대시보드.html || echo "생성 실패"
+ 
+      - name: Git 설정
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+ 
+      - name: 변경사항 커밋 & 푸시
+        run: |
+          git add 설비가동율대시보드.html
+          git diff --cached --quiet || git commit -m "✅ 설비 가동율 대시보드 자동 업데이트"
+          git push
