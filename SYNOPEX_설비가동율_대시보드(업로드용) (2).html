@@ -320,17 +320,60 @@ function sw(i){
 //  모드 전환 (월 누적 ↔ 일 기준)
 // ════════════════════════════════
 function setMode(m){
-  if(m==='day' && !DB.day){ alert('일 기준 데이터가 없습니다.\n파일을 다시 업로드해주세요.'); return; }
+  if(m==='day'   && !DB.day)  { alert('일 기준 데이터가 없습니다.\n파일을 다시 업로드해주세요.'); return; }
   if(m==='month' && !DB.month){ alert('월 누적 데이터가 없습니다.\n파일을 다시 업로드해주세요.'); return; }
   MODE = m;
-  // 버튼 스타일
+
+  // 토글 버튼 스타일
   document.getElementById('btnMonth').classList.toggle('on', m==='month');
   document.getElementById('btnDay').classList.toggle('on', m==='day');
-  // 차트 초기화
+
+  // 차트 인스턴스 초기화
   CH = {};
   document.getElementById('equipPanel').style.display='none';
-  // 렌더
-  renderAll();
+
+  // 헤더 KPI 갱신
+  var db = curDB();
+  document.getElementById('h-avg').textContent    = db.overall+'%';
+  document.getElementById('h-period').textContent = db.period;
+  document.getElementById('h-tot').textContent    = db.detail.length;
+  var wn=db.summary.filter(function(s){return s.rate>=40&&s.rate<TARGET;}).length;
+  var cr=db.summary.filter(function(s){return s.rate<40;}).length;
+  document.getElementById('h-warn').textContent = wn;
+  document.getElementById('h-crit').textContent = cr;
+  document.getElementById('hdr-sub').textContent =
+    'FPCB 설비 가동율 대시보드 | '+(m==='day'?'일 기준: ':'월 누적: ')+db.period;
+  document.getElementById('nb-period').textContent = db.period;
+  document.getElementById('nb-mode').textContent   = m==='day'?'일 기준':'월 누적';
+  document.getElementById('hm-cnt').textContent    = db.detail.length;
+  document.getElementById('k-avg').textContent     = db.overall+'%';
+  document.getElementById('k-period').textContent  = '기간: '+db.period;
+  document.getElementById('k-ok').textContent      = db.summary.filter(function(s){return s.rate>=TARGET;}).length+'개';
+  document.getElementById('k-warn').textContent    = wn+'개';
+  document.getElementById('k-crit').textContent    = cr+'개';
+
+  // 모드 라벨 갱신
+  var lbl=m==='day'?'일 기준':'월 누적';
+  var lblCls=m==='day'?'day':'month';
+  ['mode-label-0','mode-label-1','mode-label-3'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.textContent=lbl; el.className='mode-label '+lblCls;}
+  });
+
+  // 공정 필터 갱신
+  var fp=document.getElementById('fProc');
+  fp.innerHTML='<option value="">전체</option>';
+  var procs=[]; db.detail.forEach(function(d){if(procs.indexOf(d.proc)<0)procs.push(d.proc);});
+  procs.sort().forEach(function(p){fp.innerHTML+='<option value="'+p+'">'+p+'</option>';});
+
+  // ★ 현재 활성 탭만 재렌더 (탭 위치 유지)
+  var activeTab = 0;
+  document.querySelectorAll('.ntab').forEach(function(t,i){ if(t.classList.contains('on')) activeTab=i; });
+
+  if(activeTab===0) buildTab0();
+  if(activeTab===1) buildHeatmap();
+  if(activeTab===2) buildTrend();
+  if(activeTab===3) renderDetail();
 }
 
 // ════════════════════════════════
