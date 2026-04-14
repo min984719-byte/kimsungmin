@@ -1,0 +1,35 @@
+name: 설비 가동율 대시보드 자동 생성
+
+on:
+  push:
+    paths:
+      - 'data/*.xlsx'   # data 폴더에 엑셀 올라오면 자동 실행
+      - 'data/*.xls'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 필요 패키지 설치
+        run: pip install openpyxl
+
+      - name: 대시보드 HTML 자동 생성
+        run: python generate.py
+
+      - name: 생성된 HTML 자동 커밋
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: '✅ 설비 가동율 대시보드 자동 업데이트'
+          file_pattern: '설비가동율 대시보드.html'
