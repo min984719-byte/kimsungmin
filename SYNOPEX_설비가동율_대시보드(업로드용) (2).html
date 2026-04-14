@@ -7,206 +7,201 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
-:root{--bg:#10141a;--card:#181d25;--card2:#1e2530;--border:#252d3a;--teal:#00b4d8;--green:#00c851;--amber:#ffbb00;--red:#ff3547;--text:#ecf0f1;--muted:#7f8fa6}
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+:root{--bg:#10141a;--card:#181d25;--card2:#1e2530;--bor:#252d3a;--teal:#00b4d8;--green:#00c851;--amber:#ffbb00;--red:#ff3547;--text:#ecf0f1;--muted:#7f8fa6}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-/* 헤더 */
-header{background:var(--card);border-bottom:1px solid var(--border);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:0 2px 10px rgba(0,0,0,.4)}
-.lt{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;color:var(--teal);letter-spacing:3px}
-.ls{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:.06em}
-.hkpis{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
-.hkpi{padding:6px 16px;text-align:center;border-right:1px solid var(--border)}
+/* ── 헤더 ── */
+header{background:var(--card);border-bottom:1px solid var(--bor);padding:0 22px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:0 2px 10px rgba(0,0,0,.4)}
+.logo-t{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--teal);letter-spacing:3px}
+.logo-s{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:.06em}
+.hkpis{display:flex;border:1px solid var(--bor);border-radius:6px;overflow:hidden}
+.hkpi{padding:5px 14px;text-align:center;border-right:1px solid var(--bor)}
 .hkpi:last-child{border-right:none}
-.hv{font-family:'Orbitron',monospace;font-size:15px;font-weight:700}
+.hv{font-family:'Orbitron',monospace;font-size:14px;font-weight:700}
 .hl{font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:1px}
 .pulse{animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* 업로드 바 */
-.upload-bar{background:var(--card2);border-bottom:2px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:sticky;top:58px;z-index:200}
-.drop-zone{display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px dashed var(--border);border-radius:8px;padding:8px 18px;cursor:pointer;transition:all .2s;user-select:none}
-.drop-zone:hover,.drop-zone.drag{border-color:var(--teal);background:rgba(0,180,216,.06);box-shadow:0 0 0 3px rgba(0,180,216,.12)}
+/* ── 모드 토글 ── */
+.mode-toggle{display:flex;background:rgba(255,255,255,.06);border:1px solid var(--bor);border-radius:22px;padding:3px;gap:3px}
+.mode-btn{padding:5px 16px;border-radius:18px;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.04em;transition:all .22s;background:transparent;color:rgba(255,255,255,.45)}
+.mode-btn.month.on{background:var(--teal);color:#fff;box-shadow:0 0 10px rgba(0,180,216,.4)}
+.mode-btn.day.on{background:var(--amber);color:#10141a;box-shadow:0 0 10px rgba(255,187,0,.4)}
+.mode-btn:hover:not(.on){color:rgba(255,255,255,.8)}
+
+/* ── 업로드 바 ── */
+.upbar{background:var(--card2);border-bottom:2px solid var(--bor);padding:9px 22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.drop-zone{display:flex;align-items:center;gap:9px;background:var(--card);border:1.5px dashed var(--bor);border-radius:8px;padding:7px 16px;cursor:pointer;transition:all .2s;flex-shrink:0}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--teal);background:rgba(0,180,216,.05)}
 .drop-zone input{display:none}
-.drop-icon{font-size:20px}
-.drop-text{font-size:11.5px;color:var(--muted)}
-.drop-text.active{color:var(--teal);font-weight:600}
-.up-status{font-size:11px;display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:6px;border:1px solid}
-.up-status.idle{color:var(--muted);border-color:var(--border);background:transparent}
-.up-status.loading{color:var(--amber);border-color:rgba(255,187,0,.3);background:rgba(255,187,0,.06)}
-.up-status.ok{color:var(--green);border-color:rgba(0,200,81,.3);background:rgba(0,200,81,.06)}
-.up-status.err{color:var(--red);border-color:rgba(255,53,71,.3);background:rgba(255,53,71,.06)}
+.dz-text{font-size:11.5px;color:var(--muted);transition:color .2s}
+.dz-text.active{color:var(--teal);font-weight:600}
+.upstatus{font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid;flex-shrink:0}
+.upstatus.idle{color:var(--muted);border-color:var(--bor);background:transparent}
+.upstatus.loading{color:var(--amber);border-color:rgba(255,187,0,.3);background:rgba(255,187,0,.05)}
+.upstatus.ok{color:var(--green);border-color:rgba(0,200,81,.3);background:rgba(0,200,81,.05)}
+.upstatus.err{color:var(--red);border-color:rgba(255,53,71,.3);background:rgba(255,53,71,.05)}
 .spin{display:inline-block;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.saved-row{display:none;width:100%;align-items:center;gap:10px;padding-top:7px;margin-top:5px;border-top:1px solid rgba(0,200,81,.15)}
+.saved-row.on{display:flex}
+.clear-btn{margin-left:auto;background:rgba(255,53,71,.08);border:1.5px solid rgba(255,53,71,.3);color:var(--red);padding:6px 18px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.clear-btn:hover{background:rgba(255,53,71,.18)}
 
-/* 빈 화면 */
-#emptyWrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 116px)}
-.empty{text-align:center;opacity:.8}
-.empty-icon{font-size:64px;margin-bottom:16px}
-.empty-title{font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:var(--teal);letter-spacing:3px;margin-bottom:8px}
-.empty-desc{font-size:12px;color:var(--muted);line-height:1.9;margin-bottom:24px}
-.empty-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 28px;max-width:440px;margin:0 auto;text-align:left}
-.estep{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start}
+/* ── 빈 화면 ── */
+#emptyWrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 130px)}
+.empty{text-align:center;max-width:460px;padding:20px}
+.empty-icon{font-size:60px;margin-bottom:14px}
+.empty-title{font-family:'Orbitron',monospace;font-size:16px;color:var(--teal);letter-spacing:2px;margin-bottom:8px}
+.empty-desc{font-size:12px;color:var(--muted);line-height:1.9;margin-bottom:20px}
+.empty-card{background:var(--card);border:1px solid var(--bor);border-radius:10px;padding:18px 22px;text-align:left}
+.estep{display:flex;gap:11px;margin-bottom:10px;align-items:flex-start}
 .estep:last-child{margin-bottom:0}
-.enum{width:22px;height:22px;border-radius:50%;background:rgba(0,180,216,.12);border:1px solid rgba(0,180,216,.25);color:var(--teal);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.etext{font-size:11.5px;color:var(--text);line-height:1.65}
+.enum{width:21px;height:21px;border-radius:50%;background:rgba(0,180,216,.1);border:1px solid rgba(0,180,216,.25);color:var(--teal);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.etext{font-size:11.5px;line-height:1.65}
 .etext b{color:var(--teal)}
 
-/* 네비 */
-nav{background:var(--card);border-bottom:1px solid var(--border);display:flex;padding:0 24px;overflow-x:auto}
-.dtab{padding:10px 16px;font-size:11.5px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .18s}
-.dtab.on{color:var(--teal);border-bottom-color:var(--teal)}
-.dpane{display:none}.dpane.on{display:block}
-
-/* 레이아웃 */
-main{padding:16px 24px;max-width:1440px}
-.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
-
-/* KPI 카드 */
-.kpi{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;position:relative;overflow:hidden}
+/* ── 대시보드 ── */
+#dashWrap{display:none}
+nav{background:var(--card);border-bottom:1px solid var(--bor);display:flex;padding:0 22px;overflow-x:auto}
+.ntab{padding:10px 15px;font-size:11.5px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .18s}
+.ntab.on{border-bottom-color:var(--teal);color:var(--teal)}
+.npane{display:none}.npane.on{display:block}
+main{padding:14px 22px;max-width:1440px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:13px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:11px}
+.kpi{background:var(--card);border:1px solid var(--bor);border-radius:8px;padding:13px 15px;position:relative;overflow:hidden}
 .kpi::after{content:"";position:absolute;bottom:0;left:0;right:0;height:2px}
 .kpi.t::after{background:linear-gradient(90deg,var(--teal),transparent)}
 .kpi.g::after{background:linear-gradient(90deg,var(--green),transparent)}
 .kpi.a::after{background:linear-gradient(90deg,var(--amber),transparent)}
 .kpi.r::after{background:linear-gradient(90deg,var(--red),transparent)}
-.kv{font-family:'Orbitron',monospace;font-size:26px;font-weight:700;line-height:1;margin-bottom:4px}
+.kv{font-family:'Orbitron',monospace;font-size:24px;font-weight:700;line-height:1;margin-bottom:3px}
 .kpi.t .kv{color:var(--teal)}.kpi.g .kv{color:var(--green)}.kpi.a .kv{color:var(--amber)}.kpi.r .kv{color:var(--red)}
-.kl{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.kl{font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
 .kd{font-size:10px;margin-top:5px;font-weight:600}
 .kpi.t .kd{color:var(--teal)}.kpi.g .kd{color:var(--green)}.kpi.a .kd{color:var(--amber)}.kpi.r .kd{color:var(--red)}
-
-/* 카드 */
-.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:12px}
-.ct{font-size:10px;font-weight:700;color:var(--teal);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
-.ct-pre{color:var(--muted);font-family:'Orbitron',monospace;font-size:9px;margin-right:6px}
+.card{background:var(--card);border:1px solid var(--bor);border-radius:8px;padding:13px 15px;margin-bottom:11px}
+.ct{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;color:var(--teal)}
 .ct.g{color:var(--green)}.ct.a{color:var(--amber)}.ct.r{color:var(--red)}
-
-/* 테이블 */
-.tw{overflow-x:auto;border-radius:6px;border:1px solid var(--border)}.tw.sc{max-height:430px;overflow-y:auto}
-table{width:100%;border-collapse:collapse;font-size:11.5px}
+.tw{overflow-x:auto;border-radius:6px;border:1px solid var(--bor)}.tw.sc{max-height:430px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:11px}
 thead{position:sticky;top:0;z-index:5}
-th{background:#0d1117;color:var(--muted);padding:7px 10px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;text-align:center;border-bottom:1px solid var(--border);white-space:nowrap}
-td{border-bottom:1px solid rgba(37,45,58,.8);padding:7px 10px;vertical-align:middle}
+th{background:#0d1117;color:var(--muted);padding:7px 9px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;border-bottom:1px solid var(--bor);white-space:nowrap}
+td{border-bottom:1px solid rgba(37,45,58,.8);padding:6px 9px;vertical-align:middle}
 td.r{text-align:right}td.c{text-align:center}
 tr:hover td{background:rgba(0,180,216,.04)}
-
-/* 히트맵 */
-.heat-grid{display:grid;gap:6px;margin-bottom:10px}
-.hcell{border-radius:6px;padding:10px 6px;text-align:center;cursor:pointer;border:1px solid;transition:transform .15s}
+.pbar{display:flex;align-items:center;gap:6px}
+.ptr{flex:1;height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;min-width:50px}
+.pfl{height:100%;border-radius:3px}
+.pval{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;min-width:38px;text-align:right}
+.badge{display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:700}
+.bok{background:rgba(0,200,81,.1);color:var(--green);border:1px solid rgba(0,200,81,.2)}
+.bwn{background:rgba(255,187,0,.1);color:var(--amber);border:1px solid rgba(255,187,0,.2)}
+.brd{background:rgba(255,53,71,.1);color:var(--red);border:1px solid rgba(255,53,71,.2)}
+.frow{display:flex;align-items:center;gap:9px;margin-bottom:9px;flex-wrap:wrap}
+.frow label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+select{background:var(--card2);border:1px solid var(--bor);color:var(--text);padding:4px 9px;border-radius:4px;font-size:11px;font-family:inherit;outline:none}
+select:focus{border-color:var(--teal)}
+.heat-grid{display:grid;gap:6px;margin-bottom:8px}
+.hcell{border-radius:6px;padding:9px 5px;text-align:center;cursor:pointer;border:1px solid;transition:transform .15s}
 .hcell:hover{transform:scale(1.07);z-index:5}
 .hcell.ok{background:rgba(0,200,81,.1);color:var(--green);border-color:rgba(0,200,81,.2)}
 .hcell.warn{background:rgba(255,187,0,.1);color:var(--amber);border-color:rgba(255,187,0,.2)}
 .hcell.crit{background:rgba(255,53,71,.1);color:var(--red);border-color:rgba(255,53,71,.2)}
-.hcell .cv{font-family:'Orbitron',monospace;font-size:13px;font-weight:700}
-.hcell .cn{font-size:9px;color:var(--muted);margin-top:3px;line-height:1.3}
-
-/* 바 */
-.pbar{display:flex;align-items:center;gap:6px}
-.ptrack{flex:1;height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;min-width:50px}
-.pfill{height:100%;border-radius:3px}
-.pval{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;min-width:40px;text-align:right}
-
-/* 배지 */
-.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700}
-.bok{background:rgba(0,200,81,.1);color:var(--green);border:1px solid rgba(0,200,81,.2)}
-.bwn{background:rgba(255,187,0,.1);color:var(--amber);border:1px solid rgba(255,187,0,.2)}
-.brd{background:rgba(255,53,71,.1);color:var(--red);border:1px solid rgba(255,53,71,.2)}
-
-/* 필터 */
-.frow{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-.frow label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
-select{background:var(--card2);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:4px;font-size:11px;font-family:inherit;outline:none}
-select:focus{border-color:var(--teal)}
-
-.note-box{background:rgba(0,180,216,.05);border:1px solid rgba(0,180,216,.2);border-radius:6px;padding:8px 14px;font-size:11px;color:var(--muted);margin-bottom:12px}
+.hcell .cv{font-family:'Orbitron',monospace;font-size:12px;font-weight:700}
+.hcell .cn{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.3}
+.note-box{background:rgba(0,180,216,.05);border:1px solid rgba(0,180,216,.15);border-radius:6px;padding:7px 13px;font-size:11px;color:var(--muted);margin-bottom:11px}
 .note-box b{color:var(--teal)}
 .ch{position:relative}
+.mode-label{display:inline-block;padding:2px 10px;border-radius:10px;font-size:10px;font-weight:700;margin-left:8px}
+.mode-label.month{background:rgba(0,180,216,.15);color:var(--teal)}
+.mode-label.day{background:rgba(255,187,0,.15);color:var(--amber)}
 ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:#252d3a;border-radius:2px}
 @media(max-width:900px){.g4{grid-template-columns:1fr 1fr}.g2,.g3{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<!-- 헤더 -->
+<!-- ── 헤더 ── -->
 <header>
   <div>
-    <div class="lt">SYNOPEX // OEE</div>
-    <div class="ls" id="hdr-sub">FPCB 설비 가동율 대시보드 — 파일을 업로드하세요</div>
+    <div class="logo-t">SYNOPEX // OEE</div>
+    <div class="logo-s" id="hdr-sub">FPCB 설비 가동율 대시보드 — 파일을 업로드하세요</div>
   </div>
-  <div class="hkpis">
-    <div class="hkpi"><div class="hv pulse" id="h-avg" style="color:var(--teal)">--%</div><div class="hl">OVERALL</div></div>
-    <div class="hkpi"><div class="hv" id="h-tot" style="color:var(--green)">--</div><div class="hl">TOTAL</div></div>
-    <div class="hkpi"><div class="hv" id="h-warn" style="color:var(--amber)">--</div><div class="hl">WARN</div></div>
-    <div class="hkpi"><div class="hv" id="h-crit" style="color:var(--red)">--</div><div class="hl">CRIT</div></div>
-    <div class="hkpi"><div class="hv" id="h-period" style="color:var(--muted)">--</div><div class="hl">PERIOD</div></div>
+  <div style="display:flex;align-items:center;gap:14px">
+    <!-- 모드 토글 -->
+    <div class="mode-toggle" id="modeToggle" style="opacity:.35;pointer-events:none">
+      <button class="mode-btn month on" id="btnMonth" onclick="setMode('month')">📅 월 누적</button>
+      <button class="mode-btn day"       id="btnDay"   onclick="setMode('day')">📆 일 기준</button>
+    </div>
+    <!-- KPI -->
+    <div class="hkpis">
+      <div class="hkpi"><div class="hv pulse" id="h-avg" style="color:var(--teal)">--%</div><div class="hl">OVERALL</div></div>
+      <div class="hkpi"><div class="hv" id="h-tot" style="color:var(--green)">--</div><div class="hl">TOTAL</div></div>
+      <div class="hkpi"><div class="hv" id="h-warn" style="color:var(--amber)">--</div><div class="hl">WARN</div></div>
+      <div class="hkpi"><div class="hv" id="h-crit" style="color:var(--red)">--</div><div class="hl">CRIT</div></div>
+      <div class="hkpi"><div class="hv" id="h-period" style="color:var(--muted)">--</div><div class="hl">PERIOD</div></div>
+    </div>
   </div>
 </header>
 
-<!-- 업로드 바 -->
-<div class="upload-bar">
-  <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileIn').click()">
-    <span class="drop-icon">📂</span>
-    <span class="drop-text" id="dropText">설비 가동율 엑셀 파일 클릭 또는 드래그</span>
+<!-- ── 업로드 바 ── -->
+<div class="upbar" id="upbar">
+  <div class="drop-zone" onclick="document.getElementById('fileIn').click()">
+    <span style="font-size:18px">📂</span>
+    <span class="dz-text" id="dzText">설비 가동율 엑셀 파일 클릭 또는 드래그</span>
     <input type="file" id="fileIn" accept=".xlsx,.xls">
   </div>
-  <div class="up-status idle" id="upStatus">
-    💡 매월 파일만 교체하면 대시보드 자동 갱신
+  <div class="upstatus idle" id="upStatus">💡 파일 업로드 시 월 누적 + 일 기준 동시 로드</div>
+  <div class="saved-row" id="savedRow">
+    <span style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em">💾 저장됨</span>
+    <span id="savedInfo" style="font-size:11px;color:var(--text)"></span>
+    <button class="clear-btn" onclick="clearAll()">↺ 초기화</button>
   </div>
-  <div style="font-size:10px;color:var(--muted);margin-left:auto">지원: <span style="color:var(--teal)">.xlsx</span></div>
-</div>
-<!-- 저장 정보 행 — 데이터 있을 때만 표시 -->
-<div id="savedRow" style="display:none;background:rgba(0,200,81,.05);border-bottom:1px solid rgba(0,200,81,.15);padding:8px 24px;align-items:center;gap:12px">
-  <span style="font-size:10px;font-weight:700;color:#00c851;letter-spacing:.08em;text-transform:uppercase">💾 저장된 데이터</span>
-  <div id="savedInfo" style="font-size:11px;color:var(--text)"></div>
-  <button onclick="clearSaved()" style="margin-left:auto;background:rgba(255,53,71,.1);border:1.5px solid rgba(255,53,71,.4);color:#ff3547;padding:7px 20px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.04em;transition:all .2s" onmouseover="this.style.background='rgba(255,53,71,.2)'" onmouseout="this.style.background='rgba(255,53,71,.1)'">
-    ↺ &nbsp;초기화 &nbsp;<span style="font-size:10px;font-weight:400;opacity:.7">(다음달 새 파일 업로드 전 클릭)</span>
-  </button>
 </div>
 
-<!-- 빈 상태 -->
+<!-- ── 빈 화면 ── -->
 <div id="emptyWrap">
   <div class="empty">
     <div class="empty-icon">📊</div>
     <div class="empty-title">UPLOAD EXCEL</div>
-    <div class="empty-desc">
-      설비 가동율 현황 엑셀 파일을 업로드하면<br>
-      대시보드가 자동으로 생성됩니다
-    </div>
+    <div class="empty-desc">가동율 현황 엑셀을 업로드하면<br>월 누적 · 일 기준 대시보드가 자동 생성됩니다</div>
     <div class="empty-card">
-      <div class="estep"><div class="enum">1</div><div class="etext">상단 <b>📂 파일 클릭</b> 또는 파일을 드래그하여 올리기</div></div>
-      <div class="estep"><div class="enum">2</div><div class="etext"><b>가동율(월 누적기준)</b> 시트가 포함된 엑셀 파일 선택</div></div>
-      <div class="estep"><div class="enum">3</div><div class="etext">대시보드 <b>자동 갱신</b> — 다음 달도 파일만 교체!</div></div>
+      <div class="estep"><div class="enum">1</div><div class="etext">상단 <b>📂 파일 클릭</b> 또는 파일 드래그</div></div>
+      <div class="estep"><div class="enum">2</div><div class="etext"><b>가동율(월 누적기준)</b> + <b>가동율(일)</b> 시트 자동 인식</div></div>
+      <div class="estep"><div class="enum">3</div><div class="etext">헤더 <b>📅 월 누적 / 📆 일 기준</b> 버튼으로 전환</div></div>
     </div>
   </div>
 </div>
 
-<!-- 대시보드 (초기 숨김) -->
-<div id="dashWrap" style="display:none">
+<!-- ── 대시보드 ── -->
+<div id="dashWrap">
   <nav>
-    <div class="dtab on" onclick="sw(0)">[ 종합 현황 ]</div>
-    <div class="dtab" onclick="sw(1)">[ 설비 히트맵 ]</div>
-    <div class="dtab" onclick="sw(2)">[ 월별 추이 ]</div>
-    <div class="dtab" onclick="sw(3)">[ 설비 상세 ]</div>
+    <div class="ntab on" onclick="sw(0)">[ 종합 현황 ]</div>
+    <div class="ntab" onclick="sw(1)">[ 설비 히트맵 ]</div>
+    <div class="ntab" onclick="sw(2)">[ 월별 추이 ]</div>
+    <div class="ntab" onclick="sw(3)">[ 설비 상세 ]</div>
   </nav>
   <main>
 
-    <!-- TAB 0 종합현황 -->
-    <div class="dpane on" id="t0">
+    <!-- TAB 0 종합 현황 -->
+    <div class="npane on" id="t0">
       <div class="g4">
-        <div class="kpi t"><div class="kv" id="k-avg">--%</div><div class="kl">전체 평균 가동율</div><div class="kd" id="k-period">-</div></div>
-        <div class="kpi g"><div class="kv" id="k-ok">--</div><div class="kl">정상 공정 (≥60%)</div><div class="kd">목표 초과</div></div>
-        <div class="kpi a"><div class="kv" id="k-warn">--</div><div class="kl">주의 공정 (40~60%)</div><div class="kd">개선 필요</div></div>
-        <div class="kpi r"><div class="kv" id="k-crit">--</div><div class="kl">위험 공정 (&lt;40%)</div><div class="kd">즉시 점검</div></div>
+        <div class="kpi t"><div class="kv" id="k-avg">-</div><div class="kl">전체 평균 가동율</div><div class="kd" id="k-period">-</div></div>
+        <div class="kpi g"><div class="kv" id="k-ok">-</div><div class="kl">정상 공정 (≥60%)</div><div class="kd">목표 초과</div></div>
+        <div class="kpi a"><div class="kv" id="k-warn">-</div><div class="kl">주의 공정 (40~60%)</div><div class="kd">개선 필요</div></div>
+        <div class="kpi r"><div class="kv" id="k-crit">-</div><div class="kl">위험 공정 (&lt;40%)</div><div class="kd">즉시 점검</div></div>
       </div>
       <div class="g2">
-        <div class="card"><div class="ct"><span class="ct-pre">//</span>공정별 가동율 현황</div><div class="ch" style="height:260px"><canvas id="c0a"></canvas></div></div>
-        <div class="card"><div class="ct g"><span class="ct-pre">//</span>가동시간 구성 분석</div><div class="ch" style="height:260px"><canvas id="c0b"></canvas></div></div>
+        <div class="card"><div class="ct">// 공정별 가동율 현황 (%)</div><div class="ch" style="height:255px"><canvas id="c0a"></canvas></div></div>
+        <div class="card"><div class="ct g">// 가동시간 구성 분석</div><div class="ch" style="height:255px"><canvas id="c0b"></canvas></div></div>
       </div>
       <div class="card">
-        <div class="ct a"><span class="ct-pre">//</span>공정별 상세 현황 (월 누적)</div>
+        <div class="ct a">// 공정별 상세 <span id="mode-label-0" class="mode-label month">월 누적</span></div>
         <div class="tw"><table>
           <thead><tr><th>공정명</th><th>가동율</th><th>기준시간</th><th>실운행시간</th><th>계획비가동</th><th>운영유실</th><th>설비유실</th><th>생산면적(㎡)</th><th>상태</th></tr></thead>
           <tbody id="t0b"></tbody>
@@ -215,19 +210,19 @@ select:focus{border-color:var(--teal)}
     </div>
 
     <!-- TAB 1 히트맵 -->
-    <div class="dpane" id="t1">
-      <div class="note-box">📍 기간: <b id="nb-period">-</b> &nbsp;|&nbsp; 세부 설비별 가동율 히트맵 &nbsp;|&nbsp; 총 <b id="hm-cnt">-</b>개 설비</div>
+    <div class="npane" id="t1">
+      <div class="note-box">📍 기간: <b id="nb-period">-</b> &nbsp;|&nbsp; <span id="nb-mode">-</span> &nbsp;|&nbsp; 총 <b id="hm-cnt">-</b>개 설비</div>
       <div class="card">
-        <div class="ct"><span class="ct-pre">//</span>설비별 가동율 히트맵</div>
+        <div class="ct">// 설비별 가동율 히트맵 <span id="mode-label-1" class="mode-label month">월 누적</span></div>
         <div class="heat-grid" id="heatmap" style="grid-template-columns:repeat(auto-fill,minmax(100px,1fr))"></div>
-        <div style="display:flex;gap:16px;margin-top:8px;font-size:10px">
+        <div style="display:flex;gap:14px;margin-top:8px;font-size:10px">
           <span style="color:var(--green)">■ 정상(≥60%)</span>
           <span style="color:var(--amber)">■ 주의(40~60%)</span>
           <span style="color:var(--red)">■ 위험(&lt;40%)</span>
         </div>
       </div>
       <div class="card">
-        <div class="ct r"><span class="ct-pre">//</span>위험 · 주의 설비 알람</div>
+        <div class="ct r">// 위험 · 주의 설비 알람</div>
         <div class="tw"><table>
           <thead><tr><th>공정</th><th>세부공정</th><th>설비수</th><th>가동율</th><th>실운행시간</th><th>계획비가동</th><th>운영유실</th><th>설비유실</th><th>상태</th></tr></thead>
           <tbody id="t1alert"></tbody>
@@ -236,16 +231,16 @@ select:focus{border-color:var(--teal)}
     </div>
 
     <!-- TAB 2 추이 -->
-    <div class="dpane" id="t2">
+    <div class="npane" id="t2">
       <div class="g2">
-        <div class="card"><div class="ct"><span class="ct-pre">//</span>공정별 월별 가동율 추이</div><div class="ch" style="height:300px"><canvas id="c2a"></canvas></div></div>
-        <div class="card"><div class="ct g"><span class="ct-pre">//</span>공정별 레이더 (당월 누적)</div><div class="ch" style="height:300px"><canvas id="c2b"></canvas></div></div>
+        <div class="card"><div class="ct">// 공정별 월별 가동율 추이 (2026)</div><div class="ch" style="height:295px"><canvas id="c2a"></canvas></div></div>
+        <div class="card"><div class="ct g">// 공정별 레이더</div><div class="ch" style="height:295px"><canvas id="c2b"></canvas></div></div>
       </div>
-      <div class="card"><div class="ct a"><span class="ct-pre">//</span>월별 전체 평균 가동율 추이</div><div class="ch" style="height:230px"><canvas id="c2c"></canvas></div></div>
+      <div class="card"><div class="ct a">// 월별 전체 평균 추이</div><div class="ch" style="height:220px"><canvas id="c2c"></canvas></div></div>
     </div>
 
-    <!-- TAB 3 상세 -->
-    <div class="dpane" id="t3">
+    <!-- TAB 3 설비 상세 -->
+    <div class="npane" id="t3">
       <div class="frow">
         <label>공정</label><select id="fProc" onchange="renderDetail()"><option value="">전체</option></select>
         <label>상태</label>
@@ -262,27 +257,25 @@ select:focus{border-color:var(--teal)}
           <option value="proc">공정순</option>
         </select>
         <span id="fcnt" style="font-size:10px;color:var(--muted)"></span>
-        <span style="font-size:10px;color:var(--muted);margin-left:4px">· 행 클릭 시 월별 추이 표시</span>
+        <span style="font-size:10px;color:var(--muted)">· 행 클릭 시 월별 추이 팝업</span>
       </div>
-
-      <!-- 선택 설비 월별 추이 패널 -->
+      <!-- 설비 추이 패널 -->
       <div id="equipPanel" style="display:none" class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <div class="ct" style="margin-bottom:0"><span class="ct-pre">//</span><span id="equipPanelTitle">설비 월별 추이</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+          <div class="ct" style="margin:0"><span id="eTitle">설비 추이</span></div>
           <button onclick="document.getElementById('equipPanel').style.display='none'"
-            style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:3px 10px;border-radius:4px;cursor:pointer;font-size:10px;font-family:inherit">✕ 닫기</button>
+            style="background:transparent;border:1px solid var(--bor);color:var(--muted);padding:3px 10px;border-radius:4px;cursor:pointer;font-size:10px;font-family:inherit">✕</button>
         </div>
         <div class="g2" style="gap:12px">
-          <div class="ch" style="height:220px"><canvas id="cEquipLine"></canvas></div>
-          <div class="ch" style="height:220px"><canvas id="cEquipBar"></canvas></div>
+          <div class="ch" style="height:210px"><canvas id="cEL"></canvas></div>
+          <div class="ch" style="height:210px"><canvas id="cEB"></canvas></div>
         </div>
-        <div id="equipPanelStats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px"></div>
+        <div id="eStats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:9px"></div>
       </div>
-
       <div class="card">
-        <div class="ct"><span class="ct-pre">//</span>설비 상세 목록 <span style="font-size:9px;color:var(--muted);font-weight:400;margin-left:6px">클릭 → 월별 추이</span></div>
+        <div class="ct">// 설비 상세 <span id="mode-label-3" class="mode-label month">월 누적</span></div>
         <div class="tw sc"><table>
-          <thead><tr><th>NO</th><th>공정</th><th>세부공정</th><th>설비수</th><th>가동율</th><th>기준시간</th><th>실운행시간</th><th>계획비가동</th><th>운영유실</th><th>설비유실</th><th>생산면적</th><th>월별추이</th><th>상태</th></tr></thead>
+          <thead><tr><th>NO</th><th>공정</th><th>세부공정</th><th>설비수</th><th>가동율</th><th>기준시간</th><th>실운행시간</th><th>계획비가동</th><th>운영유실</th><th>설비유실</th><th>생산면적</th><th>추이</th><th>상태</th></tr></thead>
           <tbody id="t3b"></tbody>
         </table></div>
       </div>
@@ -292,468 +285,312 @@ select:focus{border-color:var(--teal)}
 </div>
 
 <script>
-// ── 전역 상태 ──
-var G  = { summary:[], detail:[], trend:{}, equipTrend:{}, period:'', overall:0 };  // 월 누적
-var GD = { summary:[], detail:[], trend:{}, equipTrend:{}, period:'', overall:0 };  // 일 기준
-var VIEW_MODE = 'month'; // 'month' | 'day'
-var CH = {};
+// ════════════════════════════════
+//  전역 상태
+// ════════════════════════════════
+var MODE  = 'month';  // 'month' | 'day'
+var DB    = { month: null, day: null };   // 각 모드 데이터
+var TREND = { month: {}, day: {} };       // 공정별 추이
+var EQUIP_TREND = {};                      // 설비별 추이 (2026년 시트)
+var CH    = {};                            // Chart 인스턴스
 var TARGET = 60;
-var LS_KEY_M = 'synopex_oee_month';
-var LS_KEY_D = 'synopex_oee_day';
+var LS_M  = 'syn_oee_month';
+var LS_D  = 'syn_oee_day';
+var LS_ET = 'syn_oee_etrend';
+var LS_TR = 'syn_oee_trend';
 
-// ── localStorage 저장/불러오기 ──
-function saveToLocal(fname){
-  try{
-    var key = VIEW_MODE==='day' ? LS_KEY_D : LS_KEY_M;
-    localStorage.setItem(key, JSON.stringify({
-      summary:G.summary, detail:G.detail, trend:G.trend, equipTrend:G.equipTrend,
-      period:G.period, overall:G.overall, fname:fname,
-      savedAt: new Date().toLocaleString('ko-KR')
-    }));
-    showSavedBanner(fname, new Date().toLocaleString('ko-KR'));
-  }catch(e){}
-}
-
-function loadFromLocal(){
-  try{
-    var raw = localStorage.getItem(LS_KEY);
-    if(!raw) return false;
-    var v = JSON.parse(raw);
-    if(!v.summary || !v.summary.length) return false;
-    G.summary=v.summary; G.detail=v.detail; G.trend=v.trend; G.equipTrend=v.equipTrend||{};
-    G.period=v.period; G.overall=v.overall;
-    showSavedBanner(v.fname, v.savedAt);
-    document.getElementById('dropText').textContent = '📄 '+( v.fname||'이전 파일');
-    document.getElementById('dropText').className = 'drop-text active';
-    setStatus('💾 저장된 데이터 자동 복원 — '+(v.fname||'')+' ('+( v.savedAt||'')+')', 'ok');
-    return true;
-  }catch(e){ return false; }
-}
-
-function showSavedBanner(fname, savedAt){
-  var row = document.getElementById('savedRow');
-  var inf = document.getElementById('savedInfo');
-  if(row){ row.style.display='flex'; }
-  if(inf){ inf.innerHTML = '<b style="color:#00c851">'+( fname||'')+'</b> &nbsp;·&nbsp; 업로드: '+(savedAt||''); }
-}
-
-function clearSaved(){
-  if(!confirm('저장된 데이터를 초기화하고\n새 파일을 업로드하시겠습니까?')) return;
-  localStorage.removeItem(LS_KEY_M); localStorage.removeItem(LS_KEY_D);
-  G={summary:[],detail:[],trend:{},equipTrend:{},period:'',overall:0};
-  GD={summary:[],detail:[],trend:{},equipTrend:{},period:'',overall:0};
-  CH={}; VIEW_MODE='month';
-  document.getElementById('emptyWrap').style.display='';
-  document.getElementById('dashWrap').style.display='none';
-  document.getElementById('dropText').textContent='설비 가동율 엑셀 파일 클릭 또는 드래그';
-  document.getElementById('dropText').className='drop-text';
-  document.getElementById('fileIn').value='';
-  document.getElementById('savedRow').style.display='none';
-  setStatus('💡 매월 파일만 교체하면 대시보드 자동 갱신','idle');
-}
-
-// ── 유틸 ──
 function gc(v){ return v>=TARGET?'#00c851':v>=40?'#ffbb00':'#ff3547'; }
-function N(v){ return Math.round(v||0).toLocaleString(); }
+function N(v) { return Math.round(v||0).toLocaleString(); }
 function Nf(v,d){ return (parseFloat(v)||0).toFixed(d===undefined?1:d); }
-function sf(v){ try{ return isNaN(parseFloat(v))?0:parseFloat(v); }catch(e){ return 0; } }
+function sf(v){ try{ return isNaN(parseFloat(v))?0:parseFloat(v); }catch(e){return 0;} }
+function curDB(){ return MODE==='day' ? DB.day : DB.month; }
 
-
-
-// ── 뷰 전환 (월 누적 / 일 기준) ──
-function switchView(mode){
-  if(mode==='day' && (!GD.summary||!GD.summary.length)){
-    alert('일 기준 데이터가 없습니다.\n엑셀 파일을 다시 업로드해주세요.'); return;
-  }
-  if(mode==='month' && (!G.summary||!G.summary.length)){
-    alert('월 누적 데이터가 없습니다.\n엑셀 파일을 다시 업로드해주세요.'); return;
-  }
-  VIEW_MODE = mode;
-  // 토글 버튼 색상
-  document.getElementById('btnMonth').style.background = mode==='month'?'rgba(0,180,216,.9)':'transparent';
-  document.getElementById('btnMonth').style.color      = mode==='month'?'#fff':'rgba(255,255,255,.55)';
-  document.getElementById('btnDay').style.background   = mode==='day'?'rgba(255,187,0,.85)':'transparent';
-  document.getElementById('btnDay').style.color        = mode==='day'?'#10141a':'rgba(255,255,255,.55)';
-  // 활성 G 설정
-  var cur = mode==='day' ? GD : G;
-  // KPI 갱신
-  document.getElementById('h-avg').textContent    = cur.overall+'%';
-  document.getElementById('h-period').textContent = cur.period;
-  document.getElementById('h-tot').textContent    = cur.detail.length;
-  var wn=cur.summary.filter(function(s){return s.rate>=40&&s.rate<TARGET;}).length;
-  var cr=cur.summary.filter(function(s){return s.rate<40;}).length;
-  document.getElementById('h-warn').textContent = wn;
-  document.getElementById('h-crit').textContent = cr;
-  document.getElementById('hdr-sub').textContent =
-    'FPCB 설비 가동율 대시보드 | '+(mode==='day'?'일 기준: '+cur.period:'월 누적: '+cur.period);
-  // 대시보드 재렌더
-  CH = {};
-  // 임시로 G를 교체해서 buildTab0 재활용
-  var backup = {summary:G.summary,detail:G.detail,trend:G.trend,equipTrend:G.equipTrend,period:G.period,overall:G.overall};
-  if(mode==='day'){
-    G.summary=GD.summary; G.detail=GD.detail; G.trend=GD.trend;
-    G.equipTrend=GD.equipTrend; G.period=GD.period; G.overall=GD.overall;
-  }
-  buildTab0();
-  // 공정 필터 갱신
-  var fp=document.getElementById('fProc');
-  fp.innerHTML='<option value="">전체</option>';
-  var procs=[]; G.detail.forEach(function(d){if(procs.indexOf(d.proc)<0)procs.push(d.proc);});
-  procs.sort().forEach(function(p){fp.innerHTML+='<option value="'+p+'">'+p+'</option>';});
-  // 복원
-  if(mode==='day'){
-    G.summary=backup.summary; G.detail=backup.detail; G.trend=backup.trend;
-    G.equipTrend=backup.equipTrend; G.period=backup.period; G.overall=backup.overall;
-  }
-  // 탭 초기화
-  document.querySelectorAll('.dtab').forEach(function(t,i){t.classList.toggle('on',i===0);});
-  document.querySelectorAll('.dpane').forEach(function(p,i){p.classList.toggle('on',i===0);});
-  // 모드 표시
-  document.getElementById('nb-period').textContent = cur.period + (mode==='day'?' (일 기준)':' (월 누적)');
-  document.getElementById('hm-cnt').textContent    = cur.detail.length;
-}
-
-// ── 스파크라인 SVG 생성 ──
-function buildSparkline(arr, color){
-  if(!arr || !arr.length) return '<span style="color:var(--muted);font-size:10px">—</span>';
-  var valid = arr.filter(function(v){return v!==null&&v!==undefined;});
-  if(!valid.length) return '<span style="color:var(--muted);font-size:10px">—</span>';
-  var W=64, H=24, pad=2;
-  var max=Math.max.apply(null,valid), min=0;
-  var range=max-min||1;
-  var pts=[];
-  var xStep = (W-pad*2)/(arr.length-1||1);
-  arr.forEach(function(v,i){
-    if(v===null||v===undefined) return;
-    var x=pad+i*xStep;
-    var y=H-pad-(v-min)/range*(H-pad*2);
-    pts.push(x+','+y);
-  });
-  var path = pts.length>1 ? 'M'+pts.join('L') : '';
-  var last = valid[valid.length-1];
-  var dot = pts[pts.length-1];
-  var dx=dot?dot.split(',')[0]:0, dy=dot?dot.split(',')[1]:0;
-  return '<svg width="'+W+'" height="'+H+'" style="overflow:visible">'
-    +'<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+color+'" stroke-width="1.5" stroke-linejoin="round"/>'
-    +'<circle cx="'+dx+'" cy="'+dy+'" r="2.5" fill="'+color+'"/>'
-    +'</svg>';
-}
-
-// ── 선택 설비 추이 차트 ──
-function showEquipChart(d){
-  var key = d.proc+'_'+d.sub;
-  var mArr = G.equipTrend && G.equipTrend[key] ? G.equipTrend[key] : [];
-  var months = ['1월','2월','3월','4월'];
-  var c = gc(d.rate);
-  var panel = document.getElementById('equipPanel');
-  panel.style.display='block';
-  panel.scrollIntoView({behavior:'smooth', block:'nearest'});
-  document.getElementById('equipPanelTitle').textContent
-    = '['+d.proc+'] '+d.sub+' — 월별 가동율 추이 (2026년)';
-
-  // 라인 차트
-  if(CH.cEL) CH.cEL.destroy();
-  CH.cEL = new Chart(document.getElementById('cEquipLine'),{
-    type:'line',
-    data:{labels:months, datasets:[
-      {label:'가동율(%)', data:mArr,
-       borderColor:c, backgroundColor:c.replace(')',', .1)').replace('rgb','rgba'),
-       fill:true, tension:.4, pointRadius:5, pointBackgroundColor:'#10141a',
-       pointBorderWidth:2, pointBorderColor:c, borderWidth:2},
-      {label:'목표(60%)', data:months.map(function(){return 60;}),
-       borderColor:'rgba(255,255,255,.2)', borderDash:[5,4], pointRadius:0, borderWidth:1}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,spanGaps:true,
-      plugins:{legend:{position:'top',labels:{color:'#7f8fa6',font:{size:10}}}},
-      scales:{x:{ticks:{color:'#7f8fa6'},grid:{color:'rgba(255,255,255,.04)'}},
-              y:{min:0,max:100,ticks:{color:'#7f8fa6',callback:function(v){return v+'%';}},
-                 grid:{color:'rgba(255,255,255,.04)'}}}}
-  });
-
-  // 바 차트
-  if(CH.cEB) CH.cEB.destroy();
-  CH.cEB = new Chart(document.getElementById('cEquipBar'),{
-    type:'bar',
-    data:{labels:months, datasets:[
-      {label:'가동율(%)', data:mArr,
-       backgroundColor:mArr.map(function(v){return v!==null?gc(v||0):'rgba(255,255,255,.1)';}),
-       borderRadius:5, borderSkipped:false}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},
-               tooltip:{callbacks:{label:function(v){return v.raw!==null?v.raw+'%':'데이터 없음';}}}},
-      scales:{x:{ticks:{color:'#7f8fa6'},grid:{display:false}},
-              y:{min:0,max:100,ticks:{color:'#7f8fa6',callback:function(v){return v+'%';}},
-                 grid:{color:'rgba(255,255,255,.04)'}}}}
-  });
-
-  // 하단 월별 수치 카드
-  var statsHtml='';
-  months.forEach(function(m,i){
-    var v = mArr[i];
-    var cv = v!==null&&v!==undefined ? gc(v) : '#7f8fa6';
-    statsHtml+='<div style="background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;text-align:center">'
-      +'<div style="font-size:10px;color:var(--muted);margin-bottom:4px">'+m+'</div>'
-      +'<div style="font-family:Orbitron,monospace;font-size:16px;font-weight:700;color:'+cv+'">'+(v!==null&&v!==undefined?v+'%':'—')+'</div>'
-      +'</div>';
-  });
-  document.getElementById('equipPanelStats').innerHTML=statsHtml;
-}
-
-// ── 탭 전환 ──
+// ════════════════════════════════
+//  탭 전환
+// ════════════════════════════════
 function sw(i){
-  document.querySelectorAll('.dtab').forEach(function(t,j){ t.classList.toggle('on',j===i); });
-  document.querySelectorAll('.dpane').forEach(function(p,j){ p.classList.toggle('on',j===i); });
-  if(i===1) buildHeatmap();
+  document.querySelectorAll('.ntab').forEach(function(t,j){t.classList.toggle('on',j===i);});
+  document.querySelectorAll('.npane').forEach(function(p,j){p.classList.toggle('on',j===i);});
   if(i===2) buildTrend();
-  if(i===3) renderDetail();
 }
 
-// ── 업로드 바인딩 ──
-var dz = document.getElementById('dropZone');
+// ════════════════════════════════
+//  모드 전환 (월 누적 ↔ 일 기준)
+// ════════════════════════════════
+function setMode(m){
+  if(m==='day' && !DB.day){ alert('일 기준 데이터가 없습니다.\n파일을 다시 업로드해주세요.'); return; }
+  if(m==='month' && !DB.month){ alert('월 누적 데이터가 없습니다.\n파일을 다시 업로드해주세요.'); return; }
+  MODE = m;
+  // 버튼 스타일
+  document.getElementById('btnMonth').classList.toggle('on', m==='month');
+  document.getElementById('btnDay').classList.toggle('on', m==='day');
+  // 차트 초기화
+  CH = {};
+  document.getElementById('equipPanel').style.display='none';
+  // 렌더
+  renderAll();
+}
+
+// ════════════════════════════════
+//  파일 업로드
+// ════════════════════════════════
+var dz = document.querySelector('.drop-zone');
 document.getElementById('fileIn').addEventListener('change', function(e){
   if(e.target.files[0]) loadFile(e.target.files[0]);
 });
-dz.addEventListener('dragover',  function(e){ e.preventDefault(); dz.classList.add('drag'); });
-dz.addEventListener('dragleave', function(){ dz.classList.remove('drag'); });
+dz.addEventListener('dragover', function(e){e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave', function(){dz.classList.remove('drag');});
 dz.addEventListener('drop', function(e){
   e.preventDefault(); dz.classList.remove('drag');
   if(e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
 });
 
-function setStatus(msg, type){
-  var el = document.getElementById('upStatus');
-  el.className = 'up-status ' + (type||'idle');
-  el.innerHTML = msg;
+function setStatus(msg,type){
+  var el=document.getElementById('upStatus');
+  el.className='upstatus '+(type||'idle');
+  el.innerHTML=msg;
 }
 
-// ── 파일 로드 ──
 function loadFile(file){
-  setStatus('<span class="spin">⏳</span> 읽는 중... ' + file.name, 'loading');
-  var reader = new FileReader();
-  reader.onload = function(e){
-    try {
-      var wb = XLSX.read(e.target.result, { type:'binary' });
-      parseWorkbook(wb, file.name);
-    } catch(err) {
-      setStatus('❌ 파일 오류: ' + err.message, 'err');
-    }
+  setStatus('<span class="spin">⏳</span> 읽는 중...','loading');
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var wb=XLSX.read(e.target.result,{type:'binary'});
+      parseAll(wb, file.name);
+    }catch(err){ setStatus('❌ 오류: '+err.message,'err'); }
   };
-  reader.onerror = function(){ setStatus('❌ 파일을 읽을 수 없습니다', 'err'); };
   reader.readAsBinaryString(file);
 }
 
-// ── 엑셀 파싱 (SYNOPEX 형식) ──
-function parseWorkbook(wb, fname){
-  // ── 시트 탐색: 월 누적 + 일 기준 둘 다 찾기 ──
-  var sheetMonth = null, sheetDay = null;
+// ════════════════════════════════
+//  엑셀 전체 파싱
+// ════════════════════════════════
+function parseAll(wb, fname){
+  // 시트 탐색
+  var sheetM=null, sheetD=null, sheetYr=null;
   wb.SheetNames.forEach(function(sn){
-    if(!sheetMonth && sn.indexOf('월 누적')>=0)  sheetMonth = sn;
-    if(!sheetDay   && sn.indexOf('(일)')>=0)      sheetDay   = sn;
-    if(!sheetMonth && sn.indexOf('누적')>=0 && sn.indexOf('(일)')<0) sheetMonth=sn;
+    if(!sheetM  && sn.indexOf('월 누적')>=0)          sheetM  = sn;
+    if(!sheetD  && sn.indexOf('(일)')>=0)             sheetD  = sn;
+    if(!sheetYr && sn.indexOf('2026')>=0)             sheetYr = sn;
+    if(!sheetM  && sn.indexOf('누적')>=0 && sn.indexOf('(일)')<0) sheetM=sn;
   });
-  if(!sheetMonth) sheetMonth = wb.SheetNames[0];
-  var sheetName = sheetMonth; // 기본은 월 누적
-  console.log('📋 월 누적:', sheetMonth, '/ 일 기준:', sheetDay);
 
-  var ws = wb.Sheets[sheetName];
-  var rows = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
-
-  // 기간 파싱 (Row5 = index4)
-  var period = '';
-  if(rows[4] && rows[4][2]) period = String(rows[4][2]).trim();
-  if(!period || period.length < 2) {
-    // 파일명에서 추출
-    period = fname.replace(/\.(xlsx|xls)$/i,'').match(/\d{1,2}[\/월]\d{1,2}/)?.[0] || fname.slice(0,10);
+  // 월 누적 파싱
+  if(sheetM){
+    DB.month = parseSheet(wb.Sheets[sheetM]);
+  }
+  // 일 기준 파싱
+  if(sheetD){
+    DB.day = parseSheet(wb.Sheets[sheetD]);
+  }
+  // 2026년 추이 파싱
+  if(sheetYr){
+    parseTrend(wb.Sheets[sheetYr]);
   }
 
-  // 전체 평균 가동율 (Row5 col I = index8)
-  var overallRaw = sf(rows[4] && rows[4][8]);
-  var overall = overallRaw > 0 ? (overallRaw <= 1 ? Math.round(overallRaw*1000)/10 : Math.round(overallRaw*10)/10) : 0;
+  // 결과 확인
+  var mOk = DB.month && DB.month.detail.length>0;
+  var dOk = DB.day   && DB.day.detail.length>0;
+  if(!mOk && !dOk){ setStatus('❌ 데이터를 찾을 수 없습니다.','err'); return; }
 
-  // 데이터 파싱 (Row10 이후 = index9)
-  var STOP = ['공장명','FPCB','합계','합 계','Trouble','비가동 현황','계획 비가동'];
-  var summary = [], detail = [];
+  // 저장
+  try{
+    if(mOk) localStorage.setItem(LS_M, JSON.stringify(DB.month));
+    if(dOk) localStorage.setItem(LS_D, JSON.stringify(DB.day));
+    localStorage.setItem(LS_ET, JSON.stringify(EQUIP_TREND));
+    localStorage.setItem(LS_TR, JSON.stringify(TREND));
+    localStorage.setItem('syn_oee_fname', fname);
+    localStorage.setItem('syn_oee_saved', new Date().toLocaleString('ko-KR'));
+  }catch(e){}
 
-  for(var ri = 9; ri < rows.length; ri++){
-    var row = rows[ri];
-    if(!row || !row[2]) continue;
-    var proc = String(row[2]).replace(/\n/g,' ').replace(/\s+/g,'').trim();
-    if(!proc) continue;
-    var isStop = STOP.some(function(s){ return proc.indexOf(s)>=0; });
-    if(isStop) break;
+  var msg = '✅ ';
+  if(mOk) msg += '월 누적 '+DB.month.summary.length+'공정/'+DB.month.detail.length+'설비';
+  if(mOk && dOk) msg += ' | ';
+  if(dOk) msg += '일 기준 '+DB.day.summary.length+'공정/'+DB.day.detail.length+'설비';
+  msg += ' — '+fname;
+  setStatus(msg,'ok');
 
-    var sub = row[3] ? String(row[3]).trim() : null;
-    var rateRaw = sf(row[8]);
-    var rate = rateRaw > 0 ? (rateRaw <= 1 ? Math.round(rateRaw*1000)/10 : Math.round(rateRaw*10)/10) : 0;
+  // 파일명 표시
+  document.getElementById('dzText').textContent = '📄 '+fname;
+  document.getElementById('dzText').className = 'dz-text active';
+  showSavedRow(fname, new Date().toLocaleString('ko-KR'));
 
-    var item = {
-      proc: proc,
-      sub:  sub,
-      cnt:  parseInt(sf(row[4])) || 0,
-      area: Math.round(sf(row[5])*10)/10,
-      base: Math.round(sf(row[6])),
-      run:  Math.round(sf(row[7])),
-      rate: rate,
-      plan_down: Math.round(sf(row[9])),
-      op_loss:   Math.round(sf(row[10])),
-      eq_loss:   Math.round(sf(row[11])),
-      eq_fail:   Math.round(sf(row[12]))
-    };
+  // 토글 활성화
+  var tog = document.getElementById('modeToggle');
+  tog.style.opacity='1'; tog.style.pointerEvents='auto';
+  if(!dOk){ document.getElementById('btnDay').style.opacity='.4'; document.getElementById('btnDay').style.pointerEvents='none'; }
 
-    if(sub === null || sub === '') {
-      summary.push(item);
-    } else {
-      detail.push(item);
-    }
-  }
-
-  // 연간 추이 시트 파싱 (공정별 + 설비별)
-  var trend = {};
-  var equipTrend = {};  // 설비별 월별 추이
-  var trendSheet = null;
-  wb.SheetNames.forEach(function(sn){
-    if(!trendSheet && sn.indexOf('2026')>=0) trendSheet = sn;
-  });
-  if(trendSheet){
-    var ws2 = wb.Sheets[trendSheet];
-    var rows2 = XLSX.utils.sheet_to_json(ws2, { header:1, defval:'' });
-    for(var ri2=9; ri2<rows2.length; ri2++){
-      var row2 = rows2[ri2];
-      if(!row2||!row2[2]) continue;
-      var p2 = String(row2[2]).replace(/\n/g,' ').replace(/\s+/g,'').trim();
-      var isStop2 = STOP.some(function(s){ return p2.indexOf(s)>=0; });
-      if(isStop2) break;
-      var mVals = [];
-      for(var mi=0; mi<4; mi++){
-        var v = sf(row2[6+mi]);
-        mVals.push(v>0 ? (v<=1?Math.round(v*1000)/10:Math.round(v*10)/10) : null);
-      }
-      if(!mVals.some(function(v){return v!==null;})) continue;
-      if(!row2[3]){
-        trend[p2] = mVals; // 소계 → 공정 추이
-      } else {
-        var sub2 = String(row2[3]).trim();
-        var key = p2 + '_' + sub2;
-        equipTrend[key] = mVals; // 세부 → 설비 추이
-      }
-    }
-  }
-
-  // overall 재계산 (요약이 없으면 detail 평균)
-  if(overall===0 && summary.length>0){
-    var valids = summary.filter(function(s){return s.rate>0;});
-    overall = valids.length ? Math.round(valids.reduce(function(a,b){return a+b.rate;},0)/valids.length*10)/10 : 0;
-  }
-
-  if(summary.length===0 && detail.length===0){
-    setStatus('❌ 데이터를 찾을 수 없습니다. 시트명 확인: ' + wb.SheetNames.join(', '), 'err');
-    return;
-  }
-
-  // 글로벌 저장
-  G.summary = summary; G.detail = detail; G.trend = trend;
-  G.period = period; G.overall = overall;
-  G.equipTrend = equipTrend;
-
-  setStatus('✅ ' + summary.length + '개 공정 / ' + detail.length + '개 설비 로드 완료 — ' + fname + '  [시트: ' + sheetName + ']', 'ok');
-  saveToLocal(fname);
-  document.getElementById('dropText').textContent = '📄 ' + fname;
-  document.getElementById('dropText').className = 'drop-text active';
-
-  renderDashboard();
+  MODE='month';
+  document.getElementById('btnMonth').classList.add('on');
+  document.getElementById('btnDay').classList.remove('on');
+  CH={};
+  renderAll();
 }
 
-// ── 대시보드 렌더링 ──
-function renderDashboard(){
-  // 표시 전환
-  document.getElementById('emptyWrap').style.display = 'none';
-  document.getElementById('dashWrap').style.display = 'block';
+// ────────────────────────────────
+//  시트 → 데이터 변환
+// ────────────────────────────────
+function parseSheet(ws){
+  var rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+  var STOP = ['FPCB','합계','합 계','계획 비가동','Trouble'];
+  var period  = rows[4]&&rows[4][2] ? String(rows[4][2]).trim() : '';
+  var orRaw   = sf(rows[4]&&rows[4][8]);
+  var overall = orRaw>0 ? (orRaw<=1?Math.round(orRaw*1000)/10:Math.round(orRaw*10)/10) : 0;
+  var summary=[], detail=[];
+
+  for(var ri=9; ri<rows.length; ri++){
+    var row=rows[ri];
+    if(!row[2]) continue;
+    var proc=String(row[2]).replace(/\n/g,' ').replace(/\s+/g,'').trim();
+    if(!proc) continue;
+    if(STOP.some(function(s){return proc.indexOf(s)>=0;})) break;
+    var sub = row[3]?String(row[3]).trim():null;
+    var rr  = sf(row[8]);
+    var rate= rr>0?(rr<=1?Math.round(rr*1000)/10:Math.round(rr*10)/10):0;
+    var item={proc:proc, sub:sub, cnt:parseInt(sf(row[4]))||0,
+      area:Math.round(sf(row[5])*10)/10, base:Math.round(sf(row[6])),
+      run:Math.round(sf(row[7])), rate:rate,
+      plan_down:Math.round(sf(row[9])), op_loss:Math.round(sf(row[10])),
+      eq_loss:Math.round(sf(row[11])), eq_fail:Math.round(sf(row[12]))};
+    if(sub===null||sub==='') summary.push(item); else detail.push(item);
+  }
+  if(overall===0&&summary.length){
+    var vv=summary.filter(function(s){return s.rate>0;});
+    overall=vv.length?Math.round(vv.reduce(function(a,b){return a+b.rate;},0)/vv.length*10)/10:0;
+  }
+  return {summary:summary, detail:detail, period:period, overall:overall};
+}
+
+// ────────────────────────────────
+//  2026년 추이 파싱
+// ────────────────────────────────
+function parseTrend(ws){
+  var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+  var STOP=['FPCB','합계','합 계'];
+  TREND={month:{},day:{}};
+  EQUIP_TREND={};
+  for(var ri=9;ri<rows.length;ri++){
+    var row=rows[ri];
+    if(!row[2]) continue;
+    var proc=String(row[2]).replace(/\n/g,' ').replace(/\s+/g,'').trim();
+    if(!proc) continue;
+    if(STOP.some(function(s){return proc.indexOf(s)>=0;})) break;
+    var sub=row[3]?String(row[3]).trim():null;
+    var vals=[];
+    for(var mi=0;mi<4;mi++){
+      var v=sf(row[6+mi]);
+      vals.push(v>0?(v<=1?Math.round(v*1000)/10:Math.round(v*10)/10):null);
+    }
+    if(!vals.some(function(v){return v!==null;})) continue;
+    if(!sub){
+      TREND.month[proc]=vals;
+      TREND.day[proc]=vals;
+    } else {
+      EQUIP_TREND[proc+'_'+sub]=vals;
+    }
+  }
+}
+
+// ════════════════════════════════
+//  렌더링 (공통 진입점)
+// ════════════════════════════════
+function renderAll(){
+  var db = curDB();
+  if(!db){ return; }
+
+  document.getElementById('emptyWrap').style.display='none';
+  document.getElementById('dashWrap').style.display='block';
 
   // 헤더 KPI
-  document.getElementById('h-avg').textContent = G.overall + '%';
-  document.getElementById('h-period').textContent = G.period;
-  document.getElementById('hdr-sub').textContent = 'FPCB 설비 가동율 대시보드 | 기간: ' + G.period + ' | 월 누적';
-  document.getElementById('nb-period').textContent = G.period;
-  document.getElementById('hm-cnt').textContent = G.detail.length;
+  document.getElementById('h-avg').textContent    = db.overall+'%';
+  document.getElementById('h-period').textContent = db.period;
+  document.getElementById('h-tot').textContent    = db.detail.length;
+  var wn=db.summary.filter(function(s){return s.rate>=40&&s.rate<TARGET;}).length;
+  var cr=db.summary.filter(function(s){return s.rate<40;}).length;
+  document.getElementById('h-warn').textContent=wn;
+  document.getElementById('h-crit').textContent=cr;
+  document.getElementById('hdr-sub').textContent='FPCB 설비 가동율 대시보드 | '+(MODE==='day'?'일 기준: ':'월 누적: ')+db.period;
+  document.getElementById('nb-period').textContent=db.period;
+  document.getElementById('nb-mode').textContent=MODE==='day'?'일 기준':'월 누적';
+  document.getElementById('hm-cnt').textContent=db.detail.length;
 
-  var cur  = VIEW_MODE==='day' ? GD : G;
-  document.getElementById('h-avg').textContent    = cur.overall+'%';
-  document.getElementById('h-period').textContent = cur.period;
-  document.getElementById('hm-cnt').textContent   = cur.detail.length;
-  document.getElementById('h-tot').textContent    = cur.detail.length;
-  var ok   = cur.summary.filter(function(s){return s.rate>=TARGET;}).length;
-  var warn = cur.summary.filter(function(s){return s.rate>=40&&s.rate<TARGET;}).length;
-  var crit = cur.summary.filter(function(s){return s.rate<40;}).length;
+  // 탭 KPI
+  document.getElementById('k-avg').textContent=db.overall+'%';
+  document.getElementById('k-period').textContent='기간: '+db.period;
+  document.getElementById('k-ok').textContent=db.summary.filter(function(s){return s.rate>=TARGET;}).length+'개';
+  document.getElementById('k-warn').textContent=wn+'개';
+  document.getElementById('k-crit').textContent=cr+'개';
 
-  document.getElementById('h-tot').textContent  = G.detail.length;
-  document.getElementById('h-warn').textContent = warn;
-  document.getElementById('h-crit').textContent = crit;
+  // 모드 라벨
+  var lbl=MODE==='day'?'일 기준':'월 누적';
+  var lblCls=MODE==='day'?'day':'month';
+  ['mode-label-0','mode-label-1','mode-label-3'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.textContent=lbl; el.className='mode-label '+lblCls;}
+  });
 
-  document.getElementById('k-avg').textContent  = G.overall + '%';
-  document.getElementById('k-period').textContent = '기간: ' + G.period;
-  document.getElementById('k-ok').textContent   = ok + '개';
-  document.getElementById('k-warn').textContent = warn + '개';
-  document.getElementById('k-crit').textContent = crit + '개';
+  // 공정 필터
+  var fp=document.getElementById('fProc');
+  fp.innerHTML='<option value="">전체</option>';
+  var procs=[]; db.detail.forEach(function(d){if(procs.indexOf(d.proc)<0)procs.push(d.proc);});
+  procs.sort().forEach(function(p){fp.innerHTML+='<option value="'+p+'">'+p+'</option>';});
 
-  // 공정 필터 갱신
-  var fp = document.getElementById('fProc');
-  fp.innerHTML = '<option value="">전체</option>';
-  var procs = [];
-  G.detail.forEach(function(d){ if(procs.indexOf(d.proc)<0) procs.push(d.proc); });
-  procs.sort().forEach(function(p){ fp.innerHTML += '<option value="'+p+'">'+p+'</option>'; });
-
+  // 현재 탭 재렌더
+  var activeTab=0;
+  document.querySelectorAll('.ntab').forEach(function(t,i){if(t.classList.contains('on'))activeTab=i;});
   buildTab0();
-  // 탭 초기화
-  document.querySelectorAll('.dtab').forEach(function(t,i){ t.classList.toggle('on',i===0); });
-  document.querySelectorAll('.dpane').forEach(function(p,i){ p.classList.toggle('on',i===0); });
-  CH = {}; // 차트 캐시 초기화
+  if(activeTab===1) buildHeatmap();
+  if(activeTab===2) buildTrend();
+  if(activeTab===3) renderDetail();
+  // 탭 0으로 초기화
+  document.querySelectorAll('.ntab').forEach(function(t,i){t.classList.toggle('on',i===0);});
+  document.querySelectorAll('.npane').forEach(function(p,i){p.classList.toggle('on',i===0);});
 }
 
-// ── TAB 0 ──
+// ════════════════════════════════
+//  TAB 0
+// ════════════════════════════════
 function buildTab0(){
-  var pn = G.summary.map(function(s){return s.proc;});
-  var rt = G.summary.map(function(s){return s.rate;});
+  var db=curDB(); if(!db) return;
+  var pn=db.summary.map(function(s){return s.proc;});
+  var rt=db.summary.map(function(s){return s.rate;});
 
-  if(CH.c0a){CH.c0a.destroy();} 
-  CH.c0a = new Chart(document.getElementById('c0a'),{
+  if(CH.c0a) CH.c0a.destroy();
+  CH.c0a=new Chart(document.getElementById('c0a'),{
     type:'bar',
-    data:{labels:pn, datasets:[
-      {label:'가동율(%)', data:rt, backgroundColor:rt.map(gc), borderRadius:4, borderSkipped:false},
-      {type:'line', label:'평균('+G.overall+'%)', data:pn.map(function(){return G.overall;}),
-       borderColor:'rgba(255,255,255,.25)', borderDash:[5,4], pointRadius:0, borderWidth:1.5}
+    data:{labels:pn,datasets:[
+      {label:'가동율(%)',data:rt,backgroundColor:rt.map(gc),borderRadius:4,borderSkipped:false},
+      {type:'line',label:'평균('+db.overall+'%)',data:pn.map(function(){return db.overall;}),
+       borderColor:'rgba(255,255,255,.25)',borderDash:[5,4],pointRadius:0,borderWidth:1.5}
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'top',labels:{color:'#7f8fa6',font:{size:10}}}},
-      scales:{
-        x:{ticks:{color:'#7f8fa6',font:{size:10}},grid:{color:'rgba(255,255,255,.03)'}},
-        y:{min:0,max:100,ticks:{color:'#7f8fa6',callback:function(v){return v+'%';},font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}
-      }}
+      scales:{x:{ticks:{color:'#7f8fa6',font:{size:10}},grid:{color:'rgba(255,255,255,.03)'}},
+              y:{min:0,max:100,ticks:{color:'#7f8fa6',callback:function(v){return v+'%';},font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}}
   });
 
   if(CH.c0b) CH.c0b.destroy();
-  CH.c0b = new Chart(document.getElementById('c0b'),{
+  CH.c0b=new Chart(document.getElementById('c0b'),{
     type:'bar',
-    data:{labels:pn, datasets:[
-      {label:'실운행',      data:G.summary.map(function(s){return s.run;}),       backgroundColor:'rgba(0,200,81,.5)',  stack:'s', borderRadius:2},
-      {label:'계획비가동',  data:G.summary.map(function(s){return s.plan_down;}),  backgroundColor:'rgba(0,180,216,.4)', stack:'s', borderRadius:2},
-      {label:'운영유실',    data:G.summary.map(function(s){return s.op_loss;}),    backgroundColor:'rgba(255,187,0,.5)', stack:'s', borderRadius:2},
-      {label:'설비유실',    data:G.summary.map(function(s){return s.eq_loss+s.eq_fail;}), backgroundColor:'rgba(255,53,71,.5)', stack:'s', borderRadius:2}
+    data:{labels:pn,datasets:[
+      {label:'실운행',      data:db.summary.map(function(s){return s.run;}),       backgroundColor:'rgba(0,200,81,.5)', stack:'s',borderRadius:2},
+      {label:'계획비가동',  data:db.summary.map(function(s){return s.plan_down;}),  backgroundColor:'rgba(0,180,216,.4)',stack:'s',borderRadius:2},
+      {label:'운영유실',    data:db.summary.map(function(s){return s.op_loss;}),    backgroundColor:'rgba(255,187,0,.5)',stack:'s',borderRadius:2},
+      {label:'설비유실',    data:db.summary.map(function(s){return s.eq_loss+s.eq_fail;}),backgroundColor:'rgba(255,53,71,.5)',stack:'s',borderRadius:2}
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'top',labels:{color:'#7f8fa6',font:{size:10}}}},
-      scales:{
-        x:{stacked:true,ticks:{color:'#7f8fa6',font:{size:10}},grid:{display:false}},
-        y:{stacked:true,ticks:{color:'#7f8fa6',callback:function(v){return v>=60000?(v/10000).toFixed(0)+'만':N(v);},font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}}
-      }}
+      scales:{x:{stacked:true,ticks:{color:'#7f8fa6',font:{size:10}},grid:{display:false}},
+              y:{stacked:true,ticks:{color:'#7f8fa6',callback:function(v){return v>=60000?(v/10000).toFixed(0)+'만':N(v);},font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}}}}
   });
 
   var h='';
-  G.summary.forEach(function(s){
+  db.summary.forEach(function(s){
     var c=gc(s.rate);
     var st=s.rate>=TARGET?'<span class="badge bok">정상</span>':s.rate>=40?'<span class="badge bwn">주의</span>':'<span class="badge brd">위험</span>';
     h+='<tr><td style="font-weight:600">'+s.proc+'</td>';
-    h+='<td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:'+Math.min(s.rate,100)+'%;background:'+c+'"></div></div><span class="pval" style="color:'+c+'">'+Nf(s.rate)+'%</span></div></td>';
+    h+='<td><div class="pbar"><div class="ptr"><div class="pfl" style="width:'+Math.min(s.rate,100)+'%;background:'+c+'"></div></div><span class="pval" style="color:'+c+'">'+Nf(s.rate)+'%</span></div></td>';
     h+='<td class="r" style="color:var(--muted)">'+N(s.base)+'</td><td class="r">'+N(s.run)+'</td>';
     h+='<td class="r" style="color:rgba(0,180,216,.8)">'+N(s.plan_down)+'</td>';
     h+='<td class="r" style="color:var(--amber)">'+N(s.op_loss)+'</td>';
@@ -761,49 +598,54 @@ function buildTab0(){
     h+='<td class="r" style="color:var(--muted)">'+N(s.area)+'</td>';
     h+='<td class="c">'+st+'</td></tr>';
   });
-  document.getElementById('t0b').innerHTML = h;
+  document.getElementById('t0b').innerHTML=h;
 }
 
-// ── TAB 1 히트맵 ──
+// ════════════════════════════════
+//  TAB 1 히트맵
+// ════════════════════════════════
 function buildHeatmap(){
-  var hm = document.getElementById('heatmap');
-  hm.innerHTML = '';
-  var sorted = G.detail.slice().sort(function(a,b){return a.rate-b.rate;});
-  sorted.forEach(function(d){
-    var cls = d.rate>=TARGET?'ok':d.rate>=40?'warn':'crit';
-    hm.innerHTML += '<div class="hcell '+cls+'" title="'+d.proc+' / '+d.sub+' ('+d.cnt+'대)&#10;가동율: '+d.rate+'%&#10;실운행: '+N(d.run)+'min"><div class="cv">'+Nf(d.rate,0)+'%</div><div class="cn">'+d.sub+'</div></div>';
+  var db=curDB(); if(!db) return;
+  var hm=document.getElementById('heatmap');
+  hm.innerHTML='';
+  db.detail.slice().sort(function(a,b){return a.rate-b.rate;}).forEach(function(d){
+    var cls=d.rate>=TARGET?'ok':d.rate>=40?'warn':'crit';
+    hm.innerHTML+='<div class="hcell '+cls+'" title="'+d.proc+'/'+d.sub+' '+d.rate+'%"><div class="cv">'+Nf(d.rate,0)+'%</div><div class="cn">'+d.sub+'</div></div>';
   });
-
-  var ta = document.getElementById('t1alert');
-  ta.innerHTML = '';
-  var alerts = G.detail.filter(function(d){return d.rate<TARGET;}).sort(function(a,b){return a.rate-b.rate;});
-  if(!alerts.length){ ta.innerHTML='<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--muted)">⚡ 위험/주의 설비 없음</td></tr>'; return; }
-  alerts.forEach(function(d){
+  var ta=document.getElementById('t1alert');
+  ta.innerHTML='';
+  var al=db.detail.filter(function(d){return d.rate<TARGET;}).sort(function(a,b){return a.rate-b.rate;});
+  if(!al.length){ta.innerHTML='<tr><td colspan="9" style="text-align:center;padding:18px;color:var(--muted)">⚡ 위험/주의 설비 없음</td></tr>';return;}
+  al.forEach(function(d){
     var c=gc(d.rate);
     var st=d.rate>=40?'<span class="badge bwn">주의</span>':'<span class="badge brd">위험</span>';
-    ta.innerHTML += '<tr><td>'+d.proc+'</td><td style="font-weight:600">'+d.sub+'</td>';
-    ta.innerHTML += '<td class="c" style="color:var(--muted)">'+d.cnt+'대</td>';
-    ta.innerHTML += '<td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:'+Math.min(d.rate,100)+'%;background:'+c+'"></div></div><span class="pval" style="color:'+c+'">'+Nf(d.rate)+'%</span></div></td>';
-    ta.innerHTML += '<td class="r">'+N(d.run)+'</td><td class="r" style="color:rgba(0,180,216,.8)">'+N(d.plan_down)+'</td>';
-    ta.innerHTML += '<td class="r" style="color:var(--amber)">'+N(d.op_loss)+'</td>';
-    ta.innerHTML += '<td class="r" style="color:var(--red)">'+N(d.eq_loss+d.eq_fail)+'</td>';
-    ta.innerHTML += '<td class="c">'+st+'</td></tr>';
+    ta.innerHTML+='<tr><td>'+d.proc+'</td><td style="font-weight:600">'+d.sub+'</td>';
+    ta.innerHTML+='<td class="c">'+d.cnt+'대</td>';
+    ta.innerHTML+='<td><div class="pbar"><div class="ptr"><div class="pfl" style="width:'+Math.min(d.rate,100)+'%;background:'+c+'"></div></div><span class="pval" style="color:'+c+'">'+Nf(d.rate)+'%</span></div></td>';
+    ta.innerHTML+='<td class="r">'+N(d.run)+'</td><td class="r" style="color:rgba(0,180,216,.8)">'+N(d.plan_down)+'</td>';
+    ta.innerHTML+='<td class="r" style="color:var(--amber)">'+N(d.op_loss)+'</td>';
+    ta.innerHTML+='<td class="r" style="color:var(--red)">'+N(d.eq_loss+d.eq_fail)+'</td>';
+    ta.innerHTML+='<td class="c">'+st+'</td></tr>';
   });
 }
 
-// ── TAB 2 추이 ──
+// ════════════════════════════════
+//  TAB 2 추이
+// ════════════════════════════════
 function buildTrend(){
-  var months = ['1월','2월','3월','4월'];
-  var COLORS = ['#00b4d8','#00c851','#ffbb00','#ff3547','#b388ff','#ff9500','#00e5ff','#ff4081','#69f0ae','#ffd740','#40c4ff','#ea80fc','#ccff90'];
-  var keys = Object.keys(G.trend);
-  var datasets = keys.map(function(k,i){
-    return {label:k, data:G.trend[k], borderColor:COLORS[i%COLORS.length], backgroundColor:'transparent',
-            tension:.4, pointRadius:4, pointBackgroundColor:COLORS[i%COLORS.length], borderWidth:2};
+  var db=curDB(); if(!db) return;
+  var months=['1월','2월','3월','4월'];
+  var tr=TREND[MODE]||{};
+  var COLORS=['#00b4d8','#00c851','#ffbb00','#ff3547','#b388ff','#ff9500','#00e5ff','#ff4081','#69f0ae','#ffd740','#40c4ff','#ea80fc','#ccff90'];
+  var keys=Object.keys(tr);
+  var dsets=keys.map(function(k,i){
+    return{label:k,data:tr[k],borderColor:COLORS[i%COLORS.length],backgroundColor:'transparent',
+           tension:.4,pointRadius:4,pointBackgroundColor:COLORS[i%COLORS.length],borderWidth:2};
   });
 
   if(CH.c2a) CH.c2a.destroy();
-  CH.c2a = new Chart(document.getElementById('c2a'),{
-    type:'line', data:{labels:months, datasets:datasets},
+  CH.c2a=new Chart(document.getElementById('c2a'),{
+    type:'line',data:{labels:months,datasets:dsets},
     options:{responsive:true,maintainAspectRatio:false,spanGaps:true,
       plugins:{legend:{position:'right',labels:{color:'#7f8fa6',font:{size:9},padding:8,boxWidth:10}}},
       scales:{x:{ticks:{color:'#7f8fa6'},grid:{color:'rgba(255,255,255,.04)'}},
@@ -811,29 +653,28 @@ function buildTrend(){
   });
 
   if(CH.c2b) CH.c2b.destroy();
-  CH.c2b = new Chart(document.getElementById('c2b'),{
+  CH.c2b=new Chart(document.getElementById('c2b'),{
     type:'radar',
-    data:{labels:G.summary.map(function(s){return s.proc;}), datasets:[
-      {label:'당월 누적', data:G.summary.map(function(s){return s.rate;}),
-       backgroundColor:'rgba(0,180,216,.1)', borderColor:'#00b4d8', pointBackgroundColor:'#00b4d8', pointRadius:4}
+    data:{labels:db.summary.map(function(s){return s.proc;}),datasets:[
+      {label:'당월',data:db.summary.map(function(s){return s.rate;}),
+       backgroundColor:'rgba(0,180,216,.1)',borderColor:'#00b4d8',pointBackgroundColor:'#00b4d8',pointRadius:4}
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       scales:{r:{min:0,max:100,ticks:{callback:function(v){return v+'%';},font:{size:9},color:'#7f8fa6',stepSize:20},
-        pointLabels:{color:'#7f8fa6',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'},angleLines:{color:'rgba(255,255,255,.06)'}}},
+        pointLabels:{color:'#7f8fa6',font:{size:9}},grid:{color:'rgba(255,255,255,.05)'},angleLines:{color:'rgba(255,255,255,.05)'}}},
       plugins:{legend:{position:'top',labels:{color:'#7f8fa6',font:{size:10}}}}}
   });
 
-  var monthAvgs = months.map(function(_,mi){
-    var vals = Object.values(G.trend).map(function(a){return a[mi];}).filter(function(v){return v!==null&&v!==undefined;});
-    return vals.length ? Math.round(vals.reduce(function(a,b){return a+b;},0)/vals.length*10)/10 : null;
+  var mavgs=months.map(function(_,mi){
+    var vals=Object.values(tr).map(function(a){return a[mi];}).filter(function(v){return v!==null&&v!==undefined;});
+    return vals.length?Math.round(vals.reduce(function(a,b){return a+b;},0)/vals.length*10)/10:null;
   });
-
   if(CH.c2c) CH.c2c.destroy();
-  CH.c2c = new Chart(document.getElementById('c2c'),{
+  CH.c2c=new Chart(document.getElementById('c2c'),{
     type:'line',
-    data:{labels:months, datasets:[
-      {label:'전체 평균 가동율', data:monthAvgs, borderColor:'#00b4d8', backgroundColor:'rgba(0,180,216,.08)',
-       fill:true, tension:.4, pointRadius:6, pointBackgroundColor:'#10141a', pointBorderWidth:2, pointBorderColor:'#00b4d8'}
+    data:{labels:months,datasets:[
+      {label:'전체 평균',data:mavgs,borderColor:'#00b4d8',backgroundColor:'rgba(0,180,216,.08)',
+       fill:true,tension:.4,pointRadius:6,pointBackgroundColor:'#10141a',pointBorderWidth:2,pointBorderColor:'#00b4d8'}
     ]},
     options:{responsive:true,maintainAspectRatio:false,spanGaps:true,
       plugins:{legend:{position:'top',labels:{color:'#7f8fa6',font:{size:10}}}},
@@ -842,64 +683,172 @@ function buildTrend(){
   });
 }
 
-// ── TAB 3 상세 ──
-function renderDetail(){
-  var fp = document.getElementById('fProc').value;
-  var fs = document.getElementById('fStat').value;
-  var so = document.getElementById('fSort').value;
-
-  var list = G.detail.filter(function(d){
-    if(fp && d.proc!==fp) return false;
-    if(fs==='ok'   && d.rate<TARGET)            return false;
-    if(fs==='warn' && (d.rate>=TARGET||d.rate<40)) return false;
-    if(fs==='crit' && d.rate>=40)               return false;
-    return true;
+// ════════════════════════════════
+//  TAB 3 설비 상세
+// ════════════════════════════════
+function spark(arr,color){
+  if(!arr||!arr.length) return '<span style="color:var(--muted);font-size:9px">—</span>';
+  var valid=arr.filter(function(v){return v!==null&&v!==undefined;});
+  if(!valid.length) return '<span style="color:var(--muted);font-size:9px">—</span>';
+  var W=60,H=22,pad=2,max=Math.max.apply(null,valid),min=0,range=max-min||1;
+  var pts=[]; var xStep=(W-pad*2)/(arr.length-1||1);
+  arr.forEach(function(v,i){
+    if(v===null||v===undefined)return;
+    pts.push((pad+i*xStep)+','+(H-pad-(v-min)/range*(H-pad*2)));
   });
-
-  list.sort(function(a,b){
-    if(so==='asc')  return a.rate - b.rate;
-    if(so==='desc') return b.rate - a.rate;
-    return a.proc.localeCompare(b.proc) || (a.sub||'').localeCompare(b.sub||'');
-  });
-
-  document.getElementById('fcnt').textContent = list.length + '개 설비';
-  var h = '';
-  list.forEach(function(d,i){
-    var c  = gc(d.rate);
-    var st = d.rate>=TARGET?'<span class="badge bok">정상</span>':d.rate>=40?'<span class="badge bwn">주의</span>':'<span class="badge brd">위험</span>';
-    var dk = d.proc+'_'+d.sub;
-    h += '<tr style="cursor:pointer" onclick="showEquipChart('+JSON.stringify(d)+')" onmouseover="this.style.background=\'rgba(0,180,216,.06)\'" onmouseout="this.style.background=\'\'"><td class="c" style="color:var(--muted);font-size:10px">'+(i+1)+'</td>';
-    h += '<td>'+d.proc+'</td><td style="font-weight:600">'+(d.sub||'-')+'</td>';
-    h += '<td class="c" style="color:var(--muted)">'+d.cnt+'대</td>';
-    h += '<td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:'+Math.min(d.rate,100)+'%;background:'+c+'"></div></div><span class="pval" style="color:'+c+'">'+Nf(d.rate)+'%</span></div></td>';
-    h += '<td class="r" style="color:var(--muted)">'+N(d.base)+'</td>';
-    h += '<td class="r">'+N(d.run)+'</td>';
-    h += '<td class="r" style="color:rgba(0,180,216,.8)">'+N(d.plan_down)+'</td>';
-    h += '<td class="r" style="color:var(--amber)">'+N(d.op_loss)+'</td>';
-    h += '<td class="r" style="color:var(--red)">'+N(d.eq_loss+d.eq_fail)+'</td>';
-    h += '<td class="r" style="color:var(--muted)">'+N(d.area)+'</td>';
-    // 스파크라인
-    var key = d.proc+'_'+d.sub;
-    var mArr = G.equipTrend && G.equipTrend[key] ? G.equipTrend[key] : [];
-    var spark = buildSparkline(mArr, c);
-    h += '<td class="c">'+spark+'</td>';
-    h += '<td class="c">'+st+'</td></tr>';
-  });
-  document.getElementById('t3b').innerHTML = h || '<tr><td colspan="12" style="text-align:center;padding:20px;color:var(--muted)">해당 설비 없음</td></tr>';
+  var last=pts[pts.length-1]||'0,0',lx=last.split(',')[0],ly=last.split(',')[1];
+  return '<svg width="'+W+'" height="'+H+'" style="overflow:visible">'
+    +'<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+color+'" stroke-width="1.5" stroke-linejoin="round"/>'
+    +'<circle cx="'+lx+'" cy="'+ly+'" r="2.5" fill="'+color+'"/></svg>';
 }
 
-// ── 자동 복원 ──
+function renderDetail(){
+  var db=curDB(); if(!db) return;
+  var fp=document.getElementById('fProc').value;
+  var fs=document.getElementById('fStat').value;
+  var so=document.getElementById('fSort').value;
+  var list=db.detail.filter(function(d){
+    if(fp&&d.proc!==fp) return false;
+    if(fs==='ok'&&d.rate<TARGET) return false;
+    if(fs==='warn'&&(d.rate>=TARGET||d.rate<40)) return false;
+    if(fs==='crit'&&d.rate>=40) return false;
+    return true;
+  });
+  list.sort(function(a,b){
+    if(so==='asc')  return a.rate-b.rate;
+    if(so==='desc') return b.rate-a.rate;
+    return a.proc.localeCompare(b.proc)||(a.sub||'').localeCompare(b.sub||'');
+  });
+  document.getElementById('fcnt').textContent=list.length+'개 설비';
+  var h='';
+  list.forEach(function(d,i){
+    var c=gc(d.rate);
+    var st=d.rate>=TARGET?'<span class="badge bok">정상</span>':d.rate>=40?'<span class="badge bwn">주의</span>':'<span class="badge brd">위험</span>';
+    var key=d.proc+'_'+d.sub;
+    var mArr=EQUIP_TREND[key]||[];
+    var sp=spark(mArr,c);
+    var dJson=JSON.stringify(d).replace(/"/g,'&quot;');
+    h+='<tr style="cursor:pointer" onclick="showEquip('+dJson+')" onmouseover="this.style.background=\'rgba(0,180,216,.06)\'" onmouseout="this.style.background=\'\'">';
+    h+='<td class="c" style="color:var(--muted);font-size:10px">'+(i+1)+'</td>';
+    h+='<td>'+d.proc+'</td><td style="font-weight:600">'+(d.sub||'-')+'</td>';
+    h+='<td class="c" style="color:var(--muted)">'+d.cnt+'대</td>';
+    h+='<td><div class="pbar"><div class="ptr"><div class="pfl" style="width:'+Math.min(d.rate,100)+'%;background:'+c+'"></div></div><span class="pval" style="color:'+c+'">'+Nf(d.rate)+'%</span></div></td>';
+    h+='<td class="r" style="color:var(--muted)">'+N(d.base)+'</td><td class="r">'+N(d.run)+'</td>';
+    h+='<td class="r" style="color:rgba(0,180,216,.8)">'+N(d.plan_down)+'</td>';
+    h+='<td class="r" style="color:var(--amber)">'+N(d.op_loss)+'</td>';
+    h+='<td class="r" style="color:var(--red)">'+N(d.eq_loss+d.eq_fail)+'</td>';
+    h+='<td class="r" style="color:var(--muted)">'+N(d.area)+'</td>';
+    h+='<td class="c">'+sp+'</td><td class="c">'+st+'</td></tr>';
+  });
+  document.getElementById('t3b').innerHTML=h||'<tr><td colspan="13" style="text-align:center;padding:18px;color:var(--muted)">해당 설비 없음</td></tr>';
+}
+
+function showEquip(d){
+  var key=d.proc+'_'+d.sub;
+  var mArr=EQUIP_TREND[key]||[];
+  var months=['1월','2월','3월','4월'];
+  var c=gc(d.rate);
+  var panel=document.getElementById('equipPanel');
+  panel.style.display='block';
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  document.getElementById('eTitle').textContent='['+d.proc+'] '+d.sub+' — 월별 가동율 추이 (2026)';
+
+  if(CH.cEL) CH.cEL.destroy();
+  CH.cEL=new Chart(document.getElementById('cEL'),{
+    type:'line',
+    data:{labels:months,datasets:[
+      {label:'가동율(%)',data:mArr,borderColor:c,backgroundColor:c.replace('rgb','rgba').replace(')',', .08)'),
+       fill:true,tension:.4,pointRadius:5,pointBackgroundColor:'#10141a',pointBorderWidth:2,pointBorderColor:c,borderWidth:2},
+      {label:'목표(60%)',data:months.map(function(){return 60;}),borderColor:'rgba(255,255,255,.2)',borderDash:[5,4],pointRadius:0,borderWidth:1}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,spanGaps:true,
+      plugins:{legend:{position:'top',labels:{color:'#7f8fa6',font:{size:10}}}},
+      scales:{x:{ticks:{color:'#7f8fa6'},grid:{color:'rgba(255,255,255,.04)'}},
+              y:{min:0,max:100,ticks:{color:'#7f8fa6',callback:function(v){return v+'%';}},grid:{color:'rgba(255,255,255,.04)'}}}}
+  });
+
+  if(CH.cEB) CH.cEB.destroy();
+  CH.cEB=new Chart(document.getElementById('cEB'),{
+    type:'bar',
+    data:{labels:months,datasets:[
+      {label:'가동율(%)',data:mArr,backgroundColor:mArr.map(function(v){return v!==null?gc(v||0):'rgba(255,255,255,.1)';}),borderRadius:5,borderSkipped:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'#7f8fa6'},grid:{display:false}},
+              y:{min:0,max:100,ticks:{color:'#7f8fa6',callback:function(v){return v+'%';}},grid:{color:'rgba(255,255,255,.04)'}}}}
+  });
+
+  var sh='';
+  months.forEach(function(m,i){
+    var v=mArr[i];
+    var cv=v!==null&&v!==undefined?gc(v):'#7f8fa6';
+    sh+='<div style="background:var(--card2);border:1px solid var(--bor);border-radius:6px;padding:8px;text-align:center">'
+      +'<div style="font-size:10px;color:var(--muted);margin-bottom:3px">'+m+'</div>'
+      +'<div style="font-family:Orbitron,monospace;font-size:15px;font-weight:700;color:'+cv+'">'+(v!==null&&v!==undefined?v+'%':'—')+'</div>'
+      +'</div>';
+  });
+  document.getElementById('eStats').innerHTML=sh;
+}
+
+// ════════════════════════════════
+//  저장 / 초기화
+// ════════════════════════════════
+function showSavedRow(fname, savedAt){
+  var row=document.getElementById('savedRow');
+  row.classList.add('on');
+  document.getElementById('savedInfo').innerHTML=
+    '<b style="color:var(--green)">'+fname+'</b> &nbsp;·&nbsp; 저장: '+savedAt;
+}
+
+function clearAll(){
+  if(!confirm('저장된 데이터를 초기화하고\n새 파일을 업로드하시겠습니까?')) return;
+  [LS_M,LS_D,LS_ET,LS_TR,'syn_oee_fname','syn_oee_saved'].forEach(function(k){localStorage.removeItem(k);});
+  DB={month:null,day:null}; TREND={month:{},day:{}}; EQUIP_TREND={}; CH={};
+  document.getElementById('emptyWrap').style.display='';
+  document.getElementById('dashWrap').style.display='none';
+  document.getElementById('dzText').textContent='설비 가동율 엑셀 파일 클릭 또는 드래그';
+  document.getElementById('dzText').className='dz-text';
+  document.getElementById('fileIn').value='';
+  document.getElementById('savedRow').classList.remove('on');
+  var tog=document.getElementById('modeToggle');
+  tog.style.opacity='.35'; tog.style.pointerEvents='none';
+  setStatus('💡 파일 업로드 시 월 누적 + 일 기준 동시 로드','idle');
+}
+
+// ════════════════════════════════
+//  localStorage 자동 복원
+// ════════════════════════════════
 (function(){
-  var mOk = loadSheetFromLocal(LS_KEY_M, G);
-  var dOk = loadSheetFromLocal(LS_KEY_D, GD);
-  if(mOk){
-    var mData = null;
-    try{ mData=JSON.parse(localStorage.getItem(LS_KEY_M)); }catch(e){}
-    if(mData){ showSavedBanner(mData.fname, mData.savedAt);
-      document.getElementById('dropText').textContent='📄 '+(mData.fname||'이전 파일');
-      document.getElementById('dropText').className='drop-text active'; }
-    VIEW_MODE='month'; renderDashboard();
-  }
+  try{
+    var m=localStorage.getItem(LS_M);
+    var d=localStorage.getItem(LS_D);
+    var et=localStorage.getItem(LS_ET);
+    var tr=localStorage.getItem(LS_TR);
+    var fname=localStorage.getItem('syn_oee_fname')||'';
+    var saved=localStorage.getItem('syn_oee_saved')||'';
+    if(!m) return;
+    DB.month=JSON.parse(m);
+    if(d) DB.day=JSON.parse(d);
+    if(et) EQUIP_TREND=JSON.parse(et);
+    if(tr) TREND=JSON.parse(tr);
+    if(!DB.month||!DB.month.summary||!DB.month.summary.length) return;
+    // UI 복원
+    document.getElementById('dzText').textContent='📄 '+fname;
+    document.getElementById('dzText').className='dz-text active';
+    showSavedRow(fname, saved);
+    var tog=document.getElementById('modeToggle');
+    tog.style.opacity='1'; tog.style.pointerEvents='auto';
+    if(!DB.day){
+      document.getElementById('btnDay').style.opacity='.4';
+      document.getElementById('btnDay').style.pointerEvents='none';
+    }
+    MODE='month';
+    document.getElementById('btnMonth').classList.add('on');
+    document.getElementById('btnDay').classList.remove('on');
+    setStatus('💾 저장된 데이터 복원 — '+fname+' ('+saved+')','ok');
+    renderAll();
+  }catch(e){ console.warn('복원 실패:',e); }
 })();
 </script>
 </body>
