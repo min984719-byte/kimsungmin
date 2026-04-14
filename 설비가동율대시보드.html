@@ -32,23 +32,22 @@ header{background:var(--card);border-bottom:1px solid var(--bor);padding:0 22px;
 .mode-btn:hover:not(.on){color:rgba(255,255,255,.8)}
 
 /* ── 업로드 바 ── */
-.upbar{background:var(--card2);border-bottom:2px solid var(--bor);padding:9px 22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.drop-zone{display:flex;align-items:center;gap:9px;background:var(--card);border:1.5px dashed var(--bor);border-radius:8px;padding:7px 16px;cursor:pointer;transition:all .2s;flex-shrink:0}
-.drop-zone:hover,.drop-zone.drag{border-color:var(--teal);background:rgba(0,180,216,.05)}
-.drop-zone input{display:none}
-.dz-text{font-size:11.5px;color:var(--muted);transition:color .2s}
-.dz-text.active{color:var(--teal);font-weight:600}
-.upstatus{font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid;flex-shrink:0}
-.upstatus.idle{color:var(--muted);border-color:var(--bor);background:transparent}
-.upstatus.loading{color:var(--amber);border-color:rgba(255,187,0,.3);background:rgba(255,187,0,.05)}
-.upstatus.ok{color:var(--green);border-color:rgba(0,200,81,.3);background:rgba(0,200,81,.05)}
-.upstatus.err{color:var(--red);border-color:rgba(255,53,71,.3);background:rgba(255,53,71,.05)}
-.spin{display:inline-block;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.saved-row{display:none;width:100%;align-items:center;gap:10px;padding-top:7px;margin-top:5px;border-top:1px solid rgba(0,200,81,.15)}
-.saved-row.on{display:flex}
-.clear-btn{margin-left:auto;background:rgba(255,53,71,.08);border:1.5px solid rgba(255,53,71,.3);color:var(--red);padding:6px 18px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
-.clear-btn:hover{background:rgba(255,53,71,.18)}
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
 
 /* ── 빈 화면 ── */
 #emptyWrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 130px)}
@@ -134,7 +133,7 @@ var EMBEDDED = {"month": {"summary": [{"proc": "레이저", "sub": null, "cnt": 
 <header>
   <div>
     <div class="logo-t">SYNOPEX // OEE</div>
-    <div class="logo-s" id="hdr-sub">FPCB 설비 가동율 대시보드 — 파일을 업로드하세요</div>
+    <div class="logo-s" id="hdr-sub">FPCB 설비 가동율 대시보드 | 월 누적: 4/1~4/12</div>
   </div>
   <div style="display:flex;align-items:center;gap:14px">
     <!-- 모드 토글 -->
@@ -154,35 +153,9 @@ var EMBEDDED = {"month": {"summary": [{"proc": "레이저", "sub": null, "cnt": 
 </header>
 
 <!-- ── 업로드 바 ── -->
-<div class="upbar" id="upbar">
-  <div class="drop-zone" onclick="document.getElementById('fileIn').click()">
-    <span style="font-size:18px">📂</span>
-    <span class="dz-text" id="dzText">설비 가동율 엑셀 파일 클릭 또는 드래그</span>
-    <input type="file" id="fileIn" accept=".xlsx,.xls">
-  </div>
-  <div class="upstatus idle" id="upStatus">💡 파일 업로드 시 월 누적 + 일 기준 동시 로드</div>
-  <div class="saved-row" id="savedRow">
-    <span style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em">💾 저장됨</span>
-    <span id="savedInfo" style="font-size:11px;color:var(--text)"></span>
-    <button class="clear-btn" onclick="clearAll()">↺ 초기화</button>
-  </div>
-</div>
+
 
 <!-- ── 빈 화면 ── -->
-<div id="emptyWrap">
-  <div class="empty">
-    <div class="empty-icon">📊</div>
-    <div class="empty-title">UPLOAD EXCEL</div>
-    <div class="empty-desc">가동율 현황 엑셀을 업로드하면<br>월 누적 · 일 기준 대시보드가 자동 생성됩니다</div>
-    <div class="empty-card">
-      <div class="estep"><div class="enum">1</div><div class="etext">상단 <b>📂 파일 클릭</b> 또는 파일 드래그</div></div>
-      <div class="estep"><div class="enum">2</div><div class="etext"><b>가동율(월 누적기준)</b> + <b>가동율(일)</b> 시트 자동 인식</div></div>
-      <div class="estep"><div class="enum">3</div><div class="etext">헤더 <b>📅 월 누적 / 📆 일 기준</b> 버튼으로 전환</div></div>
-    </div>
-  </div>
-</div>
-
-<!-- ── 대시보드 ── -->
 <div id="dashWrap">
   <nav>
     <div class="ntab on" onclick="sw(0)">[ 종합 현황 ]</div>
@@ -395,7 +368,7 @@ dz.addEventListener('drop', function(e){
 });
 
 function setStatus(msg,type){
-  var el=document.getElementById('upStatus');
+  var el=document.getElementById('upStatus'); if(!el) return;
   el.className='upstatus '+(type||'idle');
   el.innerHTML=msg;
 }
@@ -892,22 +865,20 @@ function showEquip(d){
 // ════════════════════════════════
 //  저장 / 초기화
 // ════════════════════════════════
-function showSavedRow(fname, savedAt){
+function showSavedRow(fname, savedAt){ var row=document.getElementById('savedRow'); if(!row) return;
   var row=document.getElementById('savedRow');
   row.classList.add('on');
   document.getElementById('savedInfo').innerHTML=
     '<b style="color:var(--green)">'+fname+'</b> &nbsp;·&nbsp; 저장: '+savedAt;
 }
 
-function clearAll(){
-  if(!confirm('저장된 데이터를 초기화하고\n새 파일을 업로드하시겠습니까?')) return;
-  [LS_M,LS_D,LS_ET,LS_TR,'syn_oee_fname','syn_oee_saved'].forEach(function(k){localStorage.removeItem(k);});
+function clearAll(){ /* 공유용 파일 - 사용안함 */ });
   DB={month:null,day:null}; TREND={month:{},day:{}}; EQUIP_TREND={}; CH={};
   document.getElementById('emptyWrap').style.display='';
   document.getElementById('dashWrap').style.display='none';
-  document.getElementById('dzText').textContent='설비 가동율 엑셀 파일 클릭 또는 드래그';
-  document.getElementById('dzText').className='dz-text';
-  document.getElementById('fileIn').value='';
+  
+  
+  
   document.getElementById('savedRow').classList.remove('on');
   var tog=document.getElementById('modeToggle');
   tog.style.opacity='.35'; tog.style.pointerEvents='none';
@@ -925,10 +896,9 @@ function clearAll(){
     DB.day      = EMBEDDED.day;
     TREND       = { month: EMBEDDED.trend, day: EMBEDDED.trend };
     EQUIP_TREND = EMBEDDED.equip_trend || {};
-    var tog = document.getElementById('modeToggle');
-    tog.style.opacity='1'; tog.style.pointerEvents='auto';
-    document.getElementById('dzText').textContent = '📊 4월 설비 가동율 (내장 데이터)';
-    document.getElementById('dzText').className   = 'dz-text active';
+    var tog = document.getElementById('modeToggle'); if(tog){ tog.style.opacity='1'; tog.style.pointerEvents='auto'; }
+    
+    
     showSavedRow('4월_설비_가동율_종합_현황-0412.xlsx','내장 데이터 — 누구나 바로 열람');
     MODE='month';
     document.getElementById('btnMonth').classList.add('on');
@@ -951,8 +921,8 @@ function clearAll(){
     if(et) EQUIP_TREND=JSON.parse(et);
     if(tr) TREND=JSON.parse(tr);
     if(!DB.month||!DB.month.summary||!DB.month.summary.length) return;
-    document.getElementById('dzText').textContent='📄 '+fname;
-    document.getElementById('dzText').className='dz-text active';
+    
+    
     showSavedRow(fname, saved);
     var tog=document.getElementById('modeToggle');
     tog.style.opacity='1'; tog.style.pointerEvents='auto';
