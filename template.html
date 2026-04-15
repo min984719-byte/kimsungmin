@@ -223,13 +223,28 @@ function setMode(m){
   MODE=m;
   document.getElementById('btnMonth').classList.toggle('on',m==='month');
   document.getElementById('btnDay').classList.toggle('on',m==='day');
+  Object.keys(CH).forEach(function(k){try{if(CH[k]&&CH[k].destroy)CH[k].destroy();}catch(e){}});
   CH={};
-  render();
   var ti=0;
   document.querySelectorAll('.ntab').forEach(function(t,i){if(t.classList.contains('on'))ti=i;});
-  if(ti===1) buildHeatmap();
-  if(ti===2) buildTrend();
-  if(ti===3) renderDetail();
+  var db=cur();
+  document.getElementById('h-avg').textContent    = db.overall+'%';
+  document.getElementById('h-period').textContent = db.period;
+  document.getElementById('h-tot').textContent    = db.detail.length;
+  var wn=db.summary.filter(function(s){return s.rate>=40&&s.rate<TGT;}).length;
+  var cr=db.summary.filter(function(s){return s.rate<40;}).length;
+  document.getElementById('h-warn').textContent=wn;
+  document.getElementById('h-crit').textContent=cr;
+  document.getElementById('hdr-sub').textContent='FPCB 설비 가동율 | '+(m==='day'?'일 기준: ':'월 누적: ')+db.period;
+  var fp=document.getElementById('fProc');
+  fp.innerHTML='<option value="">전체</option>';
+  var procs=[];
+  db.detail.forEach(function(d){if(procs.indexOf(d.proc)<0)procs.push(d.proc);});
+  procs.sort().forEach(function(p){fp.innerHTML+='<option value="'+p+'">'+p+'</option>';});
+  if(ti===0) buildTab0();
+  else if(ti===1) buildHeatmap();
+  else if(ti===2) buildTrend();
+  else if(ti===3) renderDetail();
 }
 
 function render(){
