@@ -4,197 +4,324 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SYNOPEX VIETNAM — 생산관리 대시보드</title>
-<meta property="og:title" content="SYNOPEX VIETNAM 생산관리 대시보드">
-<meta property="og:description" content="2027년 생산운영계획 · 외주비 마감 · 설비 가동율 | 한국어/베트남어 지원">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://min984719-byte.github.io/kimsungmin/">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+:root{--dk:#1F3864;--md:#2F5496;--bg:#f0f2f5;--card:#fff;--bor:#e9ecef;--text:#212529;--muted:#6c757d}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"맑은 고딕","Segoe UI",sans-serif;background:#f0f2f5;min-height:100vh}
-header{background:linear-gradient(135deg,#1F3864,#2F5496);color:#fff;padding:0 32px;height:68px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 3px 12px rgba(0,0,0,.35)}
+body{font-family:'Noto Sans KR','Segoe UI',sans-serif;background:var(--bg);min-height:100vh}
+header{background:linear-gradient(135deg,var(--dk),var(--md));color:#fff;padding:0 32px;height:68px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 3px 12px rgba(0,0,0,.3)}
 .logo-wrap{display:flex;align-items:center;gap:14px}
-.logo-icon{width:42px;height:42px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;border:1px solid rgba(255,255,255,.2)}
-.logo-text .main{font-size:16px;font-weight:700}
-.logo-text .sub{font-size:10px;font-weight:400;opacity:.65;margin-top:2px}
-.clk{text-align:right;font-size:11px;opacity:.75;line-height:1.7}
-main{max-width:980px;margin:0 auto;padding:32px 20px 40px}
-.banner{background:#fff;border-radius:14px;padding:28px 32px;margin-bottom:30px;display:flex;align-items:center;gap:22px;box-shadow:0 2px 12px rgba(0,0,0,.07);border:1px solid #e9ecef;border-left:5px solid #2F5496}
-.banner-emoji{font-size:44px;flex-shrink:0}
-.banner h2{font-size:17px;font-weight:700;color:#1F3864;margin-bottom:5px}
-.banner p{font-size:12px;color:#6c757d;line-height:1.85}
-.sec{font-size:11.5px;font-weight:700;color:#495057;letter-spacing:.07em;text-transform:uppercase;margin-bottom:13px;display:flex;align-items:center;gap:7px}
-.sec::after{content:"";flex:1;height:1px;background:#dee2e6}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
-
-/* ── 카드 공통 ── */
-a.card,div.card{
-  background:#fff;border-radius:12px;border:1px solid #e9ecef;
-  padding:22px 22px 18px;text-decoration:none;color:#212529;
-  display:flex;flex-direction:column;gap:11px;
-  position:relative;overflow:hidden;
-  box-shadow:0 2px 8px rgba(0,0,0,.055);transition:all .22s
-}
-a.card::before,div.card::before{
-  content:"";position:absolute;left:0;top:0;bottom:0;
-  width:5px;border-radius:12px 0 0 12px;transition:width .2s
-}
-a.card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.12)}
-a.card:hover::before{width:7px}
-
-.c1::before{background:#2F5496}
-.c2::before{background:#BA7517}
-.c3::before{background:#C00000}
-.c4::before{background:#1D9E75}  /* 설비가동율 — 초록 */
-.c5::before{background:#534AB7}
-.c6::before{background:#D85A30}
-
-.ch{display:flex;align-items:center;gap:13px}
-.ci{width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:23px;flex-shrink:0}
-.ci1{background:#DEEAF1}.ci2{background:#FFF2CC}.ci3{background:#FCE4D6}
-.ci4{background:#E2EFDA}.ci5{background:#EDE7F6}.ci6{background:#FDEBD0}
-.ct{font-size:13.5px;font-weight:700;color:#1F3864;line-height:1.35}
-.cd{font-size:11.5px;color:#6c757d;line-height:1.7}
-.cf{display:flex;align-items:center;justify-content:space-between;margin-top:2px}
-.tag{display:inline-block;font-size:10px;font-weight:600;padding:3px 9px;border-radius:10px}
-.t2{background:#FFF2CC;color:#7c5103}
-.t3{background:#FCE4D6;color:#C00000}
-.t4{background:#E2EFDA;color:#155724}  /* 설비가동율 — 초록 태그 */
-.t1{background:#DEEAF1;color:#0C447C}
-.t5{background:#EDE7F6;color:#534AB7}
-.t6{background:#FDEBD0;color:#A04000}
-.arrow{font-size:17px;color:#ced4da;transition:all .2s}
-a.card:hover .arrow{color:#2F5496;transform:translateX(4px)}
-
-/* ── 준비중 ── */
+.logo-icon{width:42px;height:42px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;border:1px solid rgba(255,255,255,.2);cursor:pointer;user-select:none}
+.logo-main{font-size:16px;font-weight:700}.logo-sub{font-size:10px;opacity:.65;margin-top:2px}
+.clk{text-align:right;font-size:11px;opacity:.7;line-height:1.7}
+main{max-width:980px;margin:0 auto;padding:28px 20px 40px}
+.banner{background:var(--card);border-radius:14px;padding:24px 28px;margin-bottom:26px;display:flex;align-items:center;gap:20px;box-shadow:0 2px 10px rgba(0,0,0,.07);border:1px solid var(--bor);border-left:5px solid var(--md)}
+.banner-ico{font-size:40px;flex-shrink:0}
+.banner h2{font-size:16px;font-weight:700;color:var(--dk);margin-bottom:4px}
+.banner p{font-size:12px;color:var(--muted);line-height:1.8}
+.sec{font-size:11.5px;font-weight:700;color:#495057;letter-spacing:.07em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.sec::after{content:"";flex:1;height:1px;background:var(--bor)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.card{background:var(--card);border-radius:12px;border:1px solid var(--bor);padding:20px 22px 16px;text-decoration:none;color:var(--text);display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05);transition:all .2s}
+a.card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.1)}
 .soon{opacity:.5;pointer-events:none;cursor:default}
-.soon-badge{position:absolute;top:11px;right:11px;background:#6c757d;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px}
-
-.info-bar{background:#fff;border-radius:12px;border:1px solid #e9ecef;padding:15px 24px;display:flex;gap:28px;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,.055)}
-.ib{display:flex;flex-direction:column;gap:3px}
+.soon-b{position:absolute;top:10px;right:10px;background:#6c757d;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px}
+.ch{display:flex;align-items:center;gap:12px}
+.ci{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.ct{font-size:13.5px;font-weight:700;color:var(--dk);line-height:1.35}
+.cd{font-size:11.5px;color:var(--muted);line-height:1.75}
+.cf{display:flex;align-items:center;justify-content:space-between}
+.tag{display:inline-block;font-size:10px;font-weight:600;padding:3px 9px;border-radius:10px}
+.arr{font-size:16px;color:#ced4da;transition:all .2s}
+a.card:hover .arr{color:var(--md);transform:translateX(4px)}
+.info-bar{background:var(--card);border-radius:12px;border:1px solid var(--bor);padding:14px 22px;display:flex;gap:24px;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.ib{display:flex;flex-direction:column;gap:2px}
 .ib-l{font-size:9.5px;color:#adb5bd;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
 .ib-v{font-size:12.5px;font-weight:600;color:#343a40}
-footer{text-align:center;padding:24px;font-size:11px;color:#adb5bd;margin-top:4px}
-@media(max-width:640px){.grid{grid-template-columns:1fr}.banner{flex-direction:column;text-align:center;gap:14px}header{padding:0 18px}}
+footer{text-align:center;padding:20px;font-size:11px;color:#adb5bd;margin-top:4px}
+/* 편집 모드 */
+.admin-bar{display:none;background:#1F3864;padding:10px 28px;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:300;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.admin-bar.on{display:flex}
+.admin-bar .lbl{font-size:12px;font-weight:700;color:#fff;margin-right:4px}
+.abtn{padding:6px 14px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.abtn:hover{background:rgba(255,255,255,.25)}
+.abtn.g{background:rgba(29,158,117,.4);border-color:rgba(29,158,117,.6)}
+.abtn.r{background:rgba(192,0,0,.35);border-color:rgba(192,0,0,.5)}
+.edit-btn{position:absolute;top:8px;right:8px;background:rgba(47,84,150,.9);border:none;border-radius:5px;padding:3px 9px;font-size:10px;font-weight:600;color:#fff;cursor:pointer;opacity:0;transition:opacity .15s;font-family:inherit;z-index:10}
+.admin-on .card:hover .edit-btn{opacity:1}
+.admin-on .card{cursor:default}
+.admin-on .soon{opacity:.7;pointer-events:auto}
+/* 모달 */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center}
+.ov.on{display:flex}
+.modal{background:#fff;border-radius:14px;padding:26px;max-width:500px;width:92%;max-height:92vh;overflow-y:auto}
+.modal h3{font-size:16px;font-weight:700;color:var(--dk);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--bor)}
+.mf{margin-bottom:11px}
+.mf label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:3px}
+.mf input,.mf select,.mf textarea{width:100%;font-size:12.5px;padding:7px 10px;border:1px solid #dee2e6;border-radius:6px;font-family:inherit;color:var(--text);resize:vertical}
+.mf textarea{min-height:65px}
+.mf input:focus,.mf select:focus,.mf textarea:focus{outline:none;border-color:var(--md);box-shadow:0 0 0 2px rgba(47,84,150,.1)}
+.mr2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mb-row{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.mb{padding:7px 16px;border-radius:6px;border:1px solid #dee2e6;background:#fff;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.mb:hover{background:var(--bg)}
+.mb.pri{background:var(--dk);border-color:var(--dk);color:#fff}
+.mb.pri:hover{background:var(--md)}
+.mb.del{background:#C00000;border-color:#C00000;color:#fff}
+/* 비밀번호 */
+.pw-modal{background:#fff;border-radius:14px;padding:32px 28px;max-width:340px;width:90%;text-align:center}
+.pw-modal h3{font-size:17px;font-weight:700;color:var(--dk);margin-bottom:8px}
+.pw-modal p{font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7}
+.pw-in{width:100%;font-size:20px;padding:11px;border:2px solid #dee2e6;border-radius:8px;text-align:center;letter-spacing:8px;font-family:monospace;margin-bottom:10px}
+.pw-in:focus{outline:none;border-color:var(--md)}
+.pw-hint{font-size:10.5px;color:#adb5bd;margin-top:8px}
+/* 토스트 */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--dk);color:#fff;border-radius:8px;padding:10px 22px;font-size:12px;font-weight:600;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+@media(max-width:640px){.grid{grid-template-columns:1fr}.banner{flex-direction:column;gap:12px}.admin-bar{position:relative}header{padding:0 18px}}
 </style>
 </head>
 <body>
 
+<!-- 편집 모드 바 -->
+<div class="admin-bar" id="adminBar">
+  <span class="lbl">⚙️ 편집 모드</span>
+  <button class="abtn g" onclick="openAdd()">＋ 카드 추가</button>
+  <button class="abtn" onclick="exportHTML()">💾 HTML 파일로 저장</button>
+  <button class="abtn r" onclick="exitAdmin()">✕ 종료</button>
+  <span style="font-size:11px;color:rgba(255,255,255,.6);margin-left:auto">각 카드의 ✏️ 버튼을 클릭해서 수정하세요</span>
+</div>
+
 <header>
   <div class="logo-wrap">
-    <div class="logo-icon">🏭</div>
-    <div class="logo-text">
-      <div class="main">SYNOPEX VIETNAM</div>
-      <div class="sub">생산관리 대시보드 포털 &nbsp;|&nbsp; Cổng thông tin quản lý sản xuất</div>
+    <div class="logo-icon" id="adminTrigger" ondblclick="askPw()" title="더블클릭: 편집 모드">🏭</div>
+    <div>
+      <div class="logo-main">SYNOPEX VIETNAM</div>
+      <div class="logo-sub">생산관리 대시보드 포털 · Cổng thông tin quản lý sản xuất</div>
     </div>
   </div>
   <div class="clk" id="clk">-</div>
 </header>
 
-<main>
-  <div class="banner">
-    <div class="banner-emoji">👋</div>
-    <div>
-      <h2>SYNOPEX VIETNAM 생산관리 대시보드 포털</h2>
-      <p>아래 카드를 클릭하면 해당 대시보드로 바로 이동합니다. 크롬(Chrome) 또는 엣지(Edge) 브라우저 권장.<br>
-      Nhấn vào thẻ để chuyển đến bảng điều khiển. Khuyến nghị dùng Chrome hoặc Edge.</p>
+<main id="mainEl"></main>
+
+<!-- 비밀번호 모달 -->
+<div class="ov" id="pwOv">
+  <div class="pw-modal">
+    <h3>🔐 편집 모드 진입</h3>
+    <p>관리자 비밀번호를 입력하세요<br>로고 아이콘을 더블클릭해서 접근합니다</p>
+    <input class="pw-in" type="password" id="pwIn" placeholder="••••" maxlength="6"
+      onkeydown="if(event.key==='Enter')checkPw()">
+    <button class="mb pri" style="width:100%;padding:9px;font-size:13px" onclick="checkPw()">확인</button>
+    <div class="pw-hint">기본 비밀번호: 1234</div>
+    <button class="mb" style="width:100%;margin-top:8px" onclick="closeOv('pwOv')">취소</button>
+  </div>
+</div>
+
+<!-- 카드 편집 모달 -->
+<div class="ov" id="editOv">
+  <div class="modal">
+    <h3 id="editH">카드 추가</h3>
+    <input type="hidden" id="editI" value="-1">
+    <div class="mr2">
+      <div class="mf"><label>섹션</label>
+        <select id="eS">
+          <option>생산 계획</option><option>비용 관리</option><option>설비 관리</option>
+          <option>품질 관리</option><option>인사 관리</option><option>기타</option>
+        </select>
+      </div>
+      <div class="mf"><label>상태</label>
+        <select id="eSt">
+          <option value="active">✅ 활성 (클릭 가능)</option>
+          <option value="soon">⏳ 준비중</option>
+        </select>
+      </div>
+    </div>
+    <div class="mf"><label>제목 *</label><input id="eTi" placeholder="예: 설비 가동율 대시보드"></div>
+    <div class="mf"><label>부제목 (베트남어)</label><input id="eSu" placeholder="예: Bảng theo dõi thiết bị"></div>
+    <div class="mf"><label>링크 URL (활성 시 필수)</label><input id="eU" placeholder="예: 설비가동율대시보드.html"></div>
+    <div class="mr2">
+      <div class="mf"><label>아이콘 이모지</label><input id="eIco" placeholder="📈" maxlength="4" style="font-size:18px;text-align:center"></div>
+      <div class="mf"><label>아이콘 배경</label><input id="eBg" type="color" value="#E2EFDA" style="height:38px;padding:3px"></div>
+    </div>
+    <div class="mr2">
+      <div class="mf"><label>왼쪽 선 색</label><input id="eBd" type="color" value="#1D9E75" style="height:38px;padding:3px"></div>
+      <div class="mf"><label>태그 텍스트</label><input id="eTg" placeholder="예: 2026년 3월 마감"></div>
+    </div>
+    <div class="mr2">
+      <div class="mf"><label>태그 배경</label><input id="eTgBg" type="color" value="#E2EFDA" style="height:38px;padding:3px"></div>
+      <div class="mf"><label>태그 글자색</label><input id="eTgC" type="color" value="#155724" style="height:38px;padding:3px"></div>
+    </div>
+    <div class="mf"><label>설명 (줄바꿈 가능)</label>
+      <textarea id="eDe" placeholder="예: 공정별 설비 시간 가동율 현황&#10;엑셀 업로드 → 자동 차트 생성&#10;🇰🇷 한국어 / 🇻🇳 베트남어 전환 지원"></textarea>
+    </div>
+    <div class="mb-row">
+      <button class="mb del" id="delB" onclick="delCard()" style="display:none;margin-right:auto">삭제</button>
+      <button class="mb" onclick="closeOv('editOv')">취소</button>
+      <button class="mb pri" onclick="saveCard()">저장</button>
     </div>
   </div>
+</div>
 
-  <!-- 생산 계획 -->
-  <div class="sec">📊 생산 계획 &nbsp;/&nbsp; Kế hoạch sản xuất</div>
-  <div class="grid">
-
-    <a class="card c2" href="2027년_생산운영계획.html">
-      <div class="ch"><div class="ci ci2">🏭</div>
-        <div class="ct">2027년 생산운영계획<br><span style="font-size:11.5px;font-weight:500;color:#6c757d">Kế hoạch vận hành sản xuất 2027</span></div>
-      </div>
-      <div class="cd">월별 생산계획 (DS / MULTI) · 공정별 부하율<br>CAPA 부족현황 · 설비 투자금액 · 설비 현황<br>🇰🇷 한국어 / 🇻🇳 베트남어 전환 지원</div>
-      <div class="cf"><span class="tag t2">REV02 | 영업계획 변경</span><span class="arrow">→</span></div>
-    </a>
-
-    <div class="card c1 soon">
-      <div class="soon-badge">준비중</div>
-      <div class="ch"><div class="ci ci1">📅</div>
-        <div class="ct">2026년 생산운영계획<br><span style="font-size:11.5px;font-weight:500;color:#6c757d">Kế hoạch vận hành sản xuất 2026</span></div>
-      </div>
-      <div class="cd">2026년도 월별 생산계획 및 CAPA 현황<br>공정별 부하율 · 설비 현황 분석</div>
-      <div class="cf"><span class="tag t1">준비중</span><span class="arrow">→</span></div>
-    </div>
-
-  </div>
-
-  <!-- 비용 관리 -->
-  <div class="sec">💰 비용 관리 &nbsp;/&nbsp; Quản lý chi phí</div>
-  <div class="grid">
-
-    <a class="card c3" href="2026년_외주비_마감(3월).html">
-      <div class="ch"><div class="ci ci3">📑</div>
-        <div class="ct">2026년 외주비 마감 내역<br><span style="font-size:11.5px;font-weight:500;color:#6c757d">Chi phí nhà thầu 2026 (T3)</span></div>
-      </div>
-      <div class="cd">월별 외주비 추이 · 공정별 / 업체별 현황<br>계획대비 실적 달성율 · NEGO 절감 현황<br>🇰🇷 한국어 / 🇻🇳 베트남어 전환 지원</div>
-      <div class="cf"><span class="tag t3">2026년 3월 마감</span><span class="arrow">→</span></div>
-    </a>
-
-    <!-- ✅ 설비 가동율 대시보드 — 활성화 (준비중 아님) -->
-    <a class="card c4" href="설비가동율대시보드.html">
-      <div class="ch"><div class="ci ci4">📈</div>
-        <div class="ct">설비 가동율 대시보드<br><span style="font-size:11.5px;font-weight:500;color:#6c757d">Bảng theo dõi tỷ lệ hoạt động TB</span></div>
-      </div>
-      <div class="cd">공정별 설비 시간 가동율 현황<br>엑셀 파일 업로드 → 자동 차트 생성<br>🇰🇷 한국어 / 🇻🇳 베트남어 전환 지원</div>
-      <div class="cf"><span class="tag t4">Excel 업로드 연동</span><span class="arrow">→</span></div>
-    </a>
-
-  </div>
-
-  <!-- 설비 관리 -->
-  <div class="sec">⚙️ 설비 관리 &nbsp;/&nbsp; Quản lý thiết bị</div>
-  <div class="grid">
-
-    <div class="card c5 soon">
-      <div class="soon-badge">준비중</div>
-      <div class="ch"><div class="ci ci5">🔍</div>
-        <div class="ct">설비 CAPA 점검 대시보드<br><span style="font-size:11.5px;font-weight:500;color:#6c757d">Bảng kiểm tra CAPA thiết bị</span></div>
-      </div>
-      <div class="cd">종합현황 · CAPA 부족현황 · 설비 투자계획<br>REV07 | 2026-03-04</div>
-      <div class="cf"><span class="tag t5">준비중</span><span class="arrow">→</span></div>
-    </div>
-
-    <div class="card c6 soon">
-      <div class="soon-badge">준비중</div>
-      <div class="ch"><div class="ci ci6">👥</div>
-        <div class="ct">인원 현황 대시보드<br><span style="font-size:11.5px;font-weight:500;color:#6c757d">Bảng tình trạng nhân sự</span></div>
-      </div>
-      <div class="cd">공정별 인원 현황 · 직접/간접 인원<br>월별 추이 분석</div>
-      <div class="cf"><span class="tag t6">준비중</span><span class="arrow">→</span></div>
-    </div>
-
-  </div>
-
-  <div class="info-bar">
-    <div class="ib"><span class="ib-l">운영 공장</span><span class="ib-v">SYNOPEX VIETNAM — Bắc Ninh</span></div>
-    <div class="ib"><span class="ib-l">권장 브라우저</span><span class="ib-v">Chrome / Edge</span></div>
-    <div class="ib"><span class="ib-l">지원 언어</span><span class="ib-v">🇰🇷 한국어 / 🇻🇳 Tiếng Việt</span></div>
-    <div class="ib"><span class="ib-l">담당</span><span class="ib-v">제조팀 / Phòng sản xuất</span></div>
-    <div class="ib"><span class="ib-l">최종 업데이트</span><span class="ib-v" id="upd">-</span></div>
-  </div>
-</main>
-
-<footer>
-  SYNOPEX VIETNAM — 생산관리 대시보드 포털 |
-  Cổng thông tin quản lý sản xuất |
-  Powered by GitHub Pages
-</footer>
+<div class="toast" id="toast"></div>
 
 <script>
-function tick(){
-  var n=new Date();
-  document.getElementById('clk').innerHTML=
-    n.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'})+'<br>'+
-    n.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+var PW      = '1234';
+var LS_KEY  = 'synopex_idx_v1';
+var IS_ADMIN= false;
+var SEC_VN  = {'생산 계획':'Kế hoạch sản xuất','비용 관리':'Quản lý chi phí','설비 관리':'Quản lý thiết bị','품질 관리':'Quản lý chất lượng','인사 관리':'Nhân sự','기타':'Khác'};
+var SEC_ICO = {'생산 계획':'📊','비용 관리':'💰','설비 관리':'⚙️','품질 관리':'🔍','인사 관리':'👥','기타':'📌'};
+
+var INIT = [
+  {section:'생산 계획',status:'active',title:'2027년 생산운영계획',subtitle:'Kế hoạch vận hành sản xuất 2027',url:'2027년_생산운영계획.html',ico:'🏭',bg:'#FFF2CC',bd:'#BA7517',tag:'REV02 | 영업계획 변경',tgBg:'#FFF2CC',tgC:'#7c5103',desc:'월별 생산계획 (DS / MULTI) · 공정별 부하율\nCAPA 부족현황 · 설비 투자금액 · 설비 현황\n🇰🇷 한국어 / 🇻🇳 베트남어 전환 지원'},
+  {section:'생산 계획',status:'soon',title:'2026년 생산운영계획',subtitle:'Kế hoạch vận hành sản xuất 2026',url:'',ico:'📅',bg:'#DEEAF1',bd:'#2F5496',tag:'준비중',tgBg:'#DEEAF1',tgC:'#0C447C',desc:'2026년도 월별 생산계획 및 CAPA 현황\n공정별 부하율 · 설비 현황 분석'},
+  {section:'비용 관리',status:'active',title:'2026년 외주비 마감 내역',subtitle:'Chi phí nhà thầu 2026 (T3)',url:'2026년_외주비_마감(3월).html',ico:'📑',bg:'#FCE4D6',bd:'#C00000',tag:'2026년 3월 마감',tgBg:'#FCE4D6',tgC:'#C00000',desc:'월별 외주비 추이 · 공정별 / 업체별 현황\n계획대비 실적 달성율 · NEGO 절감 현황\n🇰🇷 한국어 / 🇻🇳 베트남어 전환 지원'},
+  {section:'비용 관리',status:'active',title:'설비 가동율 대시보드',subtitle:'Bảng theo dõi tỷ lệ hoạt động TB',url:'설비가동율대시보드.html',ico:'📈',bg:'#E2EFDA',bd:'#1D9E75',tag:'Excel 업로드 연동',tgBg:'#E2EFDA',tgC:'#155724',desc:'공정별 설비 시간 가동율 현황\n엑셀 파일 업로드 → 자동 차트 생성\n🇰🇷 한국어 / 🇻🇳 베트남어 전환 지원'},
+  {section:'설비 관리',status:'soon',title:'설비 CAPA 점검 대시보드',subtitle:'Bảng kiểm tra CAPA thiết bị',url:'',ico:'🔍',bg:'#EDE7F6',bd:'#534AB7',tag:'준비중',tgBg:'#EDE7F6',tgC:'#534AB7',desc:'종합현황 · CAPA 부족현황 · 설비 투자계획'},
+  {section:'인사 관리',status:'soon',title:'인원 현황 대시보드',subtitle:'Bảng tình trạng nhân sự',url:'',ico:'👥',bg:'#FDEBD0',bd:'#D85A30',tag:'준비중',tgBg:'#FDEBD0',tgC:'#A04000',desc:'공정별 인원 현황 · 직접/간접 인원\n월별 추이 분석'}
+];
+
+function loadCards(){ try{ var r=localStorage.getItem(LS_KEY); return r?JSON.parse(r):INIT; }catch(e){ return INIT; } }
+function saveCards(c){ localStorage.setItem(LS_KEY,JSON.stringify(c)); }
+
+function render(){
+  var cards=loadCards();
+  var secs={};
+  cards.forEach(function(c,i){ if(!secs[c.section])secs[c.section]=[]; secs[c.section].push({c:c,i:i}); });
+  var html='<div class="banner"><div class="banner-ico">👋</div><div>'
+    +'<h2>SYNOPEX VIETNAM 생산관리 대시보드 포털</h2>'
+    +'<p>아래 카드를 클릭하면 해당 대시보드로 바로 이동합니다. 크롬(Chrome) 또는 엣지(Edge) 브라우저 권장.<br>'
+    +'Nhấn vào thẻ để chuyển đến bảng điều khiển. Khuyến nghị dùng Chrome hoặc Edge.</p>'
+    +'</div></div>';
+  Object.keys(secs).forEach(function(s){
+    html+='<div class="sec">'+(SEC_ICO[s]||'📌')+' '+s+' &nbsp;/&nbsp; <span style="font-weight:400;text-transform:none;font-size:11px;opacity:.7">'+(SEC_VN[s]||s)+'</span></div>';
+    html+='<div class="grid">';
+    secs[s].forEach(function(item){
+      var c=item.c; var i=item.i;
+      var eb=IS_ADMIN?'<button class="edit-btn" onclick="event.preventDefault();openEdit('+i+')">✏️ 수정</button>':'';
+      var bar='<div style="position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:12px 0 0 12px;background:'+c.bd+'"></div>';
+      var inner=eb+bar
+        +'<div class="ch"><div class="ci" style="background:'+c.bg+'">'+c.ico+'</div>'
+        +'<div class="ct">'+c.title+'<br><span style="font-size:11.5px;font-weight:400;color:var(--muted)">'+(c.subtitle||'')+'</span></div></div>'
+        +'<div class="cd">'+c.desc.replace(/\n/g,'<br>')+'</div>'
+        +'<div class="cf"><span class="tag" style="background:'+c.tgBg+';color:'+c.tgC+'">'+c.tag+'</span><span class="arr">→</span></div>';
+      if(c.status==='active'&&c.url){
+        html+='<a class="card" href="'+c.url+'">'+inner+'</a>';
+      } else {
+        html+='<div class="card soon'+(IS_ADMIN?' admin-edit-mode':'')+'"><span class="soon-b">준비중</span>'+inner+'</div>';
+      }
+    });
+    html+='</div>';
+  });
+  html+='<div class="info-bar">'
+    +'<div class="ib"><span class="ib-l">운영 공장</span><span class="ib-v">SYNOPEX VIETNAM — Bắc Ninh</span></div>'
+    +'<div class="ib"><span class="ib-l">권장 브라우저</span><span class="ib-v">Chrome / Edge</span></div>'
+    +'<div class="ib"><span class="ib-l">지원 언어</span><span class="ib-v">🇰🇷 한국어 / 🇻🇳 Tiếng Việt</span></div>'
+    +'<div class="ib"><span class="ib-l">담당</span><span class="ib-v">제조팀 / Phòng sản xuất</span></div>'
+    +'<div class="ib"><span class="ib-l">최종 수정</span><span class="ib-v" id="lastEd">-</span></div>'
+    +'</div>'
+    +'<footer>SYNOPEX VIETNAM — 생산관리 대시보드 포털 | Powered by GitHub Pages</footer>';
+  var el=document.getElementById('mainEl');
+  el.innerHTML=html;
+  if(IS_ADMIN) el.classList.add('admin-on'); else el.classList.remove('admin-on');
+  var le=localStorage.getItem('syn_last_edit');
+  var led=document.getElementById('lastEd');
+  if(le&&led) led.textContent=le;
 }
+
+/* 관리자 */
+function askPw(){ document.getElementById('pwIn').value=''; document.getElementById('pwOv').classList.add('on'); setTimeout(function(){document.getElementById('pwIn').focus();},80); }
+function checkPw(){
+  var pw=document.getElementById('pwIn').value;
+  if(pw===PW){ closeOv('pwOv'); enterAdmin(); }
+  else{ document.getElementById('pwIn').style.borderColor='red'; setTimeout(function(){document.getElementById('pwIn').style.borderColor='';},1000); toast('❌ 비밀번호 오류'); }
+}
+function enterAdmin(){ IS_ADMIN=true; document.getElementById('adminBar').classList.add('on'); render(); toast('✅ 편집 모드. 카드의 ✏️ 버튼을 눌러 수정하세요'); }
+function exitAdmin(){ IS_ADMIN=false; document.getElementById('adminBar').classList.remove('on'); render(); toast('편집 모드 종료'); }
+
+/* 카드 편집 */
+function openAdd(){
+  document.getElementById('editH').textContent='카드 추가';
+  document.getElementById('editI').value='-1';
+  document.getElementById('delB').style.display='none';
+  ['eTi','eSu','eU','eTg','eDe'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('eS').value='생산 계획';
+  document.getElementById('eSt').value='active';
+  document.getElementById('eIco').value='📊';
+  document.getElementById('eBg').value='#DEEAF1';
+  document.getElementById('eBd').value='#2F5496';
+  document.getElementById('eTgBg').value='#DEEAF1';
+  document.getElementById('eTgC').value='#0C447C';
+  document.getElementById('editOv').classList.add('on');
+}
+function openEdit(i){
+  var c=loadCards()[i];
+  document.getElementById('editH').textContent='카드 수정';
+  document.getElementById('editI').value=i;
+  document.getElementById('delB').style.display='';
+  document.getElementById('eS').value=c.section;
+  document.getElementById('eSt').value=c.status;
+  document.getElementById('eTi').value=c.title;
+  document.getElementById('eSu').value=c.subtitle||'';
+  document.getElementById('eU').value=c.url||'';
+  document.getElementById('eIco').value=c.ico||'📊';
+  document.getElementById('eBg').value=c.bg;
+  document.getElementById('eBd').value=c.bd;
+  document.getElementById('eTg').value=c.tag||'';
+  document.getElementById('eTgBg').value=c.tgBg;
+  document.getElementById('eTgC').value=c.tgC;
+  document.getElementById('eDe').value=c.desc;
+  document.getElementById('editOv').classList.add('on');
+}
+function saveCard(){
+  var idx=parseInt(document.getElementById('editI').value);
+  var title=document.getElementById('eTi').value.trim();
+  if(!title){ toast('⚠️ 제목을 입력하세요'); return; }
+  var nc={
+    section:document.getElementById('eS').value,
+    status:document.getElementById('eSt').value,
+    title:title,
+    subtitle:document.getElementById('eSu').value.trim(),
+    url:document.getElementById('eU').value.trim(),
+    ico:document.getElementById('eIco').value.trim()||'📊',
+    bg:document.getElementById('eBg').value,
+    bd:document.getElementById('eBd').value,
+    tag:document.getElementById('eTg').value.trim(),
+    tgBg:document.getElementById('eTgBg').value,
+    tgC:document.getElementById('eTgC').value,
+    desc:document.getElementById('eDe').value.trim()
+  };
+  var cards=loadCards();
+  if(idx===-1) cards.push(nc); else cards[idx]=nc;
+  saveCards(cards);
+  localStorage.setItem('syn_last_edit',new Date().toLocaleString('ko-KR'));
+  closeOv('editOv'); render();
+  toast(idx===-1?'✅ 카드가 추가됐습니다':'✅ 카드가 수정됐습니다');
+}
+function delCard(){
+  var idx=parseInt(document.getElementById('editI').value);
+  if(idx<0||!confirm('이 카드를 삭제하시겠습니까?')) return;
+  var cards=loadCards(); cards.splice(idx,1);
+  saveCards(cards); closeOv('editOv'); render(); toast('삭제됐습니다');
+}
+
+/* HTML 저장 */
+function exportHTML(){
+  var cards=loadCards();
+  var src=document.documentElement.outerHTML;
+  var newSrc=src.replace(/var INIT = \[[\s\S]*?\];/,'var INIT = '+JSON.stringify(cards,null,2)+';');
+  var blob=new Blob([newSrc],{type:'text/html;charset=utf-8'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='index.html'; a.click();
+  toast('✅ index.html 저장됐습니다! GitHub에 업로드하세요');
+}
+
+/* 유틸 */
+function closeOv(id){ document.getElementById(id).classList.remove('on'); }
+function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},2300); }
+document.querySelectorAll('.ov').forEach(function(el){ el.addEventListener('click',function(e){ if(e.target===this) this.classList.remove('on'); }); });
+function tick(){ var n=new Date(); document.getElementById('clk').innerHTML=n.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'})+'<br>'+n.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
 tick(); setInterval(tick,1000);
-document.getElementById('upd').textContent=
-  new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
+render();
 </script>
 </body>
 </html>
