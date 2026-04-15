@@ -127,7 +127,7 @@ footer{text-align:center;padding:20px;font-size:11px;color:#adb5bd;margin-top:4p
       <div class="mf"><label>섹션</label>
         <select id="eS">
           <option>생산 계획</option><option>비용 관리</option><option>설비 관리</option>
-          <option>품질 관리</option><option>인사 관리</option><option>기타</option>
+          <option>품질 관리</option><option>인사 관리</option><option>업무 보고</option><option>기타</option>
         </select>
       </div>
       <div class="mf"><label>상태</label>
@@ -169,16 +169,14 @@ footer{text-align:center;padding:20px;font-size:11px;color:#adb5bd;margin-top:4p
 var PW      = '1234';
 var LS_KEY  = 'synopex_idx_v1';
 var IS_ADMIN= false;
-var SEC_VN  = {'생산 계획':'Kế hoạch sản xuất','비용 관리':'Quản lý chi phí','설비 관리':'Quản lý thiết bị','품질 관리':'Quản lý chất lượng','인사 관리':'Nhân sự','기타':'Khác'};
-var SEC_ICO = {'생산 계획':'📊','비용 관리':'💰','설비 관리':'⚙️','품질 관리':'🔍','인사 관리':'👥','기타':'📌'};
+var SEC_VN  = {'생산 계획':'Kế hoạch sản xuất','비용 관리':'Quản lý chi phí','설비 관리':'Quản lý thiết bị','품질 관리':'Quản lý chất lượng','인사 관리':'Nhân sự','업무 보고':'Báo cáo công việc','기타':'Khác'};
+var SEC_ICO = {'생산 계획':'📊','비용 관리':'💰','설비 관리':'⚙️','품질 관리':'🔍','인사 관리':'👥','업무 보고':'📝','기타':'📌'};
 
 var INIT = [
   {section:'생산 계획',status:'active',title:'2027년 생산운영계획',subtitle:'Kế hoạch vận hành sản xuất 2027',url:'2027년_생산운영계획.html',ico:'🏭',bg:'#FFF2CC',bd:'#BA7517',tag:'REV02 | 영업계획 변경',tgBg:'#FFF2CC',tgC:'#7c5103',desc:'월별 생산계획 (DS / MULTI) · 공정별 부하율\nCAPA 부족현황 · 설비 투자금액 · 설비 현황\n🇰🇷 한국어 / 🇻🇳 베트남어 전환 지원'},
-  {section:'생산 계획',status:'soon',title:'2026년 생산운영계획',subtitle:'Kế hoạch vận hành sản xuất 2026',url:'',ico:'📅',bg:'#DEEAF1',bd:'#2F5496',tag:'준비중',tgBg:'#DEEAF1',tgC:'#0C447C',desc:'2026년도 월별 생산계획 및 CAPA 현황\n공정별 부하율 · 설비 현황 분석'},
   {section:'비용 관리',status:'active',title:'2026년 외주비 마감 내역',subtitle:'Chi phí nhà thầu 2026 (T3)',url:'2026년_외주비_마감(3월).html',ico:'📑',bg:'#FCE4D6',bd:'#C00000',tag:'2026년 3월 마감',tgBg:'#FCE4D6',tgC:'#C00000',desc:'월별 외주비 추이 · 공정별 / 업체별 현황\n계획대비 실적 달성율 · NEGO 절감 현황\n🇰🇷 한국어 / 🇻🇳 베트남어 전환 지원'},
   {section:'비용 관리',status:'active',title:'설비 가동율 대시보드',subtitle:'Bảng theo dõi tỷ lệ hoạt động TB',url:'설비가동율대시보드.html',ico:'📈',bg:'#E2EFDA',bd:'#1D9E75',tag:'Excel 업로드 연동',tgBg:'#E2EFDA',tgC:'#155724',desc:'공정별 설비 시간 가동율 현황\n엑셀 파일 업로드 → 자동 차트 생성\n🇰🇷 한국어 / 🇻🇳 베트남어 전환 지원'},
-  {section:'설비 관리',status:'soon',title:'설비 CAPA 점검 대시보드',subtitle:'Bảng kiểm tra CAPA thiết bị',url:'',ico:'🔍',bg:'#EDE7F6',bd:'#534AB7',tag:'준비중',tgBg:'#EDE7F6',tgC:'#534AB7',desc:'종합현황 · CAPA 부족현황 · 설비 투자계획'},
-  {section:'인사 관리',status:'soon',title:'인원 현황 대시보드',subtitle:'Bảng tình trạng nhân sự',url:'',ico:'👥',bg:'#FDEBD0',bd:'#D85A30',tag:'준비중',tgBg:'#FDEBD0',tgC:'#A04000',desc:'공정별 인원 현황 · 직접/간접 인원\n월별 추이 분석'}
+  {section:'업무 보고',status:'active',title:'업무 보고 캘린더',subtitle:'Lịch báo cáo công việc',url:'업무보고_캘린더.html',ico:'📅',bg:'#E8F4FD',bd:'#2563eb',tag:'일자별 업무 보고',tgBg:'#E8F4FD',tgC:'#1e40af',desc:'날짜별 업무 보고 작성 및 조회\n작성자 · 부서 · 유형 · 상태 · 이슈 기록\n📤 내보내기 / 📥 가져오기 공유 지원'}
 ];
 
 function loadCards(){ try{ var r=localStorage.getItem(LS_KEY); return r?JSON.parse(r):INIT; }catch(e){ return INIT; } }
@@ -207,8 +205,8 @@ function render(){
         +'<div class="cf"><span class="tag" style="background:'+c.tgBg+';color:'+c.tgC+'">'+c.tag+'</span><span class="arr">→</span></div>';
       if(c.status==='active'&&c.url){
         html+='<a class="card" href="'+c.url+'">'+inner+'</a>';
-      } else {
-        html+='<div class="card soon'+(IS_ADMIN?' admin-edit-mode':'')+'"><span class="soon-b">준비중</span>'+inner+'</div>';
+      } else if(IS_ADMIN){
+        html+='<div class="card" style="opacity:.55;border:1.5px dashed #aaa"><span class="soon-b">준비중</span>'+inner+'</div>';
       }
     });
     html+='</div>';
