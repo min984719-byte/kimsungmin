@@ -588,6 +588,12 @@ function renderAll(){
   var db = curDB();
   if(!db){ return; }
 
+  // 버튼 상태 동기화
+  var bm=document.getElementById('btnMonth');
+  var bd=document.getElementById('btnDay');
+  if(bm) bm.classList.toggle('on', MODE==='month');
+  if(bd) bd.classList.toggle('on', MODE==='day');
+
   document.getElementById('emptyWrap').style.display='none';
   document.getElementById('dashWrap').style.display='block';
 
