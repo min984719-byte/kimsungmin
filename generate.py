@@ -1,30 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-generate.py
------------
-data/ 폴더의 최신 엑셀을 읽어 설비가동율대시보드.html 자동 생성
+generate.py — SYNOPEX 설비 가동율 대시보드 자동 생성
+template.html 이 없어도 기존 설비가동율대시보드.html 을 자동 갱신
 """
-import json, os, glob
+import json, os, glob, re
 from openpyxl import load_workbook
 
-print("=" * 50)
+print("="*55)
 print("  SYNOPEX 설비 가동율 대시보드 자동 생성")
-print("=" * 50)
+print("="*55)
+
+OUTPUT = '설비가동율대시보드.html'
 
 # ── 엑셀 파일 찾기 ──
 files = sorted(glob.glob('data/*.xlsx') + glob.glob('data/*.xls'))
-print(f"엑셀 파일 목록: {files}")
+print(f"엑셀 목록: {files}")
 if not files:
     print("❌ data/ 폴더에 엑셀 파일 없음"); exit(1)
-
 excel_path = files[-1]
 print(f"✅ 사용 파일: {excel_path}")
 
-# ── template.html 확인 ──
-if not os.path.exists('template.html'):
-    print("❌ template.html 없음"); exit(1)
-
+# ── 파싱 ──
 def sf(v):
     try: return float(v) if v is not None else 0
     except: return 0
@@ -58,20 +55,15 @@ def parse_sheet(ws):
     return {'summary':summary,'detail':detail,'period':period,'overall':overall}
 
 wb = load_workbook(excel_path, read_only=True, data_only=True)
-print(f"시트 목록: {wb.sheetnames}")
+print(f"시트: {wb.sheetnames}")
 
 sheet_m  = next((s for s in wb.sheetnames if '월 누적' in s), None) or \
            next((s for s in wb.sheetnames if '누적' in s and '(일)' not in s), None)
 sheet_d  = next((s for s in wb.sheetnames if '(일)' in s), None)
 sheet_yr = next((s for s in wb.sheetnames if '2026' in s or '2027' in s), None)
 
-print(f"월 누적 시트: {sheet_m}")
-print(f"일 기준 시트: {sheet_d}")
-print(f"연간 추이 시트: {sheet_yr}")
-
 m_data = parse_sheet(wb[sheet_m]) if sheet_m else {'summary':[],'detail':[],'period':'','overall':0}
 d_data = parse_sheet(wb[sheet_d]) if sheet_d else {'summary':[],'detail':[],'period':'','overall':0}
-
 print(f"✅ 월 누적: {m_data['period']} / {m_data['overall']}% / {len(m_data['detail'])}설비")
 print(f"✅ 일 기준: {d_data['period']} / {d_data['overall']}% / {len(d_data['detail'])}설비")
 
@@ -92,31 +84,72 @@ if sheet_yr:
         if not any(v is not None for v in vals): continue
         if not sub: trend[c2]=vals
         else:       etrd[c2+'_'+sub]=vals
-
 wb.close()
 
-# ── template.html 에 데이터 주입 ──
-with open('template.html', encoding='utf-8') as f:
-    html = f.read()
-
-# 데이터 블록 생성
-data_block = (
-    '<script>\n'
-    '// ── 데이터 ──\n'
-    'var MODES = ' + json.dumps({'month': m_data, 'day': d_data}, ensure_ascii=False) + ';\n'
-    'var TREND = ' + json.dumps(trend, ensure_ascii=False) + ';\n'
-    'var ETRD  = ' + json.dumps(etrd,  ensure_ascii=False) + ';'
+# ── 새 데이터 JS 블록 ──
+new_data_block = (
+    "<script>\n// ── 데이터 ──\n"
+    "var MODES = " + json.dumps({'month':m_data,'day':d_data}, ensure_ascii=False) + ";\n"
+    "var TREND = " + json.dumps(trend, ensure_ascii=False) + ";\n"
+    "var ETRD  = " + json.dumps(etrd,  ensure_ascii=False) + ";"
 )
 
-# 마커 교체
-if '/* DATA_PLACEHOLDER */' in html:
-    html = html.replace('<script>\n// ── 데이터 (자동 생성) ──\n/* DATA_PLACEHOLDER */', data_block)
-    print("✅ 마커 방식으로 데이터 주입")
+# ── HTML 파일 처리 ──
+if not os.path.exists(OUTPUT):
+    # template.html 로 시도
+    if os.path.exists('template.html'):
+        with open('template.html', encoding='utf-8') as f:
+            html = f.read()
+        if '/* DATA_PLACEHOLDER */' in html:
+            html = html.replace(
+                '<script>\n// ── 데이터 (자동 생성) ──\n/* DATA_PLACEHOLDER */',
+                new_data_block
+            )
+            print("✅ template.html 마커 방식 사용")
+        else:
+            print("❌ template.html 에 마커 없음"); exit(1)
+    else:
+        print("❌ 설비가동율대시보드.html 와 template.html 모두 없음"); exit(1)
 else:
-    print("❌ template.html 에 DATA_PLACEHOLDER 마커가 없습니다")
-    exit(1)
+    with open(OUTPUT, encoding='utf-8') as f:
+        html = f.read()
+    
+    # 방법1: 마커 방식
+    if '/* DATA_PLACEHOLDER */' in html:
+        html = html.replace(
+            '<script>\n// ── 데이터 (자동 생성) ──\n/* DATA_PLACEHOLDER */',
+            new_data_block
+        )
+        print("✅ 마커 방식으로 데이터 교체")
+    
+    # 방법2: 기존 데이터 블록 교체 (regex)
+    else:
+        pattern = re.compile(
+            r'<script>\n// ── 데이터 ──\nvar MODES = \{.*?\};\nvar TREND = \{.*?\};\nvar ETRD\s*=\s*\{.*?\};',
+            re.DOTALL
+        )
+        m = pattern.search(html)
+        if m:
+            html = html[:m.start()] + new_data_block + html[m.end():]
+            print("✅ 정규식 방식으로 데이터 교체")
+        else:
+            # 방법3: MODES 변수만 교체
+            m2 = re.search(r'var MODES = \{.*?\};', html, re.DOTALL)
+            m3 = re.search(r'var TREND = \{.*?\};', html, re.DOTALL)
+            m4 = re.search(r'var ETRD\s*=\s*\{.*?\};', html, re.DOTALL)
+            if m2 and m3 and m4:
+                html = html[:m2.start()] + \
+                    "var MODES = " + json.dumps({'month':m_data,'day':d_data}, ensure_ascii=False) + ";\n" + \
+                    html[m2.end():m3.start()] + \
+                    "var TREND = " + json.dumps(trend, ensure_ascii=False) + ";\n" + \
+                    html[m3.end():m4.start()] + \
+                    "var ETRD  = " + json.dumps(etrd, ensure_ascii=False) + ";" + \
+                    html[m4.end():]
+                print("✅ 변수별 개별 교체 방식 사용")
+            else:
+                print(f"❌ 데이터 교체 실패. MODES:{bool(m2)} TREND:{bool(m3)} ETRD:{bool(m4)}")
+                exit(1)
 
-OUTPUT = '설비가동율대시보드.html'
 with open(OUTPUT, 'w', encoding='utf-8') as f:
     f.write(html)
 print(f"✅ 생성 완료: {OUTPUT} ({len(html)//1024}KB)")
