@@ -62,7 +62,7 @@ tr:hover td{background:rgba(0,180,216,.04)}
 .frow label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase}
 select{background:var(--card2);border:1px solid var(--bor);color:var(--text);padding:4px 9px;border-radius:4px;font-size:11px;font-family:inherit;outline:none}
 select:focus{border-color:var(--teal)}
-.heat-grid{display:grid;gap:6px;margin-bottom:8px}
+.heat-grid{display:grid;gap:8px;margin-bottom:8px}
 .hcell{border-radius:8px;padding:11px 7px;text-align:center;cursor:pointer;border:1px solid;transition:all .15s;position:relative}
 .hcell:hover{transform:scale(1.06);z-index:5;box-shadow:0 4px 14px rgba(0,0,0,.3)}
 .hcell.ok{background:rgba(0,200,81,.12);color:var(--green);border-color:rgba(0,200,81,.3)}
@@ -146,7 +146,7 @@ select:focus{border-color:var(--teal)}
   <div class="npane" id="t1">
     <div class="card">
       <div class="ct">// 설비별 가동율 히트맵</div>
-      <div class="heat-grid" id="heatmap" style="grid-template-columns:repeat(auto-fill,minmax(100px,1fr))"></div>
+      <div class="heat-grid" id="heatmap" style="grid-template-columns:repeat(auto-fill,minmax(130px,1fr))"></div>
       <div style="display:flex;gap:14px;margin-top:8px;font-size:10px">
         <span style="color:var(--green)">■ 정상(≥60%)</span>
         <span style="color:var(--amber)">■ 주의(40~60%)</span>
@@ -197,7 +197,19 @@ var TGT  = 60;
 function gc(v){ return v>=TGT?'#00c851':v>=40?'#ffbb00':'#ff3547'; }
 function N(v) { return Math.round(v||0).toLocaleString(); }
 function Nf(v,d){ return (parseFloat(v)||0).toFixed(d===undefined?1:d); }
-function cur(){ return MODES[MODE]; }
+function cur(){
+  var d=MODES[MODE];
+  if(!d||!d.summary||!d.summary.length){
+    // day 데이터 없으면 month로 fallback
+    if(MODE==='day'&&MODES.month&&MODES.month.summary.length){
+      MODE='month';
+      document.getElementById('btnMonth').classList.add('on');
+      document.getElementById('btnDay').classList.remove('on');
+      return MODES.month;
+    }
+  }
+  return d||MODES.month;
+}
 
 function sw(i){
   document.querySelectorAll('.ntab').forEach(function(t,j){t.classList.toggle('on',j===i);});
@@ -245,6 +257,12 @@ function render(){
   db.detail.forEach(function(d){if(procs.indexOf(d.proc)<0)procs.push(d.proc);});
   procs.sort().forEach(function(p){fp.innerHTML+='<option value="'+p+'">'+p+'</option>';});
   buildTab0();
+  // 현재 탭이 0이 아니면 해당 탭도 갱신
+  var _ti=0;
+  document.querySelectorAll('.ntab').forEach(function(t,i){if(t.classList.contains('on'))_ti=i;});
+  if(_ti===1) buildHeatmap();
+  if(_ti===2) buildTrend();
+  if(_ti===3) renderDetail();
 }
 
 function buildTab0(){
