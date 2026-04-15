@@ -63,13 +63,35 @@ tr:hover td{background:rgba(0,180,216,.04)}
 select{background:var(--card2);border:1px solid var(--bor);color:var(--text);padding:4px 9px;border-radius:4px;font-size:11px;font-family:inherit;outline:none}
 select:focus{border-color:var(--teal)}
 .heat-grid{display:grid;gap:6px;margin-bottom:8px}
-.hcell{border-radius:6px;padding:9px 5px;text-align:center;cursor:pointer;border:1px solid;transition:transform .15s}
-.hcell:hover{transform:scale(1.07)}
-.hcell.ok{background:rgba(0,200,81,.1);color:var(--green);border-color:rgba(0,200,81,.2)}
-.hcell.warn{background:rgba(255,187,0,.1);color:var(--amber);border-color:rgba(255,187,0,.2)}
-.hcell.crit{background:rgba(255,53,71,.1);color:var(--red);border-color:rgba(255,53,71,.2)}
-.hcell .cv{font-family:'Orbitron',monospace;font-size:12px;font-weight:700}
-.hcell .cn{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.3}
+.hcell{border-radius:8px;padding:11px 7px;text-align:center;cursor:pointer;border:1px solid;transition:all .15s;position:relative}
+.hcell:hover{transform:scale(1.06);z-index:5;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.hcell.ok{background:rgba(0,200,81,.12);color:var(--green);border-color:rgba(0,200,81,.3)}
+.hcell.warn{background:rgba(255,187,0,.12);color:var(--amber);border-color:rgba(255,187,0,.3)}
+.hcell.crit{background:rgba(255,53,71,.12);color:var(--red);border-color:rgba(255,53,71,.3)}
+.hcell .cv{font-family:'Orbitron',monospace;font-size:15px;font-weight:700;line-height:1.2}
+.hcell .cn{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4;word-break:keep-all}
+.hcell .cp{font-size:9px;color:var(--muted);margin-top:1px;opacity:.7}
+/* 설비 상세 팝업 */
+.equip-popup{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card);border:1px solid var(--bor);border-radius:12px;padding:20px 24px;z-index:400;width:480px;max-width:92vw;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.equip-popup.on{display:block}
+.equip-popup-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:399}
+.equip-popup-ov.on{display:block}
+.ep-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--bor)}
+.ep-title{font-size:16px;font-weight:700}
+.ep-close{background:transparent;border:1px solid var(--bor);color:var(--muted);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit}
+.ep-rate{font-family:'Orbitron',monospace;font-size:36px;font-weight:700;text-align:center;margin:12px 0}
+.ep-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.ep-item{background:var(--card2);border:1px solid var(--bor);border-radius:8px;padding:10px;text-align:center}
+.ep-item-v{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;color:var(--text)}
+.ep-item-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:3px}
+.ep-bar-wrap{margin-bottom:14px}
+.ep-bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px}
+.ep-bar{height:12px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden}
+.ep-bar-fill{height:100%;border-radius:6px;transition:width .4s}
+.ep-trend{display:flex;gap:8px;justify-content:center;margin-top:12px}
+.ep-trend-item{flex:1;background:var(--card2);border:1px solid var(--bor);border-radius:8px;padding:8px;text-align:center}
+.ep-trend-v{font-family:'Orbitron',monospace;font-size:13px;font-weight:700}
+.ep-trend-l{font-size:9px;color:var(--muted);margin-top:2px}
 .ch{position:relative}
 ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:#252d3a;border-radius:2px}
 @media(max-width:900px){.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
@@ -290,7 +312,12 @@ function buildHeatmap(){
   hm.innerHTML='';
   db.detail.slice().sort(function(a,b){return a.rate-b.rate;}).forEach(function(d){
     var cls=d.rate>=TGT?'ok':d.rate>=40?'warn':'crit';
-    hm.innerHTML+='<div class="hcell '+cls+'"><div class="cv">'+Nf(d.rate,0)+'%</div><div class="cn">'+d.sub+'</div></div>';
+    var dj=JSON.stringify(d).replace(/"/g,'&quot;');
+    hm.innerHTML+='<div class="hcell '+cls+'" onclick="showEquipPopup('+dj+')" title="'+d.proc+' / '+d.sub+'">'
+      +'<div class="cv">'+Nf(d.rate,0)+'%</div>'
+      +'<div class="cn">'+d.sub+'</div>'
+      +'<div class="cp">'+d.proc+'</div>'
+      +'</div>';
   });
   var ta=document.getElementById('t1a');
   ta.innerHTML='';
@@ -392,8 +419,77 @@ function renderDetail(){
   document.getElementById('t3b').innerHTML=h||'<tr><td colspan="12" style="text-align:center;padding:18px;color:var(--muted)">해당 설비 없음</td></tr>';
 }
 
+
+// ── 설비 상세 팝업 ──
+function showEquipPopup(d){
+  var c = gc(d.rate);
+  document.getElementById('epTitle').textContent = d.sub;
+  document.getElementById('epProc').textContent  = d.proc + ' 공정';
+  document.getElementById('epRate').textContent  = Nf(d.rate)+'%';
+  document.getElementById('epRate').style.color  = c;
+  document.getElementById('epBase').textContent  = N(d.base);
+  document.getElementById('epRun').textContent   = N(d.run);
+  document.getElementById('epCnt').textContent   = d.cnt+'대';
+  document.getElementById('epPd').textContent    = N(d.plan_down);
+  document.getElementById('epOl').textContent    = N(d.op_loss);
+  document.getElementById('epEl').textContent    = N(d.eq_loss+d.eq_fail);
+  document.getElementById('epBarPct').textContent= Nf(d.rate)+'%';
+  var fill = document.getElementById('epBarFill');
+  fill.style.width   = Math.min(d.rate,100)+'%';
+  fill.style.background = c;
+  // 월별 추이
+  var key = d.proc+'_'+d.sub;
+  var tr  = ETRD && ETRD[key] ? ETRD[key] : null;
+  var tw  = document.getElementById('epTrendWrap');
+  if(tr){
+    tw.style.display='';
+    var months=['1월','2월','3월','4월'];
+    document.getElementById('epTrend').innerHTML = months.map(function(m,i){
+      var v=tr[i]; var cv=v!==null&&v!==undefined?gc(v):'var(--muted)';
+      return '<div class="ep-trend-item">'
+        +'<div class="ep-trend-v" style="color:'+cv+'">'+(v!==null&&v!==undefined?v+'%':'—')+'</div>'
+        +'<div class="ep-trend-l">'+m+'</div></div>';
+    }).join('');
+  } else { tw.style.display='none'; }
+  document.getElementById('equipOv').classList.add('on');
+  document.getElementById('equipPopup').classList.add('on');
+}
+function closeEquipPopup(){
+  document.getElementById('equipOv').classList.remove('on');
+  document.getElementById('equipPopup').classList.remove('on');
+}
+
 // ── 시작 ──
 render();
 </script>
+
+<!-- 설비 상세 팝업 -->
+<div class="equip-popup-ov" id="equipOv" onclick="closeEquipPopup()"></div>
+<div class="equip-popup" id="equipPopup">
+  <div class="ep-head">
+    <div>
+      <div class="ep-title" id="epTitle">설비명</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px" id="epProc">공정</div>
+    </div>
+    <button class="ep-close" onclick="closeEquipPopup()">✕ 닫기</button>
+  </div>
+  <div class="ep-rate" id="epRate">--%</div>
+  <div class="ep-grid">
+    <div class="ep-item"><div class="ep-item-v" id="epBase">-</div><div class="ep-item-l">기준시간(분)</div></div>
+    <div class="ep-item"><div class="ep-item-v" id="epRun">-</div><div class="ep-item-l">실운행(분)</div></div>
+    <div class="ep-item"><div class="ep-item-v" id="epCnt">-</div><div class="ep-item-l">설비 대수</div></div>
+    <div class="ep-item"><div class="ep-item-v" id="epPd" style="color:rgba(0,180,216,.9)">-</div><div class="ep-item-l">계획비가동</div></div>
+    <div class="ep-item"><div class="ep-item-v" id="epOl" style="color:var(--amber)">-</div><div class="ep-item-l">운영유실</div></div>
+    <div class="ep-item"><div class="ep-item-v" id="epEl" style="color:var(--red)">-</div><div class="ep-item-l">설비유실</div></div>
+  </div>
+  <div class="ep-bar-wrap">
+    <div class="ep-bar-label"><span>실운행</span><span id="epBarPct">--%</span></div>
+    <div class="ep-bar"><div class="ep-bar-fill" id="epBarFill"></div></div>
+  </div>
+  <div id="epTrendWrap" style="display:none">
+    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">월별 추이 (2026)</div>
+    <div class="ep-trend" id="epTrend"></div>
+  </div>
+</div>
 </body>
 </html>
