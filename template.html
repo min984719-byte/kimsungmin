@@ -231,6 +231,12 @@ function setMode(m){
   var procs=[];
   db.detail.forEach(function(d){if(procs.indexOf(d.proc)<0)procs.push(d.proc);});
   procs.sort().forEach(function(p){fp.innerHTML+='<option value="'+p+'">'+p+'</option>';});
+  // 탭 KPI 4개 항상 갱신
+  document.getElementById('k-avg').textContent    = db.overall+'%';
+  document.getElementById('k-period').textContent = '기간: '+db.period;
+  document.getElementById('k-ok').textContent     = db.summary.filter(function(s){return s.rate>=TGT;}).length+'개';
+  document.getElementById('k-warn').textContent   = wn+'개';
+  document.getElementById('k-crit').textContent   = cr+'개';
   if(ti===0) buildTab0();
   else if(ti===1) buildHeatmap();
   else if(ti===2) buildTrend();
