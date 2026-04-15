@@ -198,17 +198,7 @@ function gc(v){ return v>=TGT?'#00c851':v>=40?'#ffbb00':'#ff3547'; }
 function N(v) { return Math.round(v||0).toLocaleString(); }
 function Nf(v,d){ return (parseFloat(v)||0).toFixed(d===undefined?1:d); }
 function cur(){
-  var d=MODES[MODE];
-  if(!d||!d.summary||!d.summary.length){
-    // day 데이터 없으면 month로 fallback
-    if(MODE==='day'&&MODES.month&&MODES.month.summary.length){
-      MODE='month';
-      document.getElementById('btnMonth').classList.add('on');
-      document.getElementById('btnDay').classList.remove('on');
-      return MODES.month;
-    }
-  }
-  return d||MODES.month;
+  return MODES[MODE] || MODES['month'];
 }
 
 function sw(i){
