@@ -95,60 +95,32 @@ new_data_block = (
 )
 
 # ── HTML 파일 처리 ──
-if not os.path.exists(OUTPUT):
-    # template.html 로 시도
-    if os.path.exists('template.html'):
-        with open('template.html', encoding='utf-8') as f:
-            html = f.read()
-        if '/* DATA_PLACEHOLDER */' in html:
-            html = html.replace(
-                '<script>\n// ── 데이터 (자동 생성) ──\n/* DATA_PLACEHOLDER */',
-                new_data_block
-            )
-            print("✅ template.html 마커 방식 사용")
-        else:
-            print("❌ template.html 에 마커 없음"); exit(1)
-    else:
-        print("❌ 설비가동율대시보드.html 와 template.html 모두 없음"); exit(1)
+# ── 항상 template.html 기반으로만 생성 (수정 코드 보존) ──
+if not os.path.exists('template.html'):
+    print("❌ template.html 없음 — GitHub에 template.html 이 있어야 합니다"); exit(1)
+
+with open('template.html', encoding='utf-8') as f:
+    html = f.read()
+
+# 마커 교체
+if '/* DATA_PLACEHOLDER */' in html:
+    html = html.replace(
+        '<script>\n// ── 데이터 (자동 생성) ──\n/* DATA_PLACEHOLDER */',
+        new_data_block
+    )
+    print("✅ template.html 마커 방식으로 데이터 주입")
 else:
-    with open(OUTPUT, encoding='utf-8') as f:
-        html = f.read()
-    
-    # 방법1: 마커 방식
-    if '/* DATA_PLACEHOLDER */' in html:
-        html = html.replace(
-            '<script>\n// ── 데이터 (자동 생성) ──\n/* DATA_PLACEHOLDER */',
-            new_data_block
-        )
-        print("✅ 마커 방식으로 데이터 교체")
-    
-    # 방법2: 기존 데이터 블록 교체 (regex)
+    # 마커 없으면 정규식으로 교체
+    pattern = re.compile(
+        r'<script>\n// ── 데이터 ──\nvar MODES = \{.*?\};\nvar TREND = \{.*?\};\nvar ETRD\s*=\s*\{.*?\};',
+        re.DOTALL
+    )
+    m = pattern.search(html)
+    if m:
+        html = html[:m.start()] + new_data_block + html[m.end():]
+        print("✅ 정규식 방식으로 데이터 주입")
     else:
-        pattern = re.compile(
-            r'<script>\n// ── 데이터 ──\nvar MODES = \{.*?\};\nvar TREND = \{.*?\};\nvar ETRD\s*=\s*\{.*?\};',
-            re.DOTALL
-        )
-        m = pattern.search(html)
-        if m:
-            html = html[:m.start()] + new_data_block + html[m.end():]
-            print("✅ 정규식 방식으로 데이터 교체")
-        else:
-            # 방법3: MODES 변수만 교체
-            m2 = re.search(r'var MODES = \{.*?\};', html, re.DOTALL)
-            m3 = re.search(r'var TREND = \{.*?\};', html, re.DOTALL)
-            m4 = re.search(r'var ETRD\s*=\s*\{.*?\};', html, re.DOTALL)
-            if m2 and m3 and m4:
-                html = html[:m2.start()] + \
-                    "var MODES = " + json.dumps({'month':m_data,'day':d_data}, ensure_ascii=False) + ";\n" + \
-                    html[m2.end():m3.start()] + \
-                    "var TREND = " + json.dumps(trend, ensure_ascii=False) + ";\n" + \
-                    html[m3.end():m4.start()] + \
-                    "var ETRD  = " + json.dumps(etrd, ensure_ascii=False) + ";" + \
-                    html[m4.end():]
-                print("✅ 변수별 개별 교체 방식 사용")
-            else:
-                print(f"❌ 데이터 교체 실패. MODES:{bool(m2)} TREND:{bool(m3)} ETRD:{bool(m4)}")
-                exit(1)
+        print("❌ template.html에 데이터 삽입 위치를 찾을 수 없습니다"); exit(1)
 
 with open(OUTPUT, 'w', encoding='utf-8') as f:
     f.write(html)
