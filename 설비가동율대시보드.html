@@ -153,13 +153,7 @@ select:focus{border-color:var(--teal)}
         <span style="color:var(--red)">■ 위험(&lt;40%)</span>
       </div>
     </div>
-    <div class="card">
-      <div class="ct r">// 위험 · 주의 설비 알람</div>
-      <div class="tw"><table>
-        <thead><tr><th>공정</th><th>세부공정</th><th>설비수</th><th>가동율</th><th>실운행</th><th>계획비가동</th><th>운영유실</th><th>설비유실</th><th>상태</th></tr></thead>
-        <tbody id="t1a"></tbody>
-      </table></div>
-    </div>
+    
   </div>
   <div class="npane" id="t2">
     <div class="g2">
@@ -319,20 +313,7 @@ function buildHeatmap(){
       +'<div class="cp">'+d.proc+'</div>'
       +'</div>';
   });
-  var ta=document.getElementById('t1a');
-  ta.innerHTML='';
-  var al=db.detail.filter(function(d){return d.rate<TGT;}).sort(function(a,b){return a.rate-b.rate;});
-  if(!al.length){ta.innerHTML='<tr><td colspan="9" style="text-align:center;padding:18px;color:var(--muted)">위험/주의 설비 없음 ✅</td></tr>';return;}
-  al.forEach(function(d){
-    var c=gc(d.rate);
-    var st=d.rate>=40?'<span class="badge bwn">주의</span>':'<span class="badge brd">위험</span>';
-    ta.innerHTML+='<tr><td>'+d.proc+'</td><td style="font-weight:600">'+d.sub+'</td><td class="c">'+d.cnt+'대</td>';
-    ta.innerHTML+='<td><div class="pbar"><div class="ptr"><div class="pfl" style="width:'+Math.min(d.rate,100)+'%;background:'+c+'"></div></div><span class="pval" style="color:'+c+'">'+Nf(d.rate)+'%</span></div></td>';
-    ta.innerHTML+='<td class="r">'+N(d.run)+'</td><td class="r" style="color:rgba(0,180,216,.8)">'+N(d.plan_down)+'</td>';
-    ta.innerHTML+='<td class="r" style="color:var(--amber)">'+N(d.op_loss)+'</td>';
-    ta.innerHTML+='<td class="r" style="color:var(--red)">'+N(d.eq_loss+d.eq_fail)+'</td>';
-    ta.innerHTML+='<td class="c">'+st+'</td></tr>';
-  });
+  // 알람 테이블 제거
 }
 
 function buildTrend(){
@@ -430,6 +411,8 @@ function showEquipPopup(d){
   document.getElementById('epBase').textContent  = N(d.base);
   document.getElementById('epRun').textContent   = N(d.run);
   document.getElementById('epCnt').textContent   = d.cnt+'대';
+  var areaEl = document.getElementById('epArea');
+  if(areaEl) areaEl.textContent = d.area ? d.area.toLocaleString()+'㎡' : '-';
   document.getElementById('epPd').textContent    = N(d.plan_down);
   document.getElementById('epOl').textContent    = N(d.op_loss);
   document.getElementById('epEl').textContent    = N(d.eq_loss+d.eq_fail);
@@ -474,10 +457,15 @@ render();
     <button class="ep-close" onclick="closeEquipPopup()">✕ 닫기</button>
   </div>
   <div class="ep-rate" id="epRate">--%</div>
+  <!-- 설비 대수 강조 -->
+  <div style="text-align:center;margin-bottom:12px;padding:10px;background:var(--card2);border:1px solid var(--bor);border-radius:8px;display:flex;align-items:center;justify-content:center;gap:8px">
+    <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">보유 설비 대수</span>
+    <span style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:var(--teal)" id="epCnt">-</span>
+  </div>
   <div class="ep-grid">
     <div class="ep-item"><div class="ep-item-v" id="epBase">-</div><div class="ep-item-l">기준시간(분)</div></div>
     <div class="ep-item"><div class="ep-item-v" id="epRun">-</div><div class="ep-item-l">실운행(분)</div></div>
-    <div class="ep-item"><div class="ep-item-v" id="epCnt">-</div><div class="ep-item-l">설비 대수</div></div>
+    <div class="ep-item"><div class="ep-item-v" id="epArea">-</div><div class="ep-item-l">생산면적(㎡)</div></div>
     <div class="ep-item"><div class="ep-item-v" id="epPd" style="color:rgba(0,180,216,.9)">-</div><div class="ep-item-l">계획비가동</div></div>
     <div class="ep-item"><div class="ep-item-v" id="epOl" style="color:var(--amber)">-</div><div class="ep-item-l">운영유실</div></div>
     <div class="ep-item"><div class="ep-item-v" id="epEl" style="color:var(--red)">-</div><div class="ep-item-l">설비유실</div></div>
