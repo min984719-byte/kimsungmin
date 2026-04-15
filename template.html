@@ -65,12 +65,12 @@ select:focus{border-color:var(--teal)}
 .heat-grid{display:grid;gap:8px;margin-bottom:8px}
 .hcell{border-radius:8px;padding:11px 7px;text-align:center;cursor:pointer;border:1px solid;transition:all .15s;position:relative}
 .hcell:hover{transform:scale(1.06);z-index:5;box-shadow:0 4px 14px rgba(0,0,0,.3)}
-.hcell.ok{background:rgba(0,200,81,.12);color:var(--green);border-color:rgba(0,200,81,.3)}
-.hcell.warn{background:rgba(255,187,0,.12);color:var(--amber);border-color:rgba(255,187,0,.3)}
-.hcell.crit{background:rgba(255,53,71,.12);color:var(--red);border-color:rgba(255,53,71,.3)}
-.hcell .cv{font-family:'Orbitron',monospace;font-size:15px;font-weight:700;line-height:1.2}
-.hcell .cn{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4;word-break:keep-all}
-.hcell .cp{font-size:9px;color:var(--muted);margin-top:1px;opacity:.7}
+.hcell.ok{background:rgba(0,160,65,.25);color:#00e865;border-color:rgba(0,200,81,.6)}
+.hcell.warn{background:rgba(200,140,0,.25);color:#ffd000;border-color:rgba(255,187,0,.6)}
+.hcell.crit{background:rgba(180,0,20,.30);color:#ff4455;border-color:rgba(255,53,71,.7)}
+.hcell .cv{font-family:'Orbitron',monospace;font-size:22px;font-weight:700;line-height:1.2;text-shadow:0 0 10px currentColor}
+.hcell .cn{font-size:13px;color:#ffffff;margin-top:6px;line-height:1.4;word-break:keep-all;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.hcell .cp{font-size:10px;color:rgba(255,255,255,.75);margin-top:3px;font-weight:500}
 /* 설비 상세 팝업 */
 .equip-popup{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card);border:1px solid var(--bor);border-radius:12px;padding:20px 24px;z-index:400;width:480px;max-width:92vw;box-shadow:0 12px 40px rgba(0,0,0,.5)}
 .equip-popup.on{display:block}
@@ -146,7 +146,7 @@ select:focus{border-color:var(--teal)}
   <div class="npane" id="t1">
     <div class="card">
       <div class="ct">// 설비별 가동율 히트맵</div>
-      <div class="heat-grid" id="heatmap" style="grid-template-columns:repeat(auto-fill,minmax(130px,1fr))"></div>
+      <div class="heat-grid" id="heatmap" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"></div>
       <div style="display:flex;gap:14px;margin-top:8px;font-size:10px">
         <span style="color:var(--green)">■ 정상(≥60%)</span>
         <span style="color:var(--amber)">■ 주의(40~60%)</span>
