@@ -296,7 +296,7 @@ function saveCard(){
   saveCards(cards);
   localStorage.setItem('syn_last_edit',new Date().toLocaleString('ko-KR'));
   closeOv('editOv'); render();
-  toast(idx===-1?'✅ 카드가 추가됐습니다':'✅ 카드가 수정됐습니다');
+  toast(idx===-1?'✅ 카드가 추가됐습니다! 💾HTML저장 후 GitHub 업로드':'✅ 카드가 수정됐습니다! 💾HTML저장 후 GitHub 업로드');
 }
 function delCard(){
   var idx=parseInt(document.getElementById('editI').value);
@@ -305,13 +305,53 @@ function delCard(){
   saveCards(cards); closeOv('editOv'); render(); toast('삭제됐습니다');
 }
 
-/* HTML 저장 */
+/* HTML 저장 — fetch로 원본 소스 가져와서 INIT 교체 */
 function exportHTML(){
-  var cards=loadCards();
-  var src=document.documentElement.outerHTML;
-  var newSrc=src.replace(/var INIT = \[[\s\S]*?\];/,'var INIT = '+JSON.stringify(cards,null,2)+';');
-  var blob=new Blob([newSrc],{type:'text/html;charset=utf-8'});
-  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='index.html'; a.click();
+  var cards = loadCards();
+  var marker = 'var INIT = ';
+
+  // 방법1: fetch로 현재 파일 원본 가져오기 (GitHub Pages에서 동작)
+  fetch(location.href)
+    .then(function(r){ return r.text(); })
+    .then(function(src){
+      doExport(src, cards);
+    })
+    .catch(function(){
+      // 방법2: file:// 환경 등 fetch 실패 시 script 태그에서 직접 추출
+      var scripts = document.querySelectorAll('script');
+      var src = '';
+      scripts.forEach(function(s){ if(s.innerHTML.indexOf(marker)>0) src = s.innerHTML; });
+      if(src){
+        // 전체 HTML 재조립
+        var fullHtml = document.documentElement.outerHTML;
+        doExport(fullHtml, cards);
+      } else {
+        toast('❌ 저장 실패. GitHub Pages에서 실행해주세요');
+      }
+    });
+}
+
+function doExport(src, cards){
+  var dataStr = JSON.stringify(cards, null, 2);
+  // var INIT = [...]; 패턴 교체
+  var newSrc = src.replace(
+    /var INIT = \[[\s\S]*?\];/,
+    'var INIT = ' + dataStr + ';'
+  );
+  if(newSrc === src){
+    // 패턴 못 찾으면 다른 방식으로 시도
+    newSrc = src.replace(
+      /(var INIT\s*=\s*)(\[)[\s\S]*?(\];)/,
+      '$1' + dataStr + ';'
+    );
+  }
+  var blob = new Blob([newSrc], {type:'text/html;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'index.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
   toast('✅ index.html 저장됐습니다! GitHub에 업로드하세요');
 }
 
