@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SYNOPEX // 설비 가동율 대시보드</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<title>SYNOPEX // OEE</title>
 <style>
+
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
 :root{--bg:#10141a;--card:#181d25;--card2:#1e2530;--bor:#252d3a;--teal:#00b4d8;--green:#00c851;--amber:#ffbb00;--red:#ff3547;--text:#ecf0f1;--muted:#7f8fa6}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -101,9 +101,11 @@ select:focus{border-color:var(--teal)}
 .ch{position:relative}
 ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:#252d3a;border-radius:2px}
 @media(max-width:900px){.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
+
 <header>
   <div>
     <div class="lt">SYNOPEX // OEE</div>
@@ -245,13 +247,119 @@ select:focus{border-color:var(--teal)}
     </div>
   </div>
 </main>
+
+
+<!-- 설비 상세 팝업 -->
+<div class="equip-popup-ov" id="equipOv" onclick="closeEquipPopup()"></div>
+<div class="equip-popup" id="equipPopup">
+  <div class="ep-head">
+    <div>
+      <div class="ep-title" id="epTitle">설비명</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px" id="epProc">공정</div>
+    </div>
+    <button class="ep-close" onclick="closeEquipPopup()">✕ 닫기</button>
+  </div>
+  <div class="ep-rate" id="epRate">--%</div>
+  <!-- 설비 대수 강조 -->
+  <div style="text-align:center;margin-bottom:12px;padding:10px;background:var(--card2);border:1px solid var(--bor);border-radius:8px;display:flex;align-items:center;justify-content:center;gap:8px">
+    <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">보유 설비 대수</span>
+    <span style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:var(--teal)" id="epCnt">-</span>
+  </div>
+  <div class="ep-grid">
+    <div class="ep-item"><div class="ep-item-v" id="epBase">-</div><div class="ep-item-l">기준시간(분)</div></div>
+    <div class="ep-item"><div class="ep-item-v" id="epRun">-</div><div class="ep-item-l">실운행(분)</div></div>
+    <div class="ep-item"><div class="ep-item-v" id="epArea">-</div><div class="ep-item-l">생산면적(㎡)</div></div>
+    <div class="ep-item"><div class="ep-item-v" id="epPd" style="color:rgba(0,180,216,.9)">-</div><div class="ep-item-l">계획비가동</div></div>
+    <div class="ep-item"><div class="ep-item-v" id="epOl" style="color:var(--amber)">-</div><div class="ep-item-l">운영유실</div></div>
+    <div class="ep-item"><div class="ep-item-v" id="epEl" style="color:var(--red)">-</div><div class="ep-item-l">설비유실</div></div>
+  </div>
+  <div class="ep-bar-wrap">
+    <div class="ep-bar-label"><span>실운행</span><span id="epBarPct">--%</span></div>
+    <div class="ep-bar"><div class="ep-bar-fill" id="epBarFill"></div></div>
+  </div>
+  <div id="epTrendWrap" style="display:none">
+    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">월별 추이 (2026)</div>
+    <div class="ep-trend" id="epTrend"></div>
+  </div>
+</div>
+
+<!-- 계획정지 등록 모달 -->
+<div id="stop-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;align-items:center;justify-content:center">
+  <div style="background:var(--card);border-radius:14px;padding:24px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto">
+    <div style="font-size:15px;font-weight:700;color:var(--amber);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--bor)">⚙️ 계획 정지 설비 등록</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">공정명</label>
+        <input id="sp-proc" placeholder="예: 레이저" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">설비명</label>
+        <input id="sp-name" placeholder="예: LASER #3" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">대수</label>
+        <input id="sp-cnt" type="number" min="1" value="1" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">예정 복구일</label>
+        <input id="sp-date" type="date" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">정지 사유</label>
+      <textarea id="sp-reason" placeholder="예: 정기 PM, 설비 개조, 부품 교체" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit;resize:vertical;min-height:70px"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="closeStopOv()" style="padding:7px 16px;border-radius:6px;border:1px solid var(--bor);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit">취소</button>
+      <button onclick="saveStop()" style="padding:7px 16px;border-radius:6px;border:none;background:var(--amber);color:#10141a;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- 고장 등록 모달 -->
+<div id="break-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;align-items:center;justify-content:center">
+  <div style="background:var(--card);border-radius:14px;padding:24px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto">
+    <div style="font-size:15px;font-weight:700;color:var(--red);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--bor)">🔧 고장 설비 등록</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">공정명</label>
+        <input id="bp-proc" placeholder="예: 동도금" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">설비명</label>
+        <input id="bp-name" placeholder="예: 도금조 #2" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">대수</label>
+        <input id="bp-cnt" type="number" min="1" value="1" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">수리 예정일</label>
+        <input id="bp-date" type="date" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+    </div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">진행 상태</label>
+      <select id="bp-status" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit">
+        <option value="수리중">🔧 수리중</option><option value="부품대기">📦 부품대기</option>
+        <option value="수리완료">✅ 수리완료</option><option value="점검중">🔍 점검중</option>
+      </select>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">고장 사유 / 수리 내용</label>
+      <textarea id="bp-reason" placeholder="예: 모터 과열로 인한 전원 차단, 냉각 팬 교체 필요" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit;resize:vertical;min-height:70px"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="closeBreakOv()" style="padding:7px 16px;border-radius:6px;border:1px solid var(--bor);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit">취소</button>
+      <button onclick="saveBreak()" style="padding:7px 16px;border-radius:6px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">등록</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Chart.js + 데이터 + 함수 — body 맨 끝에 배치 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
 // ── 데이터 ──
 var MODES = {"month": {"summary": [{"proc": "레이저", "sub": null, "cnt": 0, "area": 10319.9, "base": 368640, "run": 192670, "rate": 52.3, "plan_down": 148860, "op_loss": 4000, "eq_loss": 22510, "eq_fail": 600}, {"proc": "동도금", "sub": null, "cnt": 0, "area": 27086.9, "base": 184320, "run": 35298, "rate": 19.2, "plan_down": 133930, "op_loss": 5590, "eq_loss": 8682, "eq_fail": 820}, {"proc": "노광", "sub": null, "cnt": 0, "area": 21549.1, "base": 437760, "run": 70092, "rate": 16.0, "plan_down": 257870, "op_loss": 104558, "eq_loss": 3940, "eq_fail": 1300}, {"proc": "회로", "sub": null, "cnt": 0, "area": 29429.9, "base": 184320, "run": 51555, "rate": 28.0, "plan_down": 116570, "op_loss": 10080, "eq_loss": 5400, "eq_fail": 715}, {"proc": "AOI", "sub": null, "cnt": 0, "area": 19747.9, "base": 529920, "run": 202184, "rate": 38.2, "plan_down": 314900, "op_loss": 5775, "eq_loss": 6986, "eq_fail": 75}, {"proc": "수가접", "sub": null, "cnt": 0, "area": 11441.7, "base": 276480, "run": 113164, "rate": 40.9, "plan_down": 138300, "op_loss": 21060, "eq_loss": 3120, "eq_fail": 836}, {"proc": "적층", "sub": null, "cnt": 0, "area": 19414.3, "base": 875520, "run": 308286, "rate": 35.2, "plan_down": 186692, "op_loss": 348965, "eq_loss": 9977, "eq_fail": 21600}, {"proc": "가이드", "sub": null, "cnt": 0, "area": 11323.0, "base": 276480, "run": 110605, "rate": 40.0, "plan_down": 81080, "op_loss": 80220, "eq_loss": 3850, "eq_fail": 725}, {"proc": "금도금", "sub": null, "cnt": 0, "area": 47407.0, "base": 161280, "run": 116200, "rate": 72.0, "plan_down": 36090, "op_loss": 5750, "eq_loss": 720, "eq_fail": 2520}, {"proc": "자동가접", "sub": null, "cnt": 0, "area": 6178.4, "base": 322560, "run": 140304, "rate": 43.5, "plan_down": 135155, "op_loss": 2830, "eq_loss": 4816, "eq_fail": 39455}, {"proc": "SUB", "sub": null, "cnt": 0, "area": 3120.3, "base": 92160, "run": 43560, "rate": 47.3, "plan_down": 44680, "op_loss": 900, "eq_loss": 3020, "eq_fail": 0}, {"proc": "BBT", "sub": null, "cnt": 0, "area": 8550.0, "base": 345600, "run": 144483, "rate": 41.8, "plan_down": 191490, "op_loss": 3740, "eq_loss": 2948, "eq_fail": 2939}, {"proc": "타발", "sub": null, "cnt": 0, "area": 42307.0, "base": 714240, "run": 396672, "rate": 55.5, "plan_down": 208650, "op_loss": 85210, "eq_loss": 19898, "eq_fail": 3810}], "detail": [{"proc": "레이저", "sub": "RTR", "cnt": 10, "area": 6497.2, "base": 184320, "run": 114320, "rate": 62.0, "plan_down": 52830, "op_loss": 2570, "eq_loss": 14000, "eq_fail": 600}, {"proc": "레이저", "sub": "SHEET", "cnt": 2, "area": 3275.3, "base": 115200, "run": 68880, "rate": 59.8, "plan_down": 37770, "op_loss": 1240, "eq_loss": 7310, "eq_fail": 0}, {"proc": "레이저", "sub": "기타(QR / COV)", "cnt": 4, "area": 547.5, "base": 69120, "run": 9470, "rate": 13.7, "plan_down": 58260, "op_loss": 190, "eq_loss": 1200, "eq_fail": 0}, {"proc": "동도금", "sub": "블랙홀", "cnt": 1, "area": 7803.9, "base": 23040, "run": 8540, "rate": 37.1, "plan_down": 11300, "op_loss": 1745, "eq_loss": 1435, "eq_fail": 20}, {"proc": "동도금", "sub": "디스미어", "cnt": 1, "area": 794.6, "base": 23040, "run": 1195, "rate": 5.2, "plan_down": 19360, "op_loss": 835, "eq_loss": 1650, "eq_fail": 0}, {"proc": "동도금", "sub": "화학동", "cnt": 1, "area": 742.2, "base": 23040, "run": 650, "rate": 2.8, "plan_down": 18400, "op_loss": 1370, "eq_loss": 2620, "eq_fail": 0}, {"proc": "동도금", "sub": "SHEET 전기동", "cnt": 2, "area": 2902.6, "base": 23040, "run": 6393, "rate": 27.7, "plan_down": 12880, "op_loss": 1560, "eq_loss": 1407, "eq_fail": 800}, {"proc": "동도금", "sub": "RTR 전기동", "cnt": 1, "area": 5791.7, "base": 23040, "run": 12310, "rate": 53.4, "plan_down": 9080, "op_loss": 80, "eq_loss": 1570, "eq_fail": 0}, {"proc": "동도금", "sub": "BAKING", "cnt": 2, "area": 8777.3, "base": 46080, "run": 5930, "rate": 12.9, "plan_down": 40150, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "동도금", "sub": "ULTRA", "cnt": 1, "area": 274.6, "base": 23040, "run": 280, "rate": 1.2, "plan_down": 22760, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "노광", "sub": "D/F", "cnt": 10, "area": 11740.6, "base": 230400, "run": 21820, "rate": 9.5, "plan_down": 148640, "op_loss": 58180, "eq_loss": 1760, "eq_fail": 0}, {"proc": "노광", "sub": "MANUAL 노광", "cnt": 2, "area": 59.3, "base": 46080, "run": 550, "rate": 1.2, "plan_down": 38740, "op_loss": 6590, "eq_loss": 200, "eq_fail": 0}, {"proc": "노광", "sub": "RTR LDI", "cnt": 1, "area": 736.3, "base": 23040, "run": 2630, "rate": 11.4, "plan_down": 12650, "op_loss": 7380, "eq_loss": 380, "eq_fail": 0}, {"proc": "노광", "sub": "RTR 노광", "cnt": 2, "area": 1894.8, "base": 46080, "run": 7100, "rate": 15.4, "plan_down": 23830, "op_loss": 13490, "eq_loss": 1600, "eq_fail": 60}, {"proc": "노광", "sub": "LDI", "cnt": 4, "area": 7118.1, "base": 92160, "run": 37992, "rate": 41.2, "plan_down": 34010, "op_loss": 18918, "eq_loss": 0, "eq_fail": 1240}, {"proc": "회로", "sub": "H/F", "cnt": 1, "area": 4888.5, "base": 23040, "run": 7595, "rate": 33.0, "plan_down": 13410, "op_loss": 1320, "eq_loss": 690, "eq_fail": 25}, {"proc": "회로", "sub": "S/E", "cnt": 2, "area": 12137.5, "base": 46080, "run": 20640, "rate": 44.8, "plan_down": 20610, "op_loss": 3300, "eq_loss": 1530, "eq_fail": 0}, {"proc": "회로", "sub": "CZ", "cnt": 1, "area": 1249.8, "base": 23040, "run": 4080, "rate": 17.7, "plan_down": 16530, "op_loss": 1560, "eq_loss": 690, "eq_fail": 180}, {"proc": "회로", "sub": "옥사이드", "cnt": 1, "area": 1073.5, "base": 23040, "run": 3240, "rate": 14.1, "plan_down": 18030, "op_loss": 1380, "eq_loss": 390, "eq_fail": 0}, {"proc": "회로", "sub": "ULTRA", "cnt": 1, "area": 274.5, "base": 23040, "run": 1250, "rate": 5.4, "plan_down": 20500, "op_loss": 660, "eq_loss": 120, "eq_fail": 510}, {"proc": "회로", "sub": "DES", "cnt": 2, "area": 9806.1, "base": 46080, "run": 14750, "rate": 32.0, "plan_down": 27490, "op_loss": 1860, "eq_loss": 1980, "eq_fail": 0}, {"proc": "AOI", "sub": "RTR AOI", "cnt": 1, "area": 1973.8, "base": 23040, "run": 13405, "rate": 58.2, "plan_down": 8870, "op_loss": 375, "eq_loss": 390, "eq_fail": 0}, {"proc": "AOI", "sub": "RTR VRS", "cnt": 2, "area": 1870.0, "base": 46080, "run": 17454, "rate": 37.9, "plan_down": 27750, "op_loss": 495, "eq_loss": 381, "eq_fail": 0}, {"proc": "AOI", "sub": "SHEET AOI", "cnt": 6, "area": 6021.6, "base": 138240, "run": 65872, "rate": 47.7, "plan_down": 66660, "op_loss": 1935, "eq_loss": 3698, "eq_fail": 75}, {"proc": "AOI", "sub": "SHEET VRS", "cnt": 12, "area": 7097.5, "base": 276480, "run": 90220, "rate": 32.6, "plan_down": 181670, "op_loss": 2535, "eq_loss": 2055, "eq_fail": 0}, {"proc": "AOI", "sub": "Vision Cut", "cnt": 1, "area": 2724.8, "base": 23040, "run": 14644, "rate": 63.6, "plan_down": 7520, "op_loss": 420, "eq_loss": 456, "eq_fail": 0}, {"proc": "AOI", "sub": "AOS", "cnt": 1, "area": 60.0, "base": 23040, "run": 589, "rate": 2.6, "plan_down": 22430, "op_loss": 15, "eq_loss": 6, "eq_fail": 0}, {"proc": "수가접", "sub": "Q/PRESS", "cnt": 6, "area": 8878.4, "base": 138240, "run": 82580, "rate": 59.7, "plan_down": 45090, "op_loss": 8420, "eq_loss": 2150, "eq_fail": 0}, {"proc": "수가접", "sub": "자동 EMI", "cnt": 2, "area": 1288.7, "base": 46080, "run": 10760, "rate": 23.4, "plan_down": 31680, "op_loss": 2950, "eq_loss": 355, "eq_fail": 335}, {"proc": "수가접", "sub": "자동 COV", "cnt": 4, "area": 1274.6, "base": 92160, "run": 19824, "rate": 21.5, "plan_down": 61530, "op_loss": 9690, "eq_loss": 615, "eq_fail": 501}, {"proc": "적층", "sub": "H/P", "cnt": 38, "area": 19414.3, "base": 875520, "run": 308286, "rate": 35.2, "plan_down": 186692, "op_loss": 348965, "eq_loss": 9977, "eq_fail": 21600}, {"proc": "가이드", "sub": "X-RAY", "cnt": 1, "area": 739.5, "base": 23040, "run": 4850, "rate": 21.1, "plan_down": 8140, "op_loss": 9680, "eq_loss": 370, "eq_fail": 0}, {"proc": "가이드", "sub": "RTR GUIDE", "cnt": 1, "area": 668.4, "base": 23040, "run": 2410, "rate": 10.5, "plan_down": 5640, "op_loss": 14080, "eq_loss": 250, "eq_fail": 660}, {"proc": "가이드", "sub": "자동 GUIDE", "cnt": 10, "area": 9915.2, "base": 230400, "run": 103345, "rate": 44.9, "plan_down": 67300, "op_loss": 56460, "eq_loss": 3230, "eq_fail": 65}, {"proc": "금도금", "sub": "JET LINE", "cnt": 1, "area": 8593.0, "base": 23040, "run": 16180, "rate": 70.2, "plan_down": 5460, "op_loss": 1040, "eq_loss": 360, "eq_fail": 0}, {"proc": "금도금", "sub": "LINE E.N.I.G", "cnt": 1, "area": 8593.0, "base": 23040, "run": 16110, "rate": 69.9, "plan_down": 5460, "op_loss": 1040, "eq_loss": 360, "eq_fail": 70}, {"proc": "금도금", "sub": "ULTRA", "cnt": 1, "area": 8593.0, "base": 23040, "run": 16110, "rate": 69.9, "plan_down": 5460, "op_loss": 1400, "eq_loss": 0, "eq_fail": 70}, {"proc": "금도금", "sub": "X-RAY", "cnt": 1, "area": 8638.0, "base": 23040, "run": 16110, "rate": 69.9, "plan_down": 5460, "op_loss": 1400, "eq_loss": 0, "eq_fail": 70}, {"proc": "금도금", "sub": "플라즈마", "cnt": 3, "area": 12990.0, "base": 69120, "run": 51690, "rate": 74.8, "plan_down": 14250, "op_loss": 870, "eq_loss": 0, "eq_fail": 2310}, {"proc": "자동가접", "sub": "Q/PRESS", "cnt": 3, "area": 1399.2, "base": 69120, "run": 38044, "rate": 55.0, "plan_down": 29570, "op_loss": 720, "eq_loss": 786, "eq_fail": 0}, {"proc": "자동가접", "sub": "DAWON", "cnt": 4, "area": 1315.7, "base": 92160, "run": 45776, "rate": 49.7, "plan_down": 43515, "op_loss": 970, "eq_loss": 1719, "eq_fail": 180}, {"proc": "자동가접", "sub": "꿕바오", "cnt": 2, "area": 470.6, "base": 46080, "run": 15854, "rate": 34.4, "plan_down": 17925, "op_loss": 300, "eq_loss": 781, "eq_fail": 11220}, {"proc": "자동가접", "sub": "FAST", "cnt": 3, "area": 639.1, "base": 69120, "run": 18045, "rate": 26.1, "plan_down": 25595, "op_loss": 400, "eq_loss": 1345, "eq_fail": 23735}, {"proc": "자동가접", "sub": "AIR BAG", "cnt": 2, "area": 2353.8, "base": 46080, "run": 22585, "rate": 49.0, "plan_down": 18550, "op_loss": 440, "eq_loss": 185, "eq_fail": 4320}, {"proc": "SUB", "sub": "Q/PRESS", "cnt": 4, "area": 3120.3, "base": 92160, "run": 43560, "rate": 47.3, "plan_down": 44680, "op_loss": 900, "eq_loss": 3020, "eq_fail": 0}, {"proc": "BBT", "sub": "수동 BBT", "cnt": 9, "area": 1634.5, "base": 207360, "run": 52998, "rate": 25.6, "plan_down": 150840, "op_loss": 1250, "eq_loss": 792, "eq_fail": 1480}, {"proc": "BBT", "sub": "AUTO BBT", "cnt": 6, "area": 6915.5, "base": 138240, "run": 91485, "rate": 66.2, "plan_down": 40650, "op_loss": 2490, "eq_loss": 2156, "eq_fail": 1459}, {"proc": "타발", "sub": "PRESS", "cnt": 26, "area": 28537.7, "base": 599040, "run": 329272, "rate": 55.0, "plan_down": 170790, "op_loss": 80860, "eq_loss": 14608, "eq_fail": 3510}, {"proc": "타발", "sub": "CUTTING", "cnt": 2, "area": 8519.4, "base": 46080, "run": 27236, "rate": 59.1, "plan_down": 11210, "op_loss": 4170, "eq_loss": 3464, "eq_fail": 0}, {"proc": "타발", "sub": "보강판 PRESS", "cnt": 2, "area": 428.8, "base": 46080, "run": 33076, "rate": 71.8, "plan_down": 11420, "op_loss": 120, "eq_loss": 1164, "eq_fail": 300}, {"proc": "타발", "sub": "고속 타발", "cnt": 1, "area": 4821.1, "base": 23040, "run": 7088, "rate": 30.8, "plan_down": 15230, "op_loss": 60, "eq_loss": 662, "eq_fail": 0}], "period": "4/1~4/16", "overall": 40.8}, "day": {"summary": [{"proc": "레이저", "sub": null, "cnt": 0, "area": 334.8, "base": 23040, "run": 9110, "rate": 39.5, "plan_down": 11370, "op_loss": 180, "eq_loss": 2380, "eq_fail": 0}, {"proc": "동도금", "sub": null, "cnt": 0, "area": 2214.9, "base": 11520, "run": 3090, "rate": 26.8, "plan_down": 7830, "op_loss": 460, "eq_loss": 100, "eq_fail": 40}, {"proc": "노광", "sub": null, "cnt": 0, "area": 1157.6, "base": 27360, "run": 3805, "rate": 13.9, "plan_down": 14770, "op_loss": 6615, "eq_loss": 2170, "eq_fail": 0}, {"proc": "회로", "sub": null, "cnt": 0, "area": 2060.0, "base": 11520, "run": 3850, "rate": 33.4, "plan_down": 6790, "op_loss": 780, "eq_loss": 100, "eq_fail": 0}, {"proc": "AOI", "sub": null, "cnt": 0, "area": 2149.3, "base": 33120, "run": 16135, "rate": 48.7, "plan_down": 16040, "op_loss": 420, "eq_loss": 525, "eq_fail": 0}, {"proc": "수가접", "sub": null, "cnt": 0, "area": 993.8, "base": 17280, "run": 10610, "rate": 61.4, "plan_down": 4590, "op_loss": 1710, "eq_loss": 290, "eq_fail": 80}, {"proc": "적층", "sub": null, "cnt": 0, "area": 1697.4, "base": 54720, "run": 25175, "rate": 46.0, "plan_down": 5900, "op_loss": 21395, "eq_loss": 810, "eq_fail": 1440}, {"proc": "가이드", "sub": null, "cnt": 0, "area": 877.0, "base": 17280, "run": 9430, "rate": 54.6, "plan_down": 2920, "op_loss": 4490, "eq_loss": 290, "eq_fail": 150}, {"proc": "금도금", "sub": null, "cnt": 0, "area": 4101.0, "base": 10080, "run": 9080, "rate": 90.1, "plan_down": 660, "op_loss": 340, "eq_loss": 0, "eq_fail": 0}, {"proc": "자동가접", "sub": null, "cnt": 0, "area": 599.1, "base": 20160, "run": 13536, "rate": 67.1, "plan_down": 2720, "op_loss": 240, "eq_loss": 689, "eq_fail": 2975}, {"proc": "SUB", "sub": null, "cnt": 0, "area": 139.7, "base": 5760, "run": 2505, "rate": 43.5, "plan_down": 3065, "op_loss": 60, "eq_loss": 130, "eq_fail": 0}, {"proc": "BBT", "sub": null, "cnt": 0, "area": 567.4, "base": 21600, "run": 9960, "rate": 46.1, "plan_down": 11180, "op_loss": 190, "eq_loss": 143, "eq_fail": 127}, {"proc": "타발", "sub": null, "cnt": 0, "area": 2267.6, "base": 44640, "run": 27136, "rate": 60.8, "plan_down": 8730, "op_loss": 7250, "eq_loss": 1314, "eq_fail": 210}], "detail": [{"proc": "레이저", "sub": "RTR", "cnt": 10, "area": 262.4, "base": 11520, "run": 6020, "rate": 52.3, "plan_down": 4680, "op_loss": 130, "eq_loss": 690, "eq_fail": 0}, {"proc": "레이저", "sub": "SHEET", "cnt": 2, "area": 65.5, "base": 7200, "run": 2550, "rate": 35.4, "plan_down": 2980, "op_loss": 30, "eq_loss": 1640, "eq_fail": 0}, {"proc": "레이저", "sub": "기타(QR / COV)", "cnt": 4, "area": 7.0, "base": 4320, "run": 540, "rate": 12.5, "plan_down": 3710, "op_loss": 20, "eq_loss": 50, "eq_fail": 0}, {"proc": "동도금", "sub": "블랙홀", "cnt": 1, "area": 492.9, "base": 1440, "run": 570, "rate": 39.6, "plan_down": 700, "op_loss": 120, "eq_loss": 30, "eq_fail": 20}, {"proc": "동도금", "sub": "디스미어", "cnt": 1, "area": 36.4, "base": 1440, "run": 60, "rate": 4.2, "plan_down": 1340, "op_loss": 40, "eq_loss": 0, "eq_fail": 0}, {"proc": "동도금", "sub": "화학동", "cnt": 1, "area": 55.7, "base": 1440, "run": 90, "rate": 6.2, "plan_down": 1230, "op_loss": 120, "eq_loss": 0, "eq_fail": 0}, {"proc": "동도금", "sub": "SHEET 전기동", "cnt": 2, "area": 294.9, "base": 1440, "run": 590, "rate": 41.0, "plan_down": 610, "op_loss": 160, "eq_loss": 60, "eq_fail": 20}, {"proc": "동도금", "sub": "RTR 전기동", "cnt": 1, "area": 472.2, "base": 1440, "run": 1060, "rate": 73.6, "plan_down": 350, "op_loss": 20, "eq_loss": 10, "eq_fail": 0}, {"proc": "동도금", "sub": "BAKING", "cnt": 2, "area": 751.6, "base": 2880, "run": 610, "rate": 21.2, "plan_down": 2270, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "동도금", "sub": "ULTRA", "cnt": 1, "area": 111.3, "base": 1440, "run": 110, "rate": 7.6, "plan_down": 1330, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "노광", "sub": "D/F", "cnt": 10, "area": 589.4, "base": 14400, "run": 1225, "rate": 8.5, "plan_down": 8160, "op_loss": 4865, "eq_loss": 150, "eq_fail": 0}, {"proc": "노광", "sub": "MANUAL 노광", "cnt": 2, "area": 6.1, "base": 2880, "run": 40, "rate": 1.4, "plan_down": 2390, "op_loss": 250, "eq_loss": 200, "eq_fail": 0}, {"proc": "노광", "sub": "RTR LDI", "cnt": 1, "area": 158.4, "base": 1440, "run": 600, "rate": 41.7, "plan_down": 220, "op_loss": 260, "eq_loss": 360, "eq_fail": 0}, {"proc": "노광", "sub": "RTR 노광", "cnt": 2, "area": 155.6, "base": 2880, "run": 620, "rate": 21.5, "plan_down": 680, "op_loss": 120, "eq_loss": 1460, "eq_fail": 0}, {"proc": "노광", "sub": "LDI", "cnt": 4, "area": 248.1, "base": 5760, "run": 1320, "rate": 22.9, "plan_down": 3320, "op_loss": 1120, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "H/F", "cnt": 1, "area": 507.2, "base": 1440, "run": 660, "rate": 45.8, "plan_down": 660, "op_loss": 120, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "S/E", "cnt": 2, "area": 692.5, "base": 2880, "run": 1370, "rate": 47.6, "plan_down": 1270, "op_loss": 240, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "CZ", "cnt": 1, "area": 138.4, "base": 1440, "run": 380, "rate": 26.4, "plan_down": 940, "op_loss": 120, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "옥사이드", "cnt": 1, "area": 92.6, "base": 1440, "run": 350, "rate": 24.3, "plan_down": 970, "op_loss": 120, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "ULTRA", "cnt": 1, "area": 13.4, "base": 1440, "run": 90, "rate": 6.2, "plan_down": 1290, "op_loss": 60, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "DES", "cnt": 2, "area": 616.0, "base": 2880, "run": 1000, "rate": 34.7, "plan_down": 1660, "op_loss": 120, "eq_loss": 100, "eq_fail": 0}, {"proc": "AOI", "sub": "RTR AOI", "cnt": 1, "area": 292.3, "base": 1440, "run": 1154, "rate": 80.1, "plan_down": 220, "op_loss": 30, "eq_loss": 36, "eq_fail": 0}, {"proc": "AOI", "sub": "RTR VRS", "cnt": 2, "area": 286.9, "base": 2880, "run": 2326, "rate": 80.8, "plan_down": 440, "op_loss": 60, "eq_loss": 54, "eq_fail": 0}, {"proc": "AOI", "sub": "SHEET AOI", "cnt": 6, "area": 410.0, "base": 8640, "run": 4502, "rate": 52.1, "plan_down": 3760, "op_loss": 120, "eq_loss": 258, "eq_fail": 0}, {"proc": "AOI", "sub": "SHEET VRS", "cnt": 12, "area": 620.2, "base": 17280, "run": 7005, "rate": 40.5, "plan_down": 9960, "op_loss": 180, "eq_loss": 135, "eq_fail": 0}, {"proc": "AOI", "sub": "Vision Cut", "cnt": 1, "area": 540.0, "base": 1440, "run": 1148, "rate": 79.7, "plan_down": 220, "op_loss": 30, "eq_loss": 42, "eq_fail": 0}, {"proc": "AOI", "sub": "AOS", "cnt": 1, "area": 0.0, "base": 1440, "run": 0, "rate": 0.0, "plan_down": 1440, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "수가접", "sub": "Q/PRESS", "cnt": 6, "area": 729.5, "base": 8640, "run": 6695, "rate": 77.5, "plan_down": 1440, "op_loss": 330, "eq_loss": 175, "eq_fail": 0}, {"proc": "수가접", "sub": "자동 EMI", "cnt": 2, "area": 136.1, "base": 2880, "run": 1445, "rate": 50.2, "plan_down": 1050, "op_loss": 320, "eq_loss": 35, "eq_fail": 30}, {"proc": "수가접", "sub": "자동 COV", "cnt": 4, "area": 128.2, "base": 5760, "run": 2470, "rate": 42.9, "plan_down": 2100, "op_loss": 1060, "eq_loss": 80, "eq_fail": 50}, {"proc": "적층", "sub": "H/P", "cnt": 38, "area": 1697.4, "base": 54720, "run": 25175, "rate": 46.0, "plan_down": 5900, "op_loss": 21395, "eq_loss": 810, "eq_fail": 1440}, {"proc": "가이드", "sub": "X-RAY", "cnt": 1, "area": 53.8, "base": 1440, "run": 330, "rate": 22.9, "plan_down": 460, "op_loss": 620, "eq_loss": 30, "eq_fail": 0}, {"proc": "가이드", "sub": "RTR GUIDE", "cnt": 1, "area": 0.0, "base": 1440, "run": 0, "rate": 0.0, "plan_down": 0, "op_loss": 1290, "eq_loss": 0, "eq_fail": 150}, {"proc": "가이드", "sub": "자동 GUIDE", "cnt": 10, "area": 823.2, "base": 14400, "run": 9100, "rate": 63.2, "plan_down": 2460, "op_loss": 2580, "eq_loss": 260, "eq_fail": 0}, {"proc": "금도금", "sub": "JET LINE", "cnt": 1, "area": 779.0, "base": 1440, "run": 1370, "rate": 95.1, "plan_down": 0, "op_loss": 70, "eq_loss": 0, "eq_fail": 0}, {"proc": "금도금", "sub": "LINE E.N.I.G", "cnt": 1, "area": 779.0, "base": 1440, "run": 1370, "rate": 95.1, "plan_down": 0, "op_loss": 70, "eq_loss": 0, "eq_fail": 0}, {"proc": "금도금", "sub": "ULTRA", "cnt": 1, "area": 779.0, "base": 1440, "run": 1370, "rate": 95.1, "plan_down": 0, "op_loss": 70, "eq_loss": 0, "eq_fail": 0}, {"proc": "금도금", "sub": "X-RAY", "cnt": 1, "area": 779.0, "base": 1440, "run": 1370, "rate": 95.1, "plan_down": 0, "op_loss": 70, "eq_loss": 0, "eq_fail": 0}, {"proc": "금도금", "sub": "플라즈마", "cnt": 3, "area": 985.0, "base": 4320, "run": 3600, "rate": 83.3, "plan_down": 660, "op_loss": 60, "eq_loss": 0, "eq_fail": 0}, {"proc": "자동가접", "sub": "Q/PRESS", "cnt": 3, "area": 132.7, "base": 4320, "run": 3215, "rate": 74.4, "plan_down": 960, "op_loss": 60, "eq_loss": 85, "eq_fail": 0}, {"proc": "자동가접", "sub": "DAWON", "cnt": 4, "area": 131.4, "base": 5760, "run": 3718, "rate": 64.5, "plan_down": 1540, "op_loss": 80, "eq_loss": 422, "eq_fail": 0}, {"proc": "자동가접", "sub": "꿕바오", "cnt": 2, "area": 83.4, "base": 2880, "run": 2760, "rate": 95.8, "plan_down": 0, "op_loss": 40, "eq_loss": 80, "eq_fail": 0}, {"proc": "자동가접", "sub": "FAST", "cnt": 3, "area": 81.5, "base": 4320, "run": 2668, "rate": 61.8, "plan_down": 0, "op_loss": 40, "eq_loss": 77, "eq_fail": 1535}, {"proc": "자동가접", "sub": "AIR BAG", "cnt": 2, "area": 170.1, "base": 2880, "run": 1175, "rate": 40.8, "plan_down": 220, "op_loss": 20, "eq_loss": 25, "eq_fail": 1440}, {"proc": "SUB", "sub": "Q/PRESS", "cnt": 4, "area": 139.7, "base": 5760, "run": 2505, "rate": 43.5, "plan_down": 3065, "op_loss": 60, "eq_loss": 130, "eq_fail": 0}, {"proc": "BBT", "sub": "수동 BBT", "cnt": 9, "area": 45.0, "base": 12960, "run": 2918, "rate": 22.5, "plan_down": 9860, "op_loss": 70, "eq_loss": 27, "eq_fail": 85}, {"proc": "BBT", "sub": "AUTO BBT", "cnt": 6, "area": 522.4, "base": 8640, "run": 7042, "rate": 81.5, "plan_down": 1320, "op_loss": 120, "eq_loss": 116, "eq_fail": 42}, {"proc": "타발", "sub": "PRESS", "cnt": 26, "area": 1486.3, "base": 37440, "run": 22198, "rate": 59.3, "plan_down": 6900, "op_loss": 7150, "eq_loss": 982, "eq_fail": 210}, {"proc": "타발", "sub": "CUTTING", "cnt": 2, "area": 365.0, "base": 2880, "run": 2066, "rate": 71.7, "plan_down": 560, "op_loss": 40, "eq_loss": 214, "eq_fail": 0}, {"proc": "타발", "sub": "보강판 PRESS", "cnt": 2, "area": 46.6, "base": 2880, "run": 2342, "rate": 81.3, "plan_down": 440, "op_loss": 40, "eq_loss": 58, "eq_fail": 0}, {"proc": "타발", "sub": "고속 타발", "cnt": 1, "area": 369.6, "base": 1440, "run": 530, "rate": 36.8, "plan_down": 830, "op_loss": 20, "eq_loss": 60, "eq_fail": 0}], "period": "4/16", "overall": 48.6}};
 var TREND = {"레이저": [53.2, 39.5, 40.6, 52.3], "동도금": [31.4, 20.6, 25.5, 19.2], "노광": [21.0, 15.1, 15.9, 16.0], "회로": [29.7, 20.4, 26.1, 28.0], "AOI": [49.7, 33.5, 37.4, 38.2], "수가접": [54.0, 39.3, 49.2, 40.9], "적층": [54.5, 33.1, 39.6, 35.2], "가이드": [50.9, 31.3, 45.7, 40.0], "금도금": [80.2, 52.0, 75.6, 72.0], "자동가접": [64.6, 56.8, 66.5, 43.5], "SUB": [36.3, 25.2, 47.7, 47.3], "BBT": [39.0, 30.3, 41.4, 41.8], "타발": [63.0, 40.7, 47.5, 55.5]};
 var ETRD  = {"레이저_RTR": [72.0, 51.1, 50.0, 62.0], "레이저_SHEET": [37.1, 33.2, 39.9, 59.8], "레이저_기타(QR / COV)": [29.9, 19.4, 16.4, 13.7], "동도금_블랙홀": [51.8, 35.0, 39.5, 37.1], "동도금_디스미어": [13.4, 3.1, 9.8, 5.2], "동도금_화학동": [5.4, 3.8, 9.3, 2.8], "동도금_SHEET 전기동": [51.2, 24.6, 35.8, 27.7], "동도금_RTR 전기동": [61.5, 51.6, 55.8, 53.4], "동도금_BAKING": [31.3, 20.8, 24.1, 12.9], "동도금_ULTRA": [5.1, 4.8, 5.8, 1.2], "노광_D/F": [12.0, 8.6, 8.4, 9.5], "노광_MANUAL 노광": [2.7, 1.8, 2.1, 1.2], "노광_RTR LDI": [5.9, 2.4, 2.9, 11.4], "노광_RTR 노광": [21.6, 13.9, 5.2, 15.4], "노광_LDI": [56.2, 42.0, 50.2, 41.2], "회로_H/F": [50.6, 27.7, 19.3, 33.0], "회로_S/E": [47.1, 32.3, 46.8, 44.8], "회로_CZ": [12.1, 8.4, 15.6, 17.7], "회로_옥사이드": [9.7, 7.1, 12.7, 14.1], "회로_ULTRA": [3.2, 1.6, 4.5, 5.4], "회로_DES": [34.1, 26.9, 31.7, 32.0], "AOI_RTR AOI": [53.8, 32.9, 32.3, 58.2], "AOI_RTR VRS": [45.4, 28.3, 16.1, 37.9], "AOI_SHEET AOI": [65.4, 47.3, 51.0, 47.7], "AOI_SHEET VRS": [44.8, 29.9, 39.9, 32.6], "AOI_Vision Cut": [69.0, 38.9, 11.1, 63.6], "AOI_AOS": [null, null, null, 2.6], "수가접_Q/PRESS": [63.6, 45.3, 63.9, 59.7], "수가접_자동 EMI": [37.6, 29.3, 31.9, 23.4], "수가접_자동 COV": [41.8, 31.1, 29.2, 21.5], "적층_H/P": [54.5, 33.1, 39.6, 35.2], "가이드_X-RAY": [18.7, 1.6, 25.7, 21.1], "가이드_RTR GUIDE": [6.9, 9.0, 6.5, 10.5], "가이드_자동 GUIDE": [58.5, 36.5, 51.7, 44.9], "금도금_JET LINE": [84.5, 61.6, 83.6, 70.2], "금도금_LINE E.N.I.G": [84.2, 60.4, 82.2, 69.9], "금도금_ULTRA": [84.2, 60.4, 82.6, 69.9], "금도금_X-RAY": [84.2, 60.1, 82.6, 69.9], "금도금_플라즈마": [74.7, 40.5, 66.1, 74.8], "자동가접_Q/PRESS": [75.6, 57.0, 70.2, 55.0], "자동가접_DAWON": [60.1, 50.7, 68.5, 49.7], "자동가접_꿕바오": [78.4, 71.3, 80.1, 34.4], "자동가접_FAST": [69.0, 58.5, 45.1, 26.1], "자동가접_AIR BAG": [36.3, 51.9, 75.1, 49.0], "SUB_Q/PRESS": [36.3, 25.2, 47.7, 47.3], "BBT_수동 BBT": [17.8, 13.7, 23.3, 25.6], "BBT_AUTO BBT": [70.7, 55.2, 68.4, 66.2], "타발_PRESS": [63.2, 39.1, 47.5, 55.0], "타발_CUTTING": [57.1, 49.8, 54.2, 59.1], "타발_보강판 PRESS": [68.4, 60.8, 58.6, 71.8], "타발_고속 타발": [60.3, 23.1, 12.1, 30.8]};
 
+// ── 함수 ──
+// ── 데이터 ──
+
+
 var MODE = 'month';
+var HF_PROC = '';
 var CH   = {};
 var TGT  = 60;
 
@@ -388,6 +496,13 @@ function buildTab0(){
   document.getElementById('t0b').innerHTML=h;
 }
 
+
+function setHeatFilter(proc, btn){
+  HF_PROC = proc;
+  document.querySelectorAll('.hf-btn').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  buildHeatmap();
+}
 function buildHeatmap(){
   var db = cur();
   var hm = document.getElementById('heatmap');
@@ -560,106 +675,8 @@ function closeEquipPopup(){
   document.getElementById('equipPopup').classList.remove('on');
 }
 
-// ── 시작 ──
-document.addEventListener('DOMContentLoaded', function(){ render(); });
-</script>
+// ── 계획정지/고장 ──
 
-<!-- 설비 상세 팝업 -->
-<div class="equip-popup-ov" id="equipOv" onclick="closeEquipPopup()"></div>
-<div class="equip-popup" id="equipPopup">
-  <div class="ep-head">
-    <div>
-      <div class="ep-title" id="epTitle">설비명</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px" id="epProc">공정</div>
-    </div>
-    <button class="ep-close" onclick="closeEquipPopup()">✕ 닫기</button>
-  </div>
-  <div class="ep-rate" id="epRate">--%</div>
-  <!-- 설비 대수 강조 -->
-  <div style="text-align:center;margin-bottom:12px;padding:10px;background:var(--card2);border:1px solid var(--bor);border-radius:8px;display:flex;align-items:center;justify-content:center;gap:8px">
-    <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">보유 설비 대수</span>
-    <span style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:var(--teal)" id="epCnt">-</span>
-  </div>
-  <div class="ep-grid">
-    <div class="ep-item"><div class="ep-item-v" id="epBase">-</div><div class="ep-item-l">기준시간(분)</div></div>
-    <div class="ep-item"><div class="ep-item-v" id="epRun">-</div><div class="ep-item-l">실운행(분)</div></div>
-    <div class="ep-item"><div class="ep-item-v" id="epArea">-</div><div class="ep-item-l">생산면적(㎡)</div></div>
-    <div class="ep-item"><div class="ep-item-v" id="epPd" style="color:rgba(0,180,216,.9)">-</div><div class="ep-item-l">계획비가동</div></div>
-    <div class="ep-item"><div class="ep-item-v" id="epOl" style="color:var(--amber)">-</div><div class="ep-item-l">운영유실</div></div>
-    <div class="ep-item"><div class="ep-item-v" id="epEl" style="color:var(--red)">-</div><div class="ep-item-l">설비유실</div></div>
-  </div>
-  <div class="ep-bar-wrap">
-    <div class="ep-bar-label"><span>실운행</span><span id="epBarPct">--%</span></div>
-    <div class="ep-bar"><div class="ep-bar-fill" id="epBarFill"></div></div>
-  </div>
-  <div id="epTrendWrap" style="display:none">
-    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">월별 추이 (2026)</div>
-    <div class="ep-trend" id="epTrend"></div>
-  </div>
-</div>
-
-<!-- 계획정지 등록 모달 -->
-<div id="stop-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;align-items:center;justify-content:center">
-  <div style="background:var(--card);border-radius:14px;padding:24px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto">
-    <div style="font-size:15px;font-weight:700;color:var(--amber);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--bor)">⚙️ 계획 정지 설비 등록</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">공정명</label>
-        <input id="sp-proc" placeholder="예: 레이저" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
-      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">설비명</label>
-        <input id="sp-name" placeholder="예: LASER #3" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">대수</label>
-        <input id="sp-cnt" type="number" min="1" value="1" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
-      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">예정 복구일</label>
-        <input id="sp-date" type="date" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
-    </div>
-    <div style="margin-bottom:14px">
-      <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">정지 사유</label>
-      <textarea id="sp-reason" placeholder="예: 정기 PM, 설비 개조, 부품 교체" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit;resize:vertical;min-height:70px"></textarea>
-    </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="closeStopOv()" style="padding:7px 16px;border-radius:6px;border:1px solid var(--bor);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit">취소</button>
-      <button onclick="saveStop()" style="padding:7px 16px;border-radius:6px;border:none;background:var(--amber);color:#10141a;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">등록</button>
-    </div>
-  </div>
-</div>
-
-<!-- 고장 등록 모달 -->
-<div id="break-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;align-items:center;justify-content:center">
-  <div style="background:var(--card);border-radius:14px;padding:24px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto">
-    <div style="font-size:15px;font-weight:700;color:var(--red);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--bor)">🔧 고장 설비 등록</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">공정명</label>
-        <input id="bp-proc" placeholder="예: 동도금" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
-      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">설비명</label>
-        <input id="bp-name" placeholder="예: 도금조 #2" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">대수</label>
-        <input id="bp-cnt" type="number" min="1" value="1" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
-      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">수리 예정일</label>
-        <input id="bp-date" type="date" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
-    </div>
-    <div style="margin-bottom:10px">
-      <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">진행 상태</label>
-      <select id="bp-status" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit">
-        <option value="수리중">🔧 수리중</option><option value="부품대기">📦 부품대기</option>
-        <option value="수리완료">✅ 수리완료</option><option value="점검중">🔍 점검중</option>
-      </select>
-    </div>
-    <div style="margin-bottom:14px">
-      <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">고장 사유 / 수리 내용</label>
-      <textarea id="bp-reason" placeholder="예: 모터 과열로 인한 전원 차단, 냉각 팬 교체 필요" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit;resize:vertical;min-height:70px"></textarea>
-    </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="closeBreakOv()" style="padding:7px 16px;border-radius:6px;border:1px solid var(--bor);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit">취소</button>
-      <button onclick="saveBreak()" style="padding:7px 16px;border-radius:6px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">등록</button>
-    </div>
-  </div>
-</div>
-
-<script>
 
 
 // ── 계획정지 / 고장 관리 (localStorage) ──
@@ -758,6 +775,10 @@ function delBreak(i){
 document.addEventListener('DOMContentLoaded', function(){
   renderStopTable(); renderBreakTable();
 });
+
+
+// ── 시작 ──
+render();
 </script>
 </body>
 </html>
