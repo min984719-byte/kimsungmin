@@ -65,6 +65,12 @@ select:focus{border-color:var(--teal)}
 .heat-grid{display:grid;gap:8px;margin-bottom:8px}
 .hcell{border-radius:8px;padding:11px 7px;text-align:center;cursor:pointer;border:1px solid;transition:all .15s;position:relative}
 .hcell:hover{transform:scale(1.06);z-index:5;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.hf-btn{padding:4px 12px;border-radius:14px;border:1px solid var(--bor);background:transparent;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.hf-btn.on{background:var(--teal);color:#10141a;border-color:var(--teal)}
+.hf-btn:hover:not(.on){background:rgba(255,255,255,.08)}
+.stop-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:rgba(186,117,23,.2);color:var(--amber)}
+.break-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:rgba(192,0,0,.2);color:var(--red)}
+.done-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:rgba(29,158,117,.2);color:var(--green)}
 .hcell.ok{background:rgba(0,160,65,.25);color:#00e865;border-color:rgba(0,200,81,.6)}
 .hcell.warn{background:rgba(200,140,0,.25);color:#ffd000;border-color:rgba(255,187,0,.6)}
 .hcell.crit{background:rgba(180,0,20,.30);color:#ff4455;border-color:rgba(255,53,71,.7)}
@@ -142,15 +148,68 @@ select:focus{border-color:var(--teal)}
         <tbody id="t0b"></tbody>
       </table></div>
     </div>
+
+    <!-- 계획정지 / 고장설비 현황 -->
+    <div class="g2" style="margin-top:0">
+      <div class="card">
+        <div class="ct a">// 계획 정지 설비 현황</div>
+        <div class="tw"><table>
+          <thead><tr>
+            <th>공정</th><th>설비명</th><th>대수</th>
+            <th>정지 사유</th><th>예정 복구일</th><th>상태</th>
+          </tr></thead>
+          <tbody id="plan-stop-tbody">
+            <tr><td colspan="6" style="text-align:center;padding:18px;color:var(--muted)">
+              <div style="font-size:12px">데이터 없음 — 아래 + 버튼으로 추가하세요</div>
+            </td></tr>
+          </tbody>
+        </table></div>
+        <div style="margin-top:8px;display:flex;justify-content:flex-end">
+          <button onclick="openStopModal()" style="padding:5px 14px;border-radius:6px;border:1px solid var(--amber);background:rgba(186,117,23,.1);color:var(--amber);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">+ 정지 설비 등록</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ct r">// 고장 설비 현황 및 수리 일정</div>
+        <div class="tw"><table>
+          <thead><tr>
+            <th>공정</th><th>설비명</th><th>대수</th>
+            <th>고장 사유</th><th>수리 예정일</th><th>진행상태</th>
+          </tr></thead>
+          <tbody id="breakdown-tbody">
+            <tr><td colspan="6" style="text-align:center;padding:18px;color:var(--muted)">
+              <div style="font-size:12px">데이터 없음 — 아래 + 버튼으로 추가하세요</div>
+            </td></tr>
+          </tbody>
+        </table></div>
+        <div style="margin-top:8px;display:flex;justify-content:flex-end">
+          <button onclick="openBreakModal()" style="padding:5px 14px;border-radius:6px;border:1px solid var(--red);background:rgba(192,0,0,.1);color:var(--red);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">+ 고장 설비 등록</button>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="npane" id="t1">
     <div class="card">
       <div class="ct">// 설비별 가동율 히트맵</div>
+      <!-- 공정 필터 바 -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <span style="font-size:11px;color:var(--muted);font-weight:600">공정 필터:</span>
+        <button class="hf-btn on" onclick="setHeatFilter('',this)">전체</button>
+        <span id="hf-proc-btns" style="display:flex;gap:6px;flex-wrap:wrap"></span>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;color:var(--muted)">정렬:</span>
+          <select id="heat-sort" onchange="buildHeatmap()" style="font-size:11px;padding:4px 8px;border:1px solid var(--bor);border-radius:6px;background:var(--card);color:var(--text);font-family:inherit">
+            <option value="asc">가동율 낮은순</option>
+            <option value="desc">가동율 높은순</option>
+            <option value="proc">공정순</option>
+          </select>
+        </div>
+      </div>
       <div class="heat-grid" id="heatmap" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"></div>
-      <div style="display:flex;gap:14px;margin-top:8px;font-size:10px">
+      <div style="display:flex;gap:14px;margin-top:8px;font-size:10px;align-items:center">
         <span style="color:var(--green)">■ 정상(≥60%)</span>
         <span style="color:var(--amber)">■ 주의(40~60%)</span>
         <span style="color:var(--red)">■ 위험(&lt;40%)</span>
+        <span id="heat-count" style="margin-left:auto;font-size:10px;color:var(--muted)"></span>
       </div>
     </div>
     
@@ -328,19 +387,49 @@ function buildTab0(){
 }
 
 function buildHeatmap(){
-  var db=cur();
-  var hm=document.getElementById('heatmap');
-  hm.innerHTML='';
-  db.detail.slice().sort(function(a,b){return a.rate-b.rate;}).forEach(function(d){
-    var cls=d.rate>=TGT?'ok':d.rate>=40?'warn':'crit';
-    var dj=JSON.stringify(d).replace(/"/g,'&quot;');
-    hm.innerHTML+='<div class="hcell '+cls+'" onclick="showEquipPopup('+dj+')" title="'+d.proc+' / '+d.sub+'">'
-      +'<div class="cv">'+Nf(d.rate,0)+'%</div>'
-      +'<div class="cn">'+d.sub+'</div>'
-      +'<div class="cp">'+d.proc+'</div>'
-      +'</div>';
+  var db = cur();
+  var hm = document.getElementById('heatmap');
+  hm.innerHTML = '';
+
+  // 정렬 옵션
+  var sortSel = document.getElementById('heat-sort');
+  var sortVal = sortSel ? sortSel.value : 'asc';
+
+  // 데이터 복사 & 공정 필터 적용
+  var items = db.detail.slice();
+  if(HF_PROC) items = items.filter(function(d){ return d.proc === HF_PROC; });
+
+  // 정렬
+  if(sortVal === 'asc')  items.sort(function(a,b){ return a.rate - b.rate; });
+  else if(sortVal === 'desc') items.sort(function(a,b){ return b.rate - a.rate; });
+  else if(sortVal === 'proc') items.sort(function(a,b){ return a.proc.localeCompare(b.proc) || a.sub.localeCompare(b.sub); });
+
+  // 히트맵 렌더
+  items.forEach(function(d){
+    var cls = d.rate >= TGT ? 'ok' : d.rate >= 40 ? 'warn' : 'crit';
+    var dj  = JSON.stringify(d).replace(/"/g,'&quot;');
+    hm.innerHTML += '<div class="hcell ' + cls + '" onclick="showEquipPopup(' + dj + ')" title="' + d.proc + ' / ' + d.sub + '">'
+      + '<div class="cv">' + Nf(d.rate, 0) + '%</div>'
+      + '<div class="cn">' + d.sub + '</div>'
+      + '<div class="cp">' + d.proc + '</div>'
+      + '</div>';
   });
-  // 알람 테이블 제거
+
+  // 카운트 표시
+  var cnt = document.getElementById('heat-count');
+  if(cnt) cnt.textContent = items.length + '대 표시 / 전체 ' + db.detail.length + '대';
+
+  // 공정 필터 버튼 초기화
+  var procBtns = document.getElementById('hf-proc-btns');
+  if(procBtns && !procBtns.dataset.inited){
+    var procs = [];
+    db.detail.forEach(function(d){ if(procs.indexOf(d.proc) < 0) procs.push(d.proc); });
+    procs.sort();
+    procBtns.innerHTML = procs.map(function(p){
+      return '<button class="hf-btn" onclick="setHeatFilter('' + p + '',this)">' + p + '</button>';
+    }).join('');
+    procBtns.dataset.inited = '1';
+  }
 }
 
 function buildTrend(){
@@ -506,5 +595,167 @@ render();
     <div class="ep-trend" id="epTrend"></div>
   </div>
 </div>
+
+<!-- 계획정지 등록 모달 -->
+<div id="stop-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;align-items:center;justify-content:center">
+  <div style="background:var(--card);border-radius:14px;padding:24px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto">
+    <div style="font-size:15px;font-weight:700;color:var(--amber);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--bor)">⚙️ 계획 정지 설비 등록</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">공정명</label>
+        <input id="sp-proc" placeholder="예: 레이저" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">설비명</label>
+        <input id="sp-name" placeholder="예: LASER #3" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">대수</label>
+        <input id="sp-cnt" type="number" min="1" value="1" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">예정 복구일</label>
+        <input id="sp-date" type="date" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">정지 사유</label>
+      <textarea id="sp-reason" placeholder="예: 정기 PM, 설비 개조, 부품 교체" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit;resize:vertical;min-height:70px"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="closeStopOv()" style="padding:7px 16px;border-radius:6px;border:1px solid var(--bor);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit">취소</button>
+      <button onclick="saveStop()" style="padding:7px 16px;border-radius:6px;border:none;background:var(--amber);color:#10141a;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- 고장 등록 모달 -->
+<div id="break-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;align-items:center;justify-content:center">
+  <div style="background:var(--card);border-radius:14px;padding:24px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto">
+    <div style="font-size:15px;font-weight:700;color:var(--red);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--bor)">🔧 고장 설비 등록</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">공정명</label>
+        <input id="bp-proc" placeholder="예: 동도금" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">설비명</label>
+        <input id="bp-name" placeholder="예: 도금조 #2" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">대수</label>
+        <input id="bp-cnt" type="number" min="1" value="1" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">수리 예정일</label>
+        <input id="bp-date" type="date" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+    </div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">진행 상태</label>
+      <select id="bp-status" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit">
+        <option value="수리중">🔧 수리중</option><option value="부품대기">📦 부품대기</option>
+        <option value="수리완료">✅ 수리완료</option><option value="점검중">🔍 점검중</option>
+      </select>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">고장 사유 / 수리 내용</label>
+      <textarea id="bp-reason" placeholder="예: 모터 과열로 인한 전원 차단, 냉각 팬 교체 필요" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit;resize:vertical;min-height:70px"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="closeBreakOv()" style="padding:7px 16px;border-radius:6px;border:1px solid var(--bor);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit">취소</button>
+      <button onclick="saveBreak()" style="padding:7px 16px;border-radius:6px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">등록</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+
+// ── 계획정지 / 고장 관리 (localStorage) ──
+var LS_STOP  = 'syn_plan_stop';
+var LS_BREAK = 'syn_breakdown';
+
+function loadList(key){ try{return JSON.parse(localStorage.getItem(key))||[];}catch(e){return[];} }
+function saveList(key,arr){ localStorage.setItem(key,JSON.stringify(arr)); }
+
+function renderStopTable(){
+  var arr = loadList(LS_STOP);
+  var el = document.getElementById('plan-stop-tbody');
+  if(!el) return;
+  if(!arr.length){
+    el.innerHTML='<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--muted);font-size:12px">등록된 계획 정지 설비 없음</td></tr>';
+    return;
+  }
+  el.innerHTML = arr.map(function(r,i){
+    return '<tr>'
+      +'<td>'+r.proc+'</td><td style="font-weight:600">'+r.name+'</td>'
+      +'<td style="text-align:center">'+r.cnt+'대</td>'
+      +'<td style="font-size:11px">'+r.reason+'</td>'
+      +'<td style="text-align:center;font-size:11px">'+r.date+'</td>'
+      +'<td style="text-align:center"><span class="stop-badge">정지중</span></td>'
+      +'<td style="text-align:center"><button onclick="delStop('+i+')" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--muted)">삭제</button></td>'
+      +'</tr>';
+  }).join('');
+}
+
+function renderBreakTable(){
+  var arr = loadList(LS_BREAK);
+  var el = document.getElementById('breakdown-tbody');
+  if(!el) return;
+  if(!arr.length){
+    el.innerHTML='<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--muted);font-size:12px">등록된 고장 설비 없음</td></tr>';
+    return;
+  }
+  el.innerHTML = arr.map(function(r,i){
+    var bc2 = r.status==='수리완료'?'done-badge':'break-badge';
+    return '<tr>'
+      +'<td>'+r.proc+'</td><td style="font-weight:600">'+r.name+'</td>'
+      +'<td style="text-align:center">'+r.cnt+'대</td>'
+      +'<td style="font-size:11px">'+r.reason+'</td>'
+      +'<td style="text-align:center;font-size:11px">'+r.date+'</td>'
+      +'<td style="text-align:center"><span class="'+bc2+'">'+r.status+'</span></td>'
+      +'<td style="text-align:center"><button onclick="delBreak('+i+')" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--muted)">삭제</button></td>'
+      +'</tr>';
+  }).join('');
+}
+
+function openStopModal(){ document.getElementById('stop-ov').style.display='flex'; }
+function closeStopOv(){ document.getElementById('stop-ov').style.display='none'; }
+function openBreakModal(){ document.getElementById('break-ov').style.display='flex'; }
+function closeBreakOv(){ document.getElementById('break-ov').style.display='none'; }
+
+function saveStop(){
+  var p=document.getElementById('sp-proc').value.trim();
+  var n=document.getElementById('sp-name').value.trim();
+  if(!p||!n){ alert('공정명과 설비명은 필수입니다'); return; }
+  var arr=loadList(LS_STOP);
+  arr.push({proc:p,name:n,cnt:document.getElementById('sp-cnt').value,
+            date:document.getElementById('sp-date').value,
+            reason:document.getElementById('sp-reason').value.trim()});
+  saveList(LS_STOP,arr);
+  closeStopOv(); renderStopTable();
+  // 입력 초기화
+  ['sp-proc','sp-name','sp-date','sp-reason'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('sp-cnt').value=1;
+}
+
+function saveBreak(){
+  var p=document.getElementById('bp-proc').value.trim();
+  var n=document.getElementById('bp-name').value.trim();
+  if(!p||!n){ alert('공정명과 설비명은 필수입니다'); return; }
+  var arr=loadList(LS_BREAK);
+  arr.push({proc:p,name:n,cnt:document.getElementById('bp-cnt').value,
+            date:document.getElementById('bp-date').value,
+            status:document.getElementById('bp-status').value,
+            reason:document.getElementById('bp-reason').value.trim()});
+  saveList(LS_BREAK,arr);
+  closeBreakOv(); renderBreakTable();
+  ['bp-proc','bp-name','bp-date','bp-reason'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('bp-cnt').value=1;
+}
+
+function delStop(i){
+  if(!confirm('삭제하시겠습니까?')) return;
+  var arr=loadList(LS_STOP); arr.splice(i,1); saveList(LS_STOP,arr); renderStopTable();
+}
+function delBreak(i){
+  if(!confirm('삭제하시겠습니까?')) return;
+  var arr=loadList(LS_BREAK); arr.splice(i,1); saveList(LS_BREAK,arr); renderBreakTable();
+}
+
+// 초기 렌더
+document.addEventListener('DOMContentLoaded', function(){
+  renderStopTable(); renderBreakTable();
+});
+</script>
 </body>
 </html>
