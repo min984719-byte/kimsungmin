@@ -175,22 +175,16 @@ tr:hover td{background:rgba(56,139,253,.05)}
     <div class="kpi a"><div class="kv" id="k-warn">-</div><div class="kl">주의 공정 (40~60%)</div><div class="kd">개선 필요</div></div>
     <div class="kpi r"><div class="kv" id="k-crit">-</div><div class="kl">위험 공정 (&lt;40%)</div><div class="kd">즉시 점검</div></div>
   </div>
-  <div class="g2">
+  <div class="g3">
     <div class="card"><div class="ct">// 공정별 가동율 (%)</div><div class="ch"><canvas id="c0a" height="240"></canvas></div></div>
     <div class="card"><div class="ct">// 가동시간 구성 분석</div><div class="ch"><canvas id="c0b" height="240"></canvas></div></div>
-  </div>
-  <div class="card" style="margin-bottom:14px">
-    <div class="ct a">// 공정별 상세 현황</div>
-    <div class="tw"><table>
-      <thead><tr><th>공정명</th><th>가동율</th><th>기준시간</th><th>실운행시간</th><th>계획비가동</th><th>운영유실</th><th>설비유실</th><th>생산면적(㎡)</th><th>상태</th></tr></thead>
-      <tbody id="t0b"></tbody>
-    </table></div>
+    <div class="card"><div class="ct" style="color:var(--blue)">// 가동율 누적 파레토 (공정별)</div><div class="ch"><canvas id="c0c" height="240"></canvas></div></div>
   </div>
   <div class="g2">
     <div class="card">
       <div class="ct" style="color:var(--amber)">// 계획 정지 설비 현황</div>
       <div class="tw"><table>
-        <thead><tr><th>공정</th><th>설비명</th><th>대수</th><th>정지 사유</th><th>예정 복구일</th><th>상태</th><th></th></tr></thead>
+        <thead><tr><th>공정</th><th>설비명</th><th>대수</th><th>정지 시작일</th><th>정지 사유</th><th>예정 복구일</th><th>상태</th><th></th></tr></thead>
         <tbody id="stop-tbody"></tbody>
       </table></div>
       <div style="text-align:right;margin-top:8px">
@@ -200,13 +194,20 @@ tr:hover td{background:rgba(56,139,253,.05)}
     <div class="card">
       <div class="ct" style="color:var(--red)">// 고장 설비 현황 및 수리 일정</div>
       <div class="tw"><table>
-        <thead><tr><th>공정</th><th>설비명</th><th>대수</th><th>고장 사유</th><th>수리 예정일</th><th>진행상태</th><th></th></tr></thead>
+        <thead><tr><th>공정</th><th>설비명</th><th>대수</th><th>고장 발생일</th><th>고장 사유</th><th>수리 예정일</th><th>진행상태</th><th></th></tr></thead>
         <tbody id="break-tbody"></tbody>
       </table></div>
       <div style="text-align:right;margin-top:8px">
         <button class="add-btn-sm" style="border-color:var(--red);color:var(--red)" onclick="openModal('break')">+ 고장 설비 등록</button>
       </div>
     </div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="ct a">// 공정별 상세 현황</div>
+    <div class="tw"><table>
+      <thead><tr><th>공정명</th><th>가동율</th><th>기준시간</th><th>실운행시간</th><th>계획비가동</th><th>운영유실</th><th>설비유실</th><th>생산면적(㎡)</th><th>상태</th></tr></thead>
+      <tbody id="t0b"></tbody>
+    </table></div>
   </div>
 </div>
 
@@ -236,6 +237,20 @@ tr:hover td{background:rgba(56,139,253,.05)}
 
 <!-- 탭2: 월별 추이 -->
 <div class="npane" id="t2">
+  <!-- 월별 누적 가동율 요약 카드 -->
+  <div class="g4" id="cum-kpis" style="margin-bottom:14px"></div>
+  <!-- 월별 누적 가동율 차트 -->
+  <div class="card" style="margin-bottom:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="ct" style="margin-bottom:0;color:var(--teal)">// 월별 누적 평균 가동율 (2026)</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:11px;color:var(--muted)">표시:</span>
+        <button class="hf-btn on" id="cum-all-btn" onclick="setCumFilter('all',this)" style="padding:3px 12px">전체 평균</button>
+        <button class="hf-btn" id="cum-proc-btn" onclick="setCumFilter('proc',this)" style="padding:3px 12px">공정별</button>
+      </div>
+    </div>
+    <div class="ch"><canvas id="c2c" height="200"></canvas></div>
+  </div>
   <div class="g2">
     <div class="card"><div class="ct">// 공정별 월별 추이 (2026)</div><div class="ch"><canvas id="c2a" height="280"></canvas></div></div>
     <div class="card"><div class="ct">// 설비별 추이</div>
@@ -308,9 +323,28 @@ tr:hover td{background:rgba(56,139,253,.05)}
 <div class="modal-ov" id="stop-ov" onclick="if(event.target===this)closeModal('stop')">
   <div class="modal">
     <h3 style="color:var(--amber)">⚙️ 계획 정지 설비 등록</h3>
-    <div class="mg2"><div class="mf"><label>공정명</label><input id="sp-proc" placeholder="예: 레이저"></div><div class="mf"><label>설비명</label><input id="sp-name" placeholder="예: LASER #3"></div></div>
-    <div class="mg2"><div class="mf"><label>대수</label><input id="sp-cnt" type="number" min="1" value="1"></div><div class="mf"><label>예정 복구일</label><input id="sp-date" type="date"></div></div>
-    <div class="mf"><label>정지 사유</label><textarea id="sp-reason" placeholder="예: 정기 PM, 부품 교체"></textarea></div>
+    <div class="mg2">
+      <div class="mf"><label>공정명 선택</label>
+        <select id="sp-proc-sel" onchange="onStopProcChange()" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit">
+          <option value="">공정 선택...</option>
+        </select>
+      </div>
+      <div class="mf"><label>설비명 선택</label>
+        <select id="sp-name-sel" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit">
+          <option value="">설비 선택...</option>
+        </select>
+      </div>
+    </div>
+    <div class="mg2"><div class="mf"><label>직접 입력 (공정)</label><input id="sp-proc" placeholder="직접 입력 또는 위에서 선택"></div><div class="mf"><label>직접 입력 (설비명)</label><input id="sp-name" placeholder="직접 입력 또는 위에서 선택"></div></div>
+    <div class="mg2">
+      <div class="mf"><label>대수</label><input id="sp-cnt" type="number" min="1" value="1"></div>
+      <div class="mf"><label>정지 시작일</label><input id="sp-start" type="date"></div>
+    </div>
+    <div class="mg2">
+      <div class="mf"><label>예정 복구일</label><input id="sp-date" type="date"></div>
+      <div class="mf"><label>&nbsp;</label></div>
+    </div>
+    <div class="mf"><label>정지 사유</label><textarea id="sp-reason" placeholder="예: 정기 PM, 부품 교체, 설비 개조"></textarea></div>
     <div class="mbtns"><button class="mbtn2" onclick="closeModal('stop')">취소</button><button style="padding:7px 18px;border-radius:6px;border:none;background:var(--amber);color:#0d1117;font-size:12px;font-weight:700;cursor:pointer" onclick="saveStop()">등록</button></div>
   </div>
 </div>
@@ -319,9 +353,27 @@ tr:hover td{background:rgba(56,139,253,.05)}
 <div class="modal-ov" id="break-ov" onclick="if(event.target===this)closeModal('break')">
   <div class="modal">
     <h3 style="color:var(--red)">🔧 고장 설비 등록</h3>
-    <div class="mg2"><div class="mf"><label>공정명</label><input id="bp-proc" placeholder="예: 동도금"></div><div class="mf"><label>설비명</label><input id="bp-name" placeholder="예: 도금조 #2"></div></div>
-    <div class="mg2"><div class="mf"><label>대수</label><input id="bp-cnt" type="number" min="1" value="1"></div><div class="mf"><label>수리 예정일</label><input id="bp-date" type="date"></div></div>
-    <div class="mf"><label>진행 상태</label><select id="bp-status"><option value="수리중">🔧 수리중</option><option value="부품대기">📦 부품대기</option><option value="수리완료">✅ 수리완료</option><option value="점검중">🔍 점검중</option></select></div>
+    <div class="mg2">
+      <div class="mf"><label>공정명 선택</label>
+        <select id="bp-proc-sel" onchange="onBreakProcChange()" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit">
+          <option value="">공정 선택...</option>
+        </select>
+      </div>
+      <div class="mf"><label>설비명 선택</label>
+        <select id="bp-name-sel" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit">
+          <option value="">설비 선택...</option>
+        </select>
+      </div>
+    </div>
+    <div class="mg2"><div class="mf"><label>직접 입력 (공정)</label><input id="bp-proc" placeholder="직접 입력 또는 위에서 선택"></div><div class="mf"><label>직접 입력 (설비명)</label><input id="bp-name" placeholder="직접 입력 또는 위에서 선택"></div></div>
+    <div class="mg2">
+      <div class="mf"><label>대수</label><input id="bp-cnt" type="number" min="1" value="1"></div>
+      <div class="mf"><label>고장 발생일</label><input id="bp-start" type="date"></div>
+    </div>
+    <div class="mg2">
+      <div class="mf"><label>수리 예정일</label><input id="bp-date" type="date"></div>
+      <div class="mf"><label>진행 상태</label><select id="bp-status"><option value="수리중">🔧 수리중</option><option value="부품대기">📦 부품대기</option><option value="수리완료">✅ 수리완료</option><option value="점검중">🔍 점검중</option></select></div>
+    </div>
     <div class="mf"><label>고장 사유 / 수리 내용</label><textarea id="bp-reason" placeholder="예: 모터 과열, 냉각 팬 교체"></textarea></div>
     <div class="mbtns"><button class="mbtn2" onclick="closeModal('break')">취소</button><button style="padding:7px 18px;border-radius:6px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:700;cursor:pointer" onclick="saveBreak()">등록</button></div>
   </div>
@@ -427,6 +479,42 @@ function buildChart0(db){
     ]},
     options:{plugins:{legend:{labels:{color:'#8b949e',font:{size:10}}}},scales:{x:{stacked:true,ticks:{color:'#8b949e',font:{size:11}},grid:{color:'rgba(48,54,61,.5)'}},y:{stacked:true,ticks:{color:'#8b949e',font:{size:10},callback:function(v){return v>=10000?(v/10000)+'만':v;}},grid:{color:'rgba(48,54,61,.5)'}}}}
   });
+  // ── 파레토 차트 (c0c) ──
+  // 가동율 누적 파레토 — 가동율 낮은순(위험→정상) 정렬
+  var sorted2=db.summary.slice().filter(function(s){return s.proc;}).sort(function(a,b){return a.rate-b.rate;});
+  var ptotal=sorted2.reduce(function(acc,s){return acc+s.run;},0)||1;
+  var pcum=0;
+  var pcumPct=sorted2.map(function(s){pcum+=s.run;return Math.round(pcum/ptotal*1000)/10;});
+  if(CH.c0c)CH.c0c.destroy();
+  var c0cEl=document.getElementById('c0c');
+  if(c0cEl){
+    CH.c0c=new Chart(c0cEl,{
+      type:'bar',
+      data:{labels:sorted2.map(function(s){return s.proc;}),datasets:[
+        {type:'bar',label:'가동율(%)',data:sorted2.map(function(s){return s.rate;}),
+          backgroundColor:sorted2.map(function(s){return s.rate>=TGT?'rgba(46,160,67,.8)':s.rate>=40?'rgba(210,153,34,.8)':'rgba(248,81,73,.8)';}),
+          borderRadius:4,yAxisID:'y',order:2},
+        {type:'line',label:'누적 실운행(%)',data:pcumPct,
+          borderColor:'rgba(57,208,197,.9)',backgroundColor:'rgba(57,208,197,.08)',
+          fill:true,borderWidth:2,pointRadius:5,
+          pointBackgroundColor:'rgba(57,208,197,.9)',tension:.2,yAxisID:'y2',order:1}
+      ]},
+      options:{
+        plugins:{legend:{labels:{color:'#8b949e',font:{size:10},boxWidth:10}}},
+        scales:{
+          x:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(48,54,61,.5)'}},
+          y:{min:0,max:100,position:'left',
+            title:{display:true,text:'가동율(%)',color:'#8b949e',font:{size:9}},
+            ticks:{color:'#8b949e',font:{size:10},callback:function(v){return v+'%';}},
+            grid:{color:'rgba(48,54,61,.3)'}},
+          y2:{min:0,max:100,position:'right',
+            title:{display:true,text:'누적(%)',color:'rgba(57,208,197,.7)',font:{size:9}},
+            ticks:{color:'rgba(57,208,197,.7)',font:{size:10},callback:function(v){return v+'%';}},
+            grid:{drawOnChartArea:false}}
+        }
+      }
+    });
+  }
 }
 
 function buildTable0(db){
@@ -541,7 +629,81 @@ function renderTrend(){
   if(fp.options.length<=1){
     procs.forEach(function(p){fp.innerHTML+='<option value="'+p+'">'+p+'</option>';});
   }
+  buildCumKpis();
+  buildCumChart();
   renderEtrd();
+}
+
+var CUM_FILTER='all';
+function setCumFilter(f,btn){
+  CUM_FILTER=f;
+  document.querySelectorAll('#cum-all-btn,#cum-proc-btn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  buildCumChart();
+}
+
+function buildCumKpis(){
+  var months=['1월','2월','3월','4월'];
+  // 전체 평균: TREND 값들의 평균
+  var procs=Object.keys(TREND);
+  var avgs=months.map(function(_,mi){
+    var vals=procs.map(function(p){return TREND[p][mi];}).filter(function(v){return v!=null;});
+    return vals.length?Math.round(vals.reduce(function(a,b){return a+b;})/vals.length*10)/10:null;
+  });
+  var colors=['rgba(248,81,73,.15)','rgba(210,153,34,.15)','rgba(56,139,253,.15)','rgba(57,208,197,.15)'];
+  var textColors=['var(--red)','var(--amber)','var(--blue)','var(--teal)'];
+  var borders=['var(--red)','var(--amber)','var(--blue)','var(--teal)'];
+  document.getElementById('cum-kpis').innerHTML=months.map(function(m,i){
+    var v=avgs[i]; var prev=i>0?avgs[i-1]:null;
+    var diff=v!=null&&prev!=null?Math.round((v-prev)*10)/10:null;
+    var arrow=diff==null?'':diff>0?'▲ +'+diff+'%':diff<0?'▼ '+diff+'%':'→ 유지';
+    var ac=diff==null?'var(--muted)':diff>0?'var(--green)':diff<0?'var(--red)':'var(--muted)';
+    return '<div style="background:'+colors[i]+';border:1px solid '+borders[i]+';border-radius:10px;padding:14px 16px;position:relative;overflow:hidden">'
+      +'<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">'+m+' 누적 평균</div>'
+      +'<div style="font-family:Orbitron,monospace;font-size:24px;font-weight:700;color:'+textColors[i]+'">'+(v!=null?v+'%':'—')+'</div>'
+      +(diff!=null?'<div style="font-size:10px;color:'+ac+';margin-top:4px">'+arrow+'</div>':'')
+      +'</div>';
+  }).join('');
+}
+
+function buildCumChart(){
+  var months=['1월','2월','3월','4월'];
+  var procs=Object.keys(TREND);
+  var colors=['#39d0c5','#2ea043','#d29922','#f85149','#388bfd','#bc8cff','#ff7b72','#ffa657','#79c0ff','#56d364','#e3b341','#ff6b9d','#7ee787'];
+  if(CH.c2c)CH.c2c.destroy();
+  if(CUM_FILTER==='all'){
+    // 전체 평균 단일 선
+    var avgs=months.map(function(_,mi){
+      var vals=procs.map(function(p){return TREND[p][mi];}).filter(function(v){return v!=null;});
+      return vals.length?Math.round(vals.reduce(function(a,b){return a+b;})/vals.length*10)/10:null;
+    });
+    CH.c2c=new Chart(document.getElementById('c2c'),{
+      type:'line',
+      data:{labels:months,datasets:[{
+        label:'전체 평균 가동율',data:avgs,
+        borderColor:'#39d0c5',backgroundColor:'rgba(57,208,197,.15)',
+        fill:true,tension:.3,pointRadius:8,pointBackgroundColor:'#39d0c5',
+        pointBorderColor:'#0d1117',pointBorderWidth:2,borderWidth:3
+      }]},
+      options:{plugins:{legend:{labels:{color:'#8b949e',font:{size:11}}},
+        tooltip:{callbacks:{label:function(ctx){return ' '+ctx.dataset.label+': '+(ctx.raw!=null?ctx.raw+'%':'데이터없음');}}}},
+        scales:{x:{ticks:{color:'#8b949e'},grid:{color:'rgba(48,54,61,.5)'}},
+          y:{min:0,max:100,ticks:{color:'#8b949e',callback:function(v){return v+'%';}},grid:{color:'rgba(48,54,61,.5)'}}}}
+    });
+  } else {
+    // 공정별 선
+    CH.c2c=new Chart(document.getElementById('c2c'),{
+      type:'line',
+      data:{labels:months,datasets:procs.map(function(p,i){
+        return {label:p,data:TREND[p],borderColor:colors[i%colors.length],
+          backgroundColor:'transparent',tension:.3,pointRadius:5,
+          pointBackgroundColor:colors[i%colors.length],borderWidth:2};
+      })},
+      options:{plugins:{legend:{labels:{color:'#8b949e',font:{size:10},boxWidth:10}}},
+        scales:{x:{ticks:{color:'#8b949e'},grid:{color:'rgba(48,54,61,.5)'}},
+          y:{min:0,max:100,ticks:{color:'#8b949e',callback:function(v){return v+'%';}},grid:{color:'rgba(48,54,61,.5)'}}}}
+    });
+  }
 }
 
 function renderEtrd(){
@@ -605,9 +767,10 @@ function saveList(k,a){localStorage.setItem(k,JSON.stringify(a));}
 function renderStop(){
   var arr=loadList(LS_STOP);
   var el=document.getElementById('stop-tbody');
-  if(!arr.length){el.innerHTML='<tr><td colspan="7" style="text-align:center;padding:16px;color:var(--muted);font-size:12px">등록된 계획 정지 설비 없음</td></tr>';return;}
+  if(!arr.length){el.innerHTML='<tr><td colspan="8" style="text-align:center;padding:16px;color:var(--muted);font-size:12px">등록된 계획 정지 설비 없음</td></tr>';return;}
   el.innerHTML=arr.map(function(r,i){
     return '<tr><td>'+r.proc+'</td><td style="font-weight:600">'+r.name+'</td><td style="text-align:center">'+r.cnt+'대</td>'
+      +'<td style="text-align:center;font-size:11px">'+(r.start||'-')+'</td>'
       +'<td style="font-size:11px">'+r.reason+'</td><td style="text-align:center;font-size:11px">'+r.date+'</td>'
       +'<td style="text-align:center"><span class="stop-badge">정지중</span></td>'
       +'<td><button onclick="delItem(\'' + LS_STOP + '\','+i+')" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--muted)">삭제</button></td></tr>';
@@ -616,16 +779,17 @@ function renderStop(){
 function renderBreak(){
   var arr=loadList(LS_BREAK);
   var el=document.getElementById('break-tbody');
-  if(!arr.length){el.innerHTML='<tr><td colspan="7" style="text-align:center;padding:16px;color:var(--muted);font-size:12px">등록된 고장 설비 없음</td></tr>';return;}
+  if(!arr.length){el.innerHTML='<tr><td colspan="8" style="text-align:center;padding:16px;color:var(--muted);font-size:12px">등록된 고장 설비 없음</td></tr>';return;}
   el.innerHTML=arr.map(function(r,i){
     var bc2=r.status==='수리완료'?'done-badge':'break-badge';
     return '<tr><td>'+r.proc+'</td><td style="font-weight:600">'+r.name+'</td><td style="text-align:center">'+r.cnt+'대</td>'
+      +'<td style="text-align:center;font-size:11px">'+(r.start||'-')+'</td>'
       +'<td style="font-size:11px">'+r.reason+'</td><td style="text-align:center;font-size:11px">'+r.date+'</td>'
       +'<td style="text-align:center"><span class="'+bc2+'">'+r.status+'</span></td>'
       +'<td><button onclick="delItem(\'' + LS_BREAK + '\','+i+')" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--muted)">삭제</button></td></tr>';
   }).join('');
 }
-function openModal(t){document.getElementById(t+'-ov').classList.add('on');}
+function openModal(t){initModalFilters();document.getElementById(t+'-ov').classList.add('on');}
 function closeModal(t){document.getElementById(t+'-ov').classList.remove('on');}
 function saveStop(){
   var p=document.getElementById('sp-proc').value.trim(), n=document.getElementById('sp-name').value.trim();
@@ -728,6 +892,40 @@ function parseTrend(ws){
   }
   return {trend:trend,etrd:etrd};
 }
+
+
+// ── 모달 공정/설비 필터 ──
+function initModalFilters(){
+  var db=cur();
+  var procs=[];
+  db.detail.forEach(function(d){if(d.proc&&procs.indexOf(d.proc)<0)procs.push(d.proc);});
+  procs.sort();
+  var opts='<option value="">공정 선택...</option>'+procs.map(function(p){return '<option value="'+p+'">'+p+'</option>';}).join('');
+  document.getElementById('sp-proc-sel').innerHTML=opts;
+  document.getElementById('bp-proc-sel').innerHTML=opts;
+}
+function getSubsByProc(proc){
+  var db=cur(); var subs=[];
+  db.detail.forEach(function(d){if(d.proc===proc&&d.sub&&subs.indexOf(d.sub)<0)subs.push(d.sub);});
+  return subs.sort();
+}
+function onStopProcChange(){
+  var proc=document.getElementById('sp-proc-sel').value;
+  document.getElementById('sp-proc').value=proc;
+  var subs=proc?getSubsByProc(proc):[];
+  document.getElementById('sp-name-sel').innerHTML='<option value="">설비 선택...</option>'+subs.map(function(s){return '<option value="'+s+'">'+s+'</option>';}).join('');
+}
+function onBreakProcChange(){
+  var proc=document.getElementById('bp-proc-sel').value;
+  document.getElementById('bp-proc').value=proc;
+  var subs=proc?getSubsByProc(proc):[];
+  document.getElementById('bp-name-sel').innerHTML='<option value="">설비 선택...</option>'+subs.map(function(s){return '<option value="'+s+'">'+s+'</option>';}).join('');
+}
+// 설비 선택 시 자동 입력
+document.addEventListener('change',function(e){
+  if(e.target.id==='sp-name-sel'&&e.target.value)document.getElementById('sp-name').value=e.target.value;
+  if(e.target.id==='bp-name-sel'&&e.target.value)document.getElementById('bp-name').value=e.target.value;
+});
 
 // ── 시작 ──
 renderTab0();
