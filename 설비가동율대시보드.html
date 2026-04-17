@@ -65,6 +65,12 @@ select:focus{border-color:var(--teal)}
 .heat-grid{display:grid;gap:8px;margin-bottom:8px}
 .hcell{border-radius:8px;padding:11px 7px;text-align:center;cursor:pointer;border:1px solid;transition:all .15s;position:relative}
 .hcell:hover{transform:scale(1.06);z-index:5;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.hf-btn{padding:4px 12px;border-radius:14px;border:1px solid var(--bor);background:transparent;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.hf-btn.on{background:var(--teal);color:#10141a;border-color:var(--teal)}
+.hf-btn:hover:not(.on){background:rgba(255,255,255,.08)}
+.stop-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:rgba(186,117,23,.2);color:var(--amber)}
+.break-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:rgba(192,0,0,.2);color:var(--red)}
+.done-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:rgba(29,158,117,.2);color:var(--green)}
 .hcell.ok{background:rgba(0,160,65,.25);color:#00e865;border-color:rgba(0,200,81,.6)}
 .hcell.warn{background:rgba(200,140,0,.25);color:#ffd000;border-color:rgba(255,187,0,.6)}
 .hcell.crit{background:rgba(180,0,20,.30);color:#ff4455;border-color:rgba(255,53,71,.7)}
@@ -142,15 +148,68 @@ select:focus{border-color:var(--teal)}
         <tbody id="t0b"></tbody>
       </table></div>
     </div>
+
+    <!-- 계획정지 / 고장설비 현황 -->
+    <div class="g2" style="margin-top:0">
+      <div class="card">
+        <div class="ct a">// 계획 정지 설비 현황</div>
+        <div class="tw"><table>
+          <thead><tr>
+            <th>공정</th><th>설비명</th><th>대수</th>
+            <th>정지 사유</th><th>예정 복구일</th><th>상태</th>
+          </tr></thead>
+          <tbody id="plan-stop-tbody">
+            <tr><td colspan="6" style="text-align:center;padding:18px;color:var(--muted)">
+              <div style="font-size:12px">데이터 없음 — 아래 + 버튼으로 추가하세요</div>
+            </td></tr>
+          </tbody>
+        </table></div>
+        <div style="margin-top:8px;display:flex;justify-content:flex-end">
+          <button onclick="openStopModal()" style="padding:5px 14px;border-radius:6px;border:1px solid var(--amber);background:rgba(186,117,23,.1);color:var(--amber);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">+ 정지 설비 등록</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ct r">// 고장 설비 현황 및 수리 일정</div>
+        <div class="tw"><table>
+          <thead><tr>
+            <th>공정</th><th>설비명</th><th>대수</th>
+            <th>고장 사유</th><th>수리 예정일</th><th>진행상태</th>
+          </tr></thead>
+          <tbody id="breakdown-tbody">
+            <tr><td colspan="6" style="text-align:center;padding:18px;color:var(--muted)">
+              <div style="font-size:12px">데이터 없음 — 아래 + 버튼으로 추가하세요</div>
+            </td></tr>
+          </tbody>
+        </table></div>
+        <div style="margin-top:8px;display:flex;justify-content:flex-end">
+          <button onclick="openBreakModal()" style="padding:5px 14px;border-radius:6px;border:1px solid var(--red);background:rgba(192,0,0,.1);color:var(--red);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">+ 고장 설비 등록</button>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="npane" id="t1">
     <div class="card">
       <div class="ct">// 설비별 가동율 히트맵</div>
+      <!-- 공정 필터 바 -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <span style="font-size:11px;color:var(--muted);font-weight:600">공정 필터:</span>
+        <button class="hf-btn on" onclick="setHeatFilter('',this)">전체</button>
+        <span id="hf-proc-btns" style="display:flex;gap:6px;flex-wrap:wrap"></span>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;color:var(--muted)">정렬:</span>
+          <select id="heat-sort" onchange="buildHeatmap()" style="font-size:11px;padding:4px 8px;border:1px solid var(--bor);border-radius:6px;background:var(--card);color:var(--text);font-family:inherit">
+            <option value="asc">가동율 낮은순</option>
+            <option value="desc">가동율 높은순</option>
+            <option value="proc">공정순</option>
+          </select>
+        </div>
+      </div>
       <div class="heat-grid" id="heatmap" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"></div>
-      <div style="display:flex;gap:14px;margin-top:8px;font-size:10px">
+      <div style="display:flex;gap:14px;margin-top:8px;font-size:10px;align-items:center">
         <span style="color:var(--green)">■ 정상(≥60%)</span>
         <span style="color:var(--amber)">■ 주의(40~60%)</span>
         <span style="color:var(--red)">■ 위험(&lt;40%)</span>
+        <span id="heat-count" style="margin-left:auto;font-size:10px;color:var(--muted)"></span>
       </div>
     </div>
     
@@ -188,11 +247,12 @@ select:focus{border-color:var(--teal)}
 </main>
 <script>
 // ── 데이터 ──
-var MODES = {"month": {"summary": [{"proc": "레이저", "sub": null, "cnt": 0, "area": 9985.0, "base": 345600, "run": 183560, "rate": 53.1, "plan_down": 137490, "op_loss": 3820, "eq_loss": 20130, "eq_fail": 600}, {"proc": "동도금", "sub": null, "cnt": 0, "area": 24708.7, "base": 151200, "run": 32038, "rate": 21.2, "plan_down": 104670, "op_loss": 5130, "eq_loss": 8582, "eq_fail": 780}, {"proc": "노광", "sub": null, "cnt": 0, "area": 20338.4, "base": 367200, "run": 65777, "rate": 17.9, "plan_down": 206750, "op_loss": 91603, "eq_loss": 1770, "eq_fail": 1300}, {"proc": "회로", "sub": null, "cnt": 0, "area": 27370.0, "base": 172800, "run": 47705, "rate": 27.6, "plan_down": 109780, "op_loss": 9300, "eq_loss": 5300, "eq_fail": 715}, {"proc": "AOI", "sub": null, "cnt": 0, "area": 15413.7, "base": 475200, "run": 172553, "rate": 36.3, "plan_down": 291560, "op_loss": 4965, "eq_loss": 6047, "eq_fail": 75}, {"proc": "수가접", "sub": null, "cnt": 0, "area": 10447.9, "base": 259200, "run": 102554, "rate": 39.6, "plan_down": 133710, "op_loss": 19350, "eq_loss": 2830, "eq_fail": 756}, {"proc": "적층", "sub": null, "cnt": 0, "area": 17716.9, "base": 820800, "run": 283111, "rate": 34.5, "plan_down": 180792, "op_loss": 327570, "eq_loss": 9167, "eq_fail": 20160}, {"proc": "가이드", "sub": null, "cnt": 0, "area": 10446.0, "base": 259200, "run": 101175, "rate": 39.0, "plan_down": 78160, "op_loss": 75730, "eq_loss": 3560, "eq_fail": 575}, {"proc": "금도금", "sub": null, "cnt": 0, "area": 27633.0, "base": 108000, "run": 77640, "rate": 71.9, "plan_down": 24510, "op_loss": 2750, "eq_loss": 720, "eq_fail": 2380}, {"proc": "자동가접", "sub": null, "cnt": 0, "area": 5579.2, "base": 302400, "run": 126768, "rate": 41.9, "plan_down": 132435, "op_loss": 2590, "eq_loss": 4127, "eq_fail": 36480}, {"proc": "SUB", "sub": null, "cnt": 0, "area": 2980.6, "base": 86400, "run": 41055, "rate": 47.5, "plan_down": 41615, "op_loss": 840, "eq_loss": 2890, "eq_fail": 0}, {"proc": "BBT", "sub": null, "cnt": 0, "area": 7574.5, "base": 302400, "run": 123196, "rate": 40.7, "plan_down": 170800, "op_loss": 3300, "eq_loss": 2607, "eq_fail": 2497}, {"proc": "타발", "sub": null, "cnt": 0, "area": 40039.5, "base": 669600, "run": 369536, "rate": 55.2, "plan_down": 199920, "op_loss": 77960, "eq_loss": 18584, "eq_fail": 3600}], "detail": [{"proc": "레이저", "sub": "RTR", "cnt": 10, "area": 6234.8, "base": 172800, "run": 108300, "rate": 62.7, "plan_down": 48150, "op_loss": 2440, "eq_loss": 13310, "eq_fail": 600}, {"proc": "레이저", "sub": "SHEET", "cnt": 2, "area": 3209.8, "base": 108000, "run": 66330, "rate": 61.4, "plan_down": 34790, "op_loss": 1210, "eq_loss": 5670, "eq_fail": 0}, {"proc": "레이저", "sub": "기타(QR / COV)", "cnt": 4, "area": 540.4, "base": 64800, "run": 8930, "rate": 13.8, "plan_down": 54550, "op_loss": 170, "eq_loss": 1150, "eq_fail": 0}, {"proc": "동도금", "sub": "블랙홀", "cnt": 1, "area": 7311.0, "base": 21600, "run": 7970, "rate": 36.9, "plan_down": 10600, "op_loss": 1625, "eq_loss": 1405, "eq_fail": 0}, {"proc": "동도금", "sub": "디스미어", "cnt": 1, "area": 758.2, "base": 21600, "run": 1135, "rate": 5.3, "plan_down": 18020, "op_loss": 795, "eq_loss": 1650, "eq_fail": 0}, {"proc": "동도금", "sub": "화학동", "cnt": 1, "area": 686.5, "base": 21600, "run": 560, "rate": 2.6, "plan_down": 17170, "op_loss": 1250, "eq_loss": 2620, "eq_fail": 0}, {"proc": "동도금", "sub": "SHEET 전기동", "cnt": 1, "area": 2607.7, "base": 21600, "run": 5803, "rate": 26.9, "plan_down": 12270, "op_loss": 1400, "eq_loss": 1347, "eq_fail": 780}, {"proc": "동도금", "sub": "RTR 전기동", "cnt": 1, "area": 5319.5, "base": 21600, "run": 11250, "rate": 52.1, "plan_down": 8730, "op_loss": 60, "eq_loss": 1560, "eq_fail": 0}, {"proc": "동도금", "sub": "BAKING", "cnt": 2, "area": 8025.7, "base": 43200, "run": 5320, "rate": 12.3, "plan_down": 37880, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "노광", "sub": "D/F", "cnt": 12, "area": 11151.2, "base": 216000, "run": 20595, "rate": 9.5, "plan_down": 140480, "op_loss": 53315, "eq_loss": 1610, "eq_fail": 0}, {"proc": "노광", "sub": "RTR 노광", "cnt": 3, "area": 2317.1, "base": 64800, "run": 8510, "rate": 13.1, "plan_down": 35580, "op_loss": 20490, "eq_loss": 160, "eq_fail": 60}, {"proc": "노광", "sub": "LDI", "cnt": 4, "area": 6870.0, "base": 86400, "run": 36672, "rate": 42.4, "plan_down": 30690, "op_loss": 17798, "eq_loss": 0, "eq_fail": 1240}, {"proc": "회로", "sub": "H/F", "cnt": 1, "area": 4381.4, "base": 21600, "run": 6935, "rate": 32.1, "plan_down": 12750, "op_loss": 1200, "eq_loss": 690, "eq_fail": 25}, {"proc": "회로", "sub": "S/E", "cnt": 2, "area": 11445.0, "base": 43200, "run": 19270, "rate": 44.6, "plan_down": 19340, "op_loss": 3060, "eq_loss": 1530, "eq_fail": 0}, {"proc": "회로", "sub": "CZ", "cnt": 1, "area": 1111.5, "base": 21600, "run": 3700, "rate": 17.1, "plan_down": 15590, "op_loss": 1440, "eq_loss": 690, "eq_fail": 180}, {"proc": "회로", "sub": "옥사이드", "cnt": 1, "area": 980.9, "base": 21600, "run": 2890, "rate": 13.4, "plan_down": 17060, "op_loss": 1260, "eq_loss": 390, "eq_fail": 0}, {"proc": "회로", "sub": "ULTRA", "cnt": 1, "area": 261.0, "base": 21600, "run": 1160, "rate": 5.4, "plan_down": 19210, "op_loss": 600, "eq_loss": 120, "eq_fail": 510}, {"proc": "회로", "sub": "DES", "cnt": 2, "area": 9190.2, "base": 43200, "run": 13750, "rate": 31.8, "plan_down": 25830, "op_loss": 1740, "eq_loss": 1880, "eq_fail": 0}, {"proc": "AOI", "sub": "RTR AOI", "cnt": 1, "area": 1681.5, "base": 21600, "run": 12251, "rate": 56.7, "plan_down": 8650, "op_loss": 345, "eq_loss": 354, "eq_fail": 0}, {"proc": "AOI", "sub": "RTR VRS", "cnt": 2, "area": 1583.2, "base": 43200, "run": 15128, "rate": 35.0, "plan_down": 27310, "op_loss": 435, "eq_loss": 327, "eq_fail": 0}, {"proc": "AOI", "sub": "SHEET AOI", "cnt": 6, "area": 5671.6, "base": 151200, "run": 61959, "rate": 41.0, "plan_down": 83890, "op_loss": 1830, "eq_loss": 3446, "eq_fail": 75}, {"proc": "AOI", "sub": "SHEET VRS", "cnt": 12, "area": 6477.4, "base": 259200, "run": 83215, "rate": 32.1, "plan_down": 171710, "op_loss": 2355, "eq_loss": 1920, "eq_fail": 0}, {"proc": "수가접", "sub": "Q/PRESS", "cnt": 6, "area": 8148.9, "base": 129600, "run": 75885, "rate": 58.6, "plan_down": 43650, "op_loss": 8090, "eq_loss": 1975, "eq_fail": 0}, {"proc": "수가접", "sub": "자동 EMI", "cnt": 6, "area": 2299.0, "base": 129600, "run": 26669, "rate": 20.6, "plan_down": 90060, "op_loss": 11260, "eq_loss": 855, "eq_fail": 756}, {"proc": "적층", "sub": "H/P", "cnt": 38, "area": 17716.9, "base": 820800, "run": 283111, "rate": 34.5, "plan_down": 180792, "op_loss": 327570, "eq_loss": 9167, "eq_fail": 20160}, {"proc": "가이드", "sub": "X-RAY", "cnt": 1, "area": 685.7, "base": 21600, "run": 4520, "rate": 20.9, "plan_down": 7680, "op_loss": 9060, "eq_loss": 340, "eq_fail": 0}, {"proc": "가이드", "sub": "RTR GUIDE", "cnt": 1, "area": 668.4, "base": 21600, "run": 2410, "rate": 11.2, "plan_down": 5640, "op_loss": 12790, "eq_loss": 250, "eq_fail": 510}, {"proc": "가이드", "sub": "자동 GUIDE", "cnt": 10, "area": 9092.0, "base": 216000, "run": 94245, "rate": 43.6, "plan_down": 64840, "op_loss": 53880, "eq_loss": 2970, "eq_fail": 65}, {"proc": "금도금", "sub": "JET LINE", "cnt": 1, "area": 7814.0, "base": 21600, "run": 14810, "rate": 68.6, "plan_down": 5460, "op_loss": 970, "eq_loss": 360, "eq_fail": 0}, {"proc": "금도금", "sub": "LINE E.N.I.G", "cnt": 1, "area": 7814.0, "base": 21600, "run": 14740, "rate": 68.2, "plan_down": 5460, "op_loss": 970, "eq_loss": 360, "eq_fail": 70}, {"proc": "금도금", "sub": "플라즈마", "cnt": 3, "area": 12005.0, "base": 64800, "run": 48090, "rate": 74.2, "plan_down": 13590, "op_loss": 810, "eq_loss": 0, "eq_fail": 2310}, {"proc": "자동가접", "sub": "Q/PRESS", "cnt": 3, "area": 1266.5, "base": 64800, "run": 34829, "rate": 53.7, "plan_down": 28610, "op_loss": 660, "eq_loss": 701, "eq_fail": 0}, {"proc": "자동가접", "sub": "DAWON", "cnt": 4, "area": 1184.3, "base": 86400, "run": 42058, "rate": 48.7, "plan_down": 41975, "op_loss": 890, "eq_loss": 1297, "eq_fail": 180}, {"proc": "자동가접", "sub": "꿕바오", "cnt": 2, "area": 387.2, "base": 43200, "run": 13094, "rate": 30.3, "plan_down": 17925, "op_loss": 260, "eq_loss": 701, "eq_fail": 11220}, {"proc": "자동가접", "sub": "FAST", "cnt": 3, "area": 557.6, "base": 64800, "run": 15377, "rate": 23.7, "plan_down": 25595, "op_loss": 360, "eq_loss": 1268, "eq_fail": 22200}, {"proc": "자동가접", "sub": "AIR BAG", "cnt": 2, "area": 2183.7, "base": 43200, "run": 21410, "rate": 49.6, "plan_down": 18330, "op_loss": 420, "eq_loss": 160, "eq_fail": 2880}, {"proc": "SUB", "sub": "Q/PRESS", "cnt": 4, "area": 2980.6, "base": 86400, "run": 41055, "rate": 47.5, "plan_down": 41615, "op_loss": 840, "eq_loss": 2890, "eq_fail": 0}, {"proc": "BBT", "sub": "수동 BBT", "cnt": 12, "area": 1181.5, "base": 172800, "run": 38753, "rate": 22.4, "plan_down": 131470, "op_loss": 930, "eq_loss": 567, "eq_fail": 1080}, {"proc": "BBT", "sub": "AUTO BBT", "cnt": 6, "area": 6393.0, "base": 129600, "run": 84443, "rate": 65.2, "plan_down": 39330, "op_loss": 2370, "eq_loss": 2040, "eq_fail": 1417}, {"proc": "타발", "sub": "PRESS", "cnt": 26, "area": 27051.4, "base": 561600, "run": 307074, "rate": 54.7, "plan_down": 163890, "op_loss": 73710, "eq_loss": 13626, "eq_fail": 3300}, {"proc": "타발", "sub": "CUTTING", "cnt": 2, "area": 8154.4, "base": 43200, "run": 25170, "rate": 58.3, "plan_down": 10650, "op_loss": 4130, "eq_loss": 3250, "eq_fail": 0}, {"proc": "타발", "sub": "보강판 PRESS", "cnt": 2, "area": 382.2, "base": 43200, "run": 30734, "rate": 71.1, "plan_down": 10980, "op_loss": 80, "eq_loss": 1106, "eq_fail": 300}, {"proc": "타발", "sub": "고속 타발", "cnt": 1, "area": 4451.5, "base": 21600, "run": 6558, "rate": 30.4, "plan_down": 14400, "op_loss": 40, "eq_loss": 602, "eq_fail": 0}], "period": "4/1~4/15", "overall": 40.5}, "day": {"summary": [{"proc": "레이저", "sub": null, "cnt": 0, "area": 549.5, "base": 23040, "run": 11950, "rate": 51.9, "plan_down": 9180, "op_loss": 210, "eq_loss": 1700, "eq_fail": 0}, {"proc": "동도금", "sub": null, "cnt": 0, "area": 695.3, "base": 10080, "run": 750, "rate": 7.4, "plan_down": 7880, "op_loss": 295, "eq_loss": 425, "eq_fail": 730}, {"proc": "노광", "sub": null, "cnt": 0, "area": 1366.3, "base": 24480, "run": 4570, "rate": 18.7, "plan_down": 14830, "op_loss": 4950, "eq_loss": 130, "eq_fail": 0}, {"proc": "회로", "sub": null, "cnt": 0, "area": 1490.1, "base": 11520, "run": 2340, "rate": 20.3, "plan_down": 8660, "op_loss": 480, "eq_loss": 40, "eq_fail": 0}, {"proc": "AOI", "sub": null, "cnt": 0, "area": 1417.9, "base": 31680, "run": 15594, "rate": 49.2, "plan_down": 15210, "op_loss": 405, "eq_loss": 471, "eq_fail": 0}, {"proc": "수가접", "sub": null, "cnt": 0, "area": 1012.2, "base": 17280, "run": 8430, "rate": 48.8, "plan_down": 7520, "op_loss": 960, "eq_loss": 300, "eq_fail": 70}, {"proc": "적층", "sub": null, "cnt": 0, "area": 1615.9, "base": 54720, "run": 24590, "rate": 44.9, "plan_down": 5790, "op_loss": 22115, "eq_loss": 785, "eq_fail": 1440}, {"proc": "가이드", "sub": null, "cnt": 0, "area": 842.0, "base": 17280, "run": 8250, "rate": 47.7, "plan_down": 3650, "op_loss": 4570, "eq_loss": 300, "eq_fail": 510}, {"proc": "금도금", "sub": null, "cnt": 0, "area": 1926.0, "base": 7200, "run": 5740, "rate": 79.7, "plan_down": 1260, "op_loss": 200, "eq_loss": 0, "eq_fail": 0}, {"proc": "자동가접", "sub": null, "cnt": 0, "area": 598.4, "base": 20160, "run": 14078, "rate": 69.8, "plan_down": 1880, "op_loss": 240, "eq_loss": 452, "eq_fail": 3510}, {"proc": "SUB", "sub": null, "cnt": 0, "area": 140.4, "base": 5760, "run": 2090, "rate": 36.3, "plan_down": 3480, "op_loss": 50, "eq_loss": 140, "eq_fail": 0}, {"proc": "BBT", "sub": null, "cnt": 0, "area": 619.4, "base": 20160, "run": 10262, "rate": 50.9, "plan_down": 9320, "op_loss": 190, "eq_loss": 253, "eq_fail": 135}, {"proc": "타발", "sub": null, "cnt": 0, "area": 2766.4, "base": 44640, "run": 28196, "rate": 63.2, "plan_down": 10020, "op_loss": 4720, "eq_loss": 1554, "eq_fail": 150}], "detail": [{"proc": "레이저", "sub": "RTR", "cnt": 10, "area": 355.2, "base": 11520, "run": 7670, "rate": 66.6, "plan_down": 2830, "op_loss": 130, "eq_loss": 890, "eq_fail": 0}, {"proc": "레이저", "sub": "SHEET", "cnt": 2, "area": 194.3, "base": 7200, "run": 4280, "rate": 59.4, "plan_down": 2030, "op_loss": 80, "eq_loss": 810, "eq_fail": 0}, {"proc": "레이저", "sub": "기타(QR / COV)", "cnt": 4, "area": 0.0, "base": 4320, "run": 0, "rate": 0.0, "plan_down": 4320, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "동도금", "sub": "블랙홀", "cnt": 1, "area": 313.6, "base": 1440, "run": 370, "rate": 25.7, "plan_down": 940, "op_loss": 120, "eq_loss": 10, "eq_fail": 0}, {"proc": "동도금", "sub": "디스미어", "cnt": 1, "area": 44.6, "base": 1440, "run": 30, "rate": 2.1, "plan_down": 1370, "op_loss": 40, "eq_loss": 0, "eq_fail": 0}, {"proc": "동도금", "sub": "화학동", "cnt": 1, "area": 33.4, "base": 1440, "run": 20, "rate": 1.4, "plan_down": 1360, "op_loss": 60, "eq_loss": 0, "eq_fail": 0}, {"proc": "동도금", "sub": "SHEET 전기동", "cnt": 1, "area": 44.6, "base": 1440, "run": 60, "rate": 4.2, "plan_down": 160, "op_loss": 75, "eq_loss": 415, "eq_fail": 730}, {"proc": "동도금", "sub": "RTR 전기동", "cnt": 1, "area": 60.5, "base": 1440, "run": 70, "rate": 4.9, "plan_down": 1370, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "동도금", "sub": "BAKING", "cnt": 2, "area": 198.6, "base": 2880, "run": 200, "rate": 6.9, "plan_down": 2680, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "노광", "sub": "D/F", "cnt": 10, "area": 570.3, "base": 14400, "run": 990, "rate": 6.9, "plan_down": 11100, "op_loss": 2220, "eq_loss": 90, "eq_fail": 0}, {"proc": "노광", "sub": "RTR 노광", "cnt": 3, "area": 329.2, "base": 4320, "run": 1220, "rate": 28.2, "plan_down": 1630, "op_loss": 1430, "eq_loss": 40, "eq_fail": 0}, {"proc": "노광", "sub": "LDI", "cnt": 4, "area": 466.8, "base": 5760, "run": 2360, "rate": 41.0, "plan_down": 2100, "op_loss": 1300, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "H/F", "cnt": 1, "area": 4.4, "base": 1440, "run": 80, "rate": 5.6, "plan_down": 1300, "op_loss": 60, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "S/E", "cnt": 2, "area": 362.4, "base": 2880, "run": 730, "rate": 25.3, "plan_down": 1970, "op_loss": 180, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "CZ", "cnt": 1, "area": 212.5, "base": 1440, "run": 470, "rate": 32.6, "plan_down": 850, "op_loss": 120, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "옥사이드", "cnt": 1, "area": 0.0, "base": 1440, "run": 0, "rate": 0.0, "plan_down": 1440, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "ULTRA", "cnt": 1, "area": 0.0, "base": 1440, "run": 0, "rate": 0.0, "plan_down": 1440, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "DES", "cnt": 2, "area": 910.9, "base": 2880, "run": 1060, "rate": 36.8, "plan_down": 1660, "op_loss": 120, "eq_loss": 40, "eq_fail": 0}, {"proc": "AOI", "sub": "RTR AOI", "cnt": 1, "area": 230.9, "base": 1440, "run": 1157, "rate": 80.3, "plan_down": 220, "op_loss": 30, "eq_loss": 33, "eq_fail": 0}, {"proc": "AOI", "sub": "RTR VRS", "cnt": 2, "area": 224.2, "base": 2880, "run": 1755, "rate": 60.9, "plan_down": 1050, "op_loss": 45, "eq_loss": 30, "eq_fail": 0}, {"proc": "AOI", "sub": "SHEET AOI", "cnt": 6, "area": 420.0, "base": 10080, "run": 4487, "rate": 44.5, "plan_down": 5200, "op_loss": 120, "eq_loss": 273, "eq_fail": 0}, {"proc": "AOI", "sub": "SHEET VRS", "cnt": 12, "area": 542.8, "base": 17280, "run": 8195, "rate": 47.4, "plan_down": 8740, "op_loss": 210, "eq_loss": 135, "eq_fail": 0}, {"proc": "수가접", "sub": "Q/PRESS", "cnt": 6, "area": 754.2, "base": 8640, "run": 5610, "rate": 64.9, "plan_down": 2540, "op_loss": 320, "eq_loss": 170, "eq_fail": 0}, {"proc": "수가접", "sub": "자동 EMI", "cnt": 6, "area": 258.0, "base": 8640, "run": 2820, "rate": 32.6, "plan_down": 4980, "op_loss": 640, "eq_loss": 130, "eq_fail": 70}, {"proc": "적층", "sub": "H/P", "cnt": 38, "area": 1615.9, "base": 54720, "run": 24590, "rate": 44.9, "plan_down": 5790, "op_loss": 22115, "eq_loss": 785, "eq_fail": 1440}, {"proc": "가이드", "sub": "X-RAY", "cnt": 1, "area": 52.2, "base": 1440, "run": 360, "rate": 25.0, "plan_down": 460, "op_loss": 590, "eq_loss": 30, "eq_fail": 0}, {"proc": "가이드", "sub": "RTR GUIDE", "cnt": 1, "area": 54.1, "base": 1440, "run": 130, "rate": 9.0, "plan_down": 230, "op_loss": 540, "eq_loss": 30, "eq_fail": 510}, {"proc": "가이드", "sub": "자동 GUIDE", "cnt": 10, "area": 735.7, "base": 14400, "run": 7760, "rate": 53.9, "plan_down": 2960, "op_loss": 3440, "eq_loss": 240, "eq_fail": 0}, {"proc": "금도금", "sub": "JET LINE", "cnt": 1, "area": 495.0, "base": 1440, "run": 1070, "rate": 74.3, "plan_down": 300, "op_loss": 70, "eq_loss": 0, "eq_fail": 0}, {"proc": "금도금", "sub": "LINE E.N.I.G", "cnt": 1, "area": 495.0, "base": 1440, "run": 1070, "rate": 74.3, "plan_down": 300, "op_loss": 70, "eq_loss": 0, "eq_fail": 0}, {"proc": "금도금", "sub": "플라즈마", "cnt": 3, "area": 936.0, "base": 4320, "run": 3600, "rate": 83.3, "plan_down": 660, "op_loss": 60, "eq_loss": 0, "eq_fail": 0}, {"proc": "자동가접", "sub": "Q/PRESS", "cnt": 3, "area": 153.0, "base": 4320, "run": 3387, "rate": 78.4, "plan_down": 780, "op_loss": 60, "eq_loss": 93, "eq_fail": 0}, {"proc": "자동가접", "sub": "DAWON", "cnt": 4, "area": 137.2, "base": 5760, "run": 4744, "rate": 82.4, "plan_down": 880, "op_loss": 80, "eq_loss": 56, "eq_fail": 0}, {"proc": "자동가접", "sub": "꿕바오", "cnt": 2, "area": 89.6, "base": 2880, "run": 2676, "rate": 92.9, "plan_down": 0, "op_loss": 40, "eq_loss": 164, "eq_fail": 0}, {"proc": "자동가접", "sub": "FAST", "cnt": 3, "area": 67.6, "base": 4320, "run": 2111, "rate": 48.9, "plan_down": 0, "op_loss": 40, "eq_loss": 99, "eq_fail": 2070}, {"proc": "자동가접", "sub": "AIR BAG", "cnt": 2, "area": 151.0, "base": 2880, "run": 1160, "rate": 40.3, "plan_down": 220, "op_loss": 20, "eq_loss": 40, "eq_fail": 1440}, {"proc": "SUB", "sub": "Q/PRESS", "cnt": 4, "area": 140.4, "base": 5760, "run": 2090, "rate": 36.3, "plan_down": 3480, "op_loss": 50, "eq_loss": 140, "eq_fail": 0}, {"proc": "BBT", "sub": "수동 BBT", "cnt": 12, "area": 146.4, "base": 11520, "run": 3291, "rate": 28.6, "plan_down": 8000, "op_loss": 70, "eq_loss": 69, "eq_fail": 90}, {"proc": "BBT", "sub": "AUTO BBT", "cnt": 6, "area": 473.0, "base": 8640, "run": 6971, "rate": 80.7, "plan_down": 1320, "op_loss": 120, "eq_loss": 184, "eq_fail": 45}, {"proc": "타발", "sub": "PRESS", "cnt": 26, "area": 1901.3, "base": 37440, "run": 23368, "rate": 62.4, "plan_down": 7950, "op_loss": 4720, "eq_loss": 1252, "eq_fail": 150}, {"proc": "타발", "sub": "CUTTING", "cnt": 2, "area": 471.0, "base": 2880, "run": 2010, "rate": 69.8, "plan_down": 680, "op_loss": 0, "eq_loss": 190, "eq_fail": 0}, {"proc": "타발", "sub": "보강판 PRESS", "cnt": 2, "area": 24.5, "base": 2880, "run": 2258, "rate": 78.4, "plan_down": 560, "op_loss": 0, "eq_loss": 62, "eq_fail": 0}, {"proc": "타발", "sub": "고속 타발", "cnt": 1, "area": 369.6, "base": 1440, "run": 560, "rate": 38.9, "plan_down": 830, "op_loss": 0, "eq_loss": 50, "eq_fail": 0}], "period": "4/15", "overall": 45.3}};
-var TREND = {"레이저": [53.2, 39.5, 40.6, 53.1], "동도금": [35.1, 22.8, 28.3, 21.2], "노광": [23.2, 16.7, 17.5, 17.9], "회로": [29.7, 20.4, 26.1, 27.6], "AOI": [48.8, 33.3, 38.6, 36.3], "수가접": [54.0, 39.3, 49.2, 39.6], "적층": [54.5, 33.1, 39.6, 34.5], "가이드": [50.9, 31.3, 45.7, 39.0], "금도금": [78.5, 48.7, 72.8, 71.9], "자동가접": [64.6, 56.8, 66.5, 41.9], "SUB": [36.3, 25.2, 47.7, 47.5], "BBT": [39.8, 30.3, 41.2, 40.7], "타발": [63.0, 40.7, 47.5, 55.2]};
-var ETRD  = {"레이저_RTR": [72.0, 51.1, 50.0, 62.7], "레이저_SHEET": [37.1, 33.2, 39.9, 61.4], "레이저_기타(QR / COV)": [29.9, 19.4, 16.4, 13.8], "동도금_블랙홀": [51.8, 35.0, 39.5, 36.9], "동도금_디스미어": [13.4, 3.1, 9.8, 5.3], "동도금_화학동": [5.4, 3.8, 9.3, 2.6], "동도금_SHEET 전기동": [51.2, 24.6, 35.8, 26.9], "동도금_RTR 전기동": [61.5, 51.6, 55.8, 52.1], "동도금_BAKING": [31.3, 20.8, 24.1, 12.3], "노광_D/F": [12.0, 8.6, 8.4, 9.5], "노광_RTR 노광": [16.4, 10.0, 4.4, 13.1], "노광_LDI": [56.2, 42.0, 50.2, 42.4], "회로_H/F": [50.6, 27.7, 19.3, 32.1], "회로_S/E": [47.1, 32.3, 46.8, 44.6], "회로_CZ": [12.1, 8.4, 15.6, 17.1], "회로_옥사이드": [9.7, 7.1, 12.7, 13.4], "회로_ULTRA": [3.2, 1.6, 4.5, 5.4], "회로_DES": [34.1, 26.9, 31.7, 31.8], "AOI_RTR AOI": [53.8, 32.9, 32.3, 56.7], "AOI_RTR VRS": [45.4, 28.3, 16.1, 35.0], "AOI_SHEET AOI": [56.1, 40.5, 43.7, 41.0], "AOI_SHEET VRS": [44.8, 29.9, 39.9, 32.1], "수가접_Q/PRESS": [63.6, 45.3, 63.9, 58.6], "수가접_자동 EMI": [39.7, 30.2, 30.4, 20.6], "적층_H/P": [54.5, 33.1, 39.6, 34.5], "가이드_X-RAY": [18.7, 1.6, 25.7, 20.9], "가이드_RTR GUIDE": [6.9, 9.0, 6.5, 11.2], "가이드_자동 GUIDE": [58.5, 36.5, 51.7, 43.6], "금도금_JET LINE": [84.5, 61.6, 83.6, 68.6], "금도금_LINE E.N.I.G": [84.2, 60.4, 82.2, 68.2], "금도금_플라즈마": [74.7, 40.5, 66.1, 74.2], "자동가접_Q/PRESS": [75.6, 57.0, 70.2, 53.7], "자동가접_DAWON": [60.1, 50.7, 68.5, 48.7], "자동가접_꿕바오": [78.4, 71.3, 80.1, 30.3], "자동가접_FAST": [69.0, 58.5, 45.1, 23.7], "자동가접_AIR BAG": [36.3, 51.9, 75.1, 49.6], "SUB_Q/PRESS": [36.3, 25.2, 47.7, 47.5], "BBT_수동 BBT": [16.7, 11.5, 20.8, 22.4], "BBT_AUTO BBT": [70.7, 55.2, 68.4, 65.2], "타발_PRESS": [63.2, 39.1, 47.5, 54.7], "타발_CUTTING": [57.1, 49.8, 54.2, 58.3], "타발_보강판 PRESS": [68.4, 60.8, 58.6, 71.1], "타발_고속 타발": [60.3, 23.1, 12.1, 30.4]};
+var MODES = {"month": {"summary": [{"proc": "레이저", "sub": null, "cnt": 0, "area": 10319.9, "base": 368640, "run": 192670, "rate": 52.3, "plan_down": 148860, "op_loss": 4000, "eq_loss": 22510, "eq_fail": 600}, {"proc": "동도금", "sub": null, "cnt": 0, "area": 27086.9, "base": 184320, "run": 35298, "rate": 19.2, "plan_down": 133930, "op_loss": 5590, "eq_loss": 8682, "eq_fail": 820}, {"proc": "노광", "sub": null, "cnt": 0, "area": 21549.1, "base": 437760, "run": 70092, "rate": 16.0, "plan_down": 257870, "op_loss": 104558, "eq_loss": 3940, "eq_fail": 1300}, {"proc": "회로", "sub": null, "cnt": 0, "area": 29429.9, "base": 184320, "run": 51555, "rate": 28.0, "plan_down": 116570, "op_loss": 10080, "eq_loss": 5400, "eq_fail": 715}, {"proc": "AOI", "sub": null, "cnt": 0, "area": 19747.9, "base": 529920, "run": 202184, "rate": 38.2, "plan_down": 314900, "op_loss": 5775, "eq_loss": 6986, "eq_fail": 75}, {"proc": "수가접", "sub": null, "cnt": 0, "area": 11441.7, "base": 276480, "run": 113164, "rate": 40.9, "plan_down": 138300, "op_loss": 21060, "eq_loss": 3120, "eq_fail": 836}, {"proc": "적층", "sub": null, "cnt": 0, "area": 19414.3, "base": 875520, "run": 308286, "rate": 35.2, "plan_down": 186692, "op_loss": 348965, "eq_loss": 9977, "eq_fail": 21600}, {"proc": "가이드", "sub": null, "cnt": 0, "area": 11323.0, "base": 276480, "run": 110605, "rate": 40.0, "plan_down": 81080, "op_loss": 80220, "eq_loss": 3850, "eq_fail": 725}, {"proc": "금도금", "sub": null, "cnt": 0, "area": 47407.0, "base": 161280, "run": 116200, "rate": 72.0, "plan_down": 36090, "op_loss": 5750, "eq_loss": 720, "eq_fail": 2520}, {"proc": "자동가접", "sub": null, "cnt": 0, "area": 6178.4, "base": 322560, "run": 140304, "rate": 43.5, "plan_down": 135155, "op_loss": 2830, "eq_loss": 4816, "eq_fail": 39455}, {"proc": "SUB", "sub": null, "cnt": 0, "area": 3120.3, "base": 92160, "run": 43560, "rate": 47.3, "plan_down": 44680, "op_loss": 900, "eq_loss": 3020, "eq_fail": 0}, {"proc": "BBT", "sub": null, "cnt": 0, "area": 8550.0, "base": 345600, "run": 144483, "rate": 41.8, "plan_down": 191490, "op_loss": 3740, "eq_loss": 2948, "eq_fail": 2939}, {"proc": "타발", "sub": null, "cnt": 0, "area": 42307.0, "base": 714240, "run": 396672, "rate": 55.5, "plan_down": 208650, "op_loss": 85210, "eq_loss": 19898, "eq_fail": 3810}], "detail": [{"proc": "레이저", "sub": "RTR", "cnt": 10, "area": 6497.2, "base": 184320, "run": 114320, "rate": 62.0, "plan_down": 52830, "op_loss": 2570, "eq_loss": 14000, "eq_fail": 600}, {"proc": "레이저", "sub": "SHEET", "cnt": 2, "area": 3275.3, "base": 115200, "run": 68880, "rate": 59.8, "plan_down": 37770, "op_loss": 1240, "eq_loss": 7310, "eq_fail": 0}, {"proc": "레이저", "sub": "기타(QR / COV)", "cnt": 4, "area": 547.5, "base": 69120, "run": 9470, "rate": 13.7, "plan_down": 58260, "op_loss": 190, "eq_loss": 1200, "eq_fail": 0}, {"proc": "동도금", "sub": "블랙홀", "cnt": 1, "area": 7803.9, "base": 23040, "run": 8540, "rate": 37.1, "plan_down": 11300, "op_loss": 1745, "eq_loss": 1435, "eq_fail": 20}, {"proc": "동도금", "sub": "디스미어", "cnt": 1, "area": 794.6, "base": 23040, "run": 1195, "rate": 5.2, "plan_down": 19360, "op_loss": 835, "eq_loss": 1650, "eq_fail": 0}, {"proc": "동도금", "sub": "화학동", "cnt": 1, "area": 742.2, "base": 23040, "run": 650, "rate": 2.8, "plan_down": 18400, "op_loss": 1370, "eq_loss": 2620, "eq_fail": 0}, {"proc": "동도금", "sub": "SHEET 전기동", "cnt": 2, "area": 2902.6, "base": 23040, "run": 6393, "rate": 27.7, "plan_down": 12880, "op_loss": 1560, "eq_loss": 1407, "eq_fail": 800}, {"proc": "동도금", "sub": "RTR 전기동", "cnt": 1, "area": 5791.7, "base": 23040, "run": 12310, "rate": 53.4, "plan_down": 9080, "op_loss": 80, "eq_loss": 1570, "eq_fail": 0}, {"proc": "동도금", "sub": "BAKING", "cnt": 2, "area": 8777.3, "base": 46080, "run": 5930, "rate": 12.9, "plan_down": 40150, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "동도금", "sub": "ULTRA", "cnt": 1, "area": 274.6, "base": 23040, "run": 280, "rate": 1.2, "plan_down": 22760, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "노광", "sub": "D/F", "cnt": 10, "area": 11740.6, "base": 230400, "run": 21820, "rate": 9.5, "plan_down": 148640, "op_loss": 58180, "eq_loss": 1760, "eq_fail": 0}, {"proc": "노광", "sub": "MANUAL 노광", "cnt": 2, "area": 59.3, "base": 46080, "run": 550, "rate": 1.2, "plan_down": 38740, "op_loss": 6590, "eq_loss": 200, "eq_fail": 0}, {"proc": "노광", "sub": "RTR LDI", "cnt": 1, "area": 736.3, "base": 23040, "run": 2630, "rate": 11.4, "plan_down": 12650, "op_loss": 7380, "eq_loss": 380, "eq_fail": 0}, {"proc": "노광", "sub": "RTR 노광", "cnt": 2, "area": 1894.8, "base": 46080, "run": 7100, "rate": 15.4, "plan_down": 23830, "op_loss": 13490, "eq_loss": 1600, "eq_fail": 60}, {"proc": "노광", "sub": "LDI", "cnt": 4, "area": 7118.1, "base": 92160, "run": 37992, "rate": 41.2, "plan_down": 34010, "op_loss": 18918, "eq_loss": 0, "eq_fail": 1240}, {"proc": "회로", "sub": "H/F", "cnt": 1, "area": 4888.5, "base": 23040, "run": 7595, "rate": 33.0, "plan_down": 13410, "op_loss": 1320, "eq_loss": 690, "eq_fail": 25}, {"proc": "회로", "sub": "S/E", "cnt": 2, "area": 12137.5, "base": 46080, "run": 20640, "rate": 44.8, "plan_down": 20610, "op_loss": 3300, "eq_loss": 1530, "eq_fail": 0}, {"proc": "회로", "sub": "CZ", "cnt": 1, "area": 1249.8, "base": 23040, "run": 4080, "rate": 17.7, "plan_down": 16530, "op_loss": 1560, "eq_loss": 690, "eq_fail": 180}, {"proc": "회로", "sub": "옥사이드", "cnt": 1, "area": 1073.5, "base": 23040, "run": 3240, "rate": 14.1, "plan_down": 18030, "op_loss": 1380, "eq_loss": 390, "eq_fail": 0}, {"proc": "회로", "sub": "ULTRA", "cnt": 1, "area": 274.5, "base": 23040, "run": 1250, "rate": 5.4, "plan_down": 20500, "op_loss": 660, "eq_loss": 120, "eq_fail": 510}, {"proc": "회로", "sub": "DES", "cnt": 2, "area": 9806.1, "base": 46080, "run": 14750, "rate": 32.0, "plan_down": 27490, "op_loss": 1860, "eq_loss": 1980, "eq_fail": 0}, {"proc": "AOI", "sub": "RTR AOI", "cnt": 1, "area": 1973.8, "base": 23040, "run": 13405, "rate": 58.2, "plan_down": 8870, "op_loss": 375, "eq_loss": 390, "eq_fail": 0}, {"proc": "AOI", "sub": "RTR VRS", "cnt": 2, "area": 1870.0, "base": 46080, "run": 17454, "rate": 37.9, "plan_down": 27750, "op_loss": 495, "eq_loss": 381, "eq_fail": 0}, {"proc": "AOI", "sub": "SHEET AOI", "cnt": 6, "area": 6021.6, "base": 138240, "run": 65872, "rate": 47.7, "plan_down": 66660, "op_loss": 1935, "eq_loss": 3698, "eq_fail": 75}, {"proc": "AOI", "sub": "SHEET VRS", "cnt": 12, "area": 7097.5, "base": 276480, "run": 90220, "rate": 32.6, "plan_down": 181670, "op_loss": 2535, "eq_loss": 2055, "eq_fail": 0}, {"proc": "AOI", "sub": "Vision Cut", "cnt": 1, "area": 2724.8, "base": 23040, "run": 14644, "rate": 63.6, "plan_down": 7520, "op_loss": 420, "eq_loss": 456, "eq_fail": 0}, {"proc": "AOI", "sub": "AOS", "cnt": 1, "area": 60.0, "base": 23040, "run": 589, "rate": 2.6, "plan_down": 22430, "op_loss": 15, "eq_loss": 6, "eq_fail": 0}, {"proc": "수가접", "sub": "Q/PRESS", "cnt": 6, "area": 8878.4, "base": 138240, "run": 82580, "rate": 59.7, "plan_down": 45090, "op_loss": 8420, "eq_loss": 2150, "eq_fail": 0}, {"proc": "수가접", "sub": "자동 EMI", "cnt": 2, "area": 1288.7, "base": 46080, "run": 10760, "rate": 23.4, "plan_down": 31680, "op_loss": 2950, "eq_loss": 355, "eq_fail": 335}, {"proc": "수가접", "sub": "자동 COV", "cnt": 4, "area": 1274.6, "base": 92160, "run": 19824, "rate": 21.5, "plan_down": 61530, "op_loss": 9690, "eq_loss": 615, "eq_fail": 501}, {"proc": "적층", "sub": "H/P", "cnt": 38, "area": 19414.3, "base": 875520, "run": 308286, "rate": 35.2, "plan_down": 186692, "op_loss": 348965, "eq_loss": 9977, "eq_fail": 21600}, {"proc": "가이드", "sub": "X-RAY", "cnt": 1, "area": 739.5, "base": 23040, "run": 4850, "rate": 21.1, "plan_down": 8140, "op_loss": 9680, "eq_loss": 370, "eq_fail": 0}, {"proc": "가이드", "sub": "RTR GUIDE", "cnt": 1, "area": 668.4, "base": 23040, "run": 2410, "rate": 10.5, "plan_down": 5640, "op_loss": 14080, "eq_loss": 250, "eq_fail": 660}, {"proc": "가이드", "sub": "자동 GUIDE", "cnt": 10, "area": 9915.2, "base": 230400, "run": 103345, "rate": 44.9, "plan_down": 67300, "op_loss": 56460, "eq_loss": 3230, "eq_fail": 65}, {"proc": "금도금", "sub": "JET LINE", "cnt": 1, "area": 8593.0, "base": 23040, "run": 16180, "rate": 70.2, "plan_down": 5460, "op_loss": 1040, "eq_loss": 360, "eq_fail": 0}, {"proc": "금도금", "sub": "LINE E.N.I.G", "cnt": 1, "area": 8593.0, "base": 23040, "run": 16110, "rate": 69.9, "plan_down": 5460, "op_loss": 1040, "eq_loss": 360, "eq_fail": 70}, {"proc": "금도금", "sub": "ULTRA", "cnt": 1, "area": 8593.0, "base": 23040, "run": 16110, "rate": 69.9, "plan_down": 5460, "op_loss": 1400, "eq_loss": 0, "eq_fail": 70}, {"proc": "금도금", "sub": "X-RAY", "cnt": 1, "area": 8638.0, "base": 23040, "run": 16110, "rate": 69.9, "plan_down": 5460, "op_loss": 1400, "eq_loss": 0, "eq_fail": 70}, {"proc": "금도금", "sub": "플라즈마", "cnt": 3, "area": 12990.0, "base": 69120, "run": 51690, "rate": 74.8, "plan_down": 14250, "op_loss": 870, "eq_loss": 0, "eq_fail": 2310}, {"proc": "자동가접", "sub": "Q/PRESS", "cnt": 3, "area": 1399.2, "base": 69120, "run": 38044, "rate": 55.0, "plan_down": 29570, "op_loss": 720, "eq_loss": 786, "eq_fail": 0}, {"proc": "자동가접", "sub": "DAWON", "cnt": 4, "area": 1315.7, "base": 92160, "run": 45776, "rate": 49.7, "plan_down": 43515, "op_loss": 970, "eq_loss": 1719, "eq_fail": 180}, {"proc": "자동가접", "sub": "꿕바오", "cnt": 2, "area": 470.6, "base": 46080, "run": 15854, "rate": 34.4, "plan_down": 17925, "op_loss": 300, "eq_loss": 781, "eq_fail": 11220}, {"proc": "자동가접", "sub": "FAST", "cnt": 3, "area": 639.1, "base": 69120, "run": 18045, "rate": 26.1, "plan_down": 25595, "op_loss": 400, "eq_loss": 1345, "eq_fail": 23735}, {"proc": "자동가접", "sub": "AIR BAG", "cnt": 2, "area": 2353.8, "base": 46080, "run": 22585, "rate": 49.0, "plan_down": 18550, "op_loss": 440, "eq_loss": 185, "eq_fail": 4320}, {"proc": "SUB", "sub": "Q/PRESS", "cnt": 4, "area": 3120.3, "base": 92160, "run": 43560, "rate": 47.3, "plan_down": 44680, "op_loss": 900, "eq_loss": 3020, "eq_fail": 0}, {"proc": "BBT", "sub": "수동 BBT", "cnt": 9, "area": 1634.5, "base": 207360, "run": 52998, "rate": 25.6, "plan_down": 150840, "op_loss": 1250, "eq_loss": 792, "eq_fail": 1480}, {"proc": "BBT", "sub": "AUTO BBT", "cnt": 6, "area": 6915.5, "base": 138240, "run": 91485, "rate": 66.2, "plan_down": 40650, "op_loss": 2490, "eq_loss": 2156, "eq_fail": 1459}, {"proc": "타발", "sub": "PRESS", "cnt": 26, "area": 28537.7, "base": 599040, "run": 329272, "rate": 55.0, "plan_down": 170790, "op_loss": 80860, "eq_loss": 14608, "eq_fail": 3510}, {"proc": "타발", "sub": "CUTTING", "cnt": 2, "area": 8519.4, "base": 46080, "run": 27236, "rate": 59.1, "plan_down": 11210, "op_loss": 4170, "eq_loss": 3464, "eq_fail": 0}, {"proc": "타발", "sub": "보강판 PRESS", "cnt": 2, "area": 428.8, "base": 46080, "run": 33076, "rate": 71.8, "plan_down": 11420, "op_loss": 120, "eq_loss": 1164, "eq_fail": 300}, {"proc": "타발", "sub": "고속 타발", "cnt": 1, "area": 4821.1, "base": 23040, "run": 7088, "rate": 30.8, "plan_down": 15230, "op_loss": 60, "eq_loss": 662, "eq_fail": 0}], "period": "4/1~4/16", "overall": 40.8}, "day": {"summary": [{"proc": "레이저", "sub": null, "cnt": 0, "area": 334.8, "base": 23040, "run": 9110, "rate": 39.5, "plan_down": 11370, "op_loss": 180, "eq_loss": 2380, "eq_fail": 0}, {"proc": "동도금", "sub": null, "cnt": 0, "area": 2214.9, "base": 11520, "run": 3090, "rate": 26.8, "plan_down": 7830, "op_loss": 460, "eq_loss": 100, "eq_fail": 40}, {"proc": "노광", "sub": null, "cnt": 0, "area": 1157.6, "base": 27360, "run": 3805, "rate": 13.9, "plan_down": 14770, "op_loss": 6615, "eq_loss": 2170, "eq_fail": 0}, {"proc": "회로", "sub": null, "cnt": 0, "area": 2060.0, "base": 11520, "run": 3850, "rate": 33.4, "plan_down": 6790, "op_loss": 780, "eq_loss": 100, "eq_fail": 0}, {"proc": "AOI", "sub": null, "cnt": 0, "area": 2149.3, "base": 33120, "run": 16135, "rate": 48.7, "plan_down": 16040, "op_loss": 420, "eq_loss": 525, "eq_fail": 0}, {"proc": "수가접", "sub": null, "cnt": 0, "area": 993.8, "base": 17280, "run": 10610, "rate": 61.4, "plan_down": 4590, "op_loss": 1710, "eq_loss": 290, "eq_fail": 80}, {"proc": "적층", "sub": null, "cnt": 0, "area": 1697.4, "base": 54720, "run": 25175, "rate": 46.0, "plan_down": 5900, "op_loss": 21395, "eq_loss": 810, "eq_fail": 1440}, {"proc": "가이드", "sub": null, "cnt": 0, "area": 877.0, "base": 17280, "run": 9430, "rate": 54.6, "plan_down": 2920, "op_loss": 4490, "eq_loss": 290, "eq_fail": 150}, {"proc": "금도금", "sub": null, "cnt": 0, "area": 4101.0, "base": 10080, "run": 9080, "rate": 90.1, "plan_down": 660, "op_loss": 340, "eq_loss": 0, "eq_fail": 0}, {"proc": "자동가접", "sub": null, "cnt": 0, "area": 599.1, "base": 20160, "run": 13536, "rate": 67.1, "plan_down": 2720, "op_loss": 240, "eq_loss": 689, "eq_fail": 2975}, {"proc": "SUB", "sub": null, "cnt": 0, "area": 139.7, "base": 5760, "run": 2505, "rate": 43.5, "plan_down": 3065, "op_loss": 60, "eq_loss": 130, "eq_fail": 0}, {"proc": "BBT", "sub": null, "cnt": 0, "area": 567.4, "base": 21600, "run": 9960, "rate": 46.1, "plan_down": 11180, "op_loss": 190, "eq_loss": 143, "eq_fail": 127}, {"proc": "타발", "sub": null, "cnt": 0, "area": 2267.6, "base": 44640, "run": 27136, "rate": 60.8, "plan_down": 8730, "op_loss": 7250, "eq_loss": 1314, "eq_fail": 210}], "detail": [{"proc": "레이저", "sub": "RTR", "cnt": 10, "area": 262.4, "base": 11520, "run": 6020, "rate": 52.3, "plan_down": 4680, "op_loss": 130, "eq_loss": 690, "eq_fail": 0}, {"proc": "레이저", "sub": "SHEET", "cnt": 2, "area": 65.5, "base": 7200, "run": 2550, "rate": 35.4, "plan_down": 2980, "op_loss": 30, "eq_loss": 1640, "eq_fail": 0}, {"proc": "레이저", "sub": "기타(QR / COV)", "cnt": 4, "area": 7.0, "base": 4320, "run": 540, "rate": 12.5, "plan_down": 3710, "op_loss": 20, "eq_loss": 50, "eq_fail": 0}, {"proc": "동도금", "sub": "블랙홀", "cnt": 1, "area": 492.9, "base": 1440, "run": 570, "rate": 39.6, "plan_down": 700, "op_loss": 120, "eq_loss": 30, "eq_fail": 20}, {"proc": "동도금", "sub": "디스미어", "cnt": 1, "area": 36.4, "base": 1440, "run": 60, "rate": 4.2, "plan_down": 1340, "op_loss": 40, "eq_loss": 0, "eq_fail": 0}, {"proc": "동도금", "sub": "화학동", "cnt": 1, "area": 55.7, "base": 1440, "run": 90, "rate": 6.2, "plan_down": 1230, "op_loss": 120, "eq_loss": 0, "eq_fail": 0}, {"proc": "동도금", "sub": "SHEET 전기동", "cnt": 2, "area": 294.9, "base": 1440, "run": 590, "rate": 41.0, "plan_down": 610, "op_loss": 160, "eq_loss": 60, "eq_fail": 20}, {"proc": "동도금", "sub": "RTR 전기동", "cnt": 1, "area": 472.2, "base": 1440, "run": 1060, "rate": 73.6, "plan_down": 350, "op_loss": 20, "eq_loss": 10, "eq_fail": 0}, {"proc": "동도금", "sub": "BAKING", "cnt": 2, "area": 751.6, "base": 2880, "run": 610, "rate": 21.2, "plan_down": 2270, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "동도금", "sub": "ULTRA", "cnt": 1, "area": 111.3, "base": 1440, "run": 110, "rate": 7.6, "plan_down": 1330, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "노광", "sub": "D/F", "cnt": 10, "area": 589.4, "base": 14400, "run": 1225, "rate": 8.5, "plan_down": 8160, "op_loss": 4865, "eq_loss": 150, "eq_fail": 0}, {"proc": "노광", "sub": "MANUAL 노광", "cnt": 2, "area": 6.1, "base": 2880, "run": 40, "rate": 1.4, "plan_down": 2390, "op_loss": 250, "eq_loss": 200, "eq_fail": 0}, {"proc": "노광", "sub": "RTR LDI", "cnt": 1, "area": 158.4, "base": 1440, "run": 600, "rate": 41.7, "plan_down": 220, "op_loss": 260, "eq_loss": 360, "eq_fail": 0}, {"proc": "노광", "sub": "RTR 노광", "cnt": 2, "area": 155.6, "base": 2880, "run": 620, "rate": 21.5, "plan_down": 680, "op_loss": 120, "eq_loss": 1460, "eq_fail": 0}, {"proc": "노광", "sub": "LDI", "cnt": 4, "area": 248.1, "base": 5760, "run": 1320, "rate": 22.9, "plan_down": 3320, "op_loss": 1120, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "H/F", "cnt": 1, "area": 507.2, "base": 1440, "run": 660, "rate": 45.8, "plan_down": 660, "op_loss": 120, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "S/E", "cnt": 2, "area": 692.5, "base": 2880, "run": 1370, "rate": 47.6, "plan_down": 1270, "op_loss": 240, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "CZ", "cnt": 1, "area": 138.4, "base": 1440, "run": 380, "rate": 26.4, "plan_down": 940, "op_loss": 120, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "옥사이드", "cnt": 1, "area": 92.6, "base": 1440, "run": 350, "rate": 24.3, "plan_down": 970, "op_loss": 120, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "ULTRA", "cnt": 1, "area": 13.4, "base": 1440, "run": 90, "rate": 6.2, "plan_down": 1290, "op_loss": 60, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "DES", "cnt": 2, "area": 616.0, "base": 2880, "run": 1000, "rate": 34.7, "plan_down": 1660, "op_loss": 120, "eq_loss": 100, "eq_fail": 0}, {"proc": "AOI", "sub": "RTR AOI", "cnt": 1, "area": 292.3, "base": 1440, "run": 1154, "rate": 80.1, "plan_down": 220, "op_loss": 30, "eq_loss": 36, "eq_fail": 0}, {"proc": "AOI", "sub": "RTR VRS", "cnt": 2, "area": 286.9, "base": 2880, "run": 2326, "rate": 80.8, "plan_down": 440, "op_loss": 60, "eq_loss": 54, "eq_fail": 0}, {"proc": "AOI", "sub": "SHEET AOI", "cnt": 6, "area": 410.0, "base": 8640, "run": 4502, "rate": 52.1, "plan_down": 3760, "op_loss": 120, "eq_loss": 258, "eq_fail": 0}, {"proc": "AOI", "sub": "SHEET VRS", "cnt": 12, "area": 620.2, "base": 17280, "run": 7005, "rate": 40.5, "plan_down": 9960, "op_loss": 180, "eq_loss": 135, "eq_fail": 0}, {"proc": "AOI", "sub": "Vision Cut", "cnt": 1, "area": 540.0, "base": 1440, "run": 1148, "rate": 79.7, "plan_down": 220, "op_loss": 30, "eq_loss": 42, "eq_fail": 0}, {"proc": "AOI", "sub": "AOS", "cnt": 1, "area": 0.0, "base": 1440, "run": 0, "rate": 0.0, "plan_down": 1440, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "수가접", "sub": "Q/PRESS", "cnt": 6, "area": 729.5, "base": 8640, "run": 6695, "rate": 77.5, "plan_down": 1440, "op_loss": 330, "eq_loss": 175, "eq_fail": 0}, {"proc": "수가접", "sub": "자동 EMI", "cnt": 2, "area": 136.1, "base": 2880, "run": 1445, "rate": 50.2, "plan_down": 1050, "op_loss": 320, "eq_loss": 35, "eq_fail": 30}, {"proc": "수가접", "sub": "자동 COV", "cnt": 4, "area": 128.2, "base": 5760, "run": 2470, "rate": 42.9, "plan_down": 2100, "op_loss": 1060, "eq_loss": 80, "eq_fail": 50}, {"proc": "적층", "sub": "H/P", "cnt": 38, "area": 1697.4, "base": 54720, "run": 25175, "rate": 46.0, "plan_down": 5900, "op_loss": 21395, "eq_loss": 810, "eq_fail": 1440}, {"proc": "가이드", "sub": "X-RAY", "cnt": 1, "area": 53.8, "base": 1440, "run": 330, "rate": 22.9, "plan_down": 460, "op_loss": 620, "eq_loss": 30, "eq_fail": 0}, {"proc": "가이드", "sub": "RTR GUIDE", "cnt": 1, "area": 0.0, "base": 1440, "run": 0, "rate": 0.0, "plan_down": 0, "op_loss": 1290, "eq_loss": 0, "eq_fail": 150}, {"proc": "가이드", "sub": "자동 GUIDE", "cnt": 10, "area": 823.2, "base": 14400, "run": 9100, "rate": 63.2, "plan_down": 2460, "op_loss": 2580, "eq_loss": 260, "eq_fail": 0}, {"proc": "금도금", "sub": "JET LINE", "cnt": 1, "area": 779.0, "base": 1440, "run": 1370, "rate": 95.1, "plan_down": 0, "op_loss": 70, "eq_loss": 0, "eq_fail": 0}, {"proc": "금도금", "sub": "LINE E.N.I.G", "cnt": 1, "area": 779.0, "base": 1440, "run": 1370, "rate": 95.1, "plan_down": 0, "op_loss": 70, "eq_loss": 0, "eq_fail": 0}, {"proc": "금도금", "sub": "ULTRA", "cnt": 1, "area": 779.0, "base": 1440, "run": 1370, "rate": 95.1, "plan_down": 0, "op_loss": 70, "eq_loss": 0, "eq_fail": 0}, {"proc": "금도금", "sub": "X-RAY", "cnt": 1, "area": 779.0, "base": 1440, "run": 1370, "rate": 95.1, "plan_down": 0, "op_loss": 70, "eq_loss": 0, "eq_fail": 0}, {"proc": "금도금", "sub": "플라즈마", "cnt": 3, "area": 985.0, "base": 4320, "run": 3600, "rate": 83.3, "plan_down": 660, "op_loss": 60, "eq_loss": 0, "eq_fail": 0}, {"proc": "자동가접", "sub": "Q/PRESS", "cnt": 3, "area": 132.7, "base": 4320, "run": 3215, "rate": 74.4, "plan_down": 960, "op_loss": 60, "eq_loss": 85, "eq_fail": 0}, {"proc": "자동가접", "sub": "DAWON", "cnt": 4, "area": 131.4, "base": 5760, "run": 3718, "rate": 64.5, "plan_down": 1540, "op_loss": 80, "eq_loss": 422, "eq_fail": 0}, {"proc": "자동가접", "sub": "꿕바오", "cnt": 2, "area": 83.4, "base": 2880, "run": 2760, "rate": 95.8, "plan_down": 0, "op_loss": 40, "eq_loss": 80, "eq_fail": 0}, {"proc": "자동가접", "sub": "FAST", "cnt": 3, "area": 81.5, "base": 4320, "run": 2668, "rate": 61.8, "plan_down": 0, "op_loss": 40, "eq_loss": 77, "eq_fail": 1535}, {"proc": "자동가접", "sub": "AIR BAG", "cnt": 2, "area": 170.1, "base": 2880, "run": 1175, "rate": 40.8, "plan_down": 220, "op_loss": 20, "eq_loss": 25, "eq_fail": 1440}, {"proc": "SUB", "sub": "Q/PRESS", "cnt": 4, "area": 139.7, "base": 5760, "run": 2505, "rate": 43.5, "plan_down": 3065, "op_loss": 60, "eq_loss": 130, "eq_fail": 0}, {"proc": "BBT", "sub": "수동 BBT", "cnt": 9, "area": 45.0, "base": 12960, "run": 2918, "rate": 22.5, "plan_down": 9860, "op_loss": 70, "eq_loss": 27, "eq_fail": 85}, {"proc": "BBT", "sub": "AUTO BBT", "cnt": 6, "area": 522.4, "base": 8640, "run": 7042, "rate": 81.5, "plan_down": 1320, "op_loss": 120, "eq_loss": 116, "eq_fail": 42}, {"proc": "타발", "sub": "PRESS", "cnt": 26, "area": 1486.3, "base": 37440, "run": 22198, "rate": 59.3, "plan_down": 6900, "op_loss": 7150, "eq_loss": 982, "eq_fail": 210}, {"proc": "타발", "sub": "CUTTING", "cnt": 2, "area": 365.0, "base": 2880, "run": 2066, "rate": 71.7, "plan_down": 560, "op_loss": 40, "eq_loss": 214, "eq_fail": 0}, {"proc": "타발", "sub": "보강판 PRESS", "cnt": 2, "area": 46.6, "base": 2880, "run": 2342, "rate": 81.3, "plan_down": 440, "op_loss": 40, "eq_loss": 58, "eq_fail": 0}, {"proc": "타발", "sub": "고속 타발", "cnt": 1, "area": 369.6, "base": 1440, "run": 530, "rate": 36.8, "plan_down": 830, "op_loss": 20, "eq_loss": 60, "eq_fail": 0}], "period": "4/16", "overall": 48.6}};
+var TREND = {"레이저": [53.2, 39.5, 40.6, 52.3], "동도금": [31.4, 20.6, 25.5, 19.2], "노광": [21.0, 15.1, 15.9, 16.0], "회로": [29.7, 20.4, 26.1, 28.0], "AOI": [49.7, 33.5, 37.4, 38.2], "수가접": [54.0, 39.3, 49.2, 40.9], "적층": [54.5, 33.1, 39.6, 35.2], "가이드": [50.9, 31.3, 45.7, 40.0], "금도금": [80.2, 52.0, 75.6, 72.0], "자동가접": [64.6, 56.8, 66.5, 43.5], "SUB": [36.3, 25.2, 47.7, 47.3], "BBT": [39.0, 30.3, 41.4, 41.8], "타발": [63.0, 40.7, 47.5, 55.5]};
+var ETRD  = {"레이저_RTR": [72.0, 51.1, 50.0, 62.0], "레이저_SHEET": [37.1, 33.2, 39.9, 59.8], "레이저_기타(QR / COV)": [29.9, 19.4, 16.4, 13.7], "동도금_블랙홀": [51.8, 35.0, 39.5, 37.1], "동도금_디스미어": [13.4, 3.1, 9.8, 5.2], "동도금_화학동": [5.4, 3.8, 9.3, 2.8], "동도금_SHEET 전기동": [51.2, 24.6, 35.8, 27.7], "동도금_RTR 전기동": [61.5, 51.6, 55.8, 53.4], "동도금_BAKING": [31.3, 20.8, 24.1, 12.9], "동도금_ULTRA": [5.1, 4.8, 5.8, 1.2], "노광_D/F": [12.0, 8.6, 8.4, 9.5], "노광_MANUAL 노광": [2.7, 1.8, 2.1, 1.2], "노광_RTR LDI": [5.9, 2.4, 2.9, 11.4], "노광_RTR 노광": [21.6, 13.9, 5.2, 15.4], "노광_LDI": [56.2, 42.0, 50.2, 41.2], "회로_H/F": [50.6, 27.7, 19.3, 33.0], "회로_S/E": [47.1, 32.3, 46.8, 44.8], "회로_CZ": [12.1, 8.4, 15.6, 17.7], "회로_옥사이드": [9.7, 7.1, 12.7, 14.1], "회로_ULTRA": [3.2, 1.6, 4.5, 5.4], "회로_DES": [34.1, 26.9, 31.7, 32.0], "AOI_RTR AOI": [53.8, 32.9, 32.3, 58.2], "AOI_RTR VRS": [45.4, 28.3, 16.1, 37.9], "AOI_SHEET AOI": [65.4, 47.3, 51.0, 47.7], "AOI_SHEET VRS": [44.8, 29.9, 39.9, 32.6], "AOI_Vision Cut": [69.0, 38.9, 11.1, 63.6], "AOI_AOS": [null, null, null, 2.6], "수가접_Q/PRESS": [63.6, 45.3, 63.9, 59.7], "수가접_자동 EMI": [37.6, 29.3, 31.9, 23.4], "수가접_자동 COV": [41.8, 31.1, 29.2, 21.5], "적층_H/P": [54.5, 33.1, 39.6, 35.2], "가이드_X-RAY": [18.7, 1.6, 25.7, 21.1], "가이드_RTR GUIDE": [6.9, 9.0, 6.5, 10.5], "가이드_자동 GUIDE": [58.5, 36.5, 51.7, 44.9], "금도금_JET LINE": [84.5, 61.6, 83.6, 70.2], "금도금_LINE E.N.I.G": [84.2, 60.4, 82.2, 69.9], "금도금_ULTRA": [84.2, 60.4, 82.6, 69.9], "금도금_X-RAY": [84.2, 60.1, 82.6, 69.9], "금도금_플라즈마": [74.7, 40.5, 66.1, 74.8], "자동가접_Q/PRESS": [75.6, 57.0, 70.2, 55.0], "자동가접_DAWON": [60.1, 50.7, 68.5, 49.7], "자동가접_꿕바오": [78.4, 71.3, 80.1, 34.4], "자동가접_FAST": [69.0, 58.5, 45.1, 26.1], "자동가접_AIR BAG": [36.3, 51.9, 75.1, 49.0], "SUB_Q/PRESS": [36.3, 25.2, 47.7, 47.3], "BBT_수동 BBT": [17.8, 13.7, 23.3, 25.6], "BBT_AUTO BBT": [70.7, 55.2, 68.4, 66.2], "타발_PRESS": [63.2, 39.1, 47.5, 55.0], "타발_CUTTING": [57.1, 49.8, 54.2, 59.1], "타발_보강판 PRESS": [68.4, 60.8, 58.6, 71.8], "타발_고속 타발": [60.3, 23.1, 12.1, 30.8]};
 
 var MODE = 'month';
+var HF_PROC = '';
 var CH   = {};
 var TGT  = 60;
 
@@ -329,20 +389,57 @@ function buildTab0(){
   document.getElementById('t0b').innerHTML=h;
 }
 
+
+function setHeatFilter(proc, btn){
+  HF_PROC = proc;
+  document.querySelectorAll('.hf-btn').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  buildHeatmap();
+}
 function buildHeatmap(){
-  var db=cur();
-  var hm=document.getElementById('heatmap');
-  hm.innerHTML='';
-  db.detail.slice().sort(function(a,b){return a.rate-b.rate;}).forEach(function(d){
-    var cls=d.rate>=TGT?'ok':d.rate>=40?'warn':'crit';
-    var dj=JSON.stringify(d).replace(/"/g,'&quot;');
-    hm.innerHTML+='<div class="hcell '+cls+'" onclick="showEquipPopup('+dj+')" title="'+d.proc+' / '+d.sub+'">'
-      +'<div class="cv">'+Nf(d.rate,0)+'%</div>'
-      +'<div class="cn">'+d.sub+'</div>'
-      +'<div class="cp">'+d.proc+'</div>'
-      +'</div>';
+  var db = cur();
+  var hm = document.getElementById('heatmap');
+  hm.innerHTML = '';
+
+  // 정렬 옵션
+  var sortSel = document.getElementById('heat-sort');
+  var sortVal = sortSel ? sortSel.value : 'asc';
+
+  // 데이터 복사 & 공정 필터 적용
+  var items = db.detail.slice();
+  if(HF_PROC) items = items.filter(function(d){ return d.proc === HF_PROC; });
+
+  // 정렬
+  if(sortVal === 'asc')  items.sort(function(a,b){ return a.rate - b.rate; });
+  else if(sortVal === 'desc') items.sort(function(a,b){ return b.rate - a.rate; });
+  else if(sortVal === 'proc') items.sort(function(a,b){ return a.proc.localeCompare(b.proc) || a.sub.localeCompare(b.sub); });
+
+  // 히트맵 렌더
+  items.forEach(function(d){
+    var cls = d.rate >= TGT ? 'ok' : d.rate >= 40 ? 'warn' : 'crit';
+    var dj  = JSON.stringify(d).replace(/"/g,'&quot;');
+    hm.innerHTML += '<div class="hcell ' + cls + '" onclick="showEquipPopup(' + dj + ')" title="' + d.proc + ' / ' + d.sub + '">'
+      + '<div class="cv">' + Nf(d.rate, 0) + '%</div>'
+      + '<div class="cn">' + d.sub + '</div>'
+      + '<div class="cp">' + d.proc + '</div>'
+      + '</div>';
   });
-  // 알람 테이블 제거
+
+  // 카운트 표시
+  var cnt = document.getElementById('heat-count');
+  if(cnt) cnt.textContent = items.length + '대 표시 / 전체 ' + db.detail.length + '대';
+
+  // 공정 필터 버튼 초기화
+  var procBtns = document.getElementById('hf-proc-btns');
+  if(procBtns && !procBtns.dataset.inited){
+    var procs = [];
+    db.detail.forEach(function(d){ if(procs.indexOf(d.proc) < 0) procs.push(d.proc); });
+    procs.sort();
+    procBtns.innerHTML = procs.map(function(p){
+      return '<button class="hf-btn" onclick="setHeatFilter('' + p + '',this)">' + p + '</button>';
+    }).join('');
+    procBtns.dataset.inited = '1';
+  }
 }
 
 function buildTrend(){
@@ -508,5 +605,167 @@ render();
     <div class="ep-trend" id="epTrend"></div>
   </div>
 </div>
+
+<!-- 계획정지 등록 모달 -->
+<div id="stop-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;align-items:center;justify-content:center">
+  <div style="background:var(--card);border-radius:14px;padding:24px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto">
+    <div style="font-size:15px;font-weight:700;color:var(--amber);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--bor)">⚙️ 계획 정지 설비 등록</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">공정명</label>
+        <input id="sp-proc" placeholder="예: 레이저" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">설비명</label>
+        <input id="sp-name" placeholder="예: LASER #3" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">대수</label>
+        <input id="sp-cnt" type="number" min="1" value="1" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">예정 복구일</label>
+        <input id="sp-date" type="date" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">정지 사유</label>
+      <textarea id="sp-reason" placeholder="예: 정기 PM, 설비 개조, 부품 교체" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit;resize:vertical;min-height:70px"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="closeStopOv()" style="padding:7px 16px;border-radius:6px;border:1px solid var(--bor);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit">취소</button>
+      <button onclick="saveStop()" style="padding:7px 16px;border-radius:6px;border:none;background:var(--amber);color:#10141a;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- 고장 등록 모달 -->
+<div id="break-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;align-items:center;justify-content:center">
+  <div style="background:var(--card);border-radius:14px;padding:24px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto">
+    <div style="font-size:15px;font-weight:700;color:var(--red);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--bor)">🔧 고장 설비 등록</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">공정명</label>
+        <input id="bp-proc" placeholder="예: 동도금" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">설비명</label>
+        <input id="bp-name" placeholder="예: 도금조 #2" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">대수</label>
+        <input id="bp-cnt" type="number" min="1" value="1" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+      <div><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">수리 예정일</label>
+        <input id="bp-date" type="date" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit"></div>
+    </div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">진행 상태</label>
+      <select id="bp-status" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit">
+        <option value="수리중">🔧 수리중</option><option value="부품대기">📦 부품대기</option>
+        <option value="수리완료">✅ 수리완료</option><option value="점검중">🔍 점검중</option>
+      </select>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px">고장 사유 / 수리 내용</label>
+      <textarea id="bp-reason" placeholder="예: 모터 과열로 인한 전원 차단, 냉각 팬 교체 필요" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit;resize:vertical;min-height:70px"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="closeBreakOv()" style="padding:7px 16px;border-radius:6px;border:1px solid var(--bor);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit">취소</button>
+      <button onclick="saveBreak()" style="padding:7px 16px;border-radius:6px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">등록</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+
+// ── 계획정지 / 고장 관리 (localStorage) ──
+var LS_STOP  = 'syn_plan_stop';
+var LS_BREAK = 'syn_breakdown';
+
+function loadList(key){ try{return JSON.parse(localStorage.getItem(key))||[];}catch(e){return[];} }
+function saveList(key,arr){ localStorage.setItem(key,JSON.stringify(arr)); }
+
+function renderStopTable(){
+  var arr = loadList(LS_STOP);
+  var el = document.getElementById('plan-stop-tbody');
+  if(!el) return;
+  if(!arr.length){
+    el.innerHTML='<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--muted);font-size:12px">등록된 계획 정지 설비 없음</td></tr>';
+    return;
+  }
+  el.innerHTML = arr.map(function(r,i){
+    return '<tr>'
+      +'<td>'+r.proc+'</td><td style="font-weight:600">'+r.name+'</td>'
+      +'<td style="text-align:center">'+r.cnt+'대</td>'
+      +'<td style="font-size:11px">'+r.reason+'</td>'
+      +'<td style="text-align:center;font-size:11px">'+r.date+'</td>'
+      +'<td style="text-align:center"><span class="stop-badge">정지중</span></td>'
+      +'<td style="text-align:center"><button onclick="delStop('+i+')" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--muted)">삭제</button></td>'
+      +'</tr>';
+  }).join('');
+}
+
+function renderBreakTable(){
+  var arr = loadList(LS_BREAK);
+  var el = document.getElementById('breakdown-tbody');
+  if(!el) return;
+  if(!arr.length){
+    el.innerHTML='<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--muted);font-size:12px">등록된 고장 설비 없음</td></tr>';
+    return;
+  }
+  el.innerHTML = arr.map(function(r,i){
+    var bc2 = r.status==='수리완료'?'done-badge':'break-badge';
+    return '<tr>'
+      +'<td>'+r.proc+'</td><td style="font-weight:600">'+r.name+'</td>'
+      +'<td style="text-align:center">'+r.cnt+'대</td>'
+      +'<td style="font-size:11px">'+r.reason+'</td>'
+      +'<td style="text-align:center;font-size:11px">'+r.date+'</td>'
+      +'<td style="text-align:center"><span class="'+bc2+'">'+r.status+'</span></td>'
+      +'<td style="text-align:center"><button onclick="delBreak('+i+')" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--muted)">삭제</button></td>'
+      +'</tr>';
+  }).join('');
+}
+
+function openStopModal(){ document.getElementById('stop-ov').style.display='flex'; }
+function closeStopOv(){ document.getElementById('stop-ov').style.display='none'; }
+function openBreakModal(){ document.getElementById('break-ov').style.display='flex'; }
+function closeBreakOv(){ document.getElementById('break-ov').style.display='none'; }
+
+function saveStop(){
+  var p=document.getElementById('sp-proc').value.trim();
+  var n=document.getElementById('sp-name').value.trim();
+  if(!p||!n){ alert('공정명과 설비명은 필수입니다'); return; }
+  var arr=loadList(LS_STOP);
+  arr.push({proc:p,name:n,cnt:document.getElementById('sp-cnt').value,
+            date:document.getElementById('sp-date').value,
+            reason:document.getElementById('sp-reason').value.trim()});
+  saveList(LS_STOP,arr);
+  closeStopOv(); renderStopTable();
+  // 입력 초기화
+  ['sp-proc','sp-name','sp-date','sp-reason'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('sp-cnt').value=1;
+}
+
+function saveBreak(){
+  var p=document.getElementById('bp-proc').value.trim();
+  var n=document.getElementById('bp-name').value.trim();
+  if(!p||!n){ alert('공정명과 설비명은 필수입니다'); return; }
+  var arr=loadList(LS_BREAK);
+  arr.push({proc:p,name:n,cnt:document.getElementById('bp-cnt').value,
+            date:document.getElementById('bp-date').value,
+            status:document.getElementById('bp-status').value,
+            reason:document.getElementById('bp-reason').value.trim()});
+  saveList(LS_BREAK,arr);
+  closeBreakOv(); renderBreakTable();
+  ['bp-proc','bp-name','bp-date','bp-reason'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('bp-cnt').value=1;
+}
+
+function delStop(i){
+  if(!confirm('삭제하시겠습니까?')) return;
+  var arr=loadList(LS_STOP); arr.splice(i,1); saveList(LS_STOP,arr); renderStopTable();
+}
+function delBreak(i){
+  if(!confirm('삭제하시겠습니까?')) return;
+  var arr=loadList(LS_BREAK); arr.splice(i,1); saveList(LS_BREAK,arr); renderBreakTable();
+}
+
+// 초기 렌더
+document.addEventListener('DOMContentLoaded', function(){
+  renderStopTable(); renderBreakTable();
+});
+</script>
 </body>
 </html>
