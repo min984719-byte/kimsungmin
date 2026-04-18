@@ -2,6 +2,7 @@
   "stops": [],
   "breaks": [
     {
+      "id": "L17764798446660",
       "proc": "적층",
       "name": "H/P",
       "cnt": "1",
@@ -10,6 +11,16 @@
       "reason": ""
     },
     {
+      "id": "G0적층H/P",
+      "proc": "적층",
+      "name": "H/P",
+      "cnt": "1",
+      "date": "",
+      "status": "수리중",
+      "reason": ""
+    },
+    {
+      "id": "G1노광RTR LDI",
       "proc": "노광",
       "name": "RTR LDI",
       "cnt": "1",
@@ -18,5 +29,5 @@
       "reason": ""
     }
   ],
-  "updated": "2026-04-18T02:11:32.978Z"
+  "updated": "2026-04-18T02:37:30.820Z"
 }
