@@ -11,12 +11,12 @@
     },
     {
       "proc": "자동가접",
-      "name": "FAST",
+      "name": "AIR BAG",
       "cnt": "1",
-      "date": "2026-04-30",
+      "date": "",
       "status": "수리중",
-      "reason": "센서 교체"
+      "reason": ""
     }
   ],
-  "updated": "2026-04-18T02:09:25.366Z"
+  "updated": "2026-04-18T02:09:45.559Z"
 }
