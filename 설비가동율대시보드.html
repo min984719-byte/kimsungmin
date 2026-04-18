@@ -1128,6 +1128,7 @@ function ghPull(){
     document.getElementById('gh-sync-status').textContent='🔄 '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})+'  동기화';
     document.getElementById('gh-sync-status').style.color='var(--teal)';
   }).catch(function(){
+    // 파일 미존재 또는 네트워크 오류 — 조용히 처리
     document.getElementById('gh-sync-status').textContent='';
   });
 }
@@ -1189,8 +1190,10 @@ renderStop();
 renderBreak();
 // GitHub 연동 초기화
 updateGHStatus();
-if(GH_TOKEN){ ghPull(); }
+ghPull();  // 읽기는 토큰 불필요 — 모든 사람이 공유 데이터 로드
+// 자동 새로고침: 토큰 없어도 30초마다 데이터 로드
 if(GH_AUTO){ startAutoSync(); }
+else{ setInterval(function(){ ghPull(); }, 60000); } // 기본 60초마다 자동 로드
 </script>
 </body>
 </html>
