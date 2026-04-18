@@ -10,13 +10,13 @@
       "reason": ""
     },
     {
-      "proc": "자동가접",
-      "name": "AIR BAG",
+      "proc": "BBT",
+      "name": "AUTO BBT",
       "cnt": "1",
       "date": "",
       "status": "수리중",
       "reason": ""
     }
   ],
-  "updated": "2026-04-18T02:09:45.559Z"
+  "updated": "2026-04-18T02:10:12.083Z"
 }
