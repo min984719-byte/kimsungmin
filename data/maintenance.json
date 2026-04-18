@@ -10,21 +10,13 @@
       "reason": ""
     },
     {
-      "proc": "BBT",
-      "name": "AUTO BBT",
-      "cnt": "1",
-      "date": "",
-      "status": "수리중",
-      "reason": ""
-    },
-    {
-      "proc": "레이저",
-      "name": "기타(QR / COV)",
+      "proc": "노광",
+      "name": "RTR LDI",
       "cnt": "1",
       "date": "",
       "status": "수리중",
       "reason": ""
     }
   ],
-  "updated": "2026-04-18T02:10:18.977Z"
+  "updated": "2026-04-18T02:11:32.978Z"
 }
