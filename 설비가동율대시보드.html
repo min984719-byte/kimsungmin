@@ -17,10 +17,10 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
 /* 헤더 */
-.hdr{background:var(--card);border-bottom:1px solid var(--bor);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hdr{background:var(--card);border-bottom:1px solid var(--bor);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;overflow:hidden}
 .hdr-logo{font-family:'Orbitron',monospace;font-size:16px;color:var(--teal);letter-spacing:.15em}
 .hdr-sub{font-size:10px;color:var(--muted);margin-top:3px}
-.hdr-right{display:flex;align-items:center;gap:12px}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .mode-toggle{display:flex;background:var(--card2);border:1px solid var(--bor);border-radius:20px;padding:3px;gap:3px}
 .mbtn{padding:5px 16px;border-radius:16px;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;background:transparent;color:var(--hint)}
 .mbtn.on.month{background:var(--teal);color:#0d1117}
@@ -139,13 +139,20 @@ tr:hover td{background:rgba(56,139,253,.05)}
   </div>
   <div class="hdr-right">
     <!-- 엑셀 업로드 -->
-    <div>
+    <div style="display:flex;gap:8px;align-items:center">
       <button class="upload-btn" onclick="document.getElementById('file-input').click()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         엑셀 업로드
       </button>
       <input type="file" id="file-input" accept=".xlsx,.xls" onchange="loadExcel(this)">
-      <div class="upload-status" id="upload-status"></div>
+      <button class="upload-btn" id="gh-btn" onclick="openGHModal()" title="GitHub 연동 — 계획정지/고장 데이터 공유">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
+        <span id="gh-status-icon">GitHub 연동</span>
+      </button>
+      <div style="display:flex;flex-direction:column">
+        <div class="upload-status" id="upload-status"></div>
+        <div class="upload-status" id="gh-sync-status"></div>
+      </div>
     </div>
     <div class="mode-toggle">
       <button class="mbtn month on" id="btnMonth" onclick="setMode('month')">📅 월 누적</button>
@@ -376,6 +383,48 @@ tr:hover td{background:rgba(56,139,253,.05)}
     </div>
     <div class="mf"><label>고장 사유 / 수리 내용</label><textarea id="bp-reason" placeholder="예: 모터 과열, 냉각 팬 교체"></textarea></div>
     <div class="mbtns"><button class="mbtn2" onclick="closeModal('break')">취소</button><button style="padding:7px 18px;border-radius:6px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:700;cursor:pointer" onclick="saveBreak()">등록</button></div>
+  </div>
+</div>
+
+<!-- GitHub 연동 모달 -->
+<div class="modal-ov" id="gh-ov" onclick="if(event.target===this)closeGHModal()">
+  <div class="modal" style="max-width:520px">
+    <h3 style="color:var(--teal)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
+      GitHub 공유 연동 설정
+    </h3>
+    <div style="background:rgba(57,208,197,.08);border:1px solid rgba(57,208,197,.3);border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:1.7">
+      📌 계획정지 / 고장설비 데이터를 <strong style="color:var(--teal)">GitHub에 저장</strong>하면<br>
+      같은 대시보드를 사용하는 모든 인원이 <strong style="color:var(--teal)">실시간으로 공유</strong>할 수 있습니다.<br>
+      <span style="color:var(--amber)">⚠ 토큰은 이 기기에만 저장되며 외부로 전송되지 않습니다.</span>
+    </div>
+    <div class="mf">
+      <label>GitHub Personal Access Token
+        <a href="https://github.com/settings/tokens/new?scopes=repo&description=SYNOPEX+OEE" target="_blank" 
+          style="font-size:10px;color:var(--teal);margin-left:8px;text-decoration:none">▶ 토큰 생성하기</a>
+      </label>
+      <input id="gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" 
+        style="font-family:monospace;letter-spacing:.05em">
+      <div style="font-size:10px;color:var(--hint);margin-top:4px">repo 권한 필요 (public_repo로도 가능)</div>
+    </div>
+    <div style="background:var(--card2);border:1px solid var(--bor);border-radius:8px;padding:10px;font-size:11px;color:var(--muted);margin-bottom:12px">
+      <div style="font-weight:600;color:var(--text);margin-bottom:4px">저장 경로</div>
+      <code style="color:var(--teal);font-size:11px">min984719-byte/kimsungmin → data/maintenance.json</code>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+      <button onclick="testGHConn()" style="padding:7px 14px;border-radius:6px;border:1px solid var(--teal);background:transparent;color:var(--teal);font-size:11px;cursor:pointer;font-family:inherit">연결 테스트</button>
+      <span id="gh-test-result" style="font-size:11px"></span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <label style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px">
+        <input type="checkbox" id="gh-auto-sync" style="width:auto"> 30초마다 자동 새로고침
+      </label>
+    </div>
+    <div class="mbtns" style="margin-top:14px">
+      <button class="mbtn2" onclick="disconnectGH()" style="color:var(--red);border-color:var(--red)">연동 해제</button>
+      <button class="mbtn2" onclick="closeGHModal()">취소</button>
+      <button onclick="saveGHToken()" style="padding:7px 18px;border-radius:6px;border:none;background:var(--teal);color:#0d1117;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">저장 및 연동</button>
+    </div>
   </div>
 </div>
 
@@ -927,11 +976,154 @@ document.addEventListener('change',function(e){
   if(e.target.id==='bp-name-sel'&&e.target.value)document.getElementById('bp-name').value=e.target.value;
 });
 
+
+// ══════════════════════════════════════════════
+// GitHub 연동 — 계획정지/고장 데이터 공유
+// ══════════════════════════════════════════════
+var GH_OWNER  = 'min984719-byte';
+var GH_REPO   = 'kimsungmin';
+var GH_BRANCH = 'main';
+var GH_PATH   = 'data/maintenance.json';
+var GH_RAW    = 'https://raw.githubusercontent.com/'+GH_OWNER+'/'+GH_REPO+'/'+GH_BRANCH+'/'+GH_PATH;
+var GH_API    = 'https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/contents/'+GH_PATH;
+var GH_TOKEN  = localStorage.getItem('gh_token')||'';
+var GH_AUTO   = localStorage.getItem('gh_auto')==='1';
+var syncTimer = null;
+
+// ── 모달 ──
+function openGHModal(){
+  document.getElementById('gh-token').value = GH_TOKEN;
+  document.getElementById('gh-auto-sync').checked = GH_AUTO;
+  document.getElementById('gh-test-result').textContent = '';
+  document.getElementById('gh-ov').classList.add('on');
+}
+function closeGHModal(){ document.getElementById('gh-ov').classList.remove('on'); }
+
+function saveGHToken(){
+  GH_TOKEN = document.getElementById('gh-token').value.trim();
+  GH_AUTO  = document.getElementById('gh-auto-sync').checked;
+  localStorage.setItem('gh_token', GH_TOKEN);
+  localStorage.setItem('gh_auto', GH_AUTO?'1':'0');
+  updateGHStatus();
+  if(GH_AUTO) startAutoSync(); else stopAutoSync();
+  closeGHModal();
+  if(GH_TOKEN){ ghPull(); toast('✅ GitHub 연동 완료 — 데이터를 불러옵니다'); }
+}
+
+function disconnectGH(){
+  GH_TOKEN=''; localStorage.removeItem('gh_token'); localStorage.removeItem('gh_auto');
+  stopAutoSync(); updateGHStatus(); closeGHModal(); toast('GitHub 연동 해제됨');
+}
+
+function updateGHStatus(){
+  var btn = document.getElementById('gh-status-icon');
+  if(!btn) return;
+  if(GH_TOKEN){ btn.textContent='● 공유중'; btn.style.color='var(--teal)'; }
+  else { btn.textContent='GitHub 연동'; btn.style.color=''; }
+}
+
+// ── 연결 테스트 ──
+function testGHConn(){
+  var tok = document.getElementById('gh-token').value.trim();
+  var el  = document.getElementById('gh-test-result');
+  if(!tok){ el.textContent='❌ 토큰을 입력하세요'; el.style.color='var(--red)'; return; }
+  el.textContent='테스트 중...'; el.style.color='var(--muted)';
+  fetch('https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO, {
+    headers:{'Authorization':'token '+tok,'Accept':'application/vnd.github.v3+json'}
+  }).then(function(r){
+    if(r.ok){ el.textContent='✅ 연결 성공!'; el.style.color='var(--green)'; }
+    else { el.textContent='❌ 실패 (status '+r.status+')'; el.style.color='var(--red)'; }
+  }).catch(function(){ el.textContent='❌ 네트워크 오류'; el.style.color='var(--red)'; });
+}
+
+// ── GitHub에서 불러오기 (읽기 — 토큰 불필요) ──
+function ghPull(){
+  var url = GH_RAW+'?t='+Date.now();
+  fetch(url).then(function(r){
+    if(!r.ok) throw new Error('not found');
+    return r.json();
+  }).then(function(data){
+    if(data.stops)  localStorage.setItem(LS_STOP,  JSON.stringify(data.stops));
+    if(data.breaks) localStorage.setItem(LS_BREAK, JSON.stringify(data.breaks));
+    renderStop(); renderBreak();
+    document.getElementById('gh-sync-status').textContent='🔄 '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})+'  동기화';
+    document.getElementById('gh-sync-status').style.color='var(--teal)';
+  }).catch(function(){
+    // 파일 없으면 그냥 무시 (처음 사용 시 정상)
+    document.getElementById('gh-sync-status').textContent='';
+  });
+}
+
+// ── GitHub에 저장 (쓰기 — 토큰 필요) ──
+function ghPush(){
+  if(!GH_TOKEN){ return; }
+  var payload = {
+    stops:  loadList(LS_STOP),
+    breaks: loadList(LS_BREAK),
+    updated: new Date().toISOString()
+  };
+  var content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+  // 현재 SHA 가져오기 (업데이트 시 필요)
+  fetch(GH_API, {
+    headers:{'Authorization':'token '+GH_TOKEN,'Accept':'application/vnd.github.v3+json'}
+  }).then(function(r){ return r.ok ? r.json() : null; })
+  .then(function(existing){
+    var body = {message:'OEE 대시보드: 설비 현황 업데이트', content: content, branch: GH_BRANCH};
+    if(existing && existing.sha) body.sha = existing.sha;
+    return fetch(GH_API, {
+      method:'PUT',
+      headers:{'Authorization':'token '+GH_TOKEN,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},
+      body: JSON.stringify(body)
+    });
+  }).then(function(r){
+    if(r && r.ok){
+      document.getElementById('gh-sync-status').textContent='☁ 저장됨 '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+      document.getElementById('gh-sync-status').style.color='var(--green)';
+    } else {
+      document.getElementById('gh-sync-status').textContent='⚠ 저장 실패 (토큰 확인)';
+      document.getElementById('gh-sync-status').style.color='var(--amber)';
+    }
+  }).catch(function(){
+    document.getElementById('gh-sync-status').textContent='⚠ 저장 실패';
+    document.getElementById('gh-sync-status').style.color='var(--amber)';
+  });
+}
+
+// ── 자동 동기화 ──
+function startAutoSync(){
+  stopAutoSync();
+  syncTimer = setInterval(function(){ ghPull(); }, 30000);
+}
+function stopAutoSync(){
+  if(syncTimer){ clearInterval(syncTimer); syncTimer=null; }
+}
+
+// ── saveStop / saveBreak에 ghPush 연결 ──
+var _origSaveStop = saveStop;
+saveStop = function(){
+  _origSaveStop();
+  ghPush();
+};
+var _origSaveBreak = saveBreak;
+saveBreak = function(){
+  _origSaveBreak();
+  ghPush();
+};
+var _origDelItem = delItem;
+delItem = function(key, i){
+  _origDelItem(key, i);
+  ghPush();
+};
+
 // ── 시작 ──
 renderTab0();
 tabInited[0]=1;
 renderStop();
 renderBreak();
+// GitHub 연동 초기화
+updateGHStatus();
+if(GH_TOKEN){ ghPull(); }
+if(GH_AUTO){ startAutoSync(); }
 </script>
 </body>
 </html>
