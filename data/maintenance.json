@@ -2,13 +2,13 @@
   "stops": [],
   "breaks": [
     {
-      "proc": "자동가접",
-      "name": "FAST",
+      "proc": "적층",
+      "name": "H/P",
       "cnt": "1",
-      "date": "2026-04-30",
+      "date": "",
       "status": "수리중",
-      "reason": "센서 교체 필요"
+      "reason": ""
     }
   ],
-  "updated": "2026-04-18T02:04:47.065Z"
+  "updated": "2026-04-18T02:05:14.709Z"
 }
