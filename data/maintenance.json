@@ -1,5 +1,14 @@
 {
   "stops": [],
-  "breaks": [],
-  "updated": ""
+  "breaks": [
+    {
+      "proc": "자동가접",
+      "name": "AIR BAG",
+      "cnt": "1",
+      "date": "2026-04-20",
+      "status": "수리중",
+      "reason": "펌프오일 교체 필요"
+    }
+  ],
+  "updated": "2026-04-18T02:04:24.356Z"
 }
