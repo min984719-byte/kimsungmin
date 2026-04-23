@@ -964,7 +964,7 @@ function loadExcel(input){
     try{
       if(typeof XLSX==='undefined'){ toast('❌ XLSX 라이브러리 로딩 중... 잠시 후 다시 시도'); return; }
       // 필요한 시트만 파싱 (DB-1 제외 → 속도 향상)
-      var wb=XLSX.read(e.target.result,{type:'array',sheets:['가동율(일)','가동율(월 누적기준)','가동율(2026년)','가동율(2027년)']});
+      var wb=XLSX.read(e.target.result,{type:'array'});
       var sn=wb.SheetNames;
       var sm=sn.find(function(s){return s.includes('월 누적');})||sn.find(function(s){return s.includes('월');});
       var sd=sn.find(function(s){return s.includes('(일)');});
@@ -1002,7 +1002,8 @@ function loadExcel(input){
         statusEl.style.color = 'var(--muted)';
       }
     }catch(err){
-      toast('❌ 오류: '+err.message);
+      console.error('loadExcel 오류:', err);
+      toast('❌ 오류: '+err.message+(err.stack?'\n'+err.stack.split('\n')[1]:''));
       statusEl.textContent='❌ 오류'; statusEl.style.color='var(--red)';
     }
   };
