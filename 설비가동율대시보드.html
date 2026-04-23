@@ -959,56 +959,86 @@ function loadExcel(input){
   var file=input.files[0]; if(!file) return;
   var statusEl=document.getElementById('upload-status');
   statusEl.textContent='⏳ 읽는 중...';
+  statusEl.style.color='var(--muted)';
   var reader=new FileReader();
   reader.onload=function(e){
-    try{
-      if(typeof XLSX==='undefined'){ toast('❌ XLSX 라이브러리 로딩 중... 잠시 후 다시 시도'); return; }
-      // 필요한 시트만 파싱 (DB-1 제외 → 속도 향상)
-      var wb=XLSX.read(e.target.result,{type:'array'});
-      var sn=wb.SheetNames;
-      var sm=sn.find(function(s){return s.includes('월 누적');})||sn.find(function(s){return s.includes('월');});
-      var sd=sn.find(function(s){return s.includes('(일)');});
-      var syr=sn.find(function(s){return s.includes('2026');});
-      if(!sm||!sd){ toast('❌ 시트 없음: '+sn.join(', ')); return; }
+    statusEl.textContent='⏳ 파일 파싱 중...';
+    // setTimeout으로 UI 업데이트 후 파싱 (브라우저 블로킹 방지)
+    setTimeout(function(){
+      try{
+        if(typeof XLSX==='undefined'){
+          toast('❌ XLSX 라이브러리가 아직 로딩 중입니다. 잠시 후 다시 시도하세요.');
+          statusEl.textContent='❌ 라이브러리 로딩 중'; return;
+        }
 
-      var m_data=parseSheet(wb.Sheets[sm]);
-      var d_data=parseSheet(wb.Sheets[sd]);
-      var tr=syr?parseTrend(wb.Sheets[syr]):{trend:{},etrd:{}};
+        var wb=XLSX.read(e.target.result,{type:'array'});
+        var sn=wb.SheetNames;
 
-      if(!m_data.summary.length){ toast('❌ 파싱 실패 — 파일 형식 확인'); return; }
+        var sm=sn.find(function(s){return s.includes('월 누적');});
+        if(!sm) sm=sn.find(function(s){return s.includes('월');});
+        var sd=sn.find(function(s){return s.includes('(일)');});
+        var syr=sn.find(function(s){return s.includes('2026');});
 
-      Object.keys(CH).forEach(function(k){try{if(CH[k])CH[k].destroy();}catch(e){}});
-      CH={}; tabInited={}; HF_PROC='';
+        if(!sm){ toast('❌ "월 누적" 시트 없음\n시트: '+sn.join(', ')); statusEl.textContent='❌ 시트 없음'; return; }
+        if(!sd){ toast('❌ "(일)" 시트 없음\n시트: '+sn.join(', ')); statusEl.textContent='❌ 시트 없음'; return; }
 
-      MODES={month:m_data,day:d_data};
-      TREND=tr.trend; ETRD=tr.etrd;
+        statusEl.textContent='⏳ 데이터 파싱 중...';
+        var m_data, d_data, tr;
+        try{ m_data=parseSheet(wb.Sheets[sm]); }
+        catch(pe){ toast('❌ 월 누적 시트 파싱 오류: '+pe.message); statusEl.textContent='❌ 월 파싱 오류'; return; }
 
-      document.getElementById('hf-btns').innerHTML=''; document.getElementById('hf-btns').removeAttribute('data-init');
-      document.getElementById('fProc').innerHTML='<option value="">전체 공정</option>';
-      document.getElementById('fProc3').innerHTML='<option value="">전체 공정</option>';
-      document.getElementById('btnMonth').classList.add('on');
-      document.getElementById('btnDay').classList.remove('on');
-      MODE='month';
+        try{ d_data=parseSheet(wb.Sheets[sd]); }
+        catch(pe){ toast('❌ 일 기준 시트 파싱 오류: '+pe.message); statusEl.textContent='❌ 일 파싱 오류'; return; }
 
-      renderTab0(); tabInited[0]=1;
-      statusEl.textContent='✅ '+file.name;
-      statusEl.style.color='var(--teal)';
-      toast('✅ 로드 완료 — 월:'+m_data.period+' '+m_data.overall+'% | 일:'+d_data.period+' '+d_data.overall+'%');
-      // GitHub 자동 공유 (토큰 있을 때)
-      if(GH_TOKEN){
-        pushOEE(statusEl);
-      } else {
-        statusEl.textContent = '✅ '+file.name+' ([공유 설정] 후 재업로드하면 팀 공유됩니다)';
-        statusEl.style.color = 'var(--muted)';
+        try{ tr=syr?parseTrend(wb.Sheets[syr]):{trend:{},etrd:{}}; }
+        catch(pe){ tr={trend:{},etrd:{}}; } // 연간 추이 실패해도 계속 진행
+
+        if(!m_data||!m_data.summary||!m_data.summary.length){
+          toast('❌ 데이터 없음 — 파일 형식 확인\n(공정 수: '+(m_data&&m_data.summary?m_data.summary.length:0)+')');
+          statusEl.textContent='❌ 파싱 실패'; return;
+        }
+
+        // 차트 정리
+        Object.keys(CH).forEach(function(k){try{if(CH[k]&&CH[k].destroy)CH[k].destroy();}catch(xe){}});
+        CH={}; tabInited={}; HF_PROC='';
+        MODES={month:m_data, day:d_data};
+        TREND=tr.trend||{}; ETRD=tr.etrd||{};
+
+        // DOM 초기화
+        var hfBtns=document.getElementById('hf-btns');
+        if(hfBtns){hfBtns.innerHTML='';hfBtns.removeAttribute('data-init');}
+        var fpEl=document.getElementById('fProc');
+        if(fpEl) fpEl.innerHTML='<option value="">전체 공정</option>';
+        var fp3El=document.getElementById('fProc3');
+        if(fp3El) fp3El.innerHTML='<option value="">전체 공정</option>';
+        var bm=document.getElementById('btnMonth'); if(bm) bm.classList.add('on');
+        var bd=document.getElementById('btnDay');   if(bd) bd.classList.remove('on');
+        MODE='month';
+
+        // 렌더링
+        try{ renderTab0(); }
+        catch(re2){ console.error('renderTab0 오류:', re2); }
+        tabInited[0]=1;
+
+        statusEl.textContent='✅ '+file.name;
+        statusEl.style.color='var(--teal)';
+        toast('✅ 로드 완료 — 월:'+m_data.period+' '+m_data.overall+'% | 일:'+d_data.period+' '+d_data.overall+'%');
+
+        if(GH_TOKEN){ setTimeout(function(){ pushOEE(statusEl); }, 500); }
+        else{ statusEl.textContent='✅ '+file.name; }
+
+      }catch(err){
+        console.error('loadExcel 전체 오류:', err);
+        statusEl.textContent='❌ 오류: '+(err.message||err);
+        statusEl.style.color='var(--red)';
+        toast('❌ 업로드 오류: '+(err.message||err));
       }
-    }catch(err){
-      console.error('loadExcel 오류:', err);
-      toast('❌ 오류: '+err.message+(err.stack?'\n'+err.stack.split('\n')[1]:''));
-      statusEl.textContent='❌ 오류'; statusEl.style.color='var(--red)';
-    }
+    }, 50);
   };
+  reader.onerror=function(){ toast('❌ 파일 읽기 실패'); statusEl.textContent='❌ 파일 읽기 실패'; };
   reader.readAsArrayBuffer(file);
 }
+
 
 function parseSheet(ws){
   function nv(v){
