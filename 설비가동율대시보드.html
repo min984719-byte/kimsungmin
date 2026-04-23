@@ -495,40 +495,10 @@ function setMode(m){
 // GH_MAINT 변수는 GH_OWNER 선언 후 정의됨
 
 // 페이지 로드 시 GitHub에서 최신 데이터 가져오기 (캐시 무시)
-function fetchMaintenance(){
-  fetch(GH_MAINT_API+'?t='+Date.now(), {
-    headers:{'Accept':'application/vnd.github.v3+json'}
-  })
-  .then(function(r){ return r.ok?r.json():null; })
-  .then(function(fd){
-    if(!fd||!fd.content) return;
-    try{
-      var raw = fd.content.replace(/\n/g,'');
-      var data = JSON.parse(decodeURIComponent(escape(atob(raw))));
-      if(Array.isArray(data.stops))  saveList(LS_STOP,  data.stops);
-      if(Array.isArray(data.breaks)) saveList(LS_BREAK, data.breaks);
-      renderStop(); renderBreak();
-    }catch(e){ console.warn('maintenance 파싱 오류:', e); }
-  })
-  .catch(function(){});
-}
+
 
 // 등록/삭제 후 GitHub에 저장 (토큰 있을 때만)
-function pushMaintenance(){
-  if(!GH_TOKEN) return;
-  var payload={stops:loadList(LS_STOP),breaks:loadList(LS_BREAK),updated:new Date().toISOString()};
-  var content=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-  var hdrs={'Authorization':'token '+GH_TOKEN,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};
-  fetch(GH_MAINT_API,{headers:hdrs})
-    .then(function(r){return r.ok?r.json():null;})
-    .then(function(ex){
-      var body={message:'설비현황 업데이트 '+new Date().toLocaleString('ko-KR'),content:content,branch:GH_BRANCH};
-      if(ex&&ex.sha)body.sha=ex.sha;
-      return fetch(GH_MAINT_API,{method:'PUT',headers:hdrs,body:JSON.stringify(body)});
-    })
-    .then(function(r){if(r&&r.ok)toast('☁ 팀 공유 완료!');})
-    .catch(function(e){console.warn('pushMaintenance:',e);});
-}
+
 // ════════════════════════════════════
 // 탭0: 종합 현황
 // ════════════════════════════════════
@@ -1125,51 +1095,138 @@ var GH_MAINT     = 'data/maintenance.json';
 var GH_MAINT_API = 'https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/contents/'+GH_MAINT;
 var GH_OEE     = 'data/oee.json';
 var GH_OEE_API = 'https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/contents/'+GH_OEE;
-var GH_MAINT_RAW = 'https://raw.githubusercontent.com/'+GH_OWNER+'/'+GH_REPO+'/'+GH_BRANCH+'/'+GH_MAINT;
-var GH_TOKEN  = localStorage.getItem('gh_token')||'';
+
+var GH_TOKEN   = localStorage.getItem('gh_token')||'';
 var _ghPushing = false;
 
-// ── 토큰 설정 UI ──
+// ── GitHub 공통 함수 ──
+function updateGHBtn(){
+  var btn=document.getElementById('gh-btn'); if(!btn) return;
+  if(GH_TOKEN){btn.textContent='● 공유 설정됨';btn.style.color='var(--teal)';btn.style.borderColor='var(--teal)';}
+  else{btn.textContent='🔗 공유 설정';btn.style.color='';btn.style.borderColor='';}
+}
 function openGHModal(){
-  var t = document.getElementById('gh-token-input');
-  if(t) t.value = GH_TOKEN;
+  var t=document.getElementById('gh-token-input'); if(t) t.value=GH_TOKEN;
   document.getElementById('gh-ov').classList.add('on');
 }
 function closeGHModal(){ document.getElementById('gh-ov').classList.remove('on'); }
 function saveGHToken(){
-  var t = document.getElementById('gh-token-input').value.trim();
-  GH_TOKEN = t;
-  if(t) localStorage.setItem('gh_token', t);
-  else   localStorage.removeItem('gh_token');
-  updateGHBtn();
-  closeGHModal();
-  toast(t ? '✅ 토큰 저장됨 — 다음 엑셀 업로드 시 자동 공유됩니다' : '토큰 삭제됨');
-}
-function updateGHBtn(){
-  var btn = document.getElementById('gh-btn');
-  if(!btn) return;
-  if(GH_TOKEN){
-    btn.textContent = '● 공유 설정됨';
-    btn.style.color = 'var(--teal)';
-    btn.style.borderColor = 'var(--teal)';
-  } else {
-    btn.textContent = '🔗 공유 설정';
-    btn.style.color = '';
-    btn.style.borderColor = '';
-  }
+  var t=document.getElementById('gh-token-input').value.trim();
+  GH_TOKEN=t;
+  if(t) localStorage.setItem('gh_token',t); else localStorage.removeItem('gh_token');
+  updateGHBtn(); closeGHModal();
+  toast(t?'✅ 토큰 저장됨':'토큰 삭제됨');
 }
 function testToken(){
-  var t = document.getElementById('gh-token-input').value.trim();
-  var el = document.getElementById('gh-test-result');
-  if(!t){ el.textContent='❌ 토큰 입력 필요'; el.style.color='var(--red)'; return; }
-  el.textContent='테스트 중...'; el.style.color='var(--muted)';
-  fetch('https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO, {
+  var t=document.getElementById('gh-token-input').value.trim();
+  var el=document.getElementById('gh-test-result');
+  if(!t){el.textContent='❌ 토큰 입력 필요';el.style.color='var(--red)';return;}
+  el.textContent='테스트 중...';
+  fetch('https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO,{
     headers:{'Authorization':'token '+t,'Accept':'application/vnd.github.v3+json'}
   }).then(function(r){
-    el.textContent = r.ok ? '✅ 연결 성공!' : '❌ 실패 (토큰 확인)';
-    el.style.color  = r.ok ? 'var(--green)' : 'var(--red)';
-  }).catch(function(){ el.textContent='❌ 네트워크 오류'; el.style.color='var(--red)'; });
+    el.textContent=r.ok?'✅ 연결 성공!':'❌ 실패';
+    el.style.color=r.ok?'var(--green)':'var(--red)';
+  }).catch(function(){el.textContent='❌ 네트워크 오류';el.style.color='var(--red)';});
 }
+
+// ── oee.json 저장 (엑셀 업로드 후) ──
+function pushOEE(statusEl){
+  if(!GH_TOKEN) return;
+  var payload={MODES:MODES,TREND:TREND,ETRD:ETRD,updated:new Date().toISOString()};
+  var content=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  var hdrs={'Authorization':'token '+GH_TOKEN,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};
+  fetch(GH_OEE_API,{headers:hdrs})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(ex){
+      var body={message:'OEE 데이터 업데이트 '+new Date().toLocaleString('ko-KR'),content:content,branch:GH_BRANCH};
+      if(ex&&ex.sha) body.sha=ex.sha;
+      return fetch(GH_OEE_API,{method:'PUT',headers:hdrs,body:JSON.stringify(body)});
+    })
+    .then(function(r){
+      if(r&&r.ok){
+        if(statusEl){statusEl.textContent='☁ 공유 완료 '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});statusEl.style.color='var(--green)';}
+        toast('✅ 팀 공유 완료! 팀원들이 새로고침하면 바로 확인됩니다');
+      } else {
+        toast('⚠ GitHub 저장 실패 — [공유 설정]에서 토큰 확인');
+      }
+    })
+    .catch(function(e){console.warn('pushOEE 오류:',e);});
+}
+
+// ── oee.json 불러오기 (페이지 로드 시) ──
+function fetchOEE(callback){
+  var hdrs={'Accept':'application/vnd.github.v3+json'};
+  if(GH_TOKEN) hdrs['Authorization']='token '+GH_TOKEN;
+  fetch(GH_OEE_API+'?t='+Date.now(),{headers:hdrs})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(fd){
+      if(!fd||!fd.content){ if(callback) callback(false); return; }
+      try{
+        var data=JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g,'')))));
+        if(!data.MODES||!data.MODES.month||!data.MODES.month.summary||!data.MODES.month.summary.length){
+          if(callback) callback(false); return;
+        }
+        // 차트 정리 후 데이터 교체
+        Object.keys(CH).forEach(function(k){try{if(CH[k])CH[k].destroy();}catch(xe){}});
+        CH={}; tabInited={}; HF_PROC='';
+        MODES=data.MODES;
+        if(data.TREND&&Object.keys(data.TREND).length) TREND=data.TREND;
+        if(data.ETRD &&Object.keys(data.ETRD).length)  ETRD=data.ETRD;
+        var hf=document.getElementById('hf-btns'); if(hf){hf.innerHTML='';hf.removeAttribute('data-init');}
+        var fp=document.getElementById('fProc');   if(fp) fp.innerHTML='<option value="">전체 공정</option>';
+        var fp3=document.getElementById('fProc3'); if(fp3) fp3.innerHTML='<option value="">전체 공정</option>';
+        MODE='month';
+        renderTab0(); tabInited[0]=1;
+        if(callback) callback(true);
+      }catch(e){ console.warn('fetchOEE 오류:',e); if(callback) callback(false); }
+    })
+    .catch(function(){ if(callback) callback(false); });
+}
+
+// ── maintenance.json 저장 ──
+function pushMaintenance(){
+  if(!GH_TOKEN) return;
+  var payload={stops:loadList(LS_STOP),breaks:loadList(LS_BREAK),updated:new Date().toISOString()};
+  var content=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  var hdrs={'Authorization':'token '+GH_TOKEN,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};
+  fetch(GH_MAINT_API,{headers:hdrs})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(ex){
+      var body={message:'설비현황 업데이트',content:content,branch:GH_BRANCH};
+      if(ex&&ex.sha) body.sha=ex.sha;
+      return fetch(GH_MAINT_API,{method:'PUT',headers:hdrs,body:JSON.stringify(body)});
+    })
+    .then(function(r){if(r&&r.ok) toast('☁ 팀 공유 완료!');})
+    .catch(function(e){console.warn('pushMaintenance 오류:',e);});
+}
+
+// ── maintenance.json 불러오기 ──
+function fetchMaintenance(){
+  var hdrs={'Accept':'application/vnd.github.v3+json'};
+  if(GH_TOKEN) hdrs['Authorization']='token '+GH_TOKEN;
+  fetch(GH_MAINT_API+'?t='+Date.now(),{headers:hdrs})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(fd){
+      if(!fd||!fd.content) return;
+      try{
+        var data=JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g,'')))));
+        if(Array.isArray(data.stops))  saveList(LS_STOP,  data.stops);
+        if(Array.isArray(data.breaks)) saveList(LS_BREAK, data.breaks);
+        renderStop(); renderBreak();
+      }catch(e){ console.warn('fetchMaintenance 오류:',e); }
+    })
+    .catch(function(){});
+}
+
+var GH_MAINT_RAW = 'https://raw.githubusercontent.com/'+GH_OWNER+'/'+GH_REPO+'/'+GH_BRANCH+'/'+GH_MAINT;
+
+
+// ── 토큰 설정 UI ──
+
+
+
+
 
 // ════════════════════════════════════
 // 시작
@@ -1187,11 +1244,13 @@ function testToken(){
   });
     // GitHub 버튼 상태 초기화
   updateGHBtn();
-  // 최신 데이터 로드 (oee.json + maintenance.json)
+  // 최신 데이터 로드 (내장 데이터로 먼저 렌더 후 GitHub에서 최신 데이터 덮어씀)
   setTimeout(function(){
-    fetchOEE();
-    fetchMaintenance();
-  }, 1000);
+    fetchOEE(function(ok){
+      // oee.json 성공 여부와 무관하게 maintenance 로드
+      fetchMaintenance();
+    });
+  }, 800);
 })();
 
 </script>
