@@ -1011,53 +1011,57 @@ function loadExcel(input){
 }
 
 function parseSheet(ws){
+  function nv(v){
+    if(v==null) return 0;
+    if(typeof v==='number') return Math.round(v);
+    return Math.round(parseFloat(String(v).replace('%','').trim())||0);
+  }
+  function toRate(v){
+    if(v==null) return 0;
+    var n = typeof v==='number' ? v : parseFloat(String(v).replace('%','').trim())||0;
+    return n>0&&n<=1 ? Math.round(n*1000)/10 : Math.round(n*10)/10;
+  }
+
   var arr=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
-  var period='',overall=0,summary=[],detail=[],started=false;
+  var period='', overall=0, summary=[], detail=[], started=false;
   var STOP=['FPCB설비','합계','합 계','계획비가동','FPCB  설비 계획'];
 
-  // 기간/전체가동율 먼저 찾기 (row 1~12)
-  for(var pi=0;pi<Math.min(12,arr.length);pi++){
-    var pc=arr[pi][2]!=null?String(arr[pi][2]).trim():'';
-    if(/^\d+\//.test(pc)||/^\d+~/.test(pc)){
-      period=pc;
-      var rv=arr[pi][9];
-      var prr=typeof rv==='number'?rv:(parseFloat(String(rv).replace('%',''))||0);
-      overall=prr>0&&prr<=1?Math.round(prr*1000)/10:Math.round(prr*10)/10;
+  // 기간/전체가동율 먼저 찾기
+  for(var pi=0; pi<Math.min(12,arr.length); pi++){
+    var pc = arr[pi][2]!=null ? String(arr[pi][2]).trim() : '';
+    if(/^\d+\//.test(pc) || /^\d+~/.test(pc)){
+      period  = pc;
+      overall = toRate(arr[pi][9]);
       break;
     }
   }
 
   // 설비 데이터 파싱
-  for(var i=0;i<arr.length;i++){
-    var row=arr[i];
-    var c2=row[2]!=null?String(row[2]).trim().replace(/\n/g,' '):'';
-    var c3=row[3]!=null?String(row[3]).trim():'';
-    if(c2==='공장명'){started=true;continue;}
-    if(!started||!c2)continue;
-    var proc=c2.replace(/\s/g,'');
-    if(STOP.some(function(s){return c2.includes(s)||proc.includes(s);}))break;
-    var sub=c3||null;
-    // 가동율: 숫자 또는 "52%" 형태 처리
-    var rv8=row[8];
-    var rr2=typeof rv8==='number'?rv8:(parseFloat(String(rv8||0).replace('%',''))||0);
-    var rate=rr2>0&&rr2<=1?Math.round(rr2*1000)/10:Math.round(rr2*10)/10;
-    function nv(v){
-      if(v==null)return 0;
-      if(typeof v==='number')return Math.round(v);
-      return Math.round(parseFloat(String(v).replace('%',''))||0);
-    }
-    var item={proc:proc,sub:sub,cnt:parseInt(row[4])||0,
-              area:Math.round((parseFloat(row[5])||0)*10)/10,
-              base:nv(row[6]),run:nv(row[7]),rate:rate,
-              plan_down:nv(row[9]),op_loss:nv(row[10]),
-              eq_loss:nv(row[11]),eq_fail:nv(row[12])};
-    if(!sub)summary.push(item); else detail.push(item);
+  for(var i=0; i<arr.length; i++){
+    var row = arr[i];
+    var c2  = row[2]!=null ? String(row[2]).trim().replace(/\n/g,' ') : '';
+    var c3  = row[3]!=null ? String(row[3]).trim() : '';
+    if(c2==='공장명'){ started=true; continue; }
+    if(!started || !c2) continue;
+    var proc = c2.replace(/\s/g,'');
+    if(STOP.some(function(s){ return c2.includes(s)||proc.includes(s); })) break;
+    var sub  = c3 || null;
+    var rate = toRate(row[8]);
+    var item = {
+      proc:proc, sub:sub,
+      cnt: parseInt(row[4])||0,
+      area: Math.round((parseFloat(row[5])||0)*10)/10,
+      base: nv(row[6]), run: nv(row[7]), rate: rate,
+      plan_down: nv(row[9]),  op_loss: nv(row[10]),
+      eq_loss:   nv(row[11]), eq_fail: nv(row[12])
+    };
+    if(!sub) summary.push(item); else detail.push(item);
   }
-  if(!overall&&summary.length){
-    var vv=summary.filter(function(s){return s.rate>0;}).map(function(s){return s.rate;});
-    overall=vv.length?Math.round(vv.reduce(function(a,b){return a+b;})/vv.length*10)/10:0;
+  if(!overall && summary.length){
+    var vv = summary.filter(function(s){return s.rate>0;}).map(function(s){return s.rate;});
+    overall = vv.length ? Math.round(vv.reduce(function(a,b){return a+b;})/vv.length*10)/10 : 0;
   }
-  return {summary:summary,detail:detail,period:period,overall:overall};
+  return {summary:summary, detail:detail, period:period, overall:overall};
 }
 
 function parseTrend(ws){
