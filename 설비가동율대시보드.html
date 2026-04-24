@@ -1170,10 +1170,12 @@ function pushOEE(onDone){
 
 // ── oee.json 로드 (새로고침/다른 사람 접속 시) ──
 function fetchOEE(){
-  // localStorage에 이미 데이터가 있으면 → 팀원과 동기화 목적으로만 사용
-  // (현재 화면 데이터를 절대 이전 버전으로 덮어쓰지 않음)
+  // 토큰 없는 사람은 oee.json을 업데이트할 수 없음
+  // → 최신 데이터가 없을 가능성 높음 → fetchOEE 실행 안 함
+  // (팀원도 토큰 없이는 fetch 안 해도 됨 — HTML 내장 데이터가 최신)
+  if(!GH_TOKEN) return;
   var hdrs={'Accept':'application/vnd.github.v3+json'};
-  if(GH_TOKEN) hdrs['Authorization']='token '+GH_TOKEN;
+  hdrs['Authorization']='token '+GH_TOKEN;
   fetch(GH_OEE_API+'?t='+Date.now(),{headers:hdrs})
     .then(function(r){return r.ok?r.json():null;})
     .then(function(fd){
@@ -1306,10 +1308,11 @@ var GH_MAINT_RAW = 'https://raw.githubusercontent.com/'+GH_OWNER+'/'+GH_REPO+'/'
       renderTab0(); tabInited[0]=1;
     }
 
-    // 이후 GitHub에서 팀 최신 데이터 로드 (덮어쓰기)
+    // 이후 GitHub에서 팀 최신 데이터 로드
     setTimeout(function(){
-      fetchOEE();
-      fetchMaintenance();
+      // 토큰 있는 사람만 oee.json fetch (구버전 덮어쓰기 방지)
+      if(GH_TOKEN) fetchOEE();
+      fetchMaintenance(); // 고장/정지는 토큰 없어도 로드
     }, 1000);
   })();
 })();
