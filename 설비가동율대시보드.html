@@ -437,7 +437,7 @@ var ETRD={"레이저_RTR": [72.0, 51.1, 50.0, 61.4], "레이저_SHEET": [37.1, 3
 // 상태 변수
 // ════════════════════════════════════
 var MODE='month', TGT=60, CH={}, HF_PROC='';
-var LS_STOP='syn_stop_v2', LS_BREAK='syn_break_v2', LS_OEE='syn_oee_v1';
+var LS_STOP='syn_stop_v2', LS_BREAK='syn_break_v2';
 var CUM_FILTER='all';
 
 // ════════════════════════════════════
@@ -973,7 +973,6 @@ function loadExcel(input){
         CH={}; tabInited={}; HF_PROC='';
         MODES={month:m_data, day:d_data};
         TREND=tr.trend||{}; ETRD=tr.etrd||{};
-        try{localStorage.setItem(LS_OEE,JSON.stringify({MODES:MODES,TREND:TREND,ETRD:ETRD,saved:new Date().toISOString()}));}catch(lse){}
 
         // DOM 초기화
         var hfBtns=document.getElementById('hf-btns');
@@ -996,12 +995,7 @@ function loadExcel(input){
         statusEl.textContent='✅ '+file.name;
         statusEl.style.color='var(--teal)';
         toast('✅ 로드 완료 — 월:'+m_data.period+' '+m_data.overall+'% | 일:'+d_data.period+' '+d_data.overall+'%');
-        // GitHub 공유 (토큰 있으면 자동, 없으면 안내)
-        if(GH_TOKEN){
-          setTimeout(function(){ pushOEE(); }, 300);
-        } else {
-          toast('[공유 설정] 버튼에서 토큰 입력 시 팀 전체 공유됩니다');
-        }
+
 
       }catch(err){
         console.error('loadExcel 전체 오류:', err);
@@ -1134,91 +1128,9 @@ function testToken(){
   }).catch(function(){el.textContent='❌ 네트워크 오류';el.style.color='var(--red)';});
 }
 
-// ── oee.json 저장 ──
-var GH_OEE     = 'data/oee.json';
-var GH_OEE_API = 'https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/contents/'+GH_OEE;
 
-function pushOEE(onDone){
-  if(!GH_TOKEN){ if(onDone) onDone(false,'토큰 없음'); return; }
-  var statusEl=document.getElementById('upload-status');
-  if(statusEl){statusEl.textContent='☁ GitHub 공유 중...';statusEl.style.color='var(--muted)';}
-  var payload={MODES:MODES,TREND:TREND,ETRD:ETRD,updated:new Date().toISOString()};
-  var content=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-  var hdrs={'Authorization':'token '+GH_TOKEN,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};
-  fetch(GH_OEE_API,{headers:hdrs})
-    .then(function(r){return r.ok?r.json():null;})
-    .then(function(ex){
-      var body={message:'OEE 업데이트 '+new Date().toLocaleString('ko-KR'),content:content,branch:GH_BRANCH};
-      if(ex&&ex.sha) body.sha=ex.sha;
-      return fetch(GH_OEE_API,{method:'PUT',headers:hdrs,body:JSON.stringify(body)});
-    })
-    .then(function(r){
-      if(r&&r.ok){
-        if(statusEl){statusEl.textContent='☁ 공유 완료 '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});statusEl.style.color='var(--green)';}
-        toast('✅ 공유 완료! 팀원들이 새로고침하면 최신 데이터 확인됩니다');
-        if(onDone) onDone(true);
-      } else {
-        if(statusEl){statusEl.textContent='⚠ 공유 실패 — [공유 설정] 토큰 확인';statusEl.style.color='var(--amber)';}
-        if(onDone) onDone(false,'저장 실패');
-      }
-    })
-    .catch(function(e){
-      if(statusEl){statusEl.textContent='⚠ 공유 실패';statusEl.style.color='var(--amber)';}
-      if(onDone) onDone(false,e.message);
-    });
-}
 
-// ── oee.json 로드 (새로고침/다른 사람 접속 시) ──
-function fetchOEE(){
-  // 토큰 없는 사람은 oee.json을 업데이트할 수 없음
-  // → 최신 데이터가 없을 가능성 높음 → fetchOEE 실행 안 함
-  // (팀원도 토큰 없이는 fetch 안 해도 됨 — HTML 내장 데이터가 최신)
-  if(!GH_TOKEN) return;
-  var hdrs={'Accept':'application/vnd.github.v3+json'};
-  hdrs['Authorization']='token '+GH_TOKEN;
-  fetch(GH_OEE_API+'?t='+Date.now(),{headers:hdrs})
-    .then(function(r){return r.ok?r.json():null;})
-    .then(function(fd){
-      if(!fd||!fd.content) return;
-      var raw=fd.content.replace(/\n/g,'');
-      var data;
-      try{ data=JSON.parse(decodeURIComponent(escape(atob(raw)))); }
-      catch(e){ return; }
 
-      // 기본 유효성 검사
-      if(!data||!data.MODES||!data.MODES.month||
-         !data.MODES.month.summary||!data.MODES.month.summary.length) return;
-
-      // ── 핵심: localStorage 데이터가 있으면 timestamp 비교 ──
-      var lsRaw = null;
-      try{ lsRaw = localStorage.getItem(LS_OEE); }catch(e){}
-      if(lsRaw){
-        var lsObj = null;
-        try{ lsObj = JSON.parse(lsRaw); }catch(e){}
-        if(lsObj && lsObj.saved && data.updated){
-          // GitHub 데이터가 localStorage보다 오래된 경우 → 무시
-          if(data.updated <= lsObj.saved) return;
-        } else if(lsObj && lsObj.MODES){
-          // timestamp 없으면 → localStorage 우선 (덮어쓰기 안 함)
-          return;
-        }
-      }
-
-      // GitHub 데이터가 더 최신인 경우만 적용
-      Object.keys(CH).forEach(function(k){try{if(CH[k])CH[k].destroy();}catch(xe){}});
-      CH={}; tabInited={}; HF_PROC='';
-      MODES=data.MODES;
-      if(data.TREND&&Object.keys(data.TREND).length) TREND=data.TREND;
-      if(data.ETRD&&Object.keys(data.ETRD).length)   ETRD=data.ETRD;
-      try{ localStorage.setItem(LS_OEE,JSON.stringify({MODES:MODES,TREND:TREND,ETRD:ETRD,saved:data.updated||new Date().toISOString()})); }catch(e){}
-      var hf=document.getElementById('hf-btns'); if(hf){hf.innerHTML='';hf.removeAttribute('data-init');}
-      var fp=document.getElementById('fProc');   if(fp) fp.innerHTML='<option value="">전체 공정</option>';
-      var fp3=document.getElementById('fProc3'); if(fp3) fp3.innerHTML='<option value="">전체 공정</option>';
-      MODE='month';
-      renderTab0(); tabInited[0]=1;
-    })
-    .catch(function(){});
-}
 
 // ── maintenance.json 저장 ──
 function pushMaintenance(){
@@ -1285,36 +1197,9 @@ var GH_MAINT_RAW = 'https://raw.githubusercontent.com/'+GH_OWNER+'/'+GH_REPO+'/'
   // ── 데이터 로드 우선순위 ──
   // 1순위: localStorage (즉시, 오프라인도 OK)
   // 2순위: GitHub oee.json (최신 팀 데이터)
-  (function loadData(){
-    // localStorage에서 먼저 복원
-    var cached = null;
-    try{
-      var raw = localStorage.getItem(LS_OEE);
-      if(raw){
-        var obj = JSON.parse(raw);
-        if(obj&&obj.MODES&&obj.MODES.month&&obj.MODES.month.summary&&obj.MODES.month.summary.length){
-          cached = obj;
-        }
-      }
-    }catch(e){}
-
-    if(cached){
-      // localStorage 데이터 즉시 적용
-      Object.keys(CH).forEach(function(k){try{if(CH[k])CH[k].destroy();}catch(xe){}});
-      CH={}; tabInited={};
-      MODES=cached.MODES;
-      if(cached.TREND&&Object.keys(cached.TREND).length) TREND=cached.TREND;
-      if(cached.ETRD &&Object.keys(cached.ETRD).length)  ETRD=cached.ETRD;
-      renderTab0(); tabInited[0]=1;
-    }
-
-    // 이후 GitHub에서 팀 최신 데이터 로드
-    setTimeout(function(){
-      // 토큰 있는 사람만 oee.json fetch (구버전 덮어쓰기 방지)
-      if(GH_TOKEN) fetchOEE();
-      fetchMaintenance(); // 고장/정지는 토큰 없어도 로드
-    }, 1000);
-  })();
+    updateGHBtn();
+  // 고장/정지 데이터 로드 (페이지 열 때)
+  setTimeout(function(){ fetchMaintenance(); }, 800);
 })();
 
 </script>
