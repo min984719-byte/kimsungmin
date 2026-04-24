@@ -990,6 +990,13 @@ function loadExcel(input){
         catch(re2){ console.error('renderTab0 오류:', re2); }
         tabInited[0]=1;
 
+        // localStorage 저장 → 새로고침 후에도 유지
+        try{
+          localStorage.setItem('syn_oee_cache', JSON.stringify({
+            MODES:MODES, TREND:TREND, ETRD:ETRD, ts:Date.now()
+          }));
+        }catch(lse){}
+
         statusEl.textContent='✅ '+file.name;
         statusEl.style.color='var(--teal)';
         statusEl.textContent='✅ '+file.name;
@@ -1198,7 +1205,35 @@ var GH_MAINT_RAW = 'https://raw.githubusercontent.com/'+GH_OWNER+'/'+GH_REPO+'/'
   // 1순위: localStorage (즉시, 오프라인도 OK)
   // 2순위: GitHub oee.json (최신 팀 데이터)
     updateGHBtn();
-  // 고장/정지 데이터 로드 (페이지 열 때)
+
+  // localStorage에서 최신 업로드 데이터 복원
+  (function restoreCache(){
+    try{
+      var raw = localStorage.getItem('syn_oee_cache');
+      if(!raw) return;
+      var obj = JSON.parse(raw);
+      if(!obj||!obj.MODES||!obj.MODES.month||!obj.MODES.month.summary||!obj.MODES.month.summary.length) return;
+
+      // 내장 데이터보다 새로운지 확인 (period 문자열 비교)
+      var cachedPeriod  = obj.MODES.month.period  || '';
+      var builtinPeriod = MODES.month.period || '';
+      if(cachedPeriod === builtinPeriod && obj.MODES.month.overall === MODES.month.overall) return; // 동일하면 스킵
+
+      // 캐시 데이터 적용
+      Object.keys(CH).forEach(function(k){try{if(CH[k])CH[k].destroy();}catch(xe){}});
+      CH={}; tabInited={};
+      MODES = obj.MODES;
+      if(obj.TREND && Object.keys(obj.TREND).length) TREND = obj.TREND;
+      if(obj.ETRD  && Object.keys(obj.ETRD).length)  ETRD  = obj.ETRD;
+      var hf=document.getElementById('hf-btns'); if(hf){hf.innerHTML='';hf.removeAttribute('data-init');}
+      var fp=document.getElementById('fProc');   if(fp) fp.innerHTML='<option value="">전체 공정</option>';
+      var fp3=document.getElementById('fProc3'); if(fp3) fp3.innerHTML='<option value="">전체 공정</option>';
+      MODE='month';
+      renderTab0(); tabInited[0]=1;
+    }catch(e){ console.warn('캐시 복원 오류:', e); }
+  })();
+
+  // 고장/정지 데이터 로드
   setTimeout(function(){ fetchMaintenance(); }, 800);
 })();
 
