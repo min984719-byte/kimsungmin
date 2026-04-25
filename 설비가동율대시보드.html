@@ -995,6 +995,12 @@ function loadExcel(input){
         statusEl.textContent='✅ '+file.name;
         statusEl.style.color='var(--teal)';
         toast('✅ 로드 완료 — 월:'+m_data.period+' '+m_data.overall+'% | 일:'+d_data.period+' '+d_data.overall+'%');
+        // 토큰 있으면 GitHub 자동 업로드
+        if(GH_TOKEN){
+          setTimeout(function(){ ghPushHTML(statusEl); }, 500);
+        } else {
+          toast('💡 [공유 설정] 버튼에서 토큰 입력하면 팀 자동 공유됩니다');
+        }
 
 
       }catch(err){
@@ -1097,6 +1103,65 @@ var GH_MAINT_API = 'https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/conten
 var GH_TOKEN   = localStorage.getItem('gh_token')||'';
 var _ghPushing = false;
 
+
+// ── 엑셀 업로드 후 GitHub HTML 자동 업데이트 ──
+function ghPushHTML(statusEl){
+  if(!GH_TOKEN){ return; }
+  if(statusEl){ statusEl.textContent='☁ GitHub 업로드 중...'; statusEl.style.color='var(--muted)'; }
+
+  var hdrs = {
+    'Authorization': 'token '+GH_TOKEN,
+    'Accept': 'application/vnd.github.v3+json'
+  };
+
+  // 1. GitHub에서 현재 HTML 파일 가져오기
+  fetch(GH_API, {headers:hdrs})
+    .then(function(r){ if(!r.ok) throw new Error('fetch_'+r.status); return r.json(); })
+    .then(function(fd){
+      if(!fd||!fd.content) throw new Error('no_content');
+
+      // 2. base64 디코딩
+      var srcHTML = decodeURIComponent(escape(atob(fd.content.replace(/\n/g,''))));
+
+      // 3. 데이터 부분만 교체
+      var newData = 'var MODES='+JSON.stringify(MODES)
+                  +';\nvar TREND='+JSON.stringify(TREND)
+                  +';\nvar ETRD='+JSON.stringify(ETRD)+';';
+
+      var updated = srcHTML.replace(/var MODES=\{[\s\S]*?var ETRD=\{[^;]+;/, newData);
+      if(updated === srcHTML) throw new Error('replace_failed');
+
+      // 4. 다시 base64 인코딩 후 push
+      var newContent = btoa(unescape(encodeURIComponent(updated)));
+      var body = {
+        message: '설비 가동율 업데이트 '+new Date().toLocaleString('ko-KR'),
+        content: newContent,
+        sha: fd.sha,
+        branch: GH_BRANCH
+      };
+      return fetch(GH_API, {
+        method: 'PUT',
+        headers: Object.assign({}, hdrs, {'Content-Type':'application/json'}),
+        body: JSON.stringify(body)
+      });
+    })
+    .then(function(r){
+      if(r&&r.ok){
+        if(statusEl){
+          statusEl.textContent='☁ 공유 완료 '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+          statusEl.style.color='var(--green)';
+        }
+        toast('✅ GitHub 업로드 완료! 팀원들이 Ctrl+Shift+R 하면 바로 확인됩니다');
+      } else {
+        if(statusEl){ statusEl.textContent='⚠ 업로드 실패'; statusEl.style.color='var(--amber)'; }
+        toast('⚠ GitHub 업로드 실패 — [공유 설정]에서 토큰 확인');
+      }
+    })
+    .catch(function(e){
+      console.warn('ghPushHTML 오류:', e.message);
+      if(statusEl){ statusEl.textContent='⚠ 업로드 실패: '+e.message; statusEl.style.color='var(--amber)'; }
+    });
+}
 // ── GitHub 공통 함수 ──
 function updateGHBtn(){
   var btn=document.getElementById('gh-btn'); if(!btn) return;
