@@ -118,6 +118,7 @@ select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-siz
       <option value="0" data-ko="1월" data-vi="T1">1월</option>
       <option value="1" data-ko="2월" data-vi="T2">2월</option>
       <option value="2" data-ko="3월" data-vi="T3">3월</option>
+      <option value="3" data-ko="4월" data-vi="T4">4월</option>
     </select>
   </div>
   <div class="g2">
@@ -130,6 +131,7 @@ select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-siz
 <th data-ko="1월" data-vi="T1">1월</th>
 <th data-ko="2월" data-vi="T2">2월</th>
 <th data-ko="3월" data-vi="T3">3월</th>
+<th data-ko="4월" data-vi="T4">4월</th>
 <th data-ko="누적합계" data-vi="Lũy kế">누적합계</th>
 <th data-ko="비중" data-vi="Tỷ lệ">비중</th>
 </tr></thead><tbody id="proc-tbody"></tbody></table></div></div>
@@ -162,6 +164,7 @@ select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-siz
 <th data-ko="1월" data-vi="T1">1월</th>
 <th data-ko="2월" data-vi="T2">2월</th>
 <th data-ko="3월" data-vi="T3">3월</th>
+<th data-ko="4월" data-vi="T4">4월</th>
 <th data-ko="누적합계" data-vi="Lũy kế">누적합계</th>
 </tr></thead><tbody id="vendor-tbody"></tbody></table></div></div>
 </div>
@@ -169,6 +172,8 @@ select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-siz
   <div class="g2">
     <div class="card"><div class="card-title" data-ko="1월 계획대비 실적 달성율" data-vi="Tỷ lệ đạt KH tháng 1">1월 계획대비 실적 달성율</div><div class="ch" style="height:260px"><canvas id="c-ach1"></canvas></div></div>
     <div class="card"><div class="card-title" data-ko="2월 계획대비 실적 달성율" data-vi="Tỷ lệ đạt KH tháng 2">2월 계획대비 실적 달성율</div><div class="ch" style="height:260px"><canvas id="c-ach2"></canvas></div></div>
+    <div class="card" style="margin-bottom:12px"><div style="font-size:11px;color:#666;margin-bottom:4px">3월 계획대비 달성율</div><div style="height:260px"><canvas id="c-ach3"></canvas></div></div>
+    <div class="card" style="margin-bottom:12px"><div style="font-size:11px;color:#666;margin-bottom:4px">4월 계획대비 달성율</div><div style="height:260px"><canvas id="c-ach4"></canvas></div></div>
   </div>
   <div class="card"><div class="card-title" data-ko="공정별 계획대비 실적 상세 (1~3월)" data-vi="Chi tiết KH vs Thực tế theo CĐ (T1~T3)">공정별 계획대비 실적 상세 (1~3월)</div>
     <div class="tw sc"><table><thead><tr>
@@ -176,6 +181,7 @@ select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-siz
       <th colspan="3">1월</th>
       <th colspan="3">2월</th>
       <th colspan="3">3월</th>
+      <th colspan="3">4월</th>
     </tr><tr>
       <th data-ko="계획" data-vi="Kế hoạch">계획</th>
       <th data-ko="실적" data-vi="Thực tế">실적</th>
@@ -207,6 +213,7 @@ select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-siz
 <th data-ko="1월" data-vi="T1">1월</th>
 <th data-ko="2월" data-vi="T2">2월</th>
 <th data-ko="3월" data-vi="T3">3월</th>
+<th data-ko="4월" data-vi="T4">4월</th>
 <th data-ko="누적 절감액" data-vi="Lũy kế tiết kiệm">누적 절감액</th>
 </tr></thead><tbody id="nego-tbody"></tbody></table></div></div>
 </div>
@@ -386,7 +393,7 @@ function renderProcCost(){
   let h='';
   entries.forEach(e=>{
     h+=`<tr><td style="font-weight:500">${e.proc}</td>`;
-    for(let i=0;i<3;i++) h+=`<td class="r" style="color:${(e.arr[i]||0)>0?'inherit':'#ccc'}">${(e.arr[i]||0)>0?NB(e.arr[i]):'-'}</td>`;
+    for(let i=0;i<4;i++) h+=`<td class="r" style="color:${(e.arr[i]||0)>0?'inherit':'#ccc'}">${(e.arr[i]||0)>0?NB(e.arr[i]):'-'}</td>`;
     const s=e.arr.reduce((a,b)=>a+b,0);
     const pct=(total>0?s/total*100:0).toFixed(1);
     h+=`<td class="r" style="color:#185FA5;font-weight:600">${NB(s)}</td>`;
@@ -394,7 +401,7 @@ function renderProcCost(){
   });
   if(entries.length){
     h+=`<tr class="total-row"><td>TTL</td>`;
-    for(let i=0;i<3;i++) h+=`<td class="r">${NB(Object.values(PROC_COST).reduce((s,arr)=>s+(arr[i]||0),0))}</td>`;
+    for(let i=0;i<4;i++) h+=`<td class="r">${NB(Object.values(PROC_COST).reduce((s,arr)=>s+(arr[i]||0),0))}</td>`;
     h+=`<td class="r" style="color:#185FA5">${NB(total)}</td><td class="c">100%</td></tr>`;
   }
   document.getElementById('proc-tbody').innerHTML=h;
@@ -427,7 +434,7 @@ function renderVendor(){
       <td class="c"><span class="badge ${v.loc==='사내'?'b-ok':'b-warn'}">${v.loc}</span></td>
       <td>${v.proc}</td>
       <td style="font-weight:500">${v.name}</td>`;
-    for(let i=0;i<3;i++) h+=`<td class="r" style="color:${(v.m[i]||0)>0?'inherit':'#ccc'}">${(v.m[i]||0)>0?NB(v.m[i]):'-'}</td>`;
+    for(let i=0;i<4;i++) h+=`<td class="r" style="color:${(v.m[i]||0)>0?'inherit':'#ccc'}">${(v.m[i]||0)>0?NB(v.m[i]):'-'}</td>`;
     h+=`<td class="r" style="color:#185FA5;font-weight:600">${NB(v.total)}</td></tr>`;
   });
   document.getElementById('vendor-tbody').innerHTML=h||`<tr><td colspan="8" style="text-align:center;padding:20px;color:#aaa">-</td></tr>`;
@@ -436,7 +443,7 @@ function renderVendor(){
 /* ═══ TAB 4 계획대비 실적 ═══ */
 function buildAchieve(){
   const labels=ACHIEVE.map(a=>a.proc);
-  for(let mi=0;mi<2;mi++){
+  for(let mi=0;mi<4;mi++){
     dc(`c-ach${mi+1}`);
     const rates=ACHIEVE.map(a=>a.data[mi]?.rate||0);
     charts[`c-ach${mi+1}`]=new Chart(document.getElementById(`c-ach${mi+1}`),{type:'bar',
@@ -491,7 +498,7 @@ function buildNego(){
       <td class="c"><span class="badge ${n.type==='필수외주'?'b-info':'b-purple'}">${n.type}</span></td>
       <td>${n.proc}</td>
       <td style="font-weight:500">${n.name}</td>`;
-    for(let i=0;i<3;i++) h+=`<td class="r" style="color:${(n.m[i]||0)>0?'#1D9E75':'#ccc'}">${(n.m[i]||0)>0?NB(n.m[i]):'-'}</td>`;
+    for(let i=0;i<4;i++) h+=`<td class="r" style="color:${(n.m[i]||0)>0?'#1D9E75':'#ccc'}">${(n.m[i]||0)>0?NB(n.m[i]):'-'}</td>`;
     h+=`<td class="r" style="color:#1D9E75;font-weight:700">${NB(n.total)}</td></tr>`;
   });
   document.getElementById('nego-tbody').innerHTML=h||`<tr><td colspan="8" style="text-align:center;padding:20px;color:#aaa">-</td></tr>`;
