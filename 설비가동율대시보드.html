@@ -927,120 +927,103 @@ function delBreak(i){
 // 엑셀 업로드 (브라우저 내 파싱)
 // ════════════════════════════════════
 function loadExcel(input){
-  var file=input.files[0]; if(!file) return;
+  var file=input.files[0];
+  if(!file){ alert('파일을 선택해주세요'); return; }
+
   var statusEl=document.getElementById('upload-status');
   statusEl.textContent='⏳ 읽는 중...';
   statusEl.style.color='var(--muted)';
 
+  // XLSX 라이브러리 로딩 확인
+  if(typeof XLSX==='undefined'){
+    var msg='❌ XLSX 라이브러리가 로딩되지 않았습니다\n페이지를 새로고침(Ctrl+Shift+R) 후 다시 시도하세요';
+    alert(msg);
+    statusEl.textContent='❌ 라이브러리 오류';
+    statusEl.style.color='var(--red)';
+    return;
+  }
+
   var reader=new FileReader();
   reader.onerror=function(){
+    alert('❌ 파일 읽기 실패\n다른 파일을 선택하거나 페이지를 새로고침하세요');
     statusEl.textContent='❌ 파일 읽기 실패';
     statusEl.style.color='var(--red)';
-    toast('❌ 파일 읽기 실패');
   };
+
   reader.onload=function(e){
+    statusEl.textContent='⏳ 파싱 중... (DB-1 제외)';
     setTimeout(function(){
       try{
-        // ── STEP1: XLSX 라이브러리 확인 ──
-        if(typeof XLSX==='undefined'){
-          toast('❌ XLSX 라이브러리 로딩 중... 3초 후 다시 시도하세요');
-          statusEl.textContent='⏳ 라이브러리 로딩 중...';
-          return;
-        }
+        // 엑셀 읽기 (sheetRows로 DB-1 대용량 제한)
+        var wb=XLSX.read(e.target.result,{type:'array',sheetRows:150});
 
-        statusEl.textContent='⏳ 파일 파싱 중...';
-
-        // ── STEP2: 엑셀 읽기 ──
-        var wb=XLSX.read(e.target.result, {type:'array', sheetRows:150});
-
-        // 불필요한 시트 즉시 제거 (DB-1 등 대용량 시트)
-        var needed=['가동율(일)','가동율(월 누적기준)','가동율(2026년)','가동율(2027년)'];
+        // 필요없는 시트 추가 제거
         wb.SheetNames.forEach(function(sn){
-          if(!needed.some(function(n){return sn.includes(n.replace('가동율','').replace('(','').replace(')','').trim());})){
-            // 필요한 시트 포함 여부 확인
-            var keep=needed.some(function(n){return sn===n||sn.includes('월 누적')||sn.includes('(일)')||sn.includes('2026')||sn.includes('2027');});
-            if(!keep) delete wb.Sheets[sn];
+          if(sn==='DB-1'||sn==='MASTER'||sn==='Giải trình LQ'){
+            delete wb.Sheets[sn];
           }
         });
 
-        var sn=wb.SheetNames.filter(function(s){return wb.Sheets[s];});
+        var sn=wb.SheetNames.filter(function(s){return !!wb.Sheets[s];});
 
-        // ── STEP3: 시트 찾기 ──
         var sm=sn.find(function(s){return s.includes('월 누적');});
-        if(!sm) sm=sn.find(function(s){return s.includes('월');});
         var sd=sn.find(function(s){return s.includes('(일)');});
         var syr=sn.find(function(s){return s.includes('2026')||s.includes('2027');});
 
-        if(!sm){
-          toast('월누적 시트를 찾을 수 없습니다. 시트: '+sn.join(', '));
-
+        if(!sm||!sd){
+          alert('❌ 필요한 시트를 찾을 수 없습니다\n찾은 시트: '+sn.join(', '));
           statusEl.textContent='❌ 시트 없음';
-          return;
-        }
-        if(!sd){
-          toast('일기준 시트를 찾을 수 없습니다. 시트: '+sn.join(', '));
-
-          statusEl.textContent='❌ 시트 없음';
+          statusEl.style.color='var(--red)';
           return;
         }
 
-        // ── STEP4: 데이터 파싱 ──
-        statusEl.textContent='⏳ 월 누적 파싱 중...';
+        statusEl.textContent='⏳ 데이터 파싱 중...';
         var m_data=parseSheet(wb.Sheets[sm]);
-
-        statusEl.textContent='⏳ 일 기준 파싱 중...';
         var d_data=parseSheet(wb.Sheets[sd]);
+        var tr=syr?parseTrend(wb.Sheets[syr]):{trend:{},etrd:{}};
 
-        statusEl.textContent='⏳ 연간 추이 파싱 중...';
-        var tr=syr ? parseTrend(wb.Sheets[syr]) : {trend:{}, etrd:{}};
-
-        // ── STEP5: 검증 ──
-        if(!m_data||!m_data.summary||m_data.summary.length<5){
-          toast('파싱 실패 - 공정수:'+(m_data&&m_data.summary?m_data.summary.length:0));
-
+        if(!m_data||!m_data.summary||m_data.summary.length<3){
+          alert('❌ 파싱 실패\n공정 수: '+(m_data&&m_data.summary?m_data.summary.length:0)+'개\n파일 형식이 맞지 않습니다');
           statusEl.textContent='❌ 파싱 실패';
+          statusEl.style.color='var(--red)';
           return;
         }
 
-        // ── STEP6: 차트 정리 ──
+        // 기존 차트 제거
         Object.keys(CH).forEach(function(k){
-          try{ if(CH[k]&&typeof CH[k].destroy==='function') CH[k].destroy(); }catch(xe){}
+          try{if(CH[k]&&typeof CH[k].destroy==='function')CH[k].destroy();}catch(e){}
         });
         CH={}; tabInited={}; HF_PROC='';
 
-        // ── STEP7: 데이터 업데이트 ──
-        MODES={month:m_data, day:d_data};
+        // 데이터 교체
+        MODES={month:m_data,day:d_data};
         TREND=tr.trend||{};
         ETRD=tr.etrd||{};
 
-        // ── STEP8: DOM 초기화 ──
-        var hf=document.getElementById('hf-btns');
-        if(hf){hf.innerHTML=''; hf.removeAttribute('data-init');}
-        var fp=document.getElementById('fProc');
-        if(fp) fp.innerHTML='<option value="">전체 공정</option>';
-        var fp3=document.getElementById('fProc3');
-        if(fp3) fp3.innerHTML='<option value="">전체 공정</option>';
-        var bm=document.getElementById('btnMonth'); if(bm) bm.classList.add('on');
-        var bd=document.getElementById('btnDay');   if(bd) bd.classList.remove('on');
+        // DOM 초기화
+        var el; 
+        el=document.getElementById('hf-btns'); if(el){el.innerHTML='';el.removeAttribute('data-init');}
+        el=document.getElementById('fProc');   if(el) el.innerHTML='<option value="">전체 공정</option>';
+        el=document.getElementById('fProc3');  if(el) el.innerHTML='<option value="">전체 공정</option>';
+        el=document.getElementById('btnMonth'); if(el) el.classList.add('on');
+        el=document.getElementById('btnDay');   if(el) el.classList.remove('on');
         MODE='month';
 
-        // ── STEP9: 렌더링 ──
-        statusEl.textContent='⏳ 화면 렌더링 중...';
+        // 렌더링
         renderTab0();
         tabInited[0]=1;
 
-        // ── 완료 ──
-        statusEl.textContent='✅ '+file.name;
+        statusEl.textContent='✅ '+m_data.period+' '+m_data.overall+'%';
         statusEl.style.color='var(--teal)';
-        toast('✅ 업로드 완료 — 월:'+m_data.period+' '+m_data.overall+'% | 일:'+d_data.period+' '+d_data.overall+'% | 설비:'+d_data.detail.length+'대');
+        toast('✅ 완료! 월:'+m_data.period+' '+m_data.overall+'% | 일:'+d_data.period+' '+d_data.overall+'%');
 
       }catch(err){
         console.error('loadExcel 오류:', err);
-        statusEl.textContent='❌ '+statusEl.textContent.replace('⏳ ','')+'에서 오류';
+        alert('❌ 업로드 오류\n\n'+err.message+'\n\nF12 콘솔에서 상세 확인 가능');
+        statusEl.textContent='❌ 오류: '+err.message;
         statusEl.style.color='var(--red)';
-        toast('❌ 오류 발생: '+(err.message||String(err)));
       }
-    }, 50);
+    },50);
   };
   reader.readAsArrayBuffer(file);
 }
