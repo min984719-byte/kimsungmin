@@ -1021,6 +1021,8 @@ function loadExcel(input){
         statusEl.textContent='✅ '+m_data.period+' '+m_data.overall+'%';
         statusEl.style.color='var(--teal)';
         toast('✅ 완료! 월:'+m_data.period+' '+m_data.overall+'% | 일:'+d_data.period+' '+d_data.overall+'%');
+        if(GH_TOKEN){ setTimeout(function(){ ghPushHTML(); },500); }
+        else{ toast('💡 [공유 설정]에서 토큰 입력 시 팀 전체 자동 공유됩니다'); }
 
       }catch(err){
         console.error('loadExcel 오류:', err);
@@ -1118,6 +1120,35 @@ var GH_MAINT     = 'data/maintenance.json';
 var GH_MAINT_API = 'https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/contents/'+GH_MAINT;
 
 var GH_TOKEN   = localStorage.getItem('gh_token')||'';
+
+function ghPushHTML(){
+  if(!GH_TOKEN) return;
+  var statusEl=document.getElementById('upload-status');
+  statusEl.textContent='\u2601 GitHub \ub3d9\uae30\ud654 \uc911...';
+  var hdrs={'Authorization':'token '+GH_TOKEN,'Accept':'application/vnd.github.v3+json'};
+  fetch(GH_API,{headers:hdrs})
+  .then(function(r){if(!r.ok)throw new Error('fetch '+r.status);return r.json();})
+  .then(function(fd){
+    if(!fd.sha)throw new Error('SHA \uc5c6\uc74c');
+    var srcBytes=Uint8Array.from(atob(fd.content.replace(/\n/g,'')),function(c){return c.charCodeAt(0);});
+    var srcHTML=new TextDecoder('utf-8').decode(srcBytes);
+    var updated=srcHTML.replace(/var MODES=\{[\s\S]*?var ETRD=\{[^;]+;/,
+      'var MODES='+JSON.stringify(MODES)+';\nvar TREND='+JSON.stringify(TREND)+';\nvar ETRD='+JSON.stringify(ETRD)+';');
+    if(updated===srcHTML)throw new Error('패턴 불일치');
+    var enc=new TextEncoder().encode(updated);
+    var bin=''; enc.forEach(function(b){bin+=String.fromCharCode(b);}); 
+    var b64=btoa(bin);
+    return fetch(GH_API,{method:'PUT',
+      headers:Object.assign({'Content-Type':'application/json'},hdrs),
+      body:JSON.stringify({message:'\uac00\ub3d9\uc728 \uc5c5\ub370\uc774\ud2b8 '+new Date().toLocaleString('ko-KR'),content:b64,sha:fd.sha,branch:GH_BRANCH})});
+  })
+  .then(function(r){
+    if(r&&r.ok){statusEl.textContent='\u2601 \uacf5\uc720 \uc644\ub8cc '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});statusEl.style.color='var(--green)';}
+    else{statusEl.textContent='\u26a0 \uacf5\uc720 \uc2e4\ud328';statusEl.style.color='var(--amber)';}
+  })
+  .catch(function(e){statusEl.textContent='\u26a0 '+e.message;statusEl.style.color='var(--amber)';});
+}
+
 var _ghPushing = false;
 
 
