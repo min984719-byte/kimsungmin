@@ -1231,17 +1231,16 @@ var GH_MAINT_RAW = 'https://raw.githubusercontent.com/'+GH_OWNER+'/'+GH_REPO+'/'
 
   // ── 저장된 데이터 복원 (renderTab0 전에!) ──
   (function restoreData(){
-    // 1순위: localStorage (이 브라우저에서 업로드한 최신 데이터)
     try{
       var raw=localStorage.getItem('syn_oee_data');
-      if(raw){
-        var obj=JSON.parse(raw);
-        if(obj&&obj.MODES&&obj.MODES.month&&obj.MODES.month.summary&&obj.MODES.month.summary.length>5){
-          MODES=obj.MODES;
-          if(obj.TREND&&Object.keys(obj.TREND).length) TREND=obj.TREND;
-          if(obj.ETRD&&Object.keys(obj.ETRD).length)   ETRD=obj.ETRD;
-        }
-      }
+      if(!raw) return;
+      var obj=JSON.parse(raw);
+      if(!obj||!obj.MODES||!obj.MODES.month||!obj.MODES.month.summary||obj.MODES.month.summary.length<5) return;
+      // BUILD_TIME 이후 저장된 데이터만 사용 (구버전 캐시 무시)
+      if(!obj.saved||obj.saved<=BUILD_TIME) return;
+      MODES=obj.MODES;
+      if(obj.TREND&&Object.keys(obj.TREND).length) TREND=obj.TREND;
+      if(obj.ETRD&&Object.keys(obj.ETRD).length)   ETRD=obj.ETRD;
     }catch(e){}
   })();
 
