@@ -1024,7 +1024,7 @@ function loadExcel(input){
 
         // 1. localStorage 저장 (새로고침 후 복원용)
         try{
-          localStorage.setItem('syn_oee_data', JSON.stringify({
+          localStorage.setItem('syn_oee_v506', JSON.stringify({
             MODES:MODES, TREND:TREND, ETRD:ETRD,
             saved: new Date().toISOString()
           }));
@@ -1232,7 +1232,7 @@ var GH_MAINT_RAW = 'https://raw.githubusercontent.com/'+GH_OWNER+'/'+GH_REPO+'/'
   // ── 저장된 데이터 복원 (renderTab0 전에!) ──
   (function restoreData(){
     try{
-      var raw=localStorage.getItem('syn_oee_data');
+      var raw=localStorage.getItem('syn_oee_v506');
       if(!raw) return;
       var obj=JSON.parse(raw);
       if(!obj||!obj.MODES||!obj.MODES.month||!obj.MODES.month.summary||obj.MODES.month.summary.length<5) return;
