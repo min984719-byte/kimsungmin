@@ -964,29 +964,66 @@ function loadExcel(input){
 }
 
 function parseSheet(ws){
-  var arr=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});
+  // raw:true → 숫자는 숫자, 문자는 문자로 정확히 읽음
+  var arr=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
   var period='',overall=0,summary=[],detail=[],started=false;
-  var STOP=['FPCB설비','합계','합 계','계획비가동','FPCB  설비 계획'];
+  var STOP=['FPCB설비','합계','합 계','계획비가동','FPCB  설비 계획','Trouble'];
+
+  function nv(v){
+    if(v==null) return 0;
+    if(typeof v==='number') return Math.round(v);
+    return Math.round(parseFloat(String(v).replace('%','').trim())||0);
+  }
+  function toRate(v){
+    if(v==null) return 0;
+    var n=typeof v==='number'?v:(parseFloat(String(v).replace('%','').trim())||0);
+    return n>0&&n<=1 ? Math.round(n*1000)/10 : Math.round(n*10)/10;
+  }
+
+  // 기간/전체가동율 먼저 찾기 (행 1~12)
+  for(var pi=0;pi<Math.min(12,arr.length);pi++){
+    var pc=arr[pi][2]!=null?String(arr[pi][2]).trim():'';
+    if(/^\d+\//.test(pc)||/^\d+~/.test(pc)){
+      period=pc; overall=toRate(arr[pi][9]); break;
+    }
+  }
+
+  // 설비 데이터 파싱
   for(var i=0;i<arr.length;i++){
     var row=arr[i];
-    var c2=row[2]?String(row[2]).trim().replace(/\n/g,' '):'';
-    var c3=row[3]?String(row[3]).trim():'';
-    if(!period&&c2&&c2[0]>='0'&&c2[0]<='9'&&!started){
-      period=c2; var rr=parseFloat(row[9])||0; overall=rr<=1?Math.round(rr*1000)/10:Math.round(rr*10)/10; continue;
-    }
+    var c2=row[2]!=null?String(row[2]).trim().replace(/\n/g,' '):'';
+    var c3=row[3]!=null?String(row[3]).trim():'';
     if(c2==='공장명'){started=true;continue;}
     if(!started||!c2)continue;
     var proc=c2.replace(/\s/g,'');
     if(STOP.some(function(s){return c2.includes(s)||proc.includes(s);}))break;
     var sub=c3||null;
-    var rr2=parseFloat(row[8])||0; var rate=rr2<=1?Math.round(rr2*1000)/10:Math.round(rr2*10)/10;
-    var item={proc:proc,sub:sub,cnt:parseInt(row[4])||0,area:Math.round((parseFloat(row[5])||0)*10)/10,
-               base:Math.round(parseFloat(row[6])||0),run:Math.round(parseFloat(row[7])||0),rate:rate,
-               plan_down:Math.round(parseFloat(row[9])||0),op_loss:Math.round(parseFloat(row[10])||0),
-               eq_loss:Math.round(parseFloat(row[11])||0),eq_fail:Math.round(parseFloat(row[12])||0)};
-    if(!sub)summary.push(item); else detail.push(item);
+
+    // ★ 비정상 행 필터 ★
+    // 1. 설비명이 순수 숫자 → 합계/누계 행 (예: 1380, 1740)
+    if(sub && /^\d+$/.test(sub)) continue;
+    // 2. proc이 숫자 → 잘못된 행
+    if(/^\d+$/.test(proc)) continue;
+
+    var rate=toRate(row[8]);
+    // 3. base=0인데 rate>100 → 오류 행
+    if(rate>100 && nv(row[6])===0) continue;
+    // 4. rate 상한 100%
+    if(rate>100) rate=100;
+
+    var item={proc:proc,sub:sub,
+      cnt:parseInt(row[4])||0,
+      area:Math.round((parseFloat(row[5])||0)*10)/10,
+      base:nv(row[6]),run:nv(row[7]),rate:rate,
+      plan_down:nv(row[9]),op_loss:nv(row[10]),
+      eq_loss:nv(row[11]),eq_fail:nv(row[12])};
+    if(!sub) summary.push(item); else detail.push(item);
   }
-  if(!overall&&summary.length){var vv=summary.filter(function(s){return s.rate>0;}).map(function(s){return s.rate;}); overall=vv.length?Math.round(vv.reduce(function(a,b){return a+b;},0)/vv.length*10)/10:0;}
+
+  if(!overall&&summary.length){
+    var vv=summary.filter(function(s){return s.rate>0;}).map(function(s){return s.rate;});
+    overall=vv.length?Math.round(vv.reduce(function(a,b){return a+b;})/vv.length*10)/10:0;
+  }
   return {summary:summary,detail:detail,period:period,overall:overall};
 }
 
