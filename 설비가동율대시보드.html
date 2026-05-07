@@ -2,6 +2,10 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<script>
+function saveList(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function loadList(k){try{var r=localStorage.getItem(k);return r?JSON.parse(r):[];}catch(e){return[];}}
+</script>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -1040,7 +1044,7 @@ function loadExcel(input){
         MODE='month';
 
         // 렌더링
-        renderTab0();
+        try{ renderTab0(); }catch(re2){ console.warn('renderTab0 오류:', re2); }
         tabInited[0]=1;
 
         statusEl.textContent='✅ '+m_data.period+' '+m_data.overall+'%';
