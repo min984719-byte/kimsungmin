@@ -950,7 +950,21 @@ function loadExcel(input){
     statusEl.textContent='\u23f3 \ud30c\uc2f1 \uc911...';
     setTimeout(function(){
       try{
-        var wb=XLSX.read(e.target.result,{type:'array',sheetRows:150});
+        // 2단계 고속 파싱
+        // 1단계: 시트 이름만 읽기 (빠름)
+        var wb_info=XLSX.read(e.target.result,{type:'array',bookSheets:true});
+        var allSheets=wb_info.SheetNames;
+        var sm_i=allSheets.findIndex(function(s){return s.includes('월 누적');});
+        var sd_i=allSheets.findIndex(function(s){return s.includes('(일)');});
+        var sy_i=allSheets.findIndex(function(s){return s.includes('2026')||s.includes('2027');});
+        if(sm_i<0||sd_i<0){
+          statusEl.textContent='❌ 필요 시트 없음: '+allSheets.join(', ');
+          statusEl.style.color='var(--red)'; return;
+        }
+        // 2단계: 필요한 시트만 150행으로 파싱
+        var idxArr=[sm_i,sd_i];
+        if(sy_i>=0) idxArr.push(sy_i);
+        var wb=XLSX.read(e.target.result,{type:'array',sheets:idxArr,sheetRows:150});
 
         // 불필요한 시트 제거 (DB-1 등 대용량)
         wb.SheetNames.forEach(function(sn){
