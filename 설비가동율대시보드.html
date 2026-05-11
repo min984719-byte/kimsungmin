@@ -10,82 +10,82 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:"맑은 고딕","Segoe UI",sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh;font-size:13px}
 
-/* ── HEADER ── */
-header{background:#161b22;border-bottom:1px solid #30363d;padding:0 24px;height:54px;
+/* ─ HEADER ─ */
+header{background:#161b22;border-bottom:1px solid #30363d;padding:0 20px;height:54px;
   display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.hlogo{font-size:16px;font-weight:700;color:#58a6ff;letter-spacing:1px}
-.hlogo sub{color:#8b949e;font-weight:400;font-size:11px;margin-left:10px;letter-spacing:0}
-.hkpis{display:flex;gap:24px}
-.hkpi .hv{font-size:18px;font-weight:700;font-family:monospace;text-align:center}
+.hlogo{font-size:15px;font-weight:700;color:#58a6ff;letter-spacing:1px}
+.hlogo sub{color:#8b949e;font-weight:400;font-size:10px;margin-left:8px;letter-spacing:0}
+.hkpis{display:flex;gap:20px}
+.hkpi .hv{font-size:17px;font-weight:700;font-family:monospace;text-align:center}
 .hkpi .hl{font-size:9px;color:#8b949e;letter-spacing:.5px;text-align:center}
 
-/* ── UPLOAD ── */
-.upload-bar{background:#0d1117;border-bottom:1px solid #21262d;padding:10px 24px;
-  display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.dz{border:1.5px dashed #30363d;border-radius:6px;padding:8px 20px;cursor:pointer;
+/* ─ UPLOAD ─ */
+.upbar{background:#0d1117;border-bottom:1px solid #21262d;padding:8px 20px;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.dz{border:1.5px dashed #30363d;border-radius:6px;padding:7px 18px;cursor:pointer;
   font-size:12px;color:#8b949e;transition:.2s;min-width:260px;text-align:center;background:#161b22}
 .dz:hover,.dz.drag{border-color:#58a6ff;color:#58a6ff}
 .dz.ok{border-color:#3fb950;color:#3fb950}
 #fIn{display:none}
-.mtoggle{display:flex;border-radius:6px;overflow:hidden;border:1px solid #30363d;opacity:.4;pointer-events:none}
-.mbtn{padding:5px 16px;font-size:11px;cursor:pointer;background:#161b22;color:#8b949e;border:none;transition:.15s}
+.mtog{display:flex;border-radius:6px;overflow:hidden;border:1px solid #30363d;opacity:.4;pointer-events:none}
+.mbtn{padding:5px 14px;font-size:11px;cursor:pointer;background:#161b22;color:#8b949e;border:none;transition:.15s}
 .mbtn.on{background:#1f6feb;color:#fff;font-weight:700}
-.ustat{font-size:11px;color:#8b949e;margin-left:4px}
+.ustat{font-size:11px;color:#8b949e}
 
-/* ── TABS ── */
-.tabs{display:none;border-bottom:1px solid #21262d;background:#161b22;padding:0 24px}
+/* ─ TABS ─ */
+.tabs{display:none;border-bottom:1px solid #21262d;background:#161b22;padding:0 20px}
 .ntab{display:inline-block;padding:11px 18px;font-size:12px;cursor:pointer;
   color:#8b949e;border-bottom:2px solid transparent;transition:.2s}
 .ntab.on{color:#58a6ff;border-bottom-color:#58a6ff;font-weight:700}
 .ntab:hover{color:#e6edf3}
 
-/* ── PANELS ── */
-.npane{display:none;padding:18px 24px}
+/* ─ PANELS ─ */
+.npane{display:none;padding:16px 20px}
 .npane.on{display:block}
 
-/* ── CARDS ── */
-.krow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+/* ─ CARDS ─ */
+.krow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
 .kc{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:14px 12px;text-align:center}
 .kc .kv{font-size:22px;font-weight:700;font-family:monospace;margin-bottom:2px}
 .kc .kl{font-size:10px;color:#8b949e}
-.card{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:16px;margin-bottom:14px}
-.ctit{font-size:11px;font-weight:600;color:#8b949e;margin-bottom:12px;letter-spacing:.5px;text-transform:uppercase}
+.card{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:14px;margin-bottom:14px}
+.ctit{font-size:11px;font-weight:600;color:#8b949e;margin-bottom:12px;letter-spacing:.5px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .cbox{height:280px;position:relative}
 
-/* ── HEATMAP ── */
-.hmbar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-.hmbar label{font-size:11px;color:#8b949e}
-.hmbar select,.hmbar button{background:#161b22;border:1px solid #30363d;color:#e6edf3;
+/* ─ FILTER ─ */
+.fbar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.fbar label{font-size:11px;color:#8b949e}
+.fbar select,.fbar button{background:#161b22;border:1px solid #30363d;color:#e6edf3;
   font-size:11px;border-radius:4px;padding:4px 10px;cursor:pointer}
-.hmbar button{background:#1f6feb;border-color:#1f6feb;color:#fff;font-weight:600}
-.hmleg{display:flex;gap:18px;margin-bottom:14px}
+.fbar button{background:#1f6feb;border-color:#1f6feb;color:#fff;font-weight:600}
+
+/* ─ HEATMAP ─ */
+.hmleg{display:flex;gap:18px;margin-bottom:12px}
 .leg{font-size:11px;display:flex;align-items:center;gap:5px}
 .legdot{width:10px;height:10px;border-radius:2px}
-
-.hmsec{margin-bottom:22px}
-.hmsectit{font-size:11px;font-weight:700;color:#8b949e;letter-spacing:.5px;
+.hmsec{margin-bottom:18px}
+.hmsectit{font-size:11px;font-weight:700;color:#8b949e;
   padding:5px 10px;background:#161b22;border:1px solid #21262d;border-radius:4px 4px 0 0;
-  margin-bottom:8px;border-bottom:2px solid #21262d}
-.hmgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px}
-
-.hcell{border-radius:7px;padding:12px 8px 10px;text-align:center;cursor:pointer;
+  margin-bottom:8px}
+.hmgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.hcell{border-radius:7px;padding:11px 8px 9px;text-align:center;cursor:pointer;
   border:1px solid;transition:transform .15s,box-shadow .15s}
 .hcell:hover{transform:scale(1.06);box-shadow:0 6px 20px rgba(0,0,0,.5);z-index:2;position:relative}
 .hcell.ok  {background:rgba(63,185,80,.12);color:#3fb950;border-color:rgba(63,185,80,.28)}
 .hcell.warn{background:rgba(210,153,34,.12);color:#d29922;border-color:rgba(210,153,34,.28)}
 .hcell.crit{background:rgba(248,81,73,.12); color:#f85149;border-color:rgba(248,81,73,.28)}
-.hcell .cn{font-size:12px;font-weight:700;margin-bottom:5px;word-break:keep-all;line-height:1.3;color:#e6edf3}
+.hcell .cn{font-size:11px;font-weight:700;margin-bottom:4px;color:#e6edf3;line-height:1.3}
 .hcell .cv{font-size:20px;font-weight:700;font-family:monospace}
-.hcell .cs{font-size:10px;opacity:.65;margin-top:4px}
+.hcell .cs{font-size:9px;opacity:.6;margin-top:3px}
 
-/* ── EQUIP SIDE PANEL ── */
+/* ─ SIDE PANEL ─ */
 #ep{position:fixed;top:0;right:-360px;width:340px;height:100vh;
   background:#161b22;border-left:1px solid #30363d;z-index:300;
   overflow-y:auto;padding:18px;transition:right .25s ease}
 #ep.open{right:0}
-.ep-x{float:right;background:none;border:none;color:#8b949e;font-size:20px;cursor:pointer;padding:0}
-.ep-nm{font-size:15px;font-weight:700;margin:6px 0 2px;color:#e6edf3}
+.ep-x{float:right;background:none;border:none;color:#8b949e;font-size:20px;cursor:pointer}
+.ep-nm{font-size:15px;font-weight:700;margin:6px 0 2px}
 .ep-pr{font-size:11px;color:#8b949e;margin-bottom:14px}
 .epkrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
 .epk{background:#0d1117;border-radius:6px;padding:10px;text-align:center}
@@ -98,7 +98,7 @@ header{background:#161b22;border-bottom:1px solid #30363d;padding:0 24px;height:
 .eprow .vl{font-weight:700;font-family:monospace}
 .epcbox{height:190px;margin-top:14px}
 
-/* ── DETAIL TABLE ── */
+/* ─ TABLE ─ */
 .tscroll{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
 thead th{background:#21262d;padding:9px 10px;text-align:center;
@@ -112,7 +112,7 @@ td{padding:8px 10px;white-space:nowrap}
 .bwn {background:rgba(210,153,34,.15);color:#d29922}
 .bcr {background:rgba(248,81,73,.15);color:#f85149}
 
-/* ── EMPTY ── */
+/* ─ EMPTY ─ */
 #empty{padding:80px 0;text-align:center}
 #empty .eico{font-size:52px;margin-bottom:14px}
 #empty h2{font-size:18px;margin-bottom:8px}
@@ -123,7 +123,7 @@ td{padding:8px 10px;white-space:nowrap}
 
 <header>
   <div>
-    <div class="hlogo">SYNOPEX // OEE<sub id="hSub">FPCB 설비 가동율 대시보드 | 파일을 업로드하세요</sub></div>
+    <div class="hlogo">SYNOPEX // OEE<sub id="hSub">FPCB 설비 가동율 | 파일을 업로드하세요</sub></div>
   </div>
   <div class="hkpis">
     <div class="hkpi"><div class="hv" id="hAvg" style="color:#58a6ff">--%</div><div class="hl">OVERALL</div></div>
@@ -134,12 +134,12 @@ td{padding:8px 10px;white-space:nowrap}
   </div>
 </header>
 
-<div class="upload-bar">
+<div class="upbar">
   <div class="dz" id="dz" onclick="document.getElementById('fIn').click()">
     📂 설비 가동율 엑셀 파일 클릭 또는 드래그
   </div>
   <input type="file" id="fIn" accept=".xlsx,.xls">
-  <div class="mtoggle" id="mtog">
+  <div class="mtog" id="mtog">
     <button class="mbtn on" id="btnM" onclick="setMode('month')">📅 월 누적</button>
     <button class="mbtn"    id="btnD" onclick="setMode('day')">📆 일 기준</button>
   </div>
@@ -153,7 +153,7 @@ td{padding:8px 10px;white-space:nowrap}
   <div class="ntab"     onclick="sw(3)">[ 설비 상세 ]</div>
 </div>
 
-<!-- ── PANEL 0 ── -->
+<!-- P0: 종합 현황 -->
 <div class="npane on" id="p0">
   <div class="krow">
     <div class="kc"><div class="kv" id="k0" style="color:#58a6ff">--%</div><div class="kl">전체 평균 가동율</div></div>
@@ -164,17 +164,18 @@ td{padding:8px 10px;white-space:nowrap}
     <div class="kc"><div class="kv" id="k5" style="color:#e6edf3;font-size:13px">--</div><div class="kl">최저 공정</div></div>
   </div>
   <div class="g2">
-    <div class="card"><div class="ctit">공정별 가동율 순위 (Top 15)</div><div class="cbox"><canvas id="cBar"></canvas></div></div>
+    <div class="card"><div class="ctit">공정별 가동율 순위</div><div class="cbox"><canvas id="cBar"></canvas></div></div>
     <div class="card"><div class="ctit">상태 분포</div><div class="cbox"><canvas id="cDnt"></canvas></div></div>
   </div>
+  <div class="card"><div class="ctit">공정 세부 가동율 (전체)</div><div class="cbox" style="height:240px"><canvas id="cAllBar"></canvas></div></div>
 </div>
 
-<!-- ── PANEL 1 : 히트맵 ── -->
+<!-- P1: 히트맵 -->
 <div class="npane" id="p1">
-  <div class="hmbar">
-    <label>공정 필터 :</label>
+  <div class="fbar">
+    <label>공정 필터:</label>
     <select id="hmProc"><option value="">전체</option></select>
-    <label>정렬 :</label>
+    <label>정렬:</label>
     <select id="hmSort">
       <option value="rate_asc">가동율 낮은순</option>
       <option value="rate_desc">가동율 높은순</option>
@@ -190,22 +191,25 @@ td{padding:8px 10px;white-space:nowrap}
   <div id="hmBody"></div>
 </div>
 
-<!-- ── PANEL 2 : 추이 ── -->
+<!-- P2: 월별 추이 -->
 <div class="npane" id="p2">
-  <div class="hmbar">
-    <label>공정 선택 :</label>
+  <div class="fbar">
+    <label>공정 선택:</label>
     <select id="tProc" onchange="buildTrend()"><option value="">전체 평균</option></select>
   </div>
-  <div class="card"><div class="ctit">설비 가동율 현황 (공정별 비교)</div>
+  <div class="card"><div class="ctit">월별 가동율 추이</div>
     <div class="cbox" style="height:340px"><canvas id="cLine"></canvas></div></div>
+  <div class="card"><div class="ctit">공정별 월별 비교표</div>
+    <div class="tscroll"><table id="trendTable"><thead><tr id="trendHdr"></tr></thead><tbody id="trendBody"></tbody></table></div>
+  </div>
 </div>
 
-<!-- ── PANEL 3 : 상세 ── -->
+<!-- P3: 설비 상세 -->
 <div class="npane" id="p3">
-  <div class="hmbar" style="margin-bottom:14px">
-    <label>공정 :</label>
+  <div class="fbar" style="margin-bottom:12px">
+    <label>공정:</label>
     <select id="dtProc" onchange="buildDetail()"><option value="">전체</option></select>
-    <label>상태 :</label>
+    <label>상태:</label>
     <select id="dtStat" onchange="buildDetail()">
       <option value="">전체</option>
       <option value="ok">정상</option>
@@ -217,8 +221,9 @@ td{padding:8px 10px;white-space:nowrap}
     <div class="tscroll">
       <table>
         <thead><tr>
-          <th>공정명</th><th>설비명</th><th>가동율 (%)</th>
-          <th>기준시간 (분)</th><th>실운행시간 (분)</th><th>비가동 (분)</th><th>상태</th>
+          <th>공정명</th><th>세부공정</th><th>설비대수</th><th>가동율</th>
+          <th>기준시간(분)</th><th>실운행시간(분)</th><th>비가동(분)</th>
+          <th>생산면적(㎡)</th><th>상태</th>
         </tr></thead>
         <tbody id="dtBody"></tbody>
       </table>
@@ -226,16 +231,15 @@ td{padding:8px 10px;white-space:nowrap}
   </div>
 </div>
 
-<!-- ── EMPTY ── -->
+<!-- 빈 화면 -->
 <div id="empty">
   <div class="eico">📊</div>
   <h2>SYNOPEX // OEE Dashboard</h2>
-  <p>설비 가동율 현황 엑셀 파일을 업로드하면<br>
-  대시보드가 자동으로 생성됩니다.<br><br>
-  ※ <b>가동율(월 누적기준)</b> 시트가 포함된 파일을 올려주세요</p>
+  <p>설비 가동율 현황 엑셀 파일을 업로드하면<br>대시보드가 자동으로 생성됩니다.<br><br>
+  ※ <b>가동율(월 누적기준)</b> / <b>가동율(일)</b> 시트가 포함된 파일</p>
 </div>
 
-<!-- ── EQUIP SIDE PANEL ── -->
+<!-- 설비 사이드 패널 -->
 <div id="ep">
   <button class="ep-x" onclick="closeEP()">✕</button>
   <div class="ep-nm" id="epNm">-</div>
@@ -245,26 +249,26 @@ td{padding:8px 10px;white-space:nowrap}
     <div class="epk"><div class="ekv" id="epSt">-</div><div class="ekl">상태</div></div>
   </div>
   <div id="epRows"></div>
-  <div style="font-size:10px;color:#8b949e;margin-top:16px;margin-bottom:6px">공정 내 설비 비교</div>
+  <div style="font-size:10px;color:#8b949e;margin-top:16px;margin-bottom:6px">공정 내 비교</div>
   <div class="epcbox"><canvas id="epC"></canvas></div>
 </div>
 
 <script>
-// ═══════════════════════════════════════
-// 상태
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
+// 전역 상태
+// ════════════════════════════════════════
 var DB = { month: null, day: null };
 var MODE = 'month';
 var CH = {};
 var epCh = null;
-var TGT = 60;
+var TGT = 60; // 목표 가동율 %
 var curTabIdx = 0;
 
 function cur() { return MODE === 'month' ? DB.month : (DB.day || DB.month); }
 
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
 // 파일 업로드
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
 document.getElementById('fIn').addEventListener('change', function(e){
   if (e.target.files[0]) readXL(e.target.files[0]);
 });
@@ -277,107 +281,235 @@ dzEl.addEventListener('drop', function(e){
 });
 
 function readXL(file) {
-  var r = new FileReader();
-  r.onload = function(e) {
+  document.getElementById('ustat').textContent = '⏳ 읽는 중...';
+  var reader = new FileReader();
+  reader.onerror = function(){ document.getElementById('ustat').textContent = '❌ 파일 읽기 오류'; };
+  reader.onload = function(e) {
     try {
-      var wb = XLSX.read(e.target.result, { type:'array' });
-      DB.month = parseSheet(wb, ['가동율(월 누적기준)','월누적','월 누적','month','가동율']);
-      DB.day   = parseSheet(wb, ['가동율(일)','일기준','일 기준','day','일']);
+      var wb = XLSX.read(e.target.result, { type:'array', cellDates:true });
+      // 시트명 탐색
+      var sMonth = findSheet(wb, ['가동율(월 누적기준)','월누적','월 누적','month']);
+      var sDay   = findSheet(wb, ['가동율(일)','일기준','일 기준','day']);
+      var sYear  = findSheet(wb, ['가동율(2026년)','가동율(2025년)','2026','2025','연간','year']);
+
+      if (!sMonth) {
+        alert('시트를 찾을 수 없습니다.\n시트 목록: ' + wb.SheetNames.join(', '));
+        document.getElementById('ustat').textContent = '❌ 시트 없음';
+        return;
+      }
+      DB.month = parseSheet(wb.Sheets[sMonth]);
+      DB.day   = sDay ? parseSheet(wb.Sheets[sDay]) : null;
+      DB.trend = sYear ? parseTrend(wb.Sheets[sYear]) : null;
+
       if (!DB.month || !DB.month.rows.length) {
-        alert('시트를 찾을 수 없습니다.\n시트명: "가동율(월 누적기준)" 확인 필요');
+        alert('데이터를 파싱할 수 없습니다. 엑셀 구조를 확인해주세요.');
+        document.getElementById('ustat').textContent = '❌ 파싱 오류';
         return;
       }
       afterLoad(file.name);
-    } catch(ex) { alert('파일 오류: ' + ex.message); }
+    } catch(ex) {
+      alert('파일 오류: ' + ex.message);
+      document.getElementById('ustat').textContent = '❌ 오류: ' + ex.message;
+    }
   };
-  r.readAsArrayBuffer(file);
+  reader.readAsArrayBuffer(file);
 }
 
-// ═══════════════════════════════════════
-// 시트 파싱
-// ═══════════════════════════════════════
-function parseSheet(wb, names) {
-  var ws = null;
+function findSheet(wb, names) {
   for (var ni = 0; ni < names.length; ni++) {
     for (var si = 0; si < wb.SheetNames.length; si++) {
       var sn = wb.SheetNames[si].replace(/\s/g,'').toLowerCase();
       var nm = names[ni].replace(/\s/g,'').toLowerCase();
-      if (sn === nm || sn.includes(nm)) { ws = wb.Sheets[wb.SheetNames[si]]; break; }
+      if (sn === nm || sn.includes(nm)) return wb.SheetNames[si];
     }
-    if (ws) break;
   }
-  if (!ws) return null;
+  return null;
+}
 
+// ════════════════════════════════════════
+// 월 누적 / 일 시트 파싱
+// ════════════════════════════════════════
+function parseSheet(ws) {
   var raw = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
-  if (raw.length < 2) return null;
+  if (!raw || raw.length < 2) return null;
 
-  // 헤더 행 찾기
-  var hRow = 0;
-  for (var ri = 0; ri < Math.min(raw.length, 12); ri++) {
+  // 헤더 행 탐색 (공장명/세부공정/가동률 포함 행)
+  var hRow = -1;
+  for (var ri = 0; ri < Math.min(raw.length, 15); ri++) {
     var rs = raw[ri].join('').replace(/\s/g,'');
-    if (rs.includes('공정') || rs.includes('설비') || rs.includes('가동')) { hRow = ri; break; }
+    if ((rs.includes('공장명') || rs.includes('공정명')) &&
+        (rs.includes('가동') || rs.includes('기준시간'))) {
+      hRow = ri; break;
+    }
   }
-  var hdrs = raw[hRow].map(function(h){ return String(h).trim(); });
+  if (hRow < 0) {
+    // fallback: '가동률' 또는 '가동율' 포함 행
+    for (var ri2 = 0; ri2 < Math.min(raw.length, 15); ri2++) {
+      if (raw[ri2].join('').includes('가동률') || raw[ri2].join('').includes('가동율')) {
+        hRow = ri2; break;
+      }
+    }
+  }
+  if (hRow < 0) return null;
 
-  function findC(keys) {
+  var hdrs = raw[hRow].map(function(h){ return String(h||'').trim(); });
+
+  function findCol(keys) {
     for (var k = 0; k < keys.length; k++)
-      for (var c = 0; c < hdrs.length; c++)
-        if (hdrs[c].replace(/\s/g,'').includes(keys[k].replace(/\s/g,''))) return c;
+      for (var c = 0; c < hdrs.length; c++) {
+        var h = hdrs[c].replace(/\s|\n/g,'');
+        if (h.includes(keys[k].replace(/\s|\n/g,''))) return c;
+      }
     return -1;
   }
 
-  var iP = findC(['공장명','공정명','공정']), iE = findC(['세부공정','설비명','설비']),
-      iR = findC(['가동율','가동률']), iRf = findC(['기준시간','기준']),
-      iRn = findC(['실운행','실가동']), iL = findC(['비가동','손실','LOSS']);
+  // ★ 핵심 수정: 공장명/세부공정 구분
+  var iProc  = findCol(['공장명']); // 먼저 공장명 시도
+  if (iProc < 0) iProc = findCol(['공정명','공정']);
+  var iSub   = findCol(['세부공정','서브','sub']);
+  var iEquip = findCol(['설비대수','설비']);
+  var iArea  = findCol(['생산면적','면적','수량']);
+  var iRef   = findCol(['기준시간','기준']);
+  var iRun   = findCol(['실운행','실가동']);
+  var iRate  = findCol(['가동률','가동율']);
+  var iLoss1 = findCol(['계획\n비가동','계획비가동']);
+  var iLoss2 = findCol(['운영\n유실','운영유실']);
+  var iLoss3 = findCol(['설비운영\n유실','설비운영유실','설비유실']);
 
-  // 기간
+  // 기간 파싱
   var period = '';
   for (var pi = 0; pi < hRow; pi++) {
     for (var pc = 0; pc < (raw[pi]||[]).length; pc++) {
       var pv = String(raw[pi][pc]||'');
-      if (pv.match(/\d+\/\d+/) || pv.match(/\d+월/) || pv.includes('~')) { period = pv; break; }
+      if (pv.match(/\d+\/\d+/) || pv.match(/\d+월/) || pv.includes('~')) {
+        period = pv.trim(); break;
+      }
     }
     if (period) break;
   }
 
-  var rows = [], lastP = '';
-  for (var di = hRow+1; di < raw.length; di++) {
-    var row = raw[di]; if (!row||!row.length) continue;
-    var proc  = iP >= 0 ? String(row[iP]||'').trim().replace(/\\n/g,'').replace(/\n/g,'') : '';
-    var subProc = iE >= 0 ? String(row[iE]||'').trim().replace(/\\n/g,'').replace(/\n/g,'') : '';
-    var equip = subProc && subProc !== '-' ? subProc : '';
-    if (proc) lastP = proc; else proc = lastP;
-    if (!equip && !proc) continue;
-    var rv = iR >= 0 ? row[iR] : '';
+  var rows = [];
+  var lastProc = '';
+
+  for (var di = hRow + 1; di < raw.length; di++) {
+    var row = raw[di];
+    if (!row || !row.length) continue;
+
+    // A열(0)의 키 값 확인 (예: '레이저\n_RTR')
+    var keyVal = String(row[0]||'').trim().replace(/\n/g,'');
+
+    var proc = iProc >= 0 ? String(row[iProc]||'').trim().replace(/\n/g,'').replace(/_/g,'') : '';
+    var sub  = iSub  >= 0 ? String(row[iSub] ||'').trim().replace(/\n/g,'') : '';
+
+    if (proc) lastProc = proc; else proc = lastProc;
+    if (!proc) continue;
+
+    // 서브공정이 '-' 이거나 비어있으면 합계행
+    var isSummary = (!sub || sub === '-' || sub === '');
+    var displayName = isSummary ? proc : sub;
+
+    // 가동율
+    var rv   = iRate >= 0 ? row[iRate] : '';
     var rate = parseFloat(String(rv).replace('%','').replace(',','')) || 0;
-    if (rate > 0 && rate <= 1) rate = Math.round(rate*1000)/10;
-    else rate = Math.round(rate*10)/10;
+    if (rate > 0 && rate <= 1) rate = Math.round(rate * 1000) / 10;
+    else rate = Math.round(rate * 10) / 10;
     if (rate < 0 || rate > 100) continue;
-    if (!equip) equip = proc;
+    if (!proc) continue;
+
     rows.push({
-      proc: proc, equip: equip, rate: rate,
-      ref:  iRf >= 0 ? (parseFloat(row[iRf])||0) : 0,
-      run:  iRn >= 0 ? (parseFloat(row[iRn])||0) : 0,
-      loss: iL  >= 0 ? (parseFloat(row[iL]) ||0) : 0
+      proc:    proc,
+      sub:     sub && sub !== '-' ? sub : '',
+      equip:   displayName,
+      isSummary: isSummary,
+      cnt:     iEquip >= 0 ? (parseInt(row[iEquip]) || 0) : 0,
+      area:    iArea  >= 0 ? (parseFloat(row[iArea]) || 0) : 0,
+      ref:     iRef   >= 0 ? (parseFloat(row[iRef])  || 0) : 0,
+      run:     iRun   >= 0 ? (parseFloat(row[iRun])  || 0) : 0,
+      loss1:   iLoss1 >= 0 ? (parseFloat(row[iLoss1])||0) : 0,
+      loss2:   iLoss2 >= 0 ? (parseFloat(row[iLoss2])||0) : 0,
+      loss3:   iLoss3 >= 0 ? (parseFloat(row[iLoss3])||0) : 0,
+      rate:    rate
     });
   }
-  rows = rows.filter(function(r){ return r.equip; });
 
-  // 공정별 요약
-  var pm = {};
-  rows.forEach(function(r){ if (!pm[r.proc]) pm[r.proc]=[]; pm[r.proc].push(r.rate); });
-  var summary = Object.keys(pm).map(function(p){
-    var avg = pm[p].reduce(function(a,b){return a+b;},0)/pm[p].length;
-    return { proc:p, rate:Math.round(avg*10)/10, cnt:pm[p].length };
-  });
+  // 합계 행만 요약 (공정별 대표 가동율)
+  var summaryRows = rows.filter(function(r){ return r.isSummary; });
 
-  var overall = rows.length ? Math.round(rows.reduce(function(s,r){return s+r.rate;},0)/rows.length*10)/10 : 0;
-  return { rows:rows, summary:summary, overall:overall, period:period };
+  // 전체 평균
+  var allRates = summaryRows.length ? summaryRows : rows;
+  var overall = allRates.length ?
+    Math.round(allRates.reduce(function(s,r){return s+r.rate;},0) / allRates.length * 10) / 10 : 0;
+
+  return { rows: rows, summary: summaryRows, overall: overall, period: period };
 }
 
-// ═══════════════════════════════════════
-// 로드 후
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
+// 연간 추이 시트 파싱
+// ════════════════════════════════════════
+function parseTrend(ws) {
+  var raw = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
+  if (!raw || raw.length < 2) return null;
+
+  // 헤더 행 탐색
+  var hRow = -1;
+  for (var ri = 0; ri < Math.min(raw.length, 15); ri++) {
+    var rs = raw[ri].join('').replace(/\s/g,'');
+    if (rs.includes('공장명') && rs.includes('월')) { hRow = ri; break; }
+  }
+  if (hRow < 0) return null;
+
+  var hdrs = raw[hRow].map(function(h){ return String(h||'').trim().replace(/\n/g,''); });
+
+  // 월 컬럼 찾기
+  var months = [];
+  for (var c = 0; c < hdrs.length; c++) {
+    var h = hdrs[c];
+    var m = h.match(/^(\d+)월/);
+    if (m) months.push({ col: c, label: m[1] + '월', num: parseInt(m[1]) });
+  }
+  var iAvg = -1;
+  for (var c2 = 0; c2 < hdrs.length; c2++) {
+    if (hdrs[c2].includes('평균')) { iAvg = c2; break; }
+  }
+
+  var iProc = -1, iSub = -1;
+  for (var c3 = 0; c3 < hdrs.length; c3++) {
+    var h2 = hdrs[c3].replace(/\s/g,'');
+    if (h2.includes('공장명') && iProc < 0) iProc = c3;
+    if (h2.includes('세부공정') && iSub < 0) iSub = c3;
+  }
+
+  var rows = [];
+  var lastProc = '';
+  for (var di = hRow + 1; di < raw.length; di++) {
+    var row = raw[di];
+    if (!row || !row.length) continue;
+    var proc = iProc >= 0 ? String(row[iProc]||'').trim().replace(/\n/g,'') : '';
+    var sub  = iSub  >= 0 ? String(row[iSub] ||'').trim().replace(/\n/g,'') : '';
+    if (proc) lastProc = proc; else proc = lastProc;
+    if (!proc) continue;
+    var isSummary = (!sub || sub === '-' || sub === '');
+
+    var mData = {};
+    months.forEach(function(m) {
+      var v = parseFloat(row[m.col]) || 0;
+      if (v > 0 && v <= 1) v = Math.round(v * 1000) / 10;
+      else v = Math.round(v * 10) / 10;
+      mData[m.label] = v || null;
+    });
+    var avg = iAvg >= 0 ? parseFloat(row[iAvg]) || 0 : 0;
+    if (avg > 0 && avg <= 1) avg = Math.round(avg * 1000) / 10;
+
+    rows.push({ proc: proc, sub: sub && sub !== '-' ? sub : '', isSummary: isSummary,
+                avg: avg, months: mData });
+  }
+
+  return { rows: rows, monthLabels: months.map(function(m){ return m.label; }) };
+}
+
+// ════════════════════════════════════════
+// 로드 완료
+// ════════════════════════════════════════
 function afterLoad(fname) {
   dzEl.textContent = '✅ ' + fname;
   dzEl.classList.add('ok');
@@ -392,83 +524,82 @@ function afterLoad(fname) {
     document.getElementById('btnD').style.opacity = '1';
     document.getElementById('btnD').style.pointerEvents = 'auto';
   }
-
   document.getElementById('empty').style.display = 'none';
-  document.getElementById('tabs').style.display  = 'block';
+  document.getElementById('tabs').style.display = 'block';
 
   fillSelects();
-  sw(0); // 탭 0부터 시작
+  sw(curTabIdx);
 }
 
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
 // 셀렉트 채우기
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
 function fillSelects() {
   var d = cur(); if (!d) return;
   var procs = [];
-  d.rows.forEach(function(r){ if (r.proc && procs.indexOf(r.proc)<0) procs.push(r.proc); });
+  d.rows.forEach(function(r){ if (r.proc && procs.indexOf(r.proc) < 0) procs.push(r.proc); });
   procs.sort();
   ['hmProc','tProc','dtProc'].forEach(function(id){
     var sel = document.getElementById(id);
     while (sel.options.length > 1) sel.remove(1);
     procs.forEach(function(p){
-      var o = document.createElement('option'); o.value=p; o.textContent=p; sel.appendChild(o);
+      var o = document.createElement('option'); o.value = p; o.textContent = p; sel.appendChild(o);
     });
   });
 }
 
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
 // 모드 전환
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
 function setMode(m) {
-  if (m==='day' && !DB.day) { alert('일 기준 데이터가 없습니다.'); return; }
+  if (m === 'day' && !DB.day) { alert('일 기준 데이터가 없습니다.'); return; }
   MODE = m;
-  document.getElementById('btnM').classList.toggle('on', m==='month');
-  document.getElementById('btnD').classList.toggle('on', m==='day');
-  CH = {};
-  closeEP();
-  fillSelects();
-  sw(curTabIdx); // 현재 탭 유지하며 재렌더
+  document.getElementById('btnM').classList.toggle('on', m === 'month');
+  document.getElementById('btnD').classList.toggle('on', m === 'day');
+  CH = {}; closeEP(); fillSelects(); sw(curTabIdx);
 }
 
-// ═══════════════════════════════════════
-// 탭 전환 ← 핵심: 각 탭마다 빌드 함수 직접 호출
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
+// 탭 전환
+// ════════════════════════════════════════
 function sw(i) {
   curTabIdx = i;
   document.querySelectorAll('.ntab').forEach(function(t,j){ t.classList.toggle('on', j===i); });
   document.querySelectorAll('.npane').forEach(function(p,j){ p.classList.toggle('on', j===i); });
   closeEP();
   if (i===0) buildSummary();
-  if (i===1) buildHeatmap();   // ← 히트맵 탭 클릭 시 반드시 호출
+  if (i===1) buildHeatmap();
   if (i===2) buildTrend();
   if (i===3) buildDetail();
 }
 
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
 // 헤더 갱신
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
 function updateHeader() {
   var d = cur(); if (!d) return;
+  var tgt = d.summary.length ? d.summary : d.rows;
   var ok=0, wn=0, cr=0;
-  d.rows.forEach(function(r){ if(r.rate>=TGT) ok++; else if(r.rate>=40) wn++; else cr++; });
-  document.getElementById('hSub').textContent  = 'FPCB 설비 가동율 | ' + (d.period||'');
+  tgt.forEach(function(r){ if(r.rate>=TGT) ok++; else if(r.rate>=40) wn++; else cr++; });
+  document.getElementById('hSub').textContent  = 'FPCB 설비 가동율 | ' + (d.period || '');
   document.getElementById('hAvg').textContent  = d.overall + '%';
-  document.getElementById('hTot').textContent  = d.rows.length;
+  document.getElementById('hTot').textContent  = tgt.length;
   document.getElementById('hWn').textContent   = wn;
   document.getElementById('hCr').textContent   = cr;
   document.getElementById('hPer').textContent  = d.period || (MODE==='month'?'월누적':'일기준');
 }
 
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
 // P0 - 종합 현황
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
 function buildSummary() {
   updateHeader();
   var d = cur(); if (!d) return;
+  var tgt = d.summary.length ? d.summary : d.rows;
   var ok=0, wn=0, cr=0;
-  d.rows.forEach(function(r){ if(r.rate>=TGT) ok++; else if(r.rate>=40) wn++; else cr++; });
-  var sr = d.rows.slice().sort(function(a,b){return b.rate-a.rate;});
+  tgt.forEach(function(r){ if(r.rate>=TGT) ok++; else if(r.rate>=40) wn++; else cr++; });
+  var sr = tgt.slice().sort(function(a,b){ return b.rate-a.rate; });
+
   document.getElementById('k0').textContent = d.overall+'%';
   document.getElementById('k1').textContent = ok;
   document.getElementById('k2').textContent = wn;
@@ -476,23 +607,20 @@ function buildSummary() {
   document.getElementById('k4').textContent = sr[0] ? sr[0].proc+' '+sr[0].rate+'%' : '-';
   document.getElementById('k5').textContent = sr[sr.length-1] ? sr[sr.length-1].proc+' '+sr[sr.length-1].rate+'%' : '-';
 
-  var top = d.summary.slice().sort(function(a,b){return b.rate-a.rate;}).slice(0,15);
+  var top = tgt.slice().sort(function(a,b){ return b.rate-a.rate; }).slice(0,12);
   if (CH.bar) { CH.bar.destroy(); delete CH.bar; }
   CH.bar = new Chart(document.getElementById('cBar'),{
     type:'bar',
     data:{
-      labels: top.map(function(s){return s.proc;}),
-      datasets:[{
-        data: top.map(function(s){return s.rate;}),
+      labels: top.map(function(s){ return s.proc; }),
+      datasets:[{ data: top.map(function(s){ return s.rate; }),
         backgroundColor: top.map(function(s){
-          return s.rate>=TGT ? 'rgba(63,185,80,.75)' : s.rate>=40 ? 'rgba(210,153,34,.75)' : 'rgba(248,81,73,.75)';
-        }),
-        borderRadius:4
-      }]
+          return s.rate>=TGT?'rgba(63,185,80,.75)':s.rate>=40?'rgba(210,153,34,.75)':'rgba(248,81,73,.75)';
+        }), borderRadius:4 }]
     },
     options:{
       responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}, tooltip:{callbacks:{label:function(c){return c.raw+'%';}}}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.raw+'%';}}}},
       scales:{
         x:{ticks:{color:'#8b949e',font:{size:9}},grid:{display:false}},
         y:{min:0,max:100,ticks:{color:'#8b949e',font:{size:9},callback:function(v){return v+'%';}},grid:{color:'#21262d'}}
@@ -514,54 +642,99 @@ function buildSummary() {
       plugins:{legend:{position:'right',labels:{color:'#8b949e',font:{size:10},padding:10}}}
     }
   });
+
+  // 전체 세부 공정 막대
+  var detRows = d.rows.filter(function(r){ return !r.isSummary && r.sub; })
+                      .slice().sort(function(a,b){ return a.rate-b.rate; });
+  if (detRows.length > 0) {
+    if (CH.allBar) { CH.allBar.destroy(); delete CH.allBar; }
+    CH.allBar = new Chart(document.getElementById('cAllBar'),{
+      type:'bar',
+      data:{
+        labels: detRows.map(function(r){ return r.proc+' '+r.sub; }),
+        datasets:[{
+          data: detRows.map(function(r){ return r.rate; }),
+          backgroundColor: detRows.map(function(r){
+            return r.rate>=TGT?'rgba(63,185,80,.7)':r.rate>=40?'rgba(210,153,34,.7)':'rgba(248,81,73,.7)';
+          }), borderRadius:3
+        },{
+          label:'목표('+TGT+'%)', type:'line',
+          data: detRows.map(function(){ return TGT; }),
+          borderColor:'#f85149', borderDash:[5,5], borderWidth:1.5,
+          pointRadius:0, fill:false
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.raw+'%';}}}},
+        scales:{
+          x:{ticks:{color:'#8b949e',font:{size:8},maxRotation:45},grid:{display:false}},
+          y:{min:0,max:100,ticks:{color:'#8b949e',callback:function(v){return v+'%';}},grid:{color:'#21262d'}}
+        }
+      }
+    });
+  }
 }
 
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
 // P1 - 히트맵
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
 function buildHeatmap() {
   updateHeader();
   var d = cur();
   if (!d || !d.rows || !d.rows.length) {
     document.getElementById('hmBody').innerHTML =
-      '<div style="color:#8b949e;padding:40px;text-align:center">데이터가 없습니다. 엑셀 파일을 업로드해주세요.</div>';
+      '<div style="color:#8b949e;padding:40px;text-align:center">데이터가 없습니다.</div>';
     return;
   }
-
   var fProc = document.getElementById('hmProc').value;
   var fSort = document.getElementById('hmSort').value;
-  var rows  = d.rows.slice();
 
-  if (fProc) rows = rows.filter(function(r){ return r.proc === fProc; });
-  if (fSort === 'rate_asc')  rows.sort(function(a,b){ return a.rate - b.rate; });
-  if (fSort === 'rate_desc') rows.sort(function(a,b){ return b.rate - a.rate; });
-  if (fSort === 'name')      rows.sort(function(a,b){ return a.equip.localeCompare(b.equip); });
+  // 히트맵은 세부공정 행 우선, 세부공정 없으면 합계행 표시
+  var rows = d.rows.filter(function(r){
+    return fProc ? r.proc === fProc : true;
+  });
+
+  // 같은 공정에 세부가 있으면 합계 제외, 세부만 없는 공정은 합계 표시
+  var procHasSub = {};
+  rows.forEach(function(r){ if (!r.isSummary) procHasSub[r.proc] = true; });
+  var displayRows = rows.filter(function(r){
+    if (procHasSub[r.proc]) return !r.isSummary;
+    return r.isSummary;
+  });
+
+  if (fSort === 'rate_asc')  displayRows.sort(function(a,b){ return a.rate - b.rate; });
+  if (fSort === 'rate_desc') displayRows.sort(function(a,b){ return b.rate - a.rate; });
+  if (fSort === 'name')      displayRows.sort(function(a,b){ return a.equip.localeCompare(b.equip); });
 
   // 공정별 그룹
   var grpKeys = [], grpMap = {};
-  rows.forEach(function(r){
-    var p = r.proc || '기타';
-    if (!grpMap[p]) { grpMap[p]=[]; grpKeys.push(p); }
-    grpMap[p].push(r);
+  displayRows.forEach(function(r){
+    if (!grpMap[r.proc]) { grpMap[r.proc]=[]; grpKeys.push(r.proc); }
+    grpMap[r.proc].push(r);
   });
 
   var html = '';
   grpKeys.forEach(function(proc){
     var list = grpMap[proc];
+    var avgRate = Math.round(list.reduce(function(s,r){return s+r.rate;},0)/list.length*10)/10;
+    var cls = avgRate >= TGT ? 'ok' : avgRate >= 40 ? 'warn' : 'crit';
     html += '<div class="hmsec">';
     html += '<div class="hmsectit">▶ ' + proc +
-            ' <span style="font-weight:400;opacity:.55">('+list.length+'대)</span></div>';
+            ' &nbsp;<span style="font-weight:400;opacity:.55">('+list.length+'개)</span>' +
+            ' &nbsp;<span style="font-family:monospace;color:'+(cls==='ok'?'#3fb950':cls==='warn'?'#d29922':'#f85149')+'">평균 '+avgRate+'%</span></div>';
     html += '<div class="hmgrid">';
     list.forEach(function(r){
-      var cls = r.rate >= TGT ? 'ok' : r.rate >= 40 ? 'warn' : 'crit';
-      var nm  = r.equip.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      var pr  = r.proc.replace(/'/g,"\\'");
-      var eq  = r.equip.replace(/'/g,"\\'");
-      html += '<div class="hcell '+cls+'" onclick="showEP(\''+eq+'\',\''+pr+'\')">';
-      html += '<div class="cn">' + nm + '</div>';
+      var c = r.rate >= TGT ? 'ok' : r.rate >= 40 ? 'warn' : 'crit';
+      var nm = r.equip.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/'/g,"\\'");
+      var pr = r.proc.replace(/'/g,"\\'");
+      html += '<div class="hcell '+c+'" onclick="showEP(\''+nm+'\',\''+pr+'\')">';
+      html += '<div class="cn">' + r.equip + '</div>';
       html += '<div class="cv">' + r.rate + '%</div>';
-      var sub = r.run ? ('실운행 ' + Math.round(r.run).toLocaleString() + '분') : '';
-      html += '<div class="cs">' + sub + '</div>';
+      var sub2 = '';
+      if (r.cnt) sub2 = r.cnt + '대';
+      if (r.ref) sub2 += (sub2?' / ':'') + '기준 ' + Math.round(r.ref/60).toLocaleString() + 'H';
+      html += '<div class="cs">' + sub2 + '</div>';
       html += '</div>';
     });
     html += '</div></div>';
@@ -571,53 +744,100 @@ function buildHeatmap() {
   document.getElementById('hmBody').innerHTML = html;
 }
 
-// ═══════════════════════════════════════
-// P2 - 추이 (공정별 비교)
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
+// P2 - 월별 추이
+// ════════════════════════════════════════
 function buildTrend() {
   updateHeader();
-  var d = cur(); if (!d) return;
   var sp = document.getElementById('tProc').value;
-  var rows = sp ? d.rows.filter(function(r){ return r.proc===sp; }) : d.rows;
-  rows = rows.slice().sort(function(a,b){ return a.rate-b.rate; });
+  var d  = cur(); if (!d) return;
 
-  if (CH.line) { CH.line.destroy(); delete CH.line; }
-  CH.line = new Chart(document.getElementById('cLine'),{
-    type:'bar',
-    data:{
-      labels: rows.map(function(r){ return r.equip; }),
-      datasets:[
-        {
-          label:'가동율(%)', data: rows.map(function(r){ return r.rate; }),
-          backgroundColor: rows.map(function(r){
-            return r.rate>=TGT?'rgba(63,185,80,.75)':r.rate>=40?'rgba(210,153,34,.75)':'rgba(248,81,73,.75)';
-          }),
-          borderRadius:3, order:2
-        },
-        {
-          label:'목표('+TGT+'%)', data:rows.map(function(){return TGT;}),
-          type:'line', borderColor:'#f85149', borderDash:[5,5], borderWidth:1.5,
-          pointRadius:0, fill:false, order:1
+  // 추이 데이터가 있는 경우
+  if (DB.trend && DB.trend.rows.length) {
+    var tData = DB.trend.rows.filter(function(r){
+      if (sp) return r.proc === sp;
+      return r.isSummary;
+    });
+    var labels = DB.trend.monthLabels;
+    var datasets = tData.map(function(r, i){
+      var colors = ['#58a6ff','#3fb950','#f85149','#d29922','#a371f7','#39c5cf','#f78166','#79c0ff'];
+      var col = colors[i % colors.length];
+      return {
+        label: sp ? (r.sub || r.proc) : r.proc,
+        data: labels.map(function(l){ return r.months[l] || null; }),
+        borderColor: col, backgroundColor: col.replace(')',', 0.1)').replace('rgb','rgba'),
+        tension:0.3, pointRadius:4, pointHoverRadius:6
+      };
+    });
+
+    if (CH.line) { CH.line.destroy(); delete CH.line; }
+    CH.line = new Chart(document.getElementById('cLine'),{
+      type:'line', data:{ labels, datasets },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#8b949e',font:{size:10}}},
+          tooltip:{callbacks:{label:function(c){ return c.dataset.label+': '+c.raw+'%'; }}}},
+        scales:{
+          x:{ticks:{color:'#8b949e'},grid:{color:'#21262d'}},
+          y:{min:0,max:100,ticks:{color:'#8b949e',callback:function(v){return v+'%';}},grid:{color:'#21262d'}}
         }
-      ]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{
-        legend:{labels:{color:'#8b949e',font:{size:10}}},
-        tooltip:{callbacks:{label:function(c){ return c.dataset.label+': '+c.raw+'%'; }}}
-      },
-      scales:{
-        x:{ticks:{color:'#8b949e',font:{size:9},maxRotation:50},grid:{display:false}},
-        y:{min:0,max:100,ticks:{color:'#8b949e',callback:function(v){return v+'%';}},grid:{color:'#21262d'}}
       }
-    }
-  });
+    });
+
+    // 추이 테이블
+    var hdrEl = document.getElementById('trendHdr');
+    var bdrEl = document.getElementById('trendBody');
+    hdrEl.innerHTML = '<th>공정</th>' + labels.map(function(l){ return '<th>'+l+'</th>'; }).join('') + '<th>평균</th>';
+    var tbHtml = '';
+    tData.forEach(function(r){
+      tbHtml += '<tr><td>'+r.proc+(r.sub?' ('+r.sub+')':'')+'</td>';
+      labels.forEach(function(l){
+        var v = r.months[l];
+        var col = v === null ? '#555' : v >= TGT ? '#3fb950' : v >= 40 ? '#d29922' : '#f85149';
+        tbHtml += '<td class="tc" style="color:'+col+';font-family:monospace;font-weight:700">'+(v !== null ? v+'%' : '-')+'</td>';
+      });
+      tbHtml += '<td class="tc" style="font-family:monospace;font-weight:700;color:#58a6ff">'+(r.avg?r.avg+'%':'-')+'</td>';
+      tbHtml += '</tr>';
+    });
+    bdrEl.innerHTML = tbHtml || '<tr><td colspan="10" style="text-align:center;color:#8b949e;padding:20px">데이터 없음</td></tr>';
+
+  } else {
+    // 추이 시트 없는 경우 → 현재 데이터로 막대 차트
+    var rows2 = sp ? d.rows.filter(function(r){ return r.proc===sp; }) : (d.summary.length ? d.summary : d.rows);
+    rows2 = rows2.slice().sort(function(a,b){ return a.rate-b.rate; });
+    if (CH.line) { CH.line.destroy(); delete CH.line; }
+    CH.line = new Chart(document.getElementById('cLine'),{
+      type:'bar',
+      data:{
+        labels: rows2.map(function(r){ return r.sub || r.proc; }),
+        datasets:[{
+          label:'가동율(%)', data: rows2.map(function(r){ return r.rate; }),
+          backgroundColor: rows2.map(function(r){
+            return r.rate>=TGT?'rgba(63,185,80,.75)':r.rate>=40?'rgba(210,153,34,.75)':'rgba(248,81,73,.75)';
+          }), borderRadius:3
+        },{
+          label:'목표('+TGT+'%)', type:'line',
+          data: rows2.map(function(){ return TGT; }),
+          borderColor:'#f85149', borderDash:[5,5], borderWidth:1.5,
+          pointRadius:0, fill:false
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#8b949e',font:{size:10}}},
+          tooltip:{callbacks:{label:function(c){ return c.dataset.label+': '+c.raw+'%'; }}}},
+        scales:{
+          x:{ticks:{color:'#8b949e',font:{size:9},maxRotation:45},grid:{display:false}},
+          y:{min:0,max:100,ticks:{color:'#8b949e',callback:function(v){return v+'%';}},grid:{color:'#21262d'}}
+        }
+      }
+    });
+  }
 }
 
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
 // P3 - 설비 상세
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
 function buildDetail() {
   updateHeader();
   var d = cur(); if (!d) return;
@@ -636,23 +856,26 @@ function buildDetail() {
     var col = cls==='ok'?'#3fb950':cls==='warn'?'#d29922':'#f85149';
     var lbl = cls==='ok'?'정상':cls==='warn'?'주의':'위험';
     var bc  = cls==='ok'?'bok':cls==='warn'?'bwn':'bcr';
-    html += '<tr>';
-    html += '<td>'+r.proc+'</td>';
-    html += '<td style="font-weight:700">'+r.equip+'</td>';
+    var loss = r.loss1 + r.loss2 + r.loss3;
+    html += '<tr'+(r.isSummary?' style="background:#1c1f2a"':'')+'>';
+    html += '<td style="font-weight:'+(r.isSummary?'700':'400')+'">'+r.proc+'</td>';
+    html += '<td>'+( r.sub || '<span style="color:#555">합계</span>')+'</td>';
+    html += '<td class="tc">'+( r.cnt || '-')+'</td>';
     html += '<td class="tr" style="font-weight:700;color:'+col+'">'+r.rate+'%</td>';
     html += '<td class="tr">'+(r.ref?Math.round(r.ref).toLocaleString():'-')+'</td>';
     html += '<td class="tr">'+(r.run?Math.round(r.run).toLocaleString():'-')+'</td>';
-    html += '<td class="tr">'+(r.loss?Math.round(r.loss).toLocaleString():'-')+'</td>';
+    html += '<td class="tr">'+(loss?Math.round(loss).toLocaleString():'-')+'</td>';
+    html += '<td class="tr">'+(r.area?r.area.toFixed(1):'-')+'</td>';
     html += '<td class="tc"><span class="badge '+bc+'">'+lbl+'</span></td>';
     html += '</tr>';
   });
-  if (!html) html='<tr><td colspan="7" style="text-align:center;padding:28px;color:#8b949e">데이터 없음</td></tr>';
+  if (!html) html='<tr><td colspan="9" style="text-align:center;padding:28px;color:#8b949e">데이터 없음</td></tr>';
   document.getElementById('dtBody').innerHTML = html;
 }
 
-// ═══════════════════════════════════════
-// 설비 팝업 (우측 슬라이드)
-// ═══════════════════════════════════════
+// ════════════════════════════════════════
+// 설비 사이드 패널
+// ════════════════════════════════════════
 function showEP(equip, proc) {
   var d = cur(); if (!d) return;
   var r = null;
@@ -672,42 +895,45 @@ function showEP(equip, proc) {
   document.getElementById('epSt').textContent = lbl;
   document.getElementById('epSt').style.color = col;
 
-  var rows='';
-  if (r.ref)  rows+='<div class="eprow"><span class="lb">기준시간</span><span class="vl">'+Math.round(r.ref).toLocaleString()+' 분</span></div>';
-  if (r.run)  rows+='<div class="eprow"><span class="lb">실운행시간</span><span class="vl">'+Math.round(r.run).toLocaleString()+' 분</span></div>';
-  if (r.loss) rows+='<div class="eprow"><span class="lb">비가동시간</span><span class="vl">'+Math.round(r.loss).toLocaleString()+' 분</span></div>';
-  if (r.ref&&r.run) {
-    var cr2=Math.round(r.run/r.ref*1000)/10;
-    rows+='<div class="eprow"><span class="lb">계산 가동율</span><span class="vl" style="color:'+col+'">'+cr2+'%</span></div>';
-  }
-  document.getElementById('epRows').innerHTML = rows;
+  var rows2 = '';
+  if (r.cnt)   rows2+='<div class="eprow"><span class="lb">설비 대수</span><span class="vl">'+r.cnt+' 대</span></div>';
+  if (r.ref)   rows2+='<div class="eprow"><span class="lb">기준시간</span><span class="vl">'+Math.round(r.ref).toLocaleString()+' 분</span></div>';
+  if (r.run)   rows2+='<div class="eprow"><span class="lb">실운행시간</span><span class="vl">'+Math.round(r.run).toLocaleString()+' 분</span></div>';
+  if (r.loss1) rows2+='<div class="eprow"><span class="lb">계획비가동</span><span class="vl">'+Math.round(r.loss1).toLocaleString()+' 분</span></div>';
+  if (r.loss2) rows2+='<div class="eprow"><span class="lb">운영유실</span><span class="vl">'+Math.round(r.loss2).toLocaleString()+' 분</span></div>';
+  if (r.loss3) rows2+='<div class="eprow"><span class="lb">설비운영유실</span><span class="vl">'+Math.round(r.loss3).toLocaleString()+' 분</span></div>';
+  if (r.area)  rows2+='<div class="eprow"><span class="lb">생산면적</span><span class="vl">'+r.area.toFixed(1)+' ㎡</span></div>';
+  document.getElementById('epRows').innerHTML = rows2;
 
-  // 공정 내 비교 차트
-  var same = d.rows.filter(function(x){return x.proc===proc;}).slice().sort(function(a,b){return b.rate-a.rate;});
+  // 같은 공정 비교
+  var same = d.rows.filter(function(x){
+    return x.proc===proc && !x.isSummary && x.sub;
+  }).slice().sort(function(a,b){return b.rate-a.rate;});
+  if (same.length === 0) same = d.rows.filter(function(x){ return x.proc===proc; })
+                                      .slice().sort(function(a,b){return b.rate-a.rate;});
+
   if (epCh) { epCh.destroy(); epCh=null; }
   epCh = new Chart(document.getElementById('epC'),{
     type:'bar',
     data:{
-      labels: same.map(function(x){return x.equip;}),
+      labels: same.map(function(x){ return x.equip; }),
       datasets:[{
-        data: same.map(function(x){return x.rate;}),
+        data: same.map(function(x){ return x.rate; }),
         backgroundColor: same.map(function(x){
           if (x.equip===equip) return col;
           return x.rate>=TGT?'rgba(63,185,80,.3)':x.rate>=40?'rgba(210,153,34,.3)':'rgba(248,81,73,.3)';
-        }),
-        borderRadius:3
+        }), borderRadius:3
       }]
     },
     options:{
       responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}, tooltip:{callbacks:{label:function(c){return c.raw+'%';}}}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.raw+'%';}}}},
       scales:{
         x:{ticks:{color:'#8b949e',font:{size:8}},grid:{display:false}},
         y:{min:0,max:100,ticks:{color:'#8b949e',font:{size:8},callback:function(v){return v+'%';}},grid:{color:'#21262d'}}
       }
     }
   });
-
   document.getElementById('ep').classList.add('open');
 }
 
