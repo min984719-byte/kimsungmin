@@ -1229,31 +1229,32 @@ function ghPush(){
 (function waitChart(){
   if(typeof Chart==='undefined'){ setTimeout(waitChart,150); return; }
 
-  // oee.json 최신 데이터 로드 (BUILD_TIME 이후만 적용)
+  // oee.json 먼저 로드 → 완료 후 renderTab0 실행 (순서 보장)
   var OEE_API='https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/contents/data/oee.json';
   fetch(OEE_API+'?t='+Date.now(),{headers:{'Accept':'application/vnd.github.v3+json'}})
   .then(function(r){return r.ok?r.json():null;})
   .then(function(fd){
-    if(!fd||!fd.content) return;
-    try{
-      var d=JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g,'')))));
-      if(!d||!d.MODES||!d.MODES.month||!d.MODES.month.summary||d.MODES.month.summary.length<5) return;
-      if(!d.saved||d.saved<=BUILD_TIME) return;
-      Object.keys(CH).forEach(function(k){try{if(CH[k])CH[k].destroy();}catch(e){}});
-      CH={}; tabInited={}; HF_PROC='';
-      MODES=d.MODES; if(d.TREND)TREND=d.TREND; if(d.ETRD)ETRD=d.ETRD;
-      var el;
-      el=document.getElementById('hf-btns');if(el){el.innerHTML='';el.removeAttribute('data-init');}
-      el=document.getElementById('fProc');if(el)el.innerHTML='<option value="">전체 공정</option>';
-      el=document.getElementById('fProc3');if(el)el.innerHTML='<option value="">전체 공정</option>';
-      MODE='month'; renderTab0(); tabInited[0]=1;
-    }catch(e){ console.warn('loadOEE:',e); }
-  }).catch(function(){});
+    // oee.json 데이터가 있으면 MODES 교체
+    if(fd&&fd.content){
+      try{
+        var d=JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g,'')))));
+        if(d&&d.MODES&&d.MODES.month&&d.MODES.month.summary&&d.MODES.month.summary.length>=5){
+          MODES=d.MODES;
+          if(d.TREND&&Object.keys(d.TREND).length) TREND=d.TREND;
+          if(d.ETRD&&Object.keys(d.ETRD).length)   ETRD=d.ETRD;
+        }
+      }catch(e){ console.warn('loadOEE:',e); }
+    }
+  })
+  .catch(function(){})
+  .finally(function(){
+    // fetch 완료 후 렌더링 (성공/실패 무관)
+    renderTab0(); tabInited[0]=1;
+    renderStop(); renderBreak();
+    updateGHBtn();
+    setTimeout(function(){ fetchMaintenance(); }, 800);
+  });
 
-  renderTab0(); tabInited[0]=1;
-  renderStop(); renderBreak();
-  updateGHBtn();
-  setTimeout(function(){ fetchMaintenance(); }, 800);
   document.addEventListener('visibilitychange',function(){
     if(document.visibilityState==='visible'){
       Object.keys(CH).forEach(function(k){try{if(CH[k]&&CH[k].resize)CH[k].resize();}catch(e){}});
