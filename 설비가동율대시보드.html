@@ -4,942 +4,1263 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SYNOPEX // OEE</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+:root{
+  --bg:#0d1117;--card:#161b22;--card2:#1c2128;--bor:#30363d;--bor2:#484f58;
+  --text:#e6edf3;--muted:#8b949e;--hint:#6e7681;
+  --teal:#39d0c5;--green:#2ea043;--amber:#d29922;--red:#f85149;--blue:#388bfd;
+  --ok:rgba(46,160,67,.15);--ok-b:rgba(46,160,67,.5);
+  --wn:rgba(210,153,34,.15);--wn-b:rgba(210,153,34,.5);
+  --cr:rgba(248,81,73,.15);--cr-b:rgba(248,81,73,.5);
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"맑은 고딕","Segoe UI",sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh;font-size:13px}
-
-/* ─ HEADER ─ */
-header{background:#161b22;border-bottom:1px solid #30363d;padding:0 20px;height:54px;
-  display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.hlogo{font-size:15px;font-weight:700;color:#58a6ff;letter-spacing:1px}
-.hlogo sub{color:#8b949e;font-weight:400;font-size:10px;margin-left:8px;letter-spacing:0}
-.hkpis{display:flex;gap:20px}
-.hkpi .hv{font-size:17px;font-weight:700;font-family:monospace;text-align:center}
-.hkpi .hl{font-size:9px;color:#8b949e;letter-spacing:.5px;text-align:center}
-
-/* ─ UPLOAD ─ */
-.upbar{background:#0d1117;border-bottom:1px solid #21262d;padding:8px 20px;
-  display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.dz{border:1.5px dashed #30363d;border-radius:6px;padding:7px 18px;cursor:pointer;
-  font-size:12px;color:#8b949e;transition:.2s;min-width:260px;text-align:center;background:#161b22}
-.dz:hover,.dz.drag{border-color:#58a6ff;color:#58a6ff}
-.dz.ok{border-color:#3fb950;color:#3fb950}
-#fIn{display:none}
-.mtog{display:flex;border-radius:6px;overflow:hidden;border:1px solid #30363d;opacity:.4;pointer-events:none}
-.mbtn{padding:5px 14px;font-size:11px;cursor:pointer;background:#161b22;color:#8b949e;border:none;transition:.15s}
-.mbtn.on{background:#1f6feb;color:#fff;font-weight:700}
-.ustat{font-size:11px;color:#8b949e}
-
-/* ─ TABS ─ */
-.tabs{display:none;border-bottom:1px solid #21262d;background:#161b22;padding:0 20px}
-.ntab{display:inline-block;padding:11px 18px;font-size:12px;cursor:pointer;
-  color:#8b949e;border-bottom:2px solid transparent;transition:.2s}
-.ntab.on{color:#58a6ff;border-bottom-color:#58a6ff;font-weight:700}
-.ntab:hover{color:#e6edf3}
-
-/* ─ PANELS ─ */
-.npane{display:none;padding:16px 20px}
-.npane.on{display:block}
-
-/* ─ CARDS ─ */
-.krow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
-.kc{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:14px 12px;text-align:center}
-.kc .kv{font-size:22px;font-weight:700;font-family:monospace;margin-bottom:2px}
-.kc .kl{font-size:10px;color:#8b949e}
-.card{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:14px;margin-bottom:14px}
-.ctit{font-size:11px;font-weight:600;color:#8b949e;margin-bottom:12px;letter-spacing:.5px}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+/* 헤더 */
+.hdr{background:var(--card);border-bottom:1px solid var(--bor);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;overflow:hidden}
+.hdr-logo{font-family:'Orbitron',monospace;font-size:16px;color:var(--teal);letter-spacing:.15em}
+.hdr-sub{font-size:10px;color:var(--muted);margin-top:3px}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.mode-toggle{display:flex;background:var(--card2);border:1px solid var(--bor);border-radius:20px;padding:3px;gap:3px}
+.mbtn{padding:5px 16px;border-radius:16px;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;background:transparent;color:var(--hint)}
+.mbtn.on.month{background:var(--teal);color:#0d1117}
+.mbtn.on.day{background:var(--amber);color:#0d1117}
+.hdr-overall{font-family:'Orbitron',monospace;font-size:13px;color:var(--teal)}
+.overall-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+/* 업로드 버튼 */
+.upload-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--bor2);background:var(--card2);color:var(--muted);font-size:11px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;transition:all .15s}
+.upload-btn:hover{border-color:var(--teal);color:var(--teal)}
+#file-input{display:none}
+.upload-status{font-size:10px;color:var(--teal);margin-top:2px}
+/* 탭 */
+.ntabs{display:flex;border-bottom:1px solid var(--bor);padding:0 24px;background:var(--card)}
+.ntab{padding:12px 20px;border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;transition:all .15s;margin-bottom:-1px}
+.ntab.on{color:var(--teal);border-bottom-color:var(--teal)}
+.ntab:hover:not(.on){color:var(--text)}
+.npane{display:none}.npane.on{display:block}
+/* 레이아웃 */
+.wrap{max-width:1400px;margin:0 auto;padding:20px 20px 40px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
-.cbox{height:280px;position:relative}
-
-/* ─ FILTER ─ */
-.fbar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-.fbar label{font-size:11px;color:#8b949e}
-.fbar select,.fbar button{background:#161b22;border:1px solid #30363d;color:#e6edf3;
-  font-size:11px;border-radius:4px;padding:4px 10px;cursor:pointer}
-.fbar button{background:#1f6feb;border-color:#1f6feb;color:#fff;font-weight:600}
-
-/* ─ HEATMAP ─ */
-.hmleg{display:flex;gap:18px;margin-bottom:12px}
-.leg{font-size:11px;display:flex;align-items:center;gap:5px}
-.legdot{width:10px;height:10px;border-radius:2px}
-.hmsec{margin-bottom:18px}
-.hmsectit{font-size:11px;font-weight:700;color:#8b949e;
-  padding:5px 10px;background:#161b22;border:1px solid #21262d;border-radius:4px 4px 0 0;
-  margin-bottom:8px}
-.hmgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
-.hcell{border-radius:7px;padding:11px 8px 9px;text-align:center;cursor:pointer;
-  border:1px solid;transition:transform .15s,box-shadow .15s}
-.hcell:hover{transform:scale(1.06);box-shadow:0 6px 20px rgba(0,0,0,.5);z-index:2;position:relative}
-.hcell.ok  {background:rgba(63,185,80,.12);color:#3fb950;border-color:rgba(63,185,80,.28)}
-.hcell.warn{background:rgba(210,153,34,.12);color:#d29922;border-color:rgba(210,153,34,.28)}
-.hcell.crit{background:rgba(248,81,73,.12); color:#f85149;border-color:rgba(248,81,73,.28)}
-.hcell .cn{font-size:11px;font-weight:700;margin-bottom:4px;color:#e6edf3;line-height:1.3}
-.hcell .cv{font-size:20px;font-weight:700;font-family:monospace}
-.hcell .cs{font-size:9px;opacity:.6;margin-top:3px}
-
-/* ─ SIDE PANEL ─ */
-#ep{position:fixed;top:0;right:-360px;width:340px;height:100vh;
-  background:#161b22;border-left:1px solid #30363d;z-index:300;
-  overflow-y:auto;padding:18px;transition:right .25s ease}
-#ep.open{right:0}
-.ep-x{float:right;background:none;border:none;color:#8b949e;font-size:20px;cursor:pointer}
-.ep-nm{font-size:15px;font-weight:700;margin:6px 0 2px}
-.ep-pr{font-size:11px;color:#8b949e;margin-bottom:14px}
-.epkrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.epk{background:#0d1117;border-radius:6px;padding:10px;text-align:center}
-.epk .ekv{font-size:20px;font-weight:700;font-family:monospace}
-.epk .ekl{font-size:9px;color:#8b949e;margin-top:2px}
-.eprow{display:flex;justify-content:space-between;padding:7px 0;
-  border-bottom:1px solid #21262d;font-size:12px}
-.eprow:last-child{border:none}
-.eprow .lb{color:#8b949e}
-.eprow .vl{font-weight:700;font-family:monospace}
-.epcbox{height:190px;margin-top:14px}
-
-/* ─ TABLE ─ */
-.tscroll{overflow-x:auto}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--bor);border-radius:10px;padding:18px}
+.ct{font-size:11px;font-weight:700;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
+.ct.a{color:var(--amber)}.ct.r{color:var(--red)}
+/* KPI */
+.kpi{background:var(--card2);border:1px solid var(--bor);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.kpi.t::before{background:var(--teal)}.kpi.g::before{background:var(--green)}
+.kpi.a::before{background:var(--amber)}.kpi.r::before{background:var(--red)}
+.kv{font-family:'Orbitron',monospace;font-size:28px;font-weight:700;line-height:1}
+.kpi.t .kv{color:var(--teal)}.kpi.g .kv{color:var(--green)}
+.kpi.a .kv{color:var(--amber)}.kpi.r .kv{color:var(--red)}
+.kl{font-size:10px;color:var(--muted);margin-top:6px;letter-spacing:.07em;text-transform:uppercase}
+.kd{font-size:10px;margin-top:3px}.kpi.g .kd{color:var(--green)}.kpi.a .kd{color:var(--amber)}.kpi.r .kd{color:var(--red)}
+/* 차트 */
+.ch{position:relative}.ch canvas{max-height:260px}
+/* 테이블 */
+.tw{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
-thead th{background:#21262d;padding:9px 10px;text-align:center;
-  font-weight:700;color:#8b949e;border-bottom:1px solid #30363d;white-space:nowrap}
-tbody tr{border-bottom:1px solid #21262d;transition:.1s}
-tbody tr:hover{background:#1f2937}
-td{padding:8px 10px;white-space:nowrap}
-.tc{text-align:center}.tr{text-align:right;font-family:monospace}
-.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
-.bok {background:rgba(63,185,80,.15);color:#3fb950}
-.bwn {background:rgba(210,153,34,.15);color:#d29922}
-.bcr {background:rgba(248,81,73,.15);color:#f85149}
-
-/* ─ EMPTY ─ */
-#empty{padding:80px 0;text-align:center}
-#empty .eico{font-size:52px;margin-bottom:14px}
-#empty h2{font-size:18px;margin-bottom:8px}
-#empty p{color:#8b949e;line-height:2;font-size:12px}
+th{background:var(--card2);color:var(--muted);padding:8px 12px;text-align:left;font-weight:600;font-size:10px;letter-spacing:.07em;text-transform:uppercase;border-bottom:1px solid var(--bor);white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid var(--bor);color:var(--text)}
+tr:hover td{background:rgba(56,139,253,.05)}
+.pbar{display:flex;align-items:center;gap:8px}
+.ptr{flex:1;height:6px;background:var(--card2);border-radius:3px;overflow:hidden;min-width:60px}
+.pfl{height:100%;border-radius:3px;transition:width .4s}
+.pval{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;min-width:38px}
+/* 배지 */
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:10px;font-weight:700}
+.brd{background:var(--cr);color:var(--red);border:1px solid var(--cr-b)}
+.bwn{background:var(--wn);color:var(--amber);border:1px solid var(--wn-b)}
+.bgn{background:var(--ok);color:var(--green);border:1px solid var(--ok-b)}
+/* 히트맵 */
+.heat-grid{display:grid;gap:8px}
+.hcell{border-radius:10px;padding:18px 12px;text-align:center;cursor:pointer;border:2px solid;transition:all .15s;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100px}
+.hcell:hover{transform:scale(1.04);box-shadow:0 6px 20px rgba(0,0,0,.5);z-index:5}
+.hcell.ok{background:rgba(46,160,67,.12);color:var(--green);border-color:rgba(46,160,67,.5)}
+.hcell.warn{background:rgba(210,153,34,.12);color:var(--amber);border-color:rgba(210,153,34,.5)}
+.hcell.crit{background:rgba(248,81,73,.12);color:var(--red);border-color:rgba(248,81,73,.5)}
+.hcell .cv{font-family:'Orbitron',monospace;font-size:20px;font-weight:700;text-shadow:0 0 10px currentColor}
+.hcell .cn{font-size:12px;color:#fff;margin-top:5px;font-weight:600}
+.hcell .cp{font-size:10px;color:rgba(255,255,255,.6);margin-top:2px}
+/* 필터 */
+.hf-wrap{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.hf-btn{padding:4px 14px;border-radius:14px;border:1px solid var(--bor);background:transparent;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.hf-btn.on{background:var(--teal);color:#0d1117;border-color:var(--teal)}
+.hf-btn:hover:not(.on){border-color:var(--bor2);color:var(--text)}
+.sort-sel{font-size:11px;padding:4px 10px;border:1px solid var(--bor);border-radius:8px;background:var(--card2);color:var(--text);font-family:inherit;margin-left:auto}
+.heat-cnt{font-size:10px;color:var(--muted)}
+/* 팝업 */
+.popup-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;align-items:center;justify-content:center}
+.popup-ov.on{display:flex}
+.popup{background:var(--card);border:1px solid var(--bor2);border-radius:14px;padding:24px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto}
+.popup-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--bor)}
+.popup-title{font-size:16px;font-weight:700}.popup-close{background:none;border:1px solid var(--bor);color:var(--muted);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit}
+.popup-rate{font-family:'Orbitron',monospace;font-size:40px;font-weight:700;text-align:center;margin:10px 0}
+.popup-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.popup-item{background:var(--card2);border:1px solid var(--bor);border-radius:8px;padding:10px;text-align:center}
+.popup-item-v{font-family:'Orbitron',monospace;font-size:14px;font-weight:700}
+.popup-item-l{font-size:9px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.06em}
+.pbar2{margin-bottom:14px}
+.pbar2-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px}
+.pbar2-bg{height:12px;background:var(--card2);border-radius:6px;overflow:hidden}
+.pbar2-fill{height:100%;border-radius:6px;transition:width .4s}
+/* 계획정지/고장 */
+.stop-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:var(--wn);color:var(--amber);border:1px solid var(--wn-b)}
+.break-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:var(--cr);color:var(--red);border:1px solid var(--cr-b)}
+.done-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:var(--ok);color:var(--green);border:1px solid var(--ok-b)}
+.add-btn-sm{padding:5px 14px;border-radius:6px;border:1px solid;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+/* 모달 */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:600;align-items:center;justify-content:center}
+.modal-ov.on{display:flex}
+.modal{background:var(--card);border:1px solid var(--bor2);border-radius:14px;padding:24px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:15px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--bor)}
+.mf{margin-bottom:10px}.mf label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:3px}
+.mf input,.mf select,.mf textarea{width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit;resize:vertical}
+.mf textarea{min-height:65px}
+.mf input:focus,.mf select:focus,.mf textarea:focus{outline:none;border-color:var(--teal)}
+.mg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mbtns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.mbtn2{padding:7px 18px;border-radius:6px;border:1px solid var(--bor);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit}
+/* 토스트 */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--teal);color:var(--teal);border-radius:8px;padding:10px 22px;font-size:12px;font-weight:700;z-index:999;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--bor2);border-radius:2px}
+@media(max-width:900px){.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
+@media(max-width:600px){.g3,.g4{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<header>
+<div class="hdr">
   <div>
-    <div class="hlogo">SYNOPEX // OEE<sub id="hSub">FPCB 설비 가동율 | 파일을 업로드하세요</sub></div>
+    <div class="hdr-logo">SYNOPEX // OEE</div>
+    <div class="hdr-sub">FPCB 설비 가동율 대시보드</div>
   </div>
-  <div class="hkpis">
-    <div class="hkpi"><div class="hv" id="hAvg" style="color:#58a6ff">--%</div><div class="hl">OVERALL</div></div>
-    <div class="hkpi"><div class="hv" id="hTot" style="color:#3fb950">--</div><div class="hl">TOTAL</div></div>
-    <div class="hkpi"><div class="hv" id="hWn"  style="color:#d29922">--</div><div class="hl">WARN</div></div>
-    <div class="hkpi"><div class="hv" id="hCr"  style="color:#f85149">--</div><div class="hl">CRIT</div></div>
-    <div class="hkpi"><div class="hv" id="hPer" style="color:#8b949e">--</div><div class="hl">PERIOD</div></div>
-  </div>
-</header>
-
-<div class="upbar">
-  <div class="dz" id="dz" onclick="document.getElementById('fIn').click()">
-    📂 설비 가동율 엑셀 파일 클릭 또는 드래그
-  </div>
-  <input type="file" id="fIn" accept=".xlsx,.xls">
-  <div class="mtog" id="mtog">
-    <button class="mbtn on" id="btnM" onclick="setMode('month')">📅 월 누적</button>
-    <button class="mbtn"    id="btnD" onclick="setMode('day')">📆 일 기준</button>
-  </div>
-  <div class="ustat" id="ustat">💡 엑셀 업로드 후 자동 갱신</div>
-</div>
-
-<div class="tabs" id="tabs">
-  <div class="ntab on"  onclick="sw(0)">[ 종합 현황 ]</div>
-  <div class="ntab"     onclick="sw(1)">[ 설비 히트맵 ]</div>
-  <div class="ntab"     onclick="sw(2)">[ 월별 추이 ]</div>
-  <div class="ntab"     onclick="sw(3)">[ 설비 상세 ]</div>
-</div>
-
-<!-- P0: 종합 현황 -->
-<div class="npane on" id="p0">
-  <div class="krow">
-    <div class="kc"><div class="kv" id="k0" style="color:#58a6ff">--%</div><div class="kl">전체 평균 가동율</div></div>
-    <div class="kc"><div class="kv" id="k1" style="color:#3fb950">--</div><div class="kl">정상 (≥60%)</div></div>
-    <div class="kc"><div class="kv" id="k2" style="color:#d29922">--</div><div class="kl">주의 (40~60%)</div></div>
-    <div class="kc"><div class="kv" id="k3" style="color:#f85149">--</div><div class="kl">위험 (&lt;40%)</div></div>
-    <div class="kc"><div class="kv" id="k4" style="color:#e6edf3;font-size:13px">--</div><div class="kl">최고 공정</div></div>
-    <div class="kc"><div class="kv" id="k5" style="color:#e6edf3;font-size:13px">--</div><div class="kl">최저 공정</div></div>
-  </div>
-  <div class="g2">
-    <div class="card"><div class="ctit">공정별 가동율 순위</div><div class="cbox"><canvas id="cBar"></canvas></div></div>
-    <div class="card"><div class="ctit">상태 분포</div><div class="cbox"><canvas id="cDnt"></canvas></div></div>
-  </div>
-  <div class="card"><div class="ctit">공정 세부 가동율 (전체)</div><div class="cbox" style="height:240px"><canvas id="cAllBar"></canvas></div></div>
-</div>
-
-<!-- P1: 히트맵 -->
-<div class="npane" id="p1">
-  <div class="fbar">
-    <label>공정 필터:</label>
-    <select id="hmProc"><option value="">전체</option></select>
-    <label>정렬:</label>
-    <select id="hmSort">
-      <option value="rate_asc">가동율 낮은순</option>
-      <option value="rate_desc">가동율 높은순</option>
-      <option value="name">이름순</option>
-    </select>
-    <button onclick="buildHeatmap()">적용</button>
-  </div>
-  <div class="hmleg">
-    <div class="leg"><div class="legdot" style="background:#3fb950"></div>정상 (≥60%)</div>
-    <div class="leg"><div class="legdot" style="background:#d29922"></div>주의 (40~60%)</div>
-    <div class="leg"><div class="legdot" style="background:#f85149"></div>위험 (&lt;40%)</div>
-  </div>
-  <div id="hmBody"></div>
-</div>
-
-<!-- P2: 월별 추이 -->
-<div class="npane" id="p2">
-  <div class="fbar">
-    <label>공정 선택:</label>
-    <select id="tProc" onchange="buildTrend()"><option value="">전체 평균</option></select>
-  </div>
-  <div class="card"><div class="ctit">월별 가동율 추이</div>
-    <div class="cbox" style="height:340px"><canvas id="cLine"></canvas></div></div>
-  <div class="card"><div class="ctit">공정별 월별 비교표</div>
-    <div class="tscroll"><table id="trendTable"><thead><tr id="trendHdr"></tr></thead><tbody id="trendBody"></tbody></table></div>
-  </div>
-</div>
-
-<!-- P3: 설비 상세 -->
-<div class="npane" id="p3">
-  <div class="fbar" style="margin-bottom:12px">
-    <label>공정:</label>
-    <select id="dtProc" onchange="buildDetail()"><option value="">전체</option></select>
-    <label>상태:</label>
-    <select id="dtStat" onchange="buildDetail()">
-      <option value="">전체</option>
-      <option value="ok">정상</option>
-      <option value="warn">주의</option>
-      <option value="crit">위험</option>
-    </select>
-  </div>
-  <div class="card">
-    <div class="tscroll">
-      <table>
-        <thead><tr>
-          <th>공정명</th><th>세부공정</th><th>설비대수</th><th>가동율</th>
-          <th>기준시간(분)</th><th>실운행시간(분)</th><th>비가동(분)</th>
-          <th>생산면적(㎡)</th><th>상태</th>
-        </tr></thead>
-        <tbody id="dtBody"></tbody>
-      </table>
+  <div class="hdr-right">
+    <!-- 엑셀 업로드 -->
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="upload-btn" onclick="document.getElementById('file-input').click()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        엑셀 업로드
+      </button>
+      <input type="file" id="file-input" accept=".xlsx,.xls" onchange="loadExcel(this)">
+      <button class="upload-btn" id="gh-btn" onclick="openGHModal()" title="GitHub 연동 — 계획정지/고장 데이터 공유">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
+        <span id="gh-status-icon">GitHub 연동</span>
+      </button>
+      <div style="display:flex;flex-direction:column">
+        <div class="upload-status" id="upload-status"></div>
+        <div class="upload-status" id="gh-sync-status"></div>
+      </div>
+    </div>
+    <div class="mode-toggle">
+      <button class="mbtn month on" id="btnMonth" onclick="setMode('month')">📅 월 누적</button>
+      <button class="mbtn day" id="btnDay" onclick="setMode('day')">📆 일 기준</button>
+    </div>
+    <div style="text-align:right">
+      <div class="hdr-overall"><span id="h-avg">--%</span></div>
+      <div class="overall-label">OVERALL</div>
     </div>
   </div>
 </div>
 
-<!-- 빈 화면 -->
-<div id="empty">
-  <div class="eico">📊</div>
-  <h2>SYNOPEX // OEE Dashboard</h2>
-  <p>설비 가동율 현황 엑셀 파일을 업로드하면<br>대시보드가 자동으로 생성됩니다.<br><br>
-  ※ <b>가동율(월 누적기준)</b> / <b>가동율(일)</b> 시트가 포함된 파일</p>
+<div class="ntabs">
+  <button class="ntab on" onclick="sw(0,this)">[ 종합 현황 ]</button>
+  <button class="ntab" onclick="sw(1,this)">[ 설비 히트맵 ]</button>
+  <button class="ntab" onclick="sw(2,this)">[ 월별 추이 ]</button>
+  <button class="ntab" onclick="sw(3,this)">[ 설비 상세 ]</button>
 </div>
 
-<!-- 설비 사이드 패널 -->
-<div id="ep">
-  <button class="ep-x" onclick="closeEP()">✕</button>
-  <div class="ep-nm" id="epNm">-</div>
-  <div class="ep-pr" id="epPr">-</div>
-  <div class="epkrow">
-    <div class="epk"><div class="ekv" id="epRt">--%</div><div class="ekl">가동율</div></div>
-    <div class="epk"><div class="ekv" id="epSt">-</div><div class="ekl">상태</div></div>
+<div class="wrap">
+
+<!-- 탭0: 종합 현황 -->
+<div class="npane on" id="t0">
+  <div class="g4">
+    <div class="kpi t"><div class="kv" id="k-avg">--%</div><div class="kl">전체 평균 가동율</div><div class="kd" id="k-period">-</div></div>
+    <div class="kpi g"><div class="kv" id="k-ok">-</div><div class="kl">정상 공정 (≥60%)</div><div class="kd">목표 초과</div></div>
+    <div class="kpi a"><div class="kv" id="k-warn">-</div><div class="kl">주의 공정 (40~60%)</div><div class="kd">개선 필요</div></div>
+    <div class="kpi r"><div class="kv" id="k-crit">-</div><div class="kl">위험 공정 (&lt;40%)</div><div class="kd">즉시 점검</div></div>
   </div>
-  <div id="epRows"></div>
-  <div style="font-size:10px;color:#8b949e;margin-top:16px;margin-bottom:6px">공정 내 비교</div>
-  <div class="epcbox"><canvas id="epC"></canvas></div>
+  <div class="g3">
+    <div class="card"><div class="ct">// 공정별 가동율 (%)</div><div class="ch"><canvas id="c0a" height="240"></canvas></div></div>
+    <div class="card"><div class="ct">// 가동시간 구성 분석</div><div class="ch"><canvas id="c0b" height="240"></canvas></div></div>
+    <div class="card"><div class="ct" style="color:var(--blue)">// 가동율 누적 파레토 (공정별)</div><div class="ch"><canvas id="c0c" height="240"></canvas></div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct" style="color:var(--amber)">// 계획 정지 설비 현황</div>
+      <div class="tw"><table>
+        <thead><tr><th>공정</th><th>설비명</th><th>대수</th><th>정지 시작일</th><th>정지 사유</th><th>예정 복구일</th><th>상태</th><th></th></tr></thead>
+        <tbody id="stop-tbody"></tbody>
+      </table></div>
+      <div style="text-align:right;margin-top:8px">
+        <button class="add-btn-sm" style="border-color:var(--amber);color:var(--amber)" onclick="openModal('stop')">+ 정지 설비 등록</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct" style="color:var(--red)">// 고장 설비 현황 및 수리 일정</div>
+      <div class="tw"><table>
+        <thead><tr><th>공정</th><th>설비명</th><th>대수</th><th>고장 발생일</th><th>고장 사유</th><th>수리 예정일</th><th>진행상태</th><th></th></tr></thead>
+        <tbody id="break-tbody"></tbody>
+      </table></div>
+      <div style="text-align:right;margin-top:8px">
+        <button class="add-btn-sm" style="border-color:var(--red);color:var(--red)" onclick="openModal('break')">+ 고장 설비 등록</button>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="ct a">// 공정별 상세 현황</div>
+    <div class="tw"><table>
+      <thead><tr><th>공정명</th><th>가동율</th><th>기준시간</th><th>실운행시간</th><th>계획비가동</th><th>운영유실</th><th>설비유실</th><th>생산면적(㎡)</th><th>상태</th></tr></thead>
+      <tbody id="t0b"></tbody>
+    </table></div>
+  </div>
 </div>
 
+<!-- 탭1: 히트맵 -->
+<div class="npane" id="t1">
+  <div class="card">
+    <div class="ct">// 설비별 가동율 히트맵</div>
+    <div class="hf-wrap">
+      <span style="font-size:11px;color:var(--muted);font-weight:600">공정:</span>
+      <button class="hf-btn on" id="hf-all" onclick="setHF('',this)">전체</button>
+      <span id="hf-btns" style="display:flex;gap:6px;flex-wrap:wrap"></span>
+      <select class="sort-sel" id="heat-sort" onchange="renderHeat()">
+        <option value="asc">가동율 낮은순</option>
+        <option value="desc">가동율 높은순</option>
+        <option value="proc">공정순</option>
+      </select>
+      <span class="heat-cnt" id="heat-cnt"></span>
+    </div>
+    <div class="heat-grid" id="heatmap" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"></div>
+    <div style="display:flex;gap:14px;margin-top:10px;font-size:11px">
+      <span style="color:var(--green)">■ 정상(≥60%)</span>
+      <span style="color:var(--amber)">■ 주의(40~60%)</span>
+      <span style="color:var(--red)">■ 위험(&lt;40%)</span>
+    </div>
+  </div>
+</div>
+
+<!-- 탭2: 월별 추이 -->
+<div class="npane" id="t2">
+  <!-- 월별 누적 가동율 요약 카드 -->
+  <div class="g4" id="cum-kpis" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px" style="margin-bottom:14px"></div>
+  <!-- 월별 누적 가동율 차트 -->
+  <div class="card" style="margin-bottom:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="ct" style="margin-bottom:0;color:var(--teal)">// 월별 누적 평균 가동율 (2026)</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:11px;color:var(--muted)">표시:</span>
+        <button class="hf-btn on" id="cum-all-btn" onclick="setCumFilter('all',this)" style="padding:3px 12px">전체 평균</button>
+        <button class="hf-btn" id="cum-proc-btn" onclick="setCumFilter('proc',this)" style="padding:3px 12px">공정별</button>
+      </div>
+    </div>
+    <div class="ch"><canvas id="c2c" height="200"></canvas></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">// 공정별 월별 추이 (2026)</div><div class="ch"><canvas id="c2a" height="280"></canvas></div></div>
+    <div class="card"><div class="ct">// 설비별 추이</div>
+      <div style="margin-bottom:10px">
+        <select id="fProc" onchange="renderEtrd()" style="font-size:12px;padding:6px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit">
+          <option value="">전체 공정</option>
+        </select>
+      </div>
+      <div class="ch"><canvas id="c2b" height="240"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- 탭3: 설비 상세 -->
+<div class="npane" id="t3">
+  <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+    <select id="fProc3" onchange="renderDetail()" style="font-size:12px;padding:7px 12px;border:1px solid var(--bor);border-radius:8px;background:var(--card2);color:var(--text);font-family:inherit">
+      <option value="">전체 공정</option>
+    </select>
+    <select id="fStat" onchange="renderDetail()" style="font-size:12px;padding:7px 12px;border:1px solid var(--bor);border-radius:8px;background:var(--card2);color:var(--text);font-family:inherit">
+      <option value="">전체 상태</option>
+      <option value="crit">위험(&lt;40%)</option>
+      <option value="warn">주의(40~60%)</option>
+      <option value="ok">정상(≥60%)</option>
+    </select>
+  </div>
+  <div class="card">
+    <div class="ct a">// 설비별 상세 가동율</div>
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th>공정</th><th>세부공정</th><th>설비수</th><th>가동율</th><th>기준시간</th><th>실운행</th><th>계획비가동</th><th>운영유실</th><th>설비유실</th><th>면적(㎡)</th><th>상태</th></tr></thead>
+      <tbody id="t3b"></tbody>
+    </table></div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<!-- 설비 상세 팝업 -->
+<div class="popup-ov" id="eqOv" onclick="if(event.target===this)closeEq()">
+  <div class="popup">
+    <div class="popup-head">
+      <div><div class="popup-title" id="eq-title"></div><div style="font-size:11px;color:var(--muted);margin-top:2px" id="eq-proc"></div></div>
+      <button class="popup-close" onclick="closeEq()">✕ 닫기</button>
+    </div>
+    <div class="popup-rate" id="eq-rate"></div>
+    <div style="text-align:center;margin-bottom:12px;padding:10px;background:var(--card2);border:1px solid var(--bor);border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px">
+      <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">보유 설비 대수</span>
+      <span style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:var(--teal)" id="eq-cnt">-</span>
+    </div>
+    <div class="popup-grid">
+      <div class="popup-item"><div class="popup-item-v" id="eq-base">-</div><div class="popup-item-l">기준시간(분)</div></div>
+      <div class="popup-item"><div class="popup-item-v" id="eq-run">-</div><div class="popup-item-l">실운행(분)</div></div>
+      <div class="popup-item"><div class="popup-item-v" id="eq-area">-</div><div class="popup-item-l">생산면적(㎡)</div></div>
+      <div class="popup-item"><div class="popup-item-v" id="eq-pd" style="color:var(--blue)">-</div><div class="popup-item-l">계획비가동</div></div>
+      <div class="popup-item"><div class="popup-item-v" id="eq-ol" style="color:var(--amber)">-</div><div class="popup-item-l">운영유실</div></div>
+      <div class="popup-item"><div class="popup-item-v" id="eq-el" style="color:var(--red)">-</div><div class="popup-item-l">설비유실</div></div>
+    </div>
+    <div class="pbar2">
+      <div class="pbar2-lbl"><span>실운행 비율</span><span id="eq-bar-pct" style="font-weight:700"></span></div>
+      <div class="pbar2-bg"><div class="pbar2-fill" id="eq-bar-fill"></div></div>
+    </div>
+    <div id="eq-trend-wrap" style="display:none">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">월별 추이 (2026)</div>
+      <div style="display:flex;gap:8px" id="eq-trend"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 계획정지 모달 -->
+<div class="modal-ov" id="stop-ov" onclick="if(event.target===this)closeModal('stop')">
+  <div class="modal">
+    <h3 style="color:var(--amber)">⚙️ 계획 정지 설비 등록</h3>
+    <div class="mg2">
+      <div class="mf"><label>공정명 선택</label>
+        <select id="sp-proc-sel" onchange="onStopProcChange()" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit">
+          <option value="">공정 선택...</option>
+        </select>
+      </div>
+      <div class="mf"><label>설비명 선택</label>
+        <select id="sp-name-sel" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit">
+          <option value="">설비 선택...</option>
+        </select>
+      </div>
+    </div>
+    <div class="mg2"><div class="mf"><label>직접 입력 (공정)</label><input id="sp-proc" placeholder="직접 입력 또는 위에서 선택"></div><div class="mf"><label>직접 입력 (설비명)</label><input id="sp-name" placeholder="직접 입력 또는 위에서 선택"></div></div>
+    <div class="mg2">
+      <div class="mf"><label>대수</label><input id="sp-cnt" type="number" min="1" value="1"></div>
+      <div class="mf"><label>정지 시작일</label><input id="sp-start" type="date"></div>
+    </div>
+    <div class="mg2">
+      <div class="mf"><label>예정 복구일</label><input id="sp-date" type="date"></div>
+      <div class="mf"><label>&nbsp;</label></div>
+    </div>
+    <div class="mf"><label>정지 사유</label><textarea id="sp-reason" placeholder="예: 정기 PM, 부품 교체, 설비 개조"></textarea></div>
+    <div class="mbtns"><button class="mbtn2" onclick="closeModal('stop')">취소</button><button style="padding:7px 18px;border-radius:6px;border:none;background:var(--amber);color:#0d1117;font-size:12px;font-weight:700;cursor:pointer" onclick="saveStop()">등록</button></div>
+  </div>
+</div>
+
+<!-- 고장 모달 -->
+<div class="modal-ov" id="break-ov" onclick="if(event.target===this)closeModal('break')">
+  <div class="modal">
+    <h3 style="color:var(--red)">🔧 고장 설비 등록</h3>
+    <div class="mg2">
+      <div class="mf"><label>공정명 선택</label>
+        <select id="bp-proc-sel" onchange="onBreakProcChange()" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit">
+          <option value="">공정 선택...</option>
+        </select>
+      </div>
+      <div class="mf"><label>설비명 선택</label>
+        <select id="bp-name-sel" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--bor);border-radius:6px;background:var(--card2);color:var(--text);font-family:inherit">
+          <option value="">설비 선택...</option>
+        </select>
+      </div>
+    </div>
+    <div class="mg2"><div class="mf"><label>직접 입력 (공정)</label><input id="bp-proc" placeholder="직접 입력 또는 위에서 선택"></div><div class="mf"><label>직접 입력 (설비명)</label><input id="bp-name" placeholder="직접 입력 또는 위에서 선택"></div></div>
+    <div class="mg2">
+      <div class="mf"><label>대수</label><input id="bp-cnt" type="number" min="1" value="1"></div>
+      <div class="mf"><label>고장 발생일</label><input id="bp-start" type="date"></div>
+    </div>
+    <div class="mg2">
+      <div class="mf"><label>수리 예정일</label><input id="bp-date" type="date"></div>
+      <div class="mf"><label>진행 상태</label><select id="bp-status"><option value="수리중">🔧 수리중</option><option value="부품대기">📦 부품대기</option><option value="수리완료">✅ 수리완료</option><option value="점검중">🔍 점검중</option></select></div>
+    </div>
+    <div class="mf"><label>고장 사유 / 수리 내용</label><textarea id="bp-reason" placeholder="예: 모터 과열, 냉각 팬 교체"></textarea></div>
+    <div class="mbtns"><button class="mbtn2" onclick="closeModal('break')">취소</button><button style="padding:7px 18px;border-radius:6px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:700;cursor:pointer" onclick="saveBreak()">등록</button></div>
+  </div>
+</div>
+
+<!-- GitHub 연동 모달 -->
+<div class="modal-ov" id="gh-ov" onclick="if(event.target===this)closeGHModal()">
+  <div class="modal" style="max-width:520px">
+    <h3 style="color:var(--teal)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
+      GitHub 공유 연동 설정
+    </h3>
+    <div style="background:rgba(57,208,197,.08);border:1px solid rgba(57,208,197,.3);border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:1.7">
+      📌 계획정지 / 고장설비 데이터를 <strong style="color:var(--teal)">GitHub에 저장</strong>하면<br>
+      같은 대시보드를 사용하는 모든 인원이 <strong style="color:var(--teal)">실시간으로 공유</strong>할 수 있습니다.<br>
+      <span style="color:var(--amber)">⚠ 토큰은 이 기기에만 저장되며 외부로 전송되지 않습니다.</span>
+    </div>
+    <div class="mf">
+      <label>GitHub Personal Access Token
+        <a href="https://github.com/settings/tokens/new?scopes=repo&description=SYNOPEX+OEE" target="_blank" 
+          style="font-size:10px;color:var(--teal);margin-left:8px;text-decoration:none">▶ 토큰 생성하기</a>
+      </label>
+      <input id="gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" 
+        style="font-family:monospace;letter-spacing:.05em">
+      <div style="font-size:10px;color:var(--hint);margin-top:4px">repo 권한 필요 (public_repo로도 가능)</div>
+    </div>
+    <div style="background:var(--card2);border:1px solid var(--bor);border-radius:8px;padding:10px;font-size:11px;color:var(--muted);margin-bottom:12px">
+      <div style="font-weight:600;color:var(--text);margin-bottom:4px">저장 경로</div>
+      <code style="color:var(--teal);font-size:11px">min984719-byte/kimsungmin → data/maintenance.json</code>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+      <button onclick="testGHConn()" style="padding:7px 14px;border-radius:6px;border:1px solid var(--teal);background:transparent;color:var(--teal);font-size:11px;cursor:pointer;font-family:inherit">연결 테스트</button>
+      <span id="gh-test-result" style="font-size:11px"></span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <label style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px">
+        <input type="checkbox" id="gh-auto-sync" style="width:auto"> 30초마다 자동 새로고침
+      </label>
+    </div>
+    <div class="mbtns" style="margin-top:14px">
+      <button class="mbtn2" onclick="disconnectGH()" style="color:var(--red);border-color:var(--red)">연동 해제</button>
+      <button class="mbtn2" onclick="closeGHModal()">취소</button>
+      <button onclick="saveGHToken()" style="padding:7px 18px;border-radius:6px;border:none;background:var(--teal);color:#0d1117;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">저장 및 연동</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-// ════════════════════════════════════════
-// 전역 상태
-// ════════════════════════════════════════
-var DB = { month: null, day: null };
-var MODE = 'month';
-var CH = {};
-var epCh = null;
-var TGT = 60; // 목표 가동율 %
-var curTabIdx = 0;
 
-function cur() { return MODE === 'month' ? DB.month : (DB.day || DB.month); }
+// ── 내장 데이터 ──
+// ##DATA_START##
+var MODES={"month": {"summary": [{"proc": "레이저", "sub": null, "cnt": 0, "area": 1186.3, "base": 161280, "run": 32930, "rate": 20.4, "plan_down": 123090, "op_loss": 1060, "eq_loss": 3780, "eq_fail": 420}, {"proc": "동도금", "sub": null, "cnt": 0, "area": 11635.0, "base": 80640, "run": 16025, "rate": 19.9, "plan_down": 56640, "op_loss": 3165, "eq_loss": 2982, "eq_fail": 1828}, {"proc": "노광", "sub": null, "cnt": 0, "area": 7765.6, "base": 191520, "run": 26040, "rate": 13.6, "plan_down": 117850, "op_loss": 46980, "eq_loss": 650, "eq_fail": 0}, {"proc": "회로", "sub": null, "cnt": 0, "area": 12074.0, "base": 80640, "run": 24085, "rate": 29.9, "plan_down": 46190, "op_loss": 5020, "eq_loss": 3700, "eq_fail": 1645}, {"proc": "AOI", "sub": null, "cnt": 0, "area": 7565.7, "base": 231840, "run": 88055, "rate": 38.0, "plan_down": 138190, "op_loss": 2595, "eq_loss": 2880, "eq_fail": 120}, {"proc": "수가접", "sub": null, "cnt": 0, "area": 3777.1, "base": 120960, "run": 40723, "rate": 33.7, "plan_down": 70220, "op_loss": 8150, "eq_loss": 1165, "eq_fail": 702}, {"proc": "적층", "sub": null, "cnt": 0, "area": 7423.3, "base": 383040, "run": 115485, "rate": 30.1, "plan_down": 89935, "op_loss": 159730, "eq_loss": 3730, "eq_fail": 14160}, {"proc": "가이드", "sub": null, "cnt": 0, "area": 4274.0, "base": 120960, "run": 38695, "rate": 32.0, "plan_down": 39920, "op_loss": 40930, "eq_loss": 1335, "eq_fail": 80}, {"proc": "금도금", "sub": null, "cnt": 0, "area": 16348.0, "base": 70560, "run": 52740, "rate": 74.7, "plan_down": 13620, "op_loss": 2700, "eq_loss": 420, "eq_fail": 1080}, {"proc": "자동가접", "sub": null, "cnt": 0, "area": 2195.9, "base": 141120, "run": 52749, "rate": 37.4, "plan_down": 73945, "op_loss": 2090, "eq_loss": 3386, "eq_fail": 8950}, {"proc": "SUB", "sub": null, "cnt": 0, "area": 858.9, "base": 40320, "run": 13880, "rate": 34.4, "plan_down": 25330, "op_loss": 280, "eq_loss": 800, "eq_fail": 30}, {"proc": "BBT", "sub": null, "cnt": 0, "area": 2192.7, "base": 151200, "run": 52097, "rate": 34.5, "plan_down": 96700, "op_loss": 1020, "eq_loss": 740, "eq_fail": 643}, {"proc": "타발", "sub": null, "cnt": 0, "area": 14943.3, "base": 312480, "run": 164866, "rate": 52.8, "plan_down": 107490, "op_loss": 32530, "eq_loss": 6874, "eq_fail": 720}], "detail": [{"proc": "레이저", "sub": "RTR", "cnt": 10, "area": 707.3, "base": 100800, "run": 21610, "rate": 21.4, "plan_down": 75700, "op_loss": 580, "eq_loss": 2490, "eq_fail": 420}, {"proc": "레이저", "sub": "SHEET", "cnt": 3, "area": 375.0, "base": 30240, "run": 9400, "rate": 31.1, "plan_down": 19520, "op_loss": 350, "eq_loss": 970, "eq_fail": 0}, {"proc": "레이저", "sub": "기타(QR / COV)", "cnt": 3, "area": 104.0, "base": 30240, "run": 1920, "rate": 6.3, "plan_down": 27870, "op_loss": 130, "eq_loss": 320, "eq_fail": 0}, {"proc": "동도금", "sub": "블랙홀", "cnt": 1, "area": 2259.4, "base": 10080, "run": 2633, "rate": 26.1, "plan_down": 5560, "op_loss": 785, "eq_loss": 805, "eq_fail": 297}, {"proc": "동도금", "sub": "디스미어", "cnt": 1, "area": 1042.4, "base": 10080, "run": 1135, "rate": 11.3, "plan_down": 7350, "op_loss": 575, "eq_loss": 840, "eq_fail": 180}, {"proc": "동도금", "sub": "화학동", "cnt": 1, "area": 984.2, "base": 10080, "run": 1105, "rate": 11.0, "plan_down": 6900, "op_loss": 710, "eq_loss": 1125, "eq_fail": 240}, {"proc": "동도금", "sub": "SHEET 전기동", "cnt": 2, "area": 1857.8, "base": 10080, "run": 4291, "rate": 42.6, "plan_down": 4200, "op_loss": 1090, "eq_loss": 202, "eq_fail": 297}, {"proc": "동도금", "sub": "RTR 전기동", "cnt": 1, "area": 1620.2, "base": 10080, "run": 3588, "rate": 35.6, "plan_down": 6190, "op_loss": 5, "eq_loss": 10, "eq_fail": 287}, {"proc": "동도금", "sub": "BAKING", "cnt": 2, "area": 3859.9, "base": 20160, "run": 3233, "rate": 16.0, "plan_down": 16400, "op_loss": 0, "eq_loss": 0, "eq_fail": 527}, {"proc": "동도금", "sub": "ULTRA", "cnt": 1, "area": 11.1, "base": 10080, "run": 40, "rate": 0.4, "plan_down": 10040, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "노광", "sub": "D/F", "cnt": 10, "area": 4482.6, "base": 100800, "run": 9760, "rate": 9.7, "plan_down": 64860, "op_loss": 25580, "eq_loss": 600, "eq_fail": 0}, {"proc": "노광", "sub": "MANUAL 노광", "cnt": 2, "area": 63.0, "base": 20160, "run": 320, "rate": 1.6, "plan_down": 16120, "op_loss": 3720, "eq_loss": 0, "eq_fail": 0}, {"proc": "노광", "sub": "RTR LDI", "cnt": 1, "area": 85.6, "base": 10080, "run": 360, "rate": 3.6, "plan_down": 8490, "op_loss": 1220, "eq_loss": 10, "eq_fail": 0}, {"proc": "노광", "sub": "RTR 노광", "cnt": 2, "area": 500.1, "base": 20160, "run": 1840, "rate": 9.1, "plan_down": 15640, "op_loss": 2640, "eq_loss": 40, "eq_fail": 0}, {"proc": "노광", "sub": "LDI", "cnt": 4, "area": 2634.4, "base": 40320, "run": 13760, "rate": 34.1, "plan_down": 12740, "op_loss": 13820, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "H/F", "cnt": 1, "area": 1554.5, "base": 10080, "run": 2675, "rate": 26.5, "plan_down": 5450, "op_loss": 580, "eq_loss": 1140, "eq_fail": 235}, {"proc": "회로", "sub": "S/E", "cnt": 2, "area": 4280.6, "base": 20160, "run": 8450, "rate": 41.9, "plan_down": 8560, "op_loss": 1540, "eq_loss": 1140, "eq_fail": 470}, {"proc": "회로", "sub": "CZ", "cnt": 1, "area": 1322.9, "base": 10080, "run": 3175, "rate": 31.5, "plan_down": 5830, "op_loss": 840, "eq_loss": 0, "eq_fail": 235}, {"proc": "회로", "sub": "옥사이드", "cnt": 1, "area": 846.7, "base": 10080, "run": 2245, "rate": 22.3, "plan_down": 6820, "op_loss": 780, "eq_loss": 0, "eq_fail": 235}, {"proc": "회로", "sub": "ULTRA", "cnt": 1, "area": 447.4, "base": 10080, "run": 1395, "rate": 13.8, "plan_down": 7970, "op_loss": 480, "eq_loss": 0, "eq_fail": 235}, {"proc": "회로", "sub": "DES", "cnt": 2, "area": 3621.9, "base": 20160, "run": 6145, "rate": 30.5, "plan_down": 11560, "op_loss": 800, "eq_loss": 1420, "eq_fail": 235}, {"proc": "AOI", "sub": "RTR AOI", "cnt": 1, "area": 646.0, "base": 10080, "run": 3748, "rate": 37.2, "plan_down": 6050, "op_loss": 105, "eq_loss": 177, "eq_fail": 0}, {"proc": "AOI", "sub": "RTR VRS", "cnt": 2, "area": 987.3, "base": 20160, "run": 7969, "rate": 39.5, "plan_down": 11720, "op_loss": 240, "eq_loss": 231, "eq_fail": 0}, {"proc": "AOI", "sub": "SHEET AOI", "cnt": 6, "area": 2312.5, "base": 60480, "run": 31355, "rate": 51.8, "plan_down": 26780, "op_loss": 915, "eq_loss": 1380, "eq_fail": 50}, {"proc": "AOI", "sub": "SHEET VRS", "cnt": 12, "area": 2811.7, "base": 120960, "run": 41027, "rate": 33.9, "plan_down": 77760, "op_loss": 1215, "eq_loss": 888, "eq_fail": 70}, {"proc": "AOI", "sub": "Vision Cut", "cnt": 1, "area": 808.2, "base": 10080, "run": 3956, "rate": 39.2, "plan_down": 5800, "op_loss": 120, "eq_loss": 204, "eq_fail": 0}, {"proc": "AOI", "sub": "AOS", "cnt": 1, "area": 0.0, "base": 10080, "run": 0, "rate": 0.0, "plan_down": 10080, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "수가접", "sub": "Q/PRESS", "cnt": 6, "area": 2836.8, "base": 60480, "run": 29040, "rate": 48.0, "plan_down": 27390, "op_loss": 3260, "eq_loss": 790, "eq_fail": 0}, {"proc": "수가접", "sub": "자동 EMI", "cnt": 2, "area": 431.7, "base": 20160, "run": 5003, "rate": 24.8, "plan_down": 12770, "op_loss": 1750, "eq_loss": 155, "eq_fail": 482}, {"proc": "수가접", "sub": "자동 COV", "cnt": 4, "area": 508.6, "base": 40320, "run": 6680, "rate": 16.6, "plan_down": 30060, "op_loss": 3140, "eq_loss": 220, "eq_fail": 220}, {"proc": "적층", "sub": "H/P", "cnt": 38, "area": 7423.3, "base": 383040, "run": 115485, "rate": 30.1, "plan_down": 89935, "op_loss": 159730, "eq_loss": 3730, "eq_fail": 14160}, {"proc": "가이드", "sub": "X-RAY", "cnt": 1, "area": 453.2, "base": 10080, "run": 2765, "rate": 27.4, "plan_down": 2530, "op_loss": 4650, "eq_loss": 135, "eq_fail": 0}, {"proc": "가이드", "sub": "RTR GUIDE", "cnt": 1, "area": 701.0, "base": 10080, "run": 2110, "rate": 20.9, "plan_down": 3650, "op_loss": 4120, "eq_loss": 150, "eq_fail": 50}, {"proc": "가이드", "sub": "자동 GUIDE", "cnt": 10, "area": 3119.8, "base": 100800, "run": 33820, "rate": 33.6, "plan_down": 33740, "op_loss": 32160, "eq_loss": 1050, "eq_fail": 30}, {"proc": "금도금", "sub": "JET LINE", "cnt": 1, "area": 2613.0, "base": 10080, "run": 7080, "rate": 70.2, "plan_down": 2190, "op_loss": 420, "eq_loss": 120, "eq_fail": 270}, {"proc": "금도금", "sub": "LINE E.N.I.G", "cnt": 1, "area": 2613.0, "base": 10080, "run": 6960, "rate": 69.0, "plan_down": 2190, "op_loss": 420, "eq_loss": 300, "eq_fail": 210}, {"proc": "금도금", "sub": "ULTRA", "cnt": 1, "area": 2613.0, "base": 10080, "run": 6960, "rate": 69.0, "plan_down": 2190, "op_loss": 720, "eq_loss": 0, "eq_fail": 210}, {"proc": "금도금", "sub": "X-RAY", "cnt": 1, "area": 2613.0, "base": 10080, "run": 6960, "rate": 69.0, "plan_down": 2190, "op_loss": 720, "eq_loss": 0, "eq_fail": 210}, {"proc": "금도금", "sub": "플라즈마", "cnt": 3, "area": 5896.0, "base": 30240, "run": 24780, "rate": 81.9, "plan_down": 4860, "op_loss": 420, "eq_loss": 0, "eq_fail": 180}, {"proc": "자동가접", "sub": "Q/PRESS", "cnt": 3, "area": 612.3, "base": 30240, "run": 17138, "rate": 56.7, "plan_down": 12400, "op_loss": 320, "eq_loss": 382, "eq_fail": 0}, {"proc": "자동가접", "sub": "DAWON", "cnt": 4, "area": 434.2, "base": 40320, "run": 15739, "rate": 39.0, "plan_down": 22090, "op_loss": 1100, "eq_loss": 1391, "eq_fail": 0}, {"proc": "자동가접", "sub": "꿕바오", "cnt": 2, "area": 242.3, "base": 20160, "run": 7569, "rate": 37.5, "plan_down": 3220, "op_loss": 140, "eq_loss": 591, "eq_fail": 8640}, {"proc": "자동가접", "sub": "FAST", "cnt": 3, "area": 296.9, "base": 30240, "run": 6403, "rate": 21.2, "plan_down": 22135, "op_loss": 370, "eq_loss": 1022, "eq_fail": 310}, {"proc": "자동가접", "sub": "AIR BAG", "cnt": 2, "area": 610.3, "base": 20160, "run": 5900, "rate": 29.3, "plan_down": 14100, "op_loss": 160, "eq_loss": 0, "eq_fail": 0}, {"proc": "SUB", "sub": "Q/PRESS", "cnt": 4, "area": 858.9, "base": 40320, "run": 13880, "rate": 34.4, "plan_down": 25330, "op_loss": 280, "eq_loss": 800, "eq_fail": 30}, {"proc": "BBT", "sub": "수동 BBT", "cnt": 9, "area": 336.2, "base": 90720, "run": 13153, "rate": 14.5, "plan_down": 76710, "op_loss": 320, "eq_loss": 115, "eq_fail": 422}, {"proc": "BBT", "sub": "AUTO BBT", "cnt": 6, "area": 1856.5, "base": 60480, "run": 38944, "rate": 64.4, "plan_down": 19990, "op_loss": 700, "eq_loss": 625, "eq_fail": 221}, {"proc": "타발", "sub": "PRESS", "cnt": 26, "area": 12287.6, "base": 262080, "run": 139896, "rate": 53.4, "plan_down": 86940, "op_loss": 29390, "eq_loss": 5164, "eq_fail": 690}, {"proc": "타발", "sub": "CUTTING", "cnt": 2, "area": 2289.1, "base": 20160, "run": 10934, "rate": 54.2, "plan_down": 5200, "op_loss": 2920, "eq_loss": 1106, "eq_fail": 0}, {"proc": "타발", "sub": "보강판 PRESS", "cnt": 2, "area": 177.5, "base": 20160, "run": 13496, "rate": 66.9, "plan_down": 5880, "op_loss": 220, "eq_loss": 534, "eq_fail": 30}, {"proc": "타발", "sub": "고속 타발", "cnt": 1, "area": 189.2, "base": 10080, "run": 540, "rate": 5.4, "plan_down": 9470, "op_loss": 0, "eq_loss": 70, "eq_fail": 0}], "period": "5/1~5/7", "overall": 34.7}, "day": {"summary": [{"proc": "레이저", "sub": null, "cnt": 0, "area": 156.7, "base": 23040, "run": 7110, "rate": 30.9, "plan_down": 14930, "op_loss": 150, "eq_loss": 700, "eq_fail": 150}, {"proc": "동도금", "sub": null, "cnt": 0, "area": 1766.8, "base": 11520, "run": 2465, "rate": 21.4, "plan_down": 7120, "op_loss": 475, "eq_loss": 1080, "eq_fail": 380}, {"proc": "노광", "sub": null, "cnt": 0, "area": 1050.3, "base": 27360, "run": 4130, "rate": 15.1, "plan_down": 15880, "op_loss": 7290, "eq_loss": 60, "eq_fail": 0}, {"proc": "회로", "sub": null, "cnt": 0, "area": 2303.1, "base": 11520, "run": 3545, "rate": 30.8, "plan_down": 6220, "op_loss": 760, "eq_loss": 610, "eq_fail": 385}, {"proc": "AOI", "sub": null, "cnt": 0, "area": 988.7, "base": 33120, "run": 12652, "rate": 38.2, "plan_down": 19550, "op_loss": 375, "eq_loss": 423, "eq_fail": 120}, {"proc": "수가접", "sub": null, "cnt": 0, "area": 790.9, "base": 17280, "run": 7195, "rate": 41.6, "plan_down": 8660, "op_loss": 860, "eq_loss": 210, "eq_fail": 355}, {"proc": "적층", "sub": null, "cnt": 0, "area": 1158.3, "base": 54720, "run": 16980, "rate": 31.0, "plan_down": 6390, "op_loss": 28870, "eq_loss": 560, "eq_fail": 1920}, {"proc": "가이드", "sub": null, "cnt": 0, "area": 730.0, "base": 17280, "run": 7815, "rate": 45.2, "plan_down": 2950, "op_loss": 6270, "eq_loss": 245, "eq_fail": 0}, {"proc": "금도금", "sub": null, "cnt": 0, "area": 1763.0, "base": 10080, "run": 8480, "rate": 84.1, "plan_down": 660, "op_loss": 340, "eq_loss": 0, "eq_fail": 600}, {"proc": "자동가접", "sub": null, "cnt": 0, "area": 252.8, "base": 20160, "run": 10186, "rate": 50.5, "plan_down": 7985, "op_loss": 210, "eq_loss": 339, "eq_fail": 1440}, {"proc": "SUB", "sub": null, "cnt": 0, "area": 101.8, "base": 5760, "run": 2515, "rate": 43.7, "plan_down": 3055, "op_loss": 60, "eq_loss": 100, "eq_fail": 30}, {"proc": "BBT", "sub": null, "cnt": 0, "area": 399.7, "base": 21600, "run": 8846, "rate": 41.0, "plan_down": 12350, "op_loss": 160, "eq_loss": 161, "eq_fail": 83}, {"proc": "타발", "sub": null, "cnt": 0, "area": 2526.3, "base": 44640, "run": 30830, "rate": 69.1, "plan_down": 9990, "op_loss": 2380, "eq_loss": 1440, "eq_fail": 0}], "detail": [{"proc": "레이저", "sub": "RTR", "cnt": 10, "area": 130.8, "base": 14400, "run": 6020, "rate": 41.8, "plan_down": 7510, "op_loss": 130, "eq_loss": 590, "eq_fail": 150}, {"proc": "레이저", "sub": "SHEET", "cnt": 3, "area": 8.4, "base": 4320, "run": 570, "rate": 13.2, "plan_down": 3710, "op_loss": 10, "eq_loss": 30, "eq_fail": 0}, {"proc": "레이저", "sub": "기타(QR / COV)", "cnt": 3, "area": 17.5, "base": 4320, "run": 520, "rate": 12.0, "plan_down": 3710, "op_loss": 10, "eq_loss": 80, "eq_fail": 0}, {"proc": "동도금", "sub": "블랙홀", "cnt": 1, "area": 274.1, "base": 1440, "run": 325, "rate": 22.6, "plan_down": 690, "op_loss": 110, "eq_loss": 245, "eq_fail": 70}, {"proc": "동도금", "sub": "디스미어", "cnt": 1, "area": 134.0, "base": 1440, "run": 125, "rate": 8.7, "plan_down": 850, "op_loss": 90, "eq_loss": 375, "eq_fail": 0}, {"proc": "동도금", "sub": "화학동", "cnt": 1, "area": 162.1, "base": 1440, "run": 135, "rate": 9.4, "plan_down": 690, "op_loss": 120, "eq_loss": 435, "eq_fail": 60}, {"proc": "동도금", "sub": "SHEET 전기동", "cnt": 2, "area": 277.6, "base": 1440, "run": 640, "rate": 44.4, "plan_down": 550, "op_loss": 155, "eq_loss": 25, "eq_fail": 70}, {"proc": "동도금", "sub": "RTR 전기동", "cnt": 1, "area": 311.6, "base": 1440, "run": 710, "rate": 49.3, "plan_down": 670, "op_loss": 0, "eq_loss": 0, "eq_fail": 60}, {"proc": "동도금", "sub": "BAKING", "cnt": 2, "area": 607.4, "base": 2880, "run": 530, "rate": 18.4, "plan_down": 2230, "op_loss": 0, "eq_loss": 0, "eq_fail": 120}, {"proc": "동도금", "sub": "ULTRA", "cnt": 1, "area": 0.0, "base": 1440, "run": 0, "rate": 0.0, "plan_down": 1440, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "노광", "sub": "D/F", "cnt": 10, "area": 564.3, "base": 14400, "run": 1490, "rate": 10.3, "plan_down": 8780, "op_loss": 4070, "eq_loss": 60, "eq_fail": 0}, {"proc": "노광", "sub": "MANUAL 노광", "cnt": 2, "area": 22.0, "base": 2880, "run": 80, "rate": 2.8, "plan_down": 1900, "op_loss": 900, "eq_loss": 0, "eq_fail": 0}, {"proc": "노광", "sub": "RTR LDI", "cnt": 1, "area": 0.0, "base": 1440, "run": 0, "rate": 0.0, "plan_down": 1440, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "노광", "sub": "RTR 노광", "cnt": 2, "area": 0.0, "base": 2880, "run": 0, "rate": 0.0, "plan_down": 2880, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "노광", "sub": "LDI", "cnt": 4, "area": 464.0, "base": 5760, "run": 2560, "rate": 44.4, "plan_down": 880, "op_loss": 2320, "eq_loss": 0, "eq_fail": 0}, {"proc": "회로", "sub": "H/F", "cnt": 1, "area": 556.8, "base": 1440, "run": 605, "rate": 42.0, "plan_down": 110, "op_loss": 100, "eq_loss": 570, "eq_fail": 55}, {"proc": "회로", "sub": "S/E", "cnt": 2, "area": 536.1, "base": 2880, "run": 1040, "rate": 36.1, "plan_down": 1490, "op_loss": 240, "eq_loss": 0, "eq_fail": 110}, {"proc": "회로", "sub": "CZ", "cnt": 1, "area": 196.8, "base": 1440, "run": 345, "rate": 24.0, "plan_down": 920, "op_loss": 120, "eq_loss": 0, "eq_fail": 55}, {"proc": "회로", "sub": "옥사이드", "cnt": 1, "area": 271.5, "base": 1440, "run": 415, "rate": 28.8, "plan_down": 850, "op_loss": 120, "eq_loss": 0, "eq_fail": 55}, {"proc": "회로", "sub": "ULTRA", "cnt": 1, "area": 73.2, "base": 1440, "run": 135, "rate": 9.4, "plan_down": 1190, "op_loss": 60, "eq_loss": 0, "eq_fail": 55}, {"proc": "회로", "sub": "DES", "cnt": 2, "area": 668.7, "base": 2880, "run": 1005, "rate": 34.9, "plan_down": 1660, "op_loss": 120, "eq_loss": 40, "eq_fail": 55}, {"proc": "AOI", "sub": "RTR AOI", "cnt": 1, "area": 0.0, "base": 1440, "run": 0, "rate": 0.0, "plan_down": 1440, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "AOI", "sub": "RTR VRS", "cnt": 2, "area": 34.3, "base": 2880, "run": 466, "rate": 16.2, "plan_down": 2390, "op_loss": 15, "eq_loss": 9, "eq_fail": 0}, {"proc": "AOI", "sub": "SHEET AOI", "cnt": 6, "area": 447.0, "base": 8640, "run": 5174, "rate": 59.9, "plan_down": 3020, "op_loss": 150, "eq_loss": 246, "eq_fail": 50}, {"proc": "AOI", "sub": "SHEET VRS", "cnt": 12, "area": 507.4, "base": 17280, "run": 7012, "rate": 40.6, "plan_down": 9820, "op_loss": 210, "eq_loss": 168, "eq_fail": 70}, {"proc": "AOI", "sub": "Vision Cut", "cnt": 1, "area": 0.0, "base": 1440, "run": 0, "rate": 0.0, "plan_down": 1440, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "AOI", "sub": "AOS", "cnt": 1, "area": 0.0, "base": 1440, "run": 0, "rate": 0.0, "plan_down": 1440, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}, {"proc": "수가접", "sub": "Q/PRESS", "cnt": 6, "area": 737.8, "base": 8640, "run": 5905, "rate": 68.3, "plan_down": 2170, "op_loss": 390, "eq_loss": 175, "eq_fail": 0}, {"proc": "수가접", "sub": "자동 EMI", "cnt": 2, "area": 26.7, "base": 2880, "run": 570, "rate": 19.8, "plan_down": 1950, "op_loss": 10, "eq_loss": 15, "eq_fail": 335}, {"proc": "수가접", "sub": "자동 COV", "cnt": 4, "area": 26.4, "base": 5760, "run": 720, "rate": 12.5, "plan_down": 4540, "op_loss": 460, "eq_loss": 20, "eq_fail": 20}, {"proc": "적층", "sub": "H/P", "cnt": 38, "area": 1158.3, "base": 54720, "run": 16980, "rate": 31.0, "plan_down": 6390, "op_loss": 28870, "eq_loss": 560, "eq_fail": 1920}, {"proc": "가이드", "sub": "X-RAY", "cnt": 1, "area": 50.2, "base": 1440, "run": 240, "rate": 16.7, "plan_down": 460, "op_loss": 720, "eq_loss": 20, "eq_fail": 0}, {"proc": "가이드", "sub": "RTR GUIDE", "cnt": 1, "area": 0.0, "base": 1440, "run": 0, "rate": 0.0, "plan_down": 0, "op_loss": 1440, "eq_loss": 0, "eq_fail": 0}, {"proc": "가이드", "sub": "자동 GUIDE", "cnt": 10, "area": 679.8, "base": 14400, "run": 7575, "rate": 52.6, "plan_down": 2490, "op_loss": 4110, "eq_loss": 225, "eq_fail": 0}, {"proc": "금도금", "sub": "JET LINE", "cnt": 1, "area": 237.0, "base": 1440, "run": 1220, "rate": 84.7, "plan_down": 0, "op_loss": 70, "eq_loss": 0, "eq_fail": 150}, {"proc": "금도금", "sub": "LINE E.N.I.G", "cnt": 1, "area": 237.0, "base": 1440, "run": 1280, "rate": 88.9, "plan_down": 0, "op_loss": 70, "eq_loss": 0, "eq_fail": 90}, {"proc": "금도금", "sub": "ULTRA", "cnt": 1, "area": 237.0, "base": 1440, "run": 1280, "rate": 88.9, "plan_down": 0, "op_loss": 70, "eq_loss": 0, "eq_fail": 90}, {"proc": "금도금", "sub": "X-RAY", "cnt": 1, "area": 237.0, "base": 1440, "run": 1280, "rate": 88.9, "plan_down": 0, "op_loss": 70, "eq_loss": 0, "eq_fail": 90}, {"proc": "금도금", "sub": "플라즈마", "cnt": 3, "area": 815.0, "base": 4320, "run": 3420, "rate": 79.2, "plan_down": 660, "op_loss": 60, "eq_loss": 0, "eq_fail": 180}, {"proc": "자동가접", "sub": "Q/PRESS", "cnt": 3, "area": 66.0, "base": 4320, "run": 3172, "rate": 73.4, "plan_down": 1020, "op_loss": 60, "eq_loss": 68, "eq_fail": 0}, {"proc": "자동가접", "sub": "DAWON", "cnt": 4, "area": 46.3, "base": 5760, "run": 4491, "rate": 78.0, "plan_down": 1000, "op_loss": 80, "eq_loss": 189, "eq_fail": 0}, {"proc": "자동가접", "sub": "꿕바오", "cnt": 2, "area": 19.5, "base": 2880, "run": 1020, "rate": 35.4, "plan_down": 330, "op_loss": 20, "eq_loss": 70, "eq_fail": 1440}, {"proc": "자동가접", "sub": "FAST", "cnt": 3, "area": 10.1, "base": 4320, "run": 348, "rate": 8.1, "plan_down": 3940, "op_loss": 20, "eq_loss": 12, "eq_fail": 0}, {"proc": "자동가접", "sub": "AIR BAG", "cnt": 2, "area": 110.9, "base": 2880, "run": 1155, "rate": 40.1, "plan_down": 1695, "op_loss": 30, "eq_loss": 0, "eq_fail": 0}, {"proc": "SUB", "sub": "Q/PRESS", "cnt": 4, "area": 101.8, "base": 5760, "run": 2515, "rate": 43.7, "plan_down": 3055, "op_loss": 60, "eq_loss": 100, "eq_fail": 30}, {"proc": "BBT", "sub": "수동 BBT", "cnt": 9, "area": 40.6, "base": 12960, "run": 1760, "rate": 13.6, "plan_down": 11090, "op_loss": 40, "eq_loss": 23, "eq_fail": 47}, {"proc": "BBT", "sub": "AUTO BBT", "cnt": 6, "area": 359.1, "base": 8640, "run": 7086, "rate": 82.0, "plan_down": 1260, "op_loss": 120, "eq_loss": 138, "eq_fail": 36}, {"proc": "타발", "sub": "PRESS", "cnt": 26, "area": 2316.2, "base": 37440, "run": 26328, "rate": 70.3, "plan_down": 7670, "op_loss": 2300, "eq_loss": 1142, "eq_fail": 0}, {"proc": "타발", "sub": "CUTTING", "cnt": 2, "area": 181.4, "base": 2880, "run": 2244, "rate": 77.9, "plan_down": 440, "op_loss": 40, "eq_loss": 156, "eq_fail": 0}, {"proc": "타발", "sub": "보강판 PRESS", "cnt": 2, "area": 28.8, "base": 2880, "run": 2258, "rate": 78.4, "plan_down": 440, "op_loss": 40, "eq_loss": 142, "eq_fail": 0}, {"proc": "타발", "sub": "고속 타발", "cnt": 1, "area": 0.0, "base": 1440, "run": 0, "rate": 0.0, "plan_down": 1440, "op_loss": 0, "eq_loss": 0, "eq_fail": 0}], "period": "5/7", "overall": 41.7}};
+var TREND={"레이저": [53.2, 39.5, 40.6, 40.6, 20.4], "동도금": [31.4, 20.6, 25.5, 17.1, 19.9], "노광": [21.0, 15.1, 15.9, 14.4, 13.6], "회로": [29.7, 20.4, 26.1, 28.8, 29.9], "AOI": [49.7, 33.5, 37.4, 37.8, 38.0], "수가접": [54.0, 39.3, 49.2, 41.9, 33.7], "적층": [54.5, 33.1, 39.6, 35.3, 30.1], "가이드": [50.9, 31.3, 45.7, 39.0, 32.0], "금도금": [80.2, 52.0, 75.6, 70.5, 74.7], "자동가접": [64.6, 56.8, 66.5, 45.2, 37.4], "SUB": [36.3, 25.2, 47.7, 37.7, 34.4], "BBT": [39.0, 30.3, 41.4, 39.8, 34.5], "타발": [63.0, 40.7, 47.5, 53.8, 52.8]};
+var ETRD={"레이저_RTR": [72.0, 51.1, 50.0, 48.0, 21.4], "레이저_SHEET": [37.1, 33.2, 39.9, 43.2, 31.1], "레이저_기타(QR / COV)": [29.9, 19.4, 16.4, 13.3, 6.3], "동도금_블랙홀": [51.8, 35.0, 39.5, 31.4, 26.1], "동도금_디스미어": [13.4, 3.1, 9.8, 5.0, 11.3], "동도금_화학동": [5.4, 3.8, 9.3, 3.3, 11.0], "동도금_SHEET 전기동": [51.2, 24.6, 35.8, 25.2, 42.6], "동도금_RTR 전기동": [61.5, 51.6, 55.8, 46.3, 35.6], "동도금_BAKING": [31.3, 20.8, 24.1, 12.1, 16.0], "동도금_ULTRA": [5.1, 4.8, 5.8, 1.8, 0.4], "노광_D/F": [12.0, 8.6, 8.4, 8.9, 9.7], "노광_MANUAL 노광": [2.7, 1.8, 2.1, 1.2, 1.6], "노광_RTR LDI": [5.9, 2.4, 2.9, 12.4, 3.6], "노광_RTR 노광": [21.6, 13.9, 5.2, 19.4, 9.1], "노광_LDI": [56.2, 42.0, 50.2, 32.6, 34.1], "회로_H/F": [50.6, 27.7, 19.3, 32.6, 26.5], "회로_S/E": [47.1, 32.3, 46.8, 42.7, 41.9], "회로_CZ": [12.1, 8.4, 15.6, 20.7, 31.5], "회로_옥사이드": [9.7, 7.1, 12.7, 19.2, 22.3], "회로_ULTRA": [3.2, 1.6, 4.5, 8.3, 13.8], "회로_DES": [34.1, 26.9, 31.7, 32.0, 30.5], "AOI_RTR AOI": [53.8, 32.9, 32.3, 66.5, 37.2], "AOI_RTR VRS": [45.4, 28.3, 16.1, 44.6, 39.5], "AOI_SHEET AOI": [65.4, 47.3, 51.0, 45.0, 51.8], "AOI_SHEET VRS": [44.8, 29.9, 39.9, 31.4, 33.9], "AOI_Vision Cut": [69.0, 38.9, 11.1, 65.0, 39.2], "AOI_AOS": [null, null, null, 1.4, null], "수가접_Q/PRESS": [63.6, 45.3, 63.9, 58.5, 48.0], "수가접_자동 EMI": [37.6, 29.3, 31.9, 23.5, 24.8], "수가접_자동 COV": [41.8, 31.1, 29.2, 26.3, 16.6], "적층_H/P": [54.5, 33.1, 39.6, 35.3, 30.1], "가이드_X-RAY": [18.7, 1.6, 25.7, 23.2, 27.4], "가이드_RTR GUIDE": [6.9, 9.0, 6.5, 16.2, 20.9], "가이드_자동 GUIDE": [58.5, 36.5, 51.7, 42.9, 33.6], "금도금_JET LINE": [84.5, 61.6, 83.6, 65.7, 70.2], "금도금_LINE E.N.I.G": [84.2, 60.4, 82.2, 65.7, 69.0], "금도금_ULTRA": [84.2, 60.4, 82.6, 65.7, 69.0], "금도금_X-RAY": [84.2, 60.1, 82.6, 65.7, 69.0], "금도금_플라즈마": [74.7, 40.5, 66.1, 77.0, 81.9], "자동가접_Q/PRESS": [75.6, 57.0, 70.2, 53.4, 56.7], "자동가접_DAWON": [60.1, 50.7, 68.5, 43.5, 39.0], "자동가접_꿕바오": [78.4, 71.3, 80.1, 50.3, 37.5], "자동가접_FAST": [69.0, 58.5, 45.1, 37.4, 21.2], "자동가접_AIR BAG": [36.3, 51.9, 75.1, 42.7, 29.3], "SUB_Q/PRESS": [36.3, 25.2, 47.7, 37.7, 34.4], "BBT_수동 BBT": [17.8, 13.7, 23.3, 20.9, 14.5], "BBT_AUTO BBT": [70.7, 55.2, 68.4, 68.3, 64.4], "타발_PRESS": [63.2, 39.1, 47.5, 53.2, 53.4], "타발_CUTTING": [57.1, 49.8, 54.2, 57.8, 54.2], "타발_보강판 PRESS": [68.4, 60.8, 58.6, 68.2, 66.9], "타발_고속 타발": [60.3, 23.1, 12.1, 31.9, 5.4]};
+// ##DATA_END##
 
-// ════════════════════════════════════════
-// 파일 업로드
-// ════════════════════════════════════════
-document.getElementById('fIn').addEventListener('change', function(e){
-  if (e.target.files[0]) readXL(e.target.files[0]);
-});
-var dzEl = document.getElementById('dz');
-dzEl.addEventListener('dragover',  function(e){ e.preventDefault(); dzEl.classList.add('drag'); });
-dzEl.addEventListener('dragleave', function(){ dzEl.classList.remove('drag'); });
-dzEl.addEventListener('drop', function(e){
-  e.preventDefault(); dzEl.classList.remove('drag');
-  if (e.dataTransfer.files[0]) readXL(e.dataTransfer.files[0]);
-});
+// ── 상태 변수 ──
+var MODE='month', TGT=60, CH={}, HF_PROC='';
+var BUILD_TIME='2026-05-08T08:29:58Z';
+var LS_STOP='syn_stop', LS_BREAK='syn_break';
 
-function readXL(file) {
-  document.getElementById('ustat').textContent = '⏳ 읽는 중...';
-  var reader = new FileReader();
-  reader.onerror = function(){ document.getElementById('ustat').textContent = '❌ 파일 읽기 오류'; };
-  reader.onload = function(e) {
-    try {
-      var wb = XLSX.read(e.target.result, { type:'array', cellDates:true });
-      // 시트명 탐색
-      var sMonth = findSheet(wb, ['가동율(월 누적기준)','월누적','월 누적','month']);
-      var sDay   = findSheet(wb, ['가동율(일)','일기준','일 기준','day']);
-      var sYear  = findSheet(wb, ['가동율(2026년)','가동율(2025년)','2026','2025','연간','year']);
+// ── 유틸 ──
+function cur(){ return MODES[MODE]||MODES.month; }
+function N(v){ return Math.round(v||0).toLocaleString(); }
+function Nf(v,d){ d=d===undefined?1:d; return (+(v||0)).toFixed(d); }
+function gc(v){ return v>=TGT?'var(--green)':v>=40?'var(--amber)':'var(--red)'; }
+function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); setTimeout(function(){t.classList.remove('on');},2200); }
 
-      if (!sMonth) {
-        alert('시트를 찾을 수 없습니다.\n시트 목록: ' + wb.SheetNames.join(', '));
-        document.getElementById('ustat').textContent = '❌ 시트 없음';
-        return;
+// ── 탭 전환 ──
+var tabInited={};
+function sw(i,btn){
+  document.querySelectorAll('.ntab').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  document.querySelectorAll('.npane').forEach(function(p,j){p.classList.toggle('on',j===i);});
+  if(!tabInited[i]){ initTab(i); tabInited[i]=1; }
+}
+function initTab(i){
+  if(i===0) renderTab0();
+  else if(i===1) renderHeat();
+  else if(i===2) renderTrend();
+  else if(i===3) renderDetail();
+}
+
+// ── 월/일 전환 ──
+function setMode(m){
+  MODE=m;
+  document.getElementById('btnMonth').classList.toggle('on',m==='month');
+  document.getElementById('btnDay').classList.toggle('on',m==='day');
+  Object.keys(CH).forEach(function(k){try{if(CH[k]&&CH[k].destroy)CH[k].destroy();}catch(e){}});
+  CH={};
+  var db=cur();
+  document.getElementById('h-avg').textContent=db.overall+'%';
+  document.getElementById('k-avg').textContent=db.overall+'%';
+  document.getElementById('k-period').textContent='기간: '+db.period;
+  var wn=db.summary.filter(function(s){return s.rate>=40&&s.rate<TGT;}).length;
+  var cr=db.summary.filter(function(s){return s.rate<TGT&&s.rate<40;}).length;
+  document.getElementById('k-ok').textContent=db.summary.filter(function(s){return s.rate>=TGT;}).length+'개';
+  document.getElementById('k-warn').textContent=wn+'개';
+  document.getElementById('k-crit').textContent=cr+'개';
+  // 현재 활성 탭 재렌더
+  var ti=0;
+  document.querySelectorAll('.ntab').forEach(function(t,j){if(t.classList.contains('on'))ti=j;});
+  tabInited={};
+  initTab(ti);
+}
+
+// ── 탭0: 종합현황 ──
+function renderTab0(){
+  var db=cur();
+  document.getElementById('h-avg').textContent=db.overall+'%';
+  document.getElementById('k-avg').textContent=db.overall+'%';
+  document.getElementById('k-period').textContent='기간: '+db.period;
+  var wn=db.summary.filter(function(s){return s.rate>=40&&s.rate<TGT;}).length;
+  var cr=db.summary.filter(function(s){return s.rate<40;}).length;
+  document.getElementById('k-ok').textContent=db.summary.filter(function(s){return s.rate>=TGT;}).length+'개';
+  document.getElementById('k-warn').textContent=wn+'개';
+  document.getElementById('k-crit').textContent=cr+'개';
+  buildChart0(db);
+  buildTable0(db);
+  renderStop(); renderBreak();
+}
+
+function buildChart0(db){
+  var pn=db.summary.map(function(s){return s.proc;});
+  var rt=db.summary.map(function(s){return s.rate;});
+  var avg=db.overall;
+  if(CH.c0a)CH.c0a.destroy();
+  CH.c0a=new Chart(document.getElementById('c0a'),{
+    type:'bar',
+    data:{labels:pn,datasets:[
+      {label:'가동율(%)',data:rt,backgroundColor:rt.map(function(v){return v>=TGT?'rgba(46,160,67,.7)':v>=40?'rgba(210,153,34,.7)':'rgba(248,81,73,.7)';}) ,borderRadius:4,borderSkipped:false},
+      {type:'line',label:'평균('+Nf(avg,1)+'%)',data:pn.map(function(){return avg;}),borderColor:'rgba(57,208,197,.6)',borderWidth:2,borderDash:[4,4],pointRadius:0,tension:0}
+    ]},
+    options:{plugins:{legend:{labels:{color:'#8b949e',font:{size:11}}}},scales:{x:{ticks:{color:'#8b949e',font:{size:11}},grid:{color:'rgba(48,54,61,.5)'}},y:{min:0,max:100,ticks:{color:'#8b949e',font:{size:10},callback:function(v){return v+'%';}},grid:{color:'rgba(48,54,61,.5)'}}}}
+  });
+  if(CH.c0b)CH.c0b.destroy();
+  CH.c0b=new Chart(document.getElementById('c0b'),{
+    type:'bar',
+    data:{labels:pn,datasets:[
+      {label:'실운행',data:db.summary.map(function(s){return s.run;}),backgroundColor:'rgba(46,160,67,.7)',borderRadius:3,stack:'a'},
+      {label:'계획비가동',data:db.summary.map(function(s){return s.plan_down;}),backgroundColor:'rgba(56,139,253,.5)',borderRadius:0,stack:'a'},
+      {label:'운영유실',data:db.summary.map(function(s){return s.op_loss;}),backgroundColor:'rgba(210,153,34,.6)',borderRadius:0,stack:'a'},
+      {label:'설비유실',data:db.summary.map(function(s){return s.eq_loss+s.eq_fail;}),backgroundColor:'rgba(248,81,73,.6)',borderRadius:3,stack:'a'}
+    ]},
+    options:{plugins:{legend:{labels:{color:'#8b949e',font:{size:10}}}},scales:{x:{stacked:true,ticks:{color:'#8b949e',font:{size:11}},grid:{color:'rgba(48,54,61,.5)'}},y:{stacked:true,ticks:{color:'#8b949e',font:{size:10},callback:function(v){return v>=10000?(v/10000)+'만':v;}},grid:{color:'rgba(48,54,61,.5)'}}}}
+  });
+  // ── 파레토 차트 (c0c) ──
+  // 가동율 누적 파레토 — 가동율 낮은순(위험→정상) 정렬
+  var sorted2=db.summary.slice().filter(function(s){return s.proc;}).sort(function(a,b){return a.rate-b.rate;});
+  var ptotal=sorted2.reduce(function(acc,s){return acc+s.run;},0)||1;
+  var pcum=0;
+  var pcumPct=sorted2.map(function(s){pcum+=s.run;return Math.round(pcum/ptotal*1000)/10;});
+  if(CH.c0c)CH.c0c.destroy();
+  var c0cEl=document.getElementById('c0c');
+  if(c0cEl){
+    CH.c0c=new Chart(c0cEl,{
+      type:'bar',
+      data:{labels:sorted2.map(function(s){return s.proc;}),datasets:[
+        {type:'bar',label:'가동율(%)',data:sorted2.map(function(s){return s.rate;}),
+          backgroundColor:sorted2.map(function(s){return s.rate>=TGT?'rgba(46,160,67,.8)':s.rate>=40?'rgba(210,153,34,.8)':'rgba(248,81,73,.8)';}),
+          borderRadius:4,yAxisID:'y',order:2},
+        {type:'line',label:'누적 실운행(%)',data:pcumPct,
+          borderColor:'rgba(57,208,197,.9)',backgroundColor:'rgba(57,208,197,.08)',
+          fill:true,borderWidth:2,pointRadius:5,
+          pointBackgroundColor:'rgba(57,208,197,.9)',tension:.2,yAxisID:'y2',order:1}
+      ]},
+      options:{
+        plugins:{legend:{labels:{color:'#8b949e',font:{size:10},boxWidth:10}}},
+        scales:{
+          x:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(48,54,61,.5)'}},
+          y:{min:0,max:100,position:'left',
+            title:{display:true,text:'가동율(%)',color:'#8b949e',font:{size:9}},
+            ticks:{color:'#8b949e',font:{size:10},callback:function(v){return v+'%';}},
+            grid:{color:'rgba(48,54,61,.3)'}},
+          y2:{min:0,max:100,position:'right',
+            title:{display:true,text:'누적(%)',color:'rgba(57,208,197,.7)',font:{size:9}},
+            ticks:{color:'rgba(57,208,197,.7)',font:{size:10},callback:function(v){return v+'%';}},
+            grid:{drawOnChartArea:false}}
+        }
       }
-      DB.month = parseSheet(wb.Sheets[sMonth]);
-      DB.day   = sDay ? parseSheet(wb.Sheets[sDay]) : null;
-      DB.trend = sYear ? parseTrend(wb.Sheets[sYear]) : null;
+    });
+  }
+}
 
-      if (!DB.month || !DB.month.rows.length) {
-        alert('데이터를 파싱할 수 없습니다. 엑셀 구조를 확인해주세요.');
-        document.getElementById('ustat').textContent = '❌ 파싱 오류';
-        return;
+function buildTable0(db){
+  var h='';
+  db.summary.forEach(function(d){
+    if(!d.proc)return;
+    var c=gc(d.rate),st=d.rate>=TGT?'<span class="badge bgn">정상</span>':d.rate>=40?'<span class="badge bwn">주의</span>':'<span class="badge brd">위험</span>';
+    var pct=Math.min(d.rate,100);
+    h+='<tr><td>'+d.proc+'</td>'
+      +'<td><div class="pbar"><div class="ptr"><div class="pfl" style="width:'+pct+'%;background:'+c+'"></div></div><span class="pval" style="color:'+c+'">'+Nf(d.rate)+'%</span></div></td>'
+      +'<td>'+N(d.base)+'</td><td>'+N(d.run)+'</td>'
+      +'<td style="color:rgba(56,139,253,.8)">'+N(d.plan_down)+'</td>'
+      +'<td style="color:var(--amber)">'+N(d.op_loss)+'</td>'
+      +'<td style="color:var(--red)">'+N(d.eq_loss+d.eq_fail)+'</td>'
+      +'<td>'+Nf(d.area,1)+'</td><td>'+st+'</td></tr>';
+  });
+  document.getElementById('t0b').innerHTML=h;
+}
+
+// ── 탭1: 히트맵 ──
+function renderHeat(){
+  var db=cur();
+  var sort=document.getElementById('heat-sort').value;
+  var items=db.detail.slice();
+  if(HF_PROC) items=items.filter(function(d){return d.proc===HF_PROC;});
+  if(sort==='asc') items.sort(function(a,b){return a.rate-b.rate;});
+  else if(sort==='desc') items.sort(function(a,b){return b.rate-a.rate;});
+  else items.sort(function(a,b){return a.proc.localeCompare(b.proc)||(a.sub||'').localeCompare(b.sub||'');});
+  
+  // 필터 버튼 초기화 (한 번만)
+  var bf=document.getElementById('hf-btns');
+  if(!bf.dataset.init){
+    var procs=[];
+    db.detail.forEach(function(d){if(procs.indexOf(d.proc)<0)procs.push(d.proc);});
+    procs.sort();
+    bf.innerHTML=procs.map(function(p){
+      return '<button class="hf-btn" onclick="setHF(\'' + p + '\',this)">' + p + '</button>';
+    }).join('');
+    bf.dataset.init='1';
+  }
+  
+  document.getElementById('heat-cnt').textContent=items.length+'대 / 전체 '+db.detail.length+'대';
+  var hm=document.getElementById('heatmap');
+  hm.innerHTML='';
+  items.forEach(function(d){
+    var cls=d.rate>=TGT?'ok':d.rate>=40?'warn':'crit';
+    var dj=encodeURIComponent(JSON.stringify(d));
+    hm.innerHTML+='<div class="hcell '+cls+'" onclick="showEq(decodeURIComponent(\'' + dj.replace(/'/g,"\x27") + '\'))" title="'+d.proc+'/'+d.sub+'">'
+      +'<div class="cv">'+Nf(d.rate,0)+'%</div>'
+      +'<div class="cn">'+(d.sub||d.proc)+'</div>'
+      +'<div class="cp">'+d.proc+'</div></div>';
+  });
+}
+
+function setHF(proc,btn){
+  HF_PROC=proc;
+  document.querySelectorAll('.hf-btn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  renderHeat();
+}
+
+// ── 팝업 ──
+function showEq(dj){
+  var d=JSON.parse(dj);
+  var c=gc(d.rate);
+  document.getElementById('eq-title').textContent=d.sub||d.proc;
+  document.getElementById('eq-proc').textContent=d.proc+' 공정';
+  document.getElementById('eq-rate').textContent=Nf(d.rate,1)+'%';
+  document.getElementById('eq-rate').style.color=c;
+  document.getElementById('eq-cnt').textContent=d.cnt+'대';
+  document.getElementById('eq-base').textContent=N(d.base);
+  document.getElementById('eq-run').textContent=N(d.run);
+  document.getElementById('eq-area').textContent=Nf(d.area,1)+'㎡';
+  document.getElementById('eq-pd').textContent=N(d.plan_down);
+  document.getElementById('eq-ol').textContent=N(d.op_loss);
+  document.getElementById('eq-el').textContent=N(d.eq_loss+d.eq_fail);
+  document.getElementById('eq-bar-pct').textContent=Nf(d.rate,1)+'%';
+  document.getElementById('eq-bar-pct').style.color=c;
+  var fill=document.getElementById('eq-bar-fill');
+  fill.style.width=Math.min(d.rate,100)+'%'; fill.style.background=c;
+  var key=d.proc+'_'+d.sub;
+  var tr=ETRD&&ETRD[key];
+  var tw=document.getElementById('eq-trend-wrap');
+  if(tr){
+    tw.style.display='';
+    document.getElementById('eq-trend').innerHTML=['1월','2월','3월','4월','5월'].map(function(m,i){
+      var v=tr[i]; var cv=v!=null?gc(v):'var(--muted)';
+      return '<div style="flex:1;background:var(--card2);border:1px solid var(--bor);border-radius:8px;padding:8px;text-align:center">'
+        +'<div style="font-family:Orbitron,monospace;font-size:13px;font-weight:700;color:'+cv+'">'+(v!=null?v+'%':'—')+'</div>'
+        +'<div style="font-size:9px;color:var(--muted);margin-top:2px">'+m+'</div></div>';
+    }).join('');
+  } else { tw.style.display='none'; }
+  document.getElementById('eqOv').classList.add('on');
+}
+function closeEq(){document.getElementById('eqOv').classList.remove('on');}
+
+// ── 탭2: 추이 ──
+function renderTrend(){
+  var months=['1월','2월','3월','4월','5월'];
+  var colors=['#39d0c5','#2ea043','#d29922','#f85149','#388bfd','#bc8cff','#ff7b72','#ffa657','#79c0ff','#56d364','#e3b341','#ff6b9d','#7ee787'];
+  var procs=Object.keys(TREND);
+  if(CH.c2a)CH.c2a.destroy();
+  CH.c2a=new Chart(document.getElementById('c2a'),{
+    type:'line',
+    data:{labels:months,datasets:procs.map(function(p,i){
+      return {label:p,data:TREND[p],borderColor:colors[i%colors.length],backgroundColor:'transparent',tension:.3,pointRadius:5,pointBackgroundColor:colors[i%colors.length]};
+    })},
+    options:{plugins:{legend:{labels:{color:'#8b949e',font:{size:10},boxWidth:12}}},scales:{x:{ticks:{color:'#8b949e'},grid:{color:'rgba(48,54,61,.5)'}},y:{min:0,max:100,ticks:{color:'#8b949e',callback:function(v){return v+'%';}},grid:{color:'rgba(48,54,61,.5)'}}}}
+  });
+  // 공정 필터 초기화
+  var fp=document.getElementById('fProc');
+  if(fp.options.length<=1){
+    procs.forEach(function(p){fp.innerHTML+='<option value="'+p+'">'+p+'</option>';});
+  }
+  buildCumKpis();
+  buildCumChart();
+  renderEtrd();
+}
+
+var CUM_FILTER='all';
+function setCumFilter(f,btn){
+  CUM_FILTER=f;
+  document.querySelectorAll('#cum-all-btn,#cum-proc-btn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  buildCumChart();
+}
+
+function buildCumKpis(){
+  var months=['1월','2월','3월','4월','5월'];
+  // 전체 평균: TREND 값들의 평균
+  var procs=Object.keys(TREND);
+  var avgs=months.map(function(_,mi){
+    var vals=procs.map(function(p){return TREND[p][mi];}).filter(function(v){return v!=null;});
+    return vals.length?Math.round(vals.reduce(function(a,b){return a+b;})/vals.length*10)/10:null;
+  });
+  var colors=['rgba(248,81,73,.15)','rgba(210,153,34,.15)','rgba(56,139,253,.15)','rgba(57,208,197,.15)'];
+  var textColors=['var(--red)','var(--amber)','var(--blue)','var(--teal)'];
+  var borders=['var(--red)','var(--amber)','var(--blue)','var(--teal)'];
+  document.getElementById('cum-kpis').innerHTML=months.map(function(m,i){
+    var v=avgs[i]; var prev=i>0?avgs[i-1]:null;
+    var diff=v!=null&&prev!=null?Math.round((v-prev)*10)/10:null;
+    var arrow=diff==null?'':diff>0?'▲ +'+diff+'%':diff<0?'▼ '+diff+'%':'→ 유지';
+    var ac=diff==null?'var(--muted)':diff>0?'var(--green)':diff<0?'var(--red)':'var(--muted)';
+    return '<div style="background:'+colors[i]+';border:1px solid '+borders[i]+';border-radius:10px;padding:14px 16px;position:relative;overflow:hidden">'
+      +'<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">'+m+' 누적 평균</div>'
+      +'<div style="font-family:Orbitron,monospace;font-size:24px;font-weight:700;color:'+textColors[i]+'">'+(v!=null?v+'%':'—')+'</div>'
+      +(diff!=null?'<div style="font-size:10px;color:'+ac+';margin-top:4px">'+arrow+'</div>':'')
+      +'</div>';
+  }).join('');
+}
+
+function buildCumChart(){
+  var months=['1월','2월','3월','4월','5월'];
+  var procs=Object.keys(TREND);
+  var colors=['#39d0c5','#2ea043','#d29922','#f85149','#388bfd','#bc8cff','#ff7b72','#ffa657','#79c0ff','#56d364','#e3b341','#ff6b9d','#7ee787'];
+  if(CH.c2c)CH.c2c.destroy();
+  if(CUM_FILTER==='all'){
+    // 전체 평균 단일 선
+    var avgs=months.map(function(_,mi){
+      var vals=procs.map(function(p){return TREND[p][mi];}).filter(function(v){return v!=null;});
+      return vals.length?Math.round(vals.reduce(function(a,b){return a+b;})/vals.length*10)/10:null;
+    });
+    CH.c2c=new Chart(document.getElementById('c2c'),{
+      type:'line',
+      data:{labels:months,datasets:[{
+        label:'전체 평균 가동율',data:avgs,
+        borderColor:'#39d0c5',backgroundColor:'rgba(57,208,197,.15)',
+        fill:true,tension:.3,pointRadius:8,pointBackgroundColor:'#39d0c5',
+        pointBorderColor:'#0d1117',pointBorderWidth:2,borderWidth:3
+      }]},
+      options:{plugins:{legend:{labels:{color:'#8b949e',font:{size:11}}},
+        tooltip:{callbacks:{label:function(ctx){return ' '+ctx.dataset.label+': '+(ctx.raw!=null?ctx.raw+'%':'데이터없음');}}}},
+        scales:{x:{ticks:{color:'#8b949e'},grid:{color:'rgba(48,54,61,.5)'}},
+          y:{min:0,max:100,ticks:{color:'#8b949e',callback:function(v){return v+'%';}},grid:{color:'rgba(48,54,61,.5)'}}}}
+    });
+  } else {
+    // 공정별 선
+    CH.c2c=new Chart(document.getElementById('c2c'),{
+      type:'line',
+      data:{labels:months,datasets:procs.map(function(p,i){
+        return {label:p,data:TREND[p],borderColor:colors[i%colors.length],
+          backgroundColor:'transparent',tension:.3,pointRadius:5,
+          pointBackgroundColor:colors[i%colors.length],borderWidth:2};
+      })},
+      options:{plugins:{legend:{labels:{color:'#8b949e',font:{size:10},boxWidth:10}}},
+        scales:{x:{ticks:{color:'#8b949e'},grid:{color:'rgba(48,54,61,.5)'}},
+          y:{min:0,max:100,ticks:{color:'#8b949e',callback:function(v){return v+'%';}},grid:{color:'rgba(48,54,61,.5)'}}}}
+    });
+  }
+}
+
+function renderEtrd(){
+  var fp=document.getElementById('fProc').value;
+  var keys=Object.keys(ETRD).filter(function(k){return !fp||k.startsWith(fp);});
+  if(!keys.length)return;
+  var months=['1월','2월','3월','4월','5월'];
+  var colors=['#39d0c5','#2ea043','#d29922','#f85149','#388bfd','#bc8cff','#ff7b72','#ffa657','#79c0ff','#56d364'];
+  if(CH.c2b)CH.c2b.destroy();
+  CH.c2b=new Chart(document.getElementById('c2b'),{
+    type:'line',
+    data:{labels:months,datasets:keys.slice(0,10).map(function(k,i){
+      var label=k.indexOf('_')>=0?k.split('_').slice(1).join('_'):k;
+      return {label:label,data:ETRD[k],borderColor:colors[i%colors.length],backgroundColor:'transparent',tension:.3,pointRadius:4,pointBackgroundColor:colors[i%colors.length]};
+    })},
+    options:{plugins:{legend:{labels:{color:'#8b949e',font:{size:9},boxWidth:10}}},scales:{x:{ticks:{color:'#8b949e'},grid:{color:'rgba(48,54,61,.5)'}},y:{min:0,max:100,ticks:{color:'#8b949e',callback:function(v){return v+'%';}},grid:{color:'rgba(48,54,61,.5)'}}}}
+  });
+}
+
+// ── 탭3: 상세 ──
+function renderDetail(){
+  var db=cur();
+  var fp=document.getElementById('fProc3').value;
+  var fs=document.getElementById('fStat').value;
+  // 공정 필터 초기화
+  var fp3=document.getElementById('fProc3');
+  if(fp3.options.length<=1){
+    var procs=[];
+    db.detail.forEach(function(d){if(d.proc&&procs.indexOf(d.proc)<0)procs.push(d.proc);});
+    procs.sort().forEach(function(p){fp3.innerHTML+='<option value="'+p+'">'+p+'</option>';});
+  }
+  var list=db.detail.filter(function(d){
+    if(!d.sub)return false;
+    if(fp&&d.proc!==fp)return false;
+    if(fs==='crit'&&d.rate>=40)return false;
+    if(fs==='warn'&&(d.rate<40||d.rate>=TGT))return false;
+    if(fs==='ok'&&d.rate<TGT)return false;
+    return true;
+  });
+  list.sort(function(a,b){return a.rate-b.rate;});
+  var h='';
+  list.forEach(function(d,i){
+    var c=gc(d.rate),st=d.rate>=TGT?'<span class="badge bgn">정상</span>':d.rate>=40?'<span class="badge bwn">주의</span>':'<span class="badge brd">위험</span>';
+    h+='<tr><td style="color:var(--muted);font-size:11px">'+(i+1)+'</td>'
+      +'<td>'+d.proc+'</td><td style="font-weight:600">'+(d.sub||'-')+'</td>'
+      +'<td style="text-align:center">'+d.cnt+'대</td>'
+      +'<td><div class="pbar"><div class="ptr"><div class="pfl" style="width:'+Math.min(d.rate,100)+'%;background:'+c+'"></div></div><span class="pval" style="color:'+c+'">'+Nf(d.rate,1)+'%</span></div></td>'
+      +'<td>'+N(d.base)+'</td><td>'+N(d.run)+'</td>'
+      +'<td style="color:rgba(56,139,253,.8)">'+N(d.plan_down)+'</td>'
+      +'<td style="color:var(--amber)">'+N(d.op_loss)+'</td>'
+      +'<td style="color:var(--red)">'+N(d.eq_loss+d.eq_fail)+'</td>'
+      +'<td>'+Nf(d.area,1)+'</td><td>'+st+'</td></tr>';
+  });
+  document.getElementById('t3b').innerHTML=h||'<tr><td colspan="12" style="text-align:center;padding:20px;color:var(--muted)">데이터 없음</td></tr>';
+}
+
+// ── 계획정지/고장 ──
+function loadList(k){try{return JSON.parse(localStorage.getItem(k))||[];}catch(e){return[];}}
+function saveList(k,a){localStorage.setItem(k,JSON.stringify(a));}
+
+function renderStop(){
+  var arr=loadList(LS_STOP);
+  var el=document.getElementById('stop-tbody');
+  if(!arr.length){el.innerHTML='<tr><td colspan="8" style="text-align:center;padding:16px;color:var(--muted);font-size:12px">등록된 계획 정지 설비 없음</td></tr>';return;}
+  el.innerHTML=arr.map(function(r,i){
+    return '<tr><td>'+r.proc+'</td><td style="font-weight:600">'+r.name+'</td><td style="text-align:center">'+r.cnt+'대</td>'
+      +'<td style="text-align:center;font-size:11px">'+(r.start||'-')+'</td>'
+      +'<td style="font-size:11px">'+r.reason+'</td><td style="text-align:center;font-size:11px">'+r.date+'</td>'
+      +'<td style="text-align:center"><span class="stop-badge">정지중</span></td>'
+      +'<td><button onclick="delItem(\'' + LS_STOP + '\','+i+')" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--muted)">삭제</button></td></tr>';
+  }).join('');
+}
+function renderBreak(){
+  var arr=loadList(LS_BREAK);
+  var el=document.getElementById('break-tbody');
+  if(!arr.length){el.innerHTML='<tr><td colspan="8" style="text-align:center;padding:16px;color:var(--muted);font-size:12px">등록된 고장 설비 없음</td></tr>';return;}
+  el.innerHTML=arr.map(function(r,i){
+    var bc2=r.status==='수리완료'?'done-badge':'break-badge';
+    return '<tr><td>'+r.proc+'</td><td style="font-weight:600">'+r.name+'</td><td style="text-align:center">'+r.cnt+'대</td>'
+      +'<td style="text-align:center;font-size:11px">'+(r.start||'-')+'</td>'
+      +'<td style="font-size:11px">'+r.reason+'</td><td style="text-align:center;font-size:11px">'+r.date+'</td>'
+      +'<td style="text-align:center"><span class="'+bc2+'">'+r.status+'</span></td>'
+      +'<td><button onclick="delItem(\'' + LS_BREAK + '\','+i+')" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--muted)">삭제</button></td></tr>';
+  }).join('');
+}
+function openModal(t){
+  initModalFilters();
+  // 이전 입력값 초기화
+  if(t==='break'){
+    ['bp-proc','bp-name','bp-start','bp-date','bp-reason'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.value='';
+    });
+    document.getElementById('bp-cnt').value=1;
+    document.getElementById('bp-status').value='수리중';
+    var ps=document.getElementById('bp-proc-sel'); if(ps) ps.value='';
+    var ns=document.getElementById('bp-name-sel'); if(ns) ns.innerHTML='<option value="">설비 선택...</option>';
+  }
+  if(t==='stop'){
+    ['sp-proc','sp-name','sp-start','sp-date','sp-reason'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.value='';
+    });
+    document.getElementById('sp-cnt').value=1;
+    var ps=document.getElementById('sp-proc-sel'); if(ps) ps.value='';
+    var ns=document.getElementById('sp-name-sel'); if(ns) ns.innerHTML='<option value="">설비 선택...</option>';
+  }
+  document.getElementById(t+'-ov').classList.add('on');
+}
+function closeModal(t){document.getElementById(t+'-ov').classList.remove('on');}
+function saveStop(){
+  var pSel=document.getElementById('sp-proc-sel');
+  var nSel=document.getElementById('sp-name-sel');
+  if(pSel&&pSel.value) document.getElementById('sp-proc').value=pSel.value;
+  if(nSel&&nSel.value) document.getElementById('sp-name').value=nSel.value;
+  var p=document.getElementById('sp-proc').value.trim();
+  var n=document.getElementById('sp-name').value.trim();
+  if(!p||!n){toast('공정명과 설비명은 필수입니다');return;}
+  var arr=loadList(LS_STOP);
+  arr.push({
+    id: 'S'+Date.now(),
+    proc:p, name:n,
+    cnt: document.getElementById('sp-cnt').value||1,
+    start: document.getElementById('sp-start')?document.getElementById('sp-start').value:'',
+    date: document.getElementById('sp-date').value,
+    reason: document.getElementById('sp-reason').value.trim()
+  });
+  saveList(LS_STOP,arr); closeModal('stop'); renderStop();
+  toast('✅ 정지 설비 등록 완료 (총 '+arr.length+'건)');
+  setTimeout(function(){ ghPush(); }, 100);
+  ['sp-proc','sp-name','sp-start','sp-date','sp-reason'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('sp-cnt').value=1;
+}
+function saveBreak(){
+  // 드롭다운 선택값을 텍스트 입력에 반영
+  var pSel=document.getElementById('bp-proc-sel');
+  var nSel=document.getElementById('bp-name-sel');
+  if(pSel&&pSel.value) document.getElementById('bp-proc').value=pSel.value;
+  if(nSel&&nSel.value) document.getElementById('bp-name').value=nSel.value;
+  var p=document.getElementById('bp-proc').value.trim();
+  var n=document.getElementById('bp-name').value.trim();
+  if(!p||!n){toast('공정명과 설비명은 필수입니다');return;}
+  var arr=loadList(LS_BREAK);
+  arr.push({
+    id: 'B'+Date.now(),
+    proc:p, name:n,
+    cnt: document.getElementById('bp-cnt').value||1,
+    start: document.getElementById('bp-start')?document.getElementById('bp-start').value:'',
+    date: document.getElementById('bp-date').value,
+    status: document.getElementById('bp-status').value,
+    reason: document.getElementById('bp-reason').value.trim()
+  });
+  saveList(LS_BREAK,arr);
+  closeModal('break');
+  renderBreak();
+  toast('✅ 고장 설비 등록 완료 (총 '+arr.length+'건)');
+  setTimeout(function(){ ghPush(); }, 100);
+  // 입력 초기화
+  ['bp-proc','bp-name','bp-start','bp-date','bp-reason'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('bp-cnt').value=1;
+  document.getElementById('bp-status').value='수리중';
+  if(pSel) pSel.value='';
+  if(nSel) nSel.innerHTML='<option value="">설비 선택...</option>';
+}
+function delItem(key,i){
+  if(!confirm('삭제하시겠습니까?'))return;
+  var arr=loadList(key); arr.splice(i,1); saveList(key,arr);
+  if(key===LS_STOP)renderStop(); else renderBreak();
+  toast('삭제됐습니다');
+  setTimeout(function(){ ghPush(); }, 100);
+}
+
+// ── 엑셀 업로드 ──
+function loadExcel(input){
+  var file=input.files[0]; if(!file) return;
+  var statusEl=document.getElementById('upload-status');
+  statusEl.textContent='⏳ 읽는 중...'; statusEl.style.color='var(--muted)';
+  if(typeof XLSX==='undefined'){statusEl.textContent='❌ XLSX 로딩 중...';return;}
+  var reader=new FileReader();
+  reader.onerror=function(){statusEl.textContent='❌ 파일 읽기 실패';statusEl.style.color='var(--red)';};
+  reader.onload=function(e){
+    statusEl.textContent='⏳ 파싱 중...';
+    setTimeout(function(){
+      try{
+        var wb_info=XLSX.read(e.target.result,{type:'array',bookSheets:true});
+        var allSheets=wb_info.SheetNames;
+        var sm_i=allSheets.findIndex(function(s){return s.includes('월 누적');});
+        var sd_i=allSheets.findIndex(function(s){return s.includes('(일)');});
+        var sy_i=allSheets.findIndex(function(s){return s.includes('2026')||s.includes('2027');});
+        if(sm_i<0||sd_i<0){statusEl.textContent='❌ 시트 없음';statusEl.style.color='var(--red)';return;}
+        var idxArr=[sm_i,sd_i]; if(sy_i>=0)idxArr.push(sy_i);
+        var wb=XLSX.read(e.target.result,{type:'array',sheets:idxArr,sheetRows:150});
+        var sm=allSheets[sm_i],sd=allSheets[sd_i],syr=sy_i>=0?allSheets[sy_i]:null;
+        var m_data=parseSheet(wb.Sheets[sm]);
+        var d_data=parseSheet(wb.Sheets[sd]);
+        var tr=syr?parseTrend(wb.Sheets[syr]):{trend:{},etrd:{}};
+        if(!m_data||!m_data.summary||m_data.summary.length<3){statusEl.textContent='❌ 파싱 실패';statusEl.style.color='var(--red)';return;}
+        Object.keys(CH).forEach(function(k){try{if(CH[k]&&typeof CH[k].destroy==='function')CH[k].destroy();}catch(xe){}});
+        CH={}; tabInited={}; HF_PROC='';
+        MODES={month:m_data,day:d_data}; TREND=tr.trend||{}; ETRD=tr.etrd||{};
+        var el;
+        el=document.getElementById('hf-btns');if(el){el.innerHTML='';el.removeAttribute('data-init');}
+        el=document.getElementById('fProc');if(el)el.innerHTML='<option value="">전체 공정</option>';
+        el=document.getElementById('fProc3');if(el)el.innerHTML='<option value="">전체 공정</option>';
+        el=document.getElementById('btnMonth');if(el)el.classList.add('on');
+        el=document.getElementById('btnDay');if(el)el.classList.remove('on');
+        MODE='month';
+        try{renderTab0();}catch(re2){console.warn('renderTab0:',re2);}
+        tabInited[0]=1;
+        statusEl.textContent='✅ '+m_data.period+' '+m_data.overall+'%';
+        statusEl.style.color='var(--teal)';
+        toast('✅ 완료! 월:'+m_data.period+' '+m_data.overall+'% | 일:'+d_data.period+' '+d_data.overall+'%');
+        if(GH_TOKEN){ setTimeout(function(){ ghPushHTML(); },500); }
+      }catch(err){
+        console.error('loadExcel:',err);
+        statusEl.textContent='❌ 오류: '+err.message;
+        statusEl.style.color='var(--red)';
       }
-      afterLoad(file.name);
-    } catch(ex) {
-      alert('파일 오류: ' + ex.message);
-      document.getElementById('ustat').textContent = '❌ 오류: ' + ex.message;
-    }
+    },50);
   };
   reader.readAsArrayBuffer(file);
 }
 
-function findSheet(wb, names) {
-  for (var ni = 0; ni < names.length; ni++) {
-    for (var si = 0; si < wb.SheetNames.length; si++) {
-      var sn = wb.SheetNames[si].replace(/\s/g,'').toLowerCase();
-      var nm = names[ni].replace(/\s/g,'').toLowerCase();
-      if (sn === nm || sn.includes(nm)) return wb.SheetNames[si];
-    }
+function parseSheet(ws){
+  var arr=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
+  var period='',overall=0,summary=[],detail=[],started=false;
+  var STOP=['FPCB설비','합계','합 계','계획비가동','FPCB  설비 계획','Trouble'];
+  function nv(v){if(v==null)return 0;if(typeof v==='number')return Math.round(v);return Math.round(parseFloat(String(v).replace('%','').trim())||0);}
+  function toRate(v){if(v==null)return 0;var n=typeof v==='number'?v:(parseFloat(String(v).replace('%','').trim())||0);return n>0&&n<=1?Math.round(n*1000)/10:Math.round(n*10)/10;}
+  for(var pi=0;pi<Math.min(12,arr.length);pi++){var pc=arr[pi][2]!=null?String(arr[pi][2]).trim():'';if(/^\d+\//.test(pc)||/^\d+~/.test(pc)){period=pc;overall=toRate(arr[pi][9]);break;}}
+  for(var i=0;i<arr.length;i++){
+    var row=arr[i];
+    var c2=row[2]!=null?String(row[2]).trim().replace(/\n/g,' '):'';
+    var c3=row[3]!=null?String(row[3]).trim():'';
+    if(c2==='공장명'){started=true;continue;}
+    if(!started||!c2)continue;
+    var proc=c2.replace(/\s/g,'');
+    if(STOP.some(function(s){return c2.includes(s)||proc.includes(s);}))break;
+    var sub=c3||null;
+    if(sub&&/^\d+$/.test(sub))continue;
+    if(/^\d+$/.test(proc))continue;
+    var rate=toRate(row[8]);
+    if(rate>100&&nv(row[6])===0)continue;
+    if(rate>100)rate=100;
+    var item={proc:proc,sub:sub,cnt:parseInt(row[4])||0,area:Math.round((parseFloat(row[5])||0)*10)/10,base:nv(row[6]),run:nv(row[7]),rate:rate,plan_down:nv(row[9]),op_loss:nv(row[10]),eq_loss:nv(row[11]),eq_fail:nv(row[12])};
+    if(!sub)summary.push(item);else detail.push(item);
   }
-  return null;
+  if(!overall&&summary.length){var vv=summary.filter(function(s){return s.rate>0;}).map(function(s){return s.rate;});overall=vv.length?Math.round(vv.reduce(function(a,b){return a+b;})/vv.length*10)/10:0;}
+  return {summary:summary,detail:detail,period:period,overall:overall};
 }
 
-// ════════════════════════════════════════
-// 월 누적 / 일 시트 파싱
-// ════════════════════════════════════════
-function parseSheet(ws) {
-  var raw = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
-  if (!raw || raw.length < 2) return null;
-
-  // 헤더 행 탐색 (공장명/세부공정/가동률 포함 행)
-  var hRow = -1;
-  for (var ri = 0; ri < Math.min(raw.length, 15); ri++) {
-    var rs = raw[ri].join('').replace(/\s/g,'');
-    if ((rs.includes('공장명') || rs.includes('공정명')) &&
-        (rs.includes('가동') || rs.includes('기준시간'))) {
-      hRow = ri; break;
-    }
+function parseTrend(ws){
+  var arr=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});
+  var trend={},etrd={},started=false;
+  var STOP=['FPCB설비','합계','합 계','계획비가동'];
+  for(var i=0;i<arr.length;i++){
+    var row=arr[i];
+    var c2=row[2]?String(row[2]).trim().replace(/\n/g,'').replace(/\s/g,''):'';
+    if(c2==='공장명'){started=true;continue;}
+    if(!started||!c2)continue;
+    if(STOP.some(function(s){return c2.includes(s);})&&c2.length>2)break;
+    var sub=row[3]?String(row[3]).trim():null;
+    var vals=[6,7,8,9].map(function(ci){var v=parseFloat(row[ci])||0;return v>0?(v<=1?Math.round(v*1000)/10:Math.round(v*10)/10):null;});
+    if(!vals.some(function(v){return v!=null;}))continue;
+    if(!sub)trend[c2]=vals; else etrd[c2+'_'+sub]=vals;
   }
-  if (hRow < 0) {
-    // fallback: '가동률' 또는 '가동율' 포함 행
-    for (var ri2 = 0; ri2 < Math.min(raw.length, 15); ri2++) {
-      if (raw[ri2].join('').includes('가동률') || raw[ri2].join('').includes('가동율')) {
-        hRow = ri2; break;
-      }
-    }
-  }
-  if (hRow < 0) return null;
-
-  var hdrs = raw[hRow].map(function(h){ return String(h||'').trim(); });
-
-  function findCol(keys) {
-    for (var k = 0; k < keys.length; k++)
-      for (var c = 0; c < hdrs.length; c++) {
-        var h = hdrs[c].replace(/\s|\n/g,'');
-        if (h.includes(keys[k].replace(/\s|\n/g,''))) return c;
-      }
-    return -1;
-  }
-
-  // ★ 핵심 수정: 공장명/세부공정 구분
-  var iProc  = findCol(['공장명']); // 먼저 공장명 시도
-  if (iProc < 0) iProc = findCol(['공정명','공정']);
-  var iSub   = findCol(['세부공정','서브','sub']);
-  var iEquip = findCol(['설비대수','설비']);
-  var iArea  = findCol(['생산면적','면적','수량']);
-  var iRef   = findCol(['기준시간','기준']);
-  var iRun   = findCol(['실운행','실가동']);
-  var iRate  = findCol(['가동률','가동율']);
-  var iLoss1 = findCol(['계획\n비가동','계획비가동']);
-  var iLoss2 = findCol(['운영\n유실','운영유실']);
-  var iLoss3 = findCol(['설비운영\n유실','설비운영유실','설비유실']);
-
-  // 기간 파싱
-  var period = '';
-  for (var pi = 0; pi < hRow; pi++) {
-    for (var pc = 0; pc < (raw[pi]||[]).length; pc++) {
-      var pv = String(raw[pi][pc]||'');
-      if (pv.match(/\d+\/\d+/) || pv.match(/\d+월/) || pv.includes('~')) {
-        period = pv.trim(); break;
-      }
-    }
-    if (period) break;
-  }
-
-  var rows = [];
-  var lastProc = '';
-
-  for (var di = hRow + 1; di < raw.length; di++) {
-    var row = raw[di];
-    if (!row || !row.length) continue;
-
-    // A열(0)의 키 값 확인 (예: '레이저\n_RTR')
-    var keyVal = String(row[0]||'').trim().replace(/\n/g,'');
-
-    var proc = iProc >= 0 ? String(row[iProc]||'').trim().replace(/\n/g,'').replace(/_/g,'') : '';
-    var sub  = iSub  >= 0 ? String(row[iSub] ||'').trim().replace(/\n/g,'') : '';
-
-    if (proc) lastProc = proc; else proc = lastProc;
-    if (!proc) continue;
-
-    // 서브공정이 '-' 이거나 비어있으면 합계행
-    var isSummary = (!sub || sub === '-' || sub === '');
-    var displayName = isSummary ? proc : sub;
-
-    // 가동율
-    var rv   = iRate >= 0 ? row[iRate] : '';
-    var rate = parseFloat(String(rv).replace('%','').replace(',','')) || 0;
-    if (rate > 0 && rate <= 1) rate = Math.round(rate * 1000) / 10;
-    else rate = Math.round(rate * 10) / 10;
-    if (rate < 0 || rate > 100) continue;
-    if (!proc) continue;
-
-    rows.push({
-      proc:    proc,
-      sub:     sub && sub !== '-' ? sub : '',
-      equip:   displayName,
-      isSummary: isSummary,
-      cnt:     iEquip >= 0 ? (parseInt(row[iEquip]) || 0) : 0,
-      area:    iArea  >= 0 ? (parseFloat(row[iArea]) || 0) : 0,
-      ref:     iRef   >= 0 ? (parseFloat(row[iRef])  || 0) : 0,
-      run:     iRun   >= 0 ? (parseFloat(row[iRun])  || 0) : 0,
-      loss1:   iLoss1 >= 0 ? (parseFloat(row[iLoss1])||0) : 0,
-      loss2:   iLoss2 >= 0 ? (parseFloat(row[iLoss2])||0) : 0,
-      loss3:   iLoss3 >= 0 ? (parseFloat(row[iLoss3])||0) : 0,
-      rate:    rate
-    });
-  }
-
-  // 합계 행만 요약 (공정별 대표 가동율)
-  var summaryRows = rows.filter(function(r){ return r.isSummary; });
-
-  // 전체 평균
-  var allRates = summaryRows.length ? summaryRows : rows;
-  var overall = allRates.length ?
-    Math.round(allRates.reduce(function(s,r){return s+r.rate;},0) / allRates.length * 10) / 10 : 0;
-
-  return { rows: rows, summary: summaryRows, overall: overall, period: period };
+  return {trend:trend,etrd:etrd};
 }
 
-// ════════════════════════════════════════
-// 연간 추이 시트 파싱
-// ════════════════════════════════════════
-function parseTrend(ws) {
-  var raw = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
-  if (!raw || raw.length < 2) return null;
 
-  // 헤더 행 탐색
-  var hRow = -1;
-  for (var ri = 0; ri < Math.min(raw.length, 15); ri++) {
-    var rs = raw[ri].join('').replace(/\s/g,'');
-    if (rs.includes('공장명') && rs.includes('월')) { hRow = ri; break; }
-  }
-  if (hRow < 0) return null;
-
-  var hdrs = raw[hRow].map(function(h){ return String(h||'').trim().replace(/\n/g,''); });
-
-  // 월 컬럼 찾기
-  var months = [];
-  for (var c = 0; c < hdrs.length; c++) {
-    var h = hdrs[c];
-    var m = h.match(/^(\d+)월/);
-    if (m) months.push({ col: c, label: m[1] + '월', num: parseInt(m[1]) });
-  }
-  var iAvg = -1;
-  for (var c2 = 0; c2 < hdrs.length; c2++) {
-    if (hdrs[c2].includes('평균')) { iAvg = c2; break; }
-  }
-
-  var iProc = -1, iSub = -1;
-  for (var c3 = 0; c3 < hdrs.length; c3++) {
-    var h2 = hdrs[c3].replace(/\s/g,'');
-    if (h2.includes('공장명') && iProc < 0) iProc = c3;
-    if (h2.includes('세부공정') && iSub < 0) iSub = c3;
-  }
-
-  var rows = [];
-  var lastProc = '';
-  for (var di = hRow + 1; di < raw.length; di++) {
-    var row = raw[di];
-    if (!row || !row.length) continue;
-    var proc = iProc >= 0 ? String(row[iProc]||'').trim().replace(/\n/g,'') : '';
-    var sub  = iSub  >= 0 ? String(row[iSub] ||'').trim().replace(/\n/g,'') : '';
-    if (proc) lastProc = proc; else proc = lastProc;
-    if (!proc) continue;
-    var isSummary = (!sub || sub === '-' || sub === '');
-
-    var mData = {};
-    months.forEach(function(m) {
-      var v = parseFloat(row[m.col]) || 0;
-      if (v > 0 && v <= 1) v = Math.round(v * 1000) / 10;
-      else v = Math.round(v * 10) / 10;
-      mData[m.label] = v || null;
-    });
-    var avg = iAvg >= 0 ? parseFloat(row[iAvg]) || 0 : 0;
-    if (avg > 0 && avg <= 1) avg = Math.round(avg * 1000) / 10;
-
-    rows.push({ proc: proc, sub: sub && sub !== '-' ? sub : '', isSummary: isSummary,
-                avg: avg, months: mData });
-  }
-
-  return { rows: rows, monthLabels: months.map(function(m){ return m.label; }) };
-}
-
-// ════════════════════════════════════════
-// 로드 완료
-// ════════════════════════════════════════
-function afterLoad(fname) {
-  dzEl.textContent = '✅ ' + fname;
-  dzEl.classList.add('ok');
-  document.getElementById('ustat').textContent = '로드 완료 — ' + fname;
-
-  var mt = document.getElementById('mtog');
-  mt.style.opacity = '1'; mt.style.pointerEvents = 'auto';
-  if (!DB.day) {
-    document.getElementById('btnD').style.opacity = '.4';
-    document.getElementById('btnD').style.pointerEvents = 'none';
-  } else {
-    document.getElementById('btnD').style.opacity = '1';
-    document.getElementById('btnD').style.pointerEvents = 'auto';
-  }
-  document.getElementById('empty').style.display = 'none';
-  document.getElementById('tabs').style.display = 'block';
-
-  fillSelects();
-  sw(curTabIdx);
-}
-
-// ════════════════════════════════════════
-// 셀렉트 채우기
-// ════════════════════════════════════════
-function fillSelects() {
-  var d = cur(); if (!d) return;
-  var procs = [];
-  d.rows.forEach(function(r){ if (r.proc && procs.indexOf(r.proc) < 0) procs.push(r.proc); });
+// ── 모달 공정/설비 필터 ──
+function initModalFilters(){
+  var db=cur();
+  var procs=[];
+  db.detail.forEach(function(d){if(d.proc&&procs.indexOf(d.proc)<0)procs.push(d.proc);});
   procs.sort();
-  ['hmProc','tProc','dtProc'].forEach(function(id){
-    var sel = document.getElementById(id);
-    while (sel.options.length > 1) sel.remove(1);
-    procs.forEach(function(p){
-      var o = document.createElement('option'); o.value = p; o.textContent = p; sel.appendChild(o);
-    });
-  });
+  var opts='<option value="">공정 선택...</option>'+procs.map(function(p){return '<option value="'+p+'">'+p+'</option>';}).join('');
+  document.getElementById('sp-proc-sel').innerHTML=opts;
+  document.getElementById('bp-proc-sel').innerHTML=opts;
 }
-
-// ════════════════════════════════════════
-// 모드 전환
-// ════════════════════════════════════════
-function setMode(m) {
-  if (m === 'day' && !DB.day) { alert('일 기준 데이터가 없습니다.'); return; }
-  MODE = m;
-  document.getElementById('btnM').classList.toggle('on', m === 'month');
-  document.getElementById('btnD').classList.toggle('on', m === 'day');
-  CH = {}; closeEP(); fillSelects(); sw(curTabIdx);
+function getSubsByProc(proc){
+  var db=cur(); var subs=[];
+  db.detail.forEach(function(d){if(d.proc===proc&&d.sub&&subs.indexOf(d.sub)<0)subs.push(d.sub);});
+  return subs.sort();
 }
-
-// ════════════════════════════════════════
-// 탭 전환
-// ════════════════════════════════════════
-function sw(i) {
-  curTabIdx = i;
-  document.querySelectorAll('.ntab').forEach(function(t,j){ t.classList.toggle('on', j===i); });
-  document.querySelectorAll('.npane').forEach(function(p,j){ p.classList.toggle('on', j===i); });
-  closeEP();
-  if (i===0) buildSummary();
-  if (i===1) buildHeatmap();
-  if (i===2) buildTrend();
-  if (i===3) buildDetail();
+function onStopProcChange(){
+  var proc=document.getElementById('sp-proc-sel').value;
+  document.getElementById('sp-proc').value=proc;
+  var subs=proc?getSubsByProc(proc):[];
+  document.getElementById('sp-name-sel').innerHTML='<option value="">설비 선택...</option>'+subs.map(function(s){return '<option value="'+s+'">'+s+'</option>';}).join('');
 }
-
-// ════════════════════════════════════════
-// 헤더 갱신
-// ════════════════════════════════════════
-function updateHeader() {
-  var d = cur(); if (!d) return;
-  var tgt = d.summary.length ? d.summary : d.rows;
-  var ok=0, wn=0, cr=0;
-  tgt.forEach(function(r){ if(r.rate>=TGT) ok++; else if(r.rate>=40) wn++; else cr++; });
-  document.getElementById('hSub').textContent  = 'FPCB 설비 가동율 | ' + (d.period || '');
-  document.getElementById('hAvg').textContent  = d.overall + '%';
-  document.getElementById('hTot').textContent  = tgt.length;
-  document.getElementById('hWn').textContent   = wn;
-  document.getElementById('hCr').textContent   = cr;
-  document.getElementById('hPer').textContent  = d.period || (MODE==='month'?'월누적':'일기준');
+function onBreakProcChange(){
+  var proc=document.getElementById('bp-proc-sel').value;
+  document.getElementById('bp-proc').value=proc;
+  var subs=proc?getSubsByProc(proc):[];
+  document.getElementById('bp-name-sel').innerHTML='<option value="">설비 선택...</option>'+subs.map(function(s){return '<option value="'+s+'">'+s+'</option>';}).join('');
 }
+// 설비 선택 시 자동 입력
+document.addEventListener('change',function(e){
+  if(e.target.id==='sp-name-sel'&&e.target.value)document.getElementById('sp-name').value=e.target.value;
+  if(e.target.id==='bp-name-sel'&&e.target.value)document.getElementById('bp-name').value=e.target.value;
+});
 
-// ════════════════════════════════════════
-// P0 - 종합 현황
-// ════════════════════════════════════════
-function buildSummary() {
-  updateHeader();
-  var d = cur(); if (!d) return;
-  var tgt = d.summary.length ? d.summary : d.rows;
-  var ok=0, wn=0, cr=0;
-  tgt.forEach(function(r){ if(r.rate>=TGT) ok++; else if(r.rate>=40) wn++; else cr++; });
-  var sr = tgt.slice().sort(function(a,b){ return b.rate-a.rate; });
 
-  document.getElementById('k0').textContent = d.overall+'%';
-  document.getElementById('k1').textContent = ok;
-  document.getElementById('k2').textContent = wn;
-  document.getElementById('k3').textContent = cr;
-  document.getElementById('k4').textContent = sr[0] ? sr[0].proc+' '+sr[0].rate+'%' : '-';
-  document.getElementById('k5').textContent = sr[sr.length-1] ? sr[sr.length-1].proc+' '+sr[sr.length-1].rate+'%' : '-';
+// ══════════════════════════════════════════════
+// GitHub 공유 연동 (v3 — 완전 재작성)
+// ══════════════════════════════════════════════
+function ghPushHTML(){
+  if(!GH_TOKEN) return;
+  var statusEl=document.getElementById('upload-status');
+  statusEl.textContent='\u2601 GitHub \uc800\uc7a5 \uc911...'; statusEl.style.color='var(--muted)';
+  var OEE_API='https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/contents/data/oee.json';
+  var payload=JSON.stringify({MODES:MODES,TREND:TREND,ETRD:ETRD,saved:new Date().toISOString()});
+  var b64=btoa(unescape(encodeURIComponent(payload)));
+  var hdrs={'Authorization':'token '+GH_TOKEN,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};
 
-  var top = tgt.slice().sort(function(a,b){ return b.rate-a.rate; }).slice(0,12);
-  if (CH.bar) { CH.bar.destroy(); delete CH.bar; }
-  CH.bar = new Chart(document.getElementById('cBar'),{
-    type:'bar',
-    data:{
-      labels: top.map(function(s){ return s.proc; }),
-      datasets:[{ data: top.map(function(s){ return s.rate; }),
-        backgroundColor: top.map(function(s){
-          return s.rate>=TGT?'rgba(63,185,80,.75)':s.rate>=40?'rgba(210,153,34,.75)':'rgba(248,81,73,.75)';
-        }), borderRadius:4 }]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.raw+'%';}}}},
-      scales:{
-        x:{ticks:{color:'#8b949e',font:{size:9}},grid:{display:false}},
-        y:{min:0,max:100,ticks:{color:'#8b949e',font:{size:9},callback:function(v){return v+'%';}},grid:{color:'#21262d'}}
-      }
-    }
-  });
-
-  if (CH.dnt) { CH.dnt.destroy(); delete CH.dnt; }
-  CH.dnt = new Chart(document.getElementById('cDnt'),{
-    type:'doughnut',
-    data:{
-      labels:['정상(≥60%)','주의(40~60%)','위험(<40%)'],
-      datasets:[{data:[ok,wn,cr],
-        backgroundColor:['rgba(63,185,80,.8)','rgba(210,153,34,.8)','rgba(248,81,73,.8)'],
-        borderWidth:2, borderColor:'#161b22'}]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{position:'right',labels:{color:'#8b949e',font:{size:10},padding:10}}}
-    }
-  });
-
-  // 전체 세부 공정 막대
-  var detRows = d.rows.filter(function(r){ return !r.isSummary && r.sub; })
-                      .slice().sort(function(a,b){ return a.rate-b.rate; });
-  if (detRows.length > 0) {
-    if (CH.allBar) { CH.allBar.destroy(); delete CH.allBar; }
-    CH.allBar = new Chart(document.getElementById('cAllBar'),{
-      type:'bar',
-      data:{
-        labels: detRows.map(function(r){ return r.proc+' '+r.sub; }),
-        datasets:[{
-          data: detRows.map(function(r){ return r.rate; }),
-          backgroundColor: detRows.map(function(r){
-            return r.rate>=TGT?'rgba(63,185,80,.7)':r.rate>=40?'rgba(210,153,34,.7)':'rgba(248,81,73,.7)';
-          }), borderRadius:3
-        },{
-          label:'목표('+TGT+'%)', type:'line',
-          data: detRows.map(function(){ return TGT; }),
-          borderColor:'#f85149', borderDash:[5,5], borderWidth:1.5,
-          pointRadius:0, fill:false
-        }]
-      },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.raw+'%';}}}},
-        scales:{
-          x:{ticks:{color:'#8b949e',font:{size:8},maxRotation:45},grid:{display:false}},
-          y:{min:0,max:100,ticks:{color:'#8b949e',callback:function(v){return v+'%';}},grid:{color:'#21262d'}}
-        }
-      }
-    });
+  // 15초 타임아웃
+  function fetchWithTimeout(url, opts){
+    var ctrl=new AbortController();
+    var t=setTimeout(function(){ ctrl.abort(); }, 15000);
+    return fetch(url, Object.assign({signal:ctrl.signal}, opts))
+      .then(function(r){ clearTimeout(t); return r; })
+      .catch(function(e){ clearTimeout(t); throw e; });
   }
+
+  fetchWithTimeout(OEE_API, {headers:hdrs})
+  .then(function(r){ return r.ok?r.json():null; })
+  .then(function(ex){
+    var body={message:'\uac00\ub3d9\uc728 \uc5c5\ub370\uc774\ud2b8 '+new Date().toLocaleString('ko-KR'),content:b64,branch:GH_BRANCH};
+    if(ex&&ex.sha) body.sha=ex.sha;
+    return fetchWithTimeout(OEE_API, {method:'PUT',headers:hdrs,body:JSON.stringify(body)});
+  })
+  .then(function(r){
+    if(r&&r.ok){
+      statusEl.textContent='\u2601 \uacf5\uc720 \uc644\ub8cc '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+      statusEl.style.color='var(--green)';
+      toast('\u2705 GitHub \uacf5\uc720 \uc644\ub8cc! \ud300\uc6d0\ub4e4\uc774 \uc0c8\ub85c\uace0\uce68\ud558\uba74 \ucd5c\uc2e0 \ub370\uc774\ud130 \ud655\uc778\ub429\ub2c8\ub2e4');
+    } else {
+      if(r) r.text().then(function(t){ console.error('oee.json \uc800\uc7a5 \uc2e4\ud328:',t); });
+      statusEl.textContent='\u26a0 \uc800\uc7a5 \uc2e4\ud328 (\ud1a0\ud070 \ub610\ub294 data/oee.json \ud30c\uc77c \ud655\uc778)';
+      statusEl.style.color='var(--amber)';
+    }
+  })
+  .catch(function(e){
+    var msg = e.name==='AbortError' ? '\uc2dc\uac04\ucd08\uacfc(15\ucd08) \u2014 \uc778\ud130\ub137 \uc5f0\uacb0 \ud655\uc778' : e.message;
+    statusEl.textContent='\u26a0 '+msg;
+    statusEl.style.color='var(--amber)';
+    console.error('ghPushHTML:', e);
+  });
 }
 
-// ════════════════════════════════════════
-// P1 - 히트맵
-// ════════════════════════════════════════
-function buildHeatmap() {
-  updateHeader();
-  var d = cur();
-  if (!d || !d.rows || !d.rows.length) {
-    document.getElementById('hmBody').innerHTML =
-      '<div style="color:#8b949e;padding:40px;text-align:center">데이터가 없습니다.</div>';
-    return;
-  }
-  var fProc = document.getElementById('hmProc').value;
-  var fSort = document.getElementById('hmSort').value;
+var GH_OWNER  = 'min984719-byte';
+var GH_REPO   = 'kimsungmin';
+var GH_BRANCH = 'main';
+var GH_PATH   = 'data/maintenance.json';
+var GH_RAW_URL = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/' + GH_PATH;
+var GH_API_URL = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_PATH;
+var GH_TOKEN  = localStorage.getItem('gh_token') || '';
+var _isSyncing = false;
 
-  // 히트맵은 세부공정 행 우선, 세부공정 없으면 합계행 표시
-  var rows = d.rows.filter(function(r){
-    return fProc ? r.proc === fProc : true;
-  });
-
-  // 같은 공정에 세부가 있으면 합계 제외, 세부만 없는 공정은 합계 표시
-  var procHasSub = {};
-  rows.forEach(function(r){ if (!r.isSummary) procHasSub[r.proc] = true; });
-  var displayRows = rows.filter(function(r){
-    if (procHasSub[r.proc]) return !r.isSummary;
-    return r.isSummary;
-  });
-
-  if (fSort === 'rate_asc')  displayRows.sort(function(a,b){ return a.rate - b.rate; });
-  if (fSort === 'rate_desc') displayRows.sort(function(a,b){ return b.rate - a.rate; });
-  if (fSort === 'name')      displayRows.sort(function(a,b){ return a.equip.localeCompare(b.equip); });
-
-  // 공정별 그룹
-  var grpKeys = [], grpMap = {};
-  displayRows.forEach(function(r){
-    if (!grpMap[r.proc]) { grpMap[r.proc]=[]; grpKeys.push(r.proc); }
-    grpMap[r.proc].push(r);
-  });
-
-  var html = '';
-  grpKeys.forEach(function(proc){
-    var list = grpMap[proc];
-    var avgRate = Math.round(list.reduce(function(s,r){return s+r.rate;},0)/list.length*10)/10;
-    var cls = avgRate >= TGT ? 'ok' : avgRate >= 40 ? 'warn' : 'crit';
-    html += '<div class="hmsec">';
-    html += '<div class="hmsectit">▶ ' + proc +
-            ' &nbsp;<span style="font-weight:400;opacity:.55">('+list.length+'개)</span>' +
-            ' &nbsp;<span style="font-family:monospace;color:'+(cls==='ok'?'#3fb950':cls==='warn'?'#d29922':'#f85149')+'">평균 '+avgRate+'%</span></div>';
-    html += '<div class="hmgrid">';
-    list.forEach(function(r){
-      var c = r.rate >= TGT ? 'ok' : r.rate >= 40 ? 'warn' : 'crit';
-      var nm = r.equip.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/'/g,"\\'");
-      var pr = r.proc.replace(/'/g,"\\'");
-      html += '<div class="hcell '+c+'" onclick="showEP(\''+nm+'\',\''+pr+'\')">';
-      html += '<div class="cn">' + r.equip + '</div>';
-      html += '<div class="cv">' + r.rate + '%</div>';
-      var sub2 = '';
-      if (r.cnt) sub2 = r.cnt + '대';
-      if (r.ref) sub2 += (sub2?' / ':'') + '기준 ' + Math.round(r.ref/60).toLocaleString() + 'H';
-      html += '<div class="cs">' + sub2 + '</div>';
-      html += '</div>';
-    });
-    html += '</div></div>';
-  });
-
-  if (!html) html = '<div style="color:#8b949e;padding:40px;text-align:center">조건에 맞는 데이터가 없습니다</div>';
-  document.getElementById('hmBody').innerHTML = html;
+// ── 상태 표시 ──
+function setGHStatus(msg, color){
+  var el = document.getElementById('gh-sync-status');
+  if(el){ el.textContent = msg; el.style.color = color || 'var(--muted)'; }
 }
 
-// ════════════════════════════════════════
-// P2 - 월별 추이
-// ════════════════════════════════════════
-function buildTrend() {
-  updateHeader();
-  var sp = document.getElementById('tProc').value;
-  var d  = cur(); if (!d) return;
+// ── 모달 ──
+function openGHModal(){
+  initModalFilters();
+  var el = document.getElementById('gh-token');
+  if(el) el.value = GH_TOKEN;
+  var ac = document.getElementById('gh-auto-sync');
+  var tr = document.getElementById('gh-test-result');
+  if(tr) tr.textContent = '';
+  document.getElementById('gh-ov').classList.add('on');
+}
+function closeGHModal(){ document.getElementById('gh-ov').classList.remove('on'); }
 
-  // 추이 데이터가 있는 경우
-  if (DB.trend && DB.trend.rows.length) {
-    var tData = DB.trend.rows.filter(function(r){
-      if (sp) return r.proc === sp;
-      return r.isSummary;
-    });
-    var labels = DB.trend.monthLabels;
-    var datasets = tData.map(function(r, i){
-      var colors = ['#58a6ff','#3fb950','#f85149','#d29922','#a371f7','#39c5cf','#f78166','#79c0ff'];
-      var col = colors[i % colors.length];
-      return {
-        label: sp ? (r.sub || r.proc) : r.proc,
-        data: labels.map(function(l){ return r.months[l] || null; }),
-        borderColor: col, backgroundColor: col.replace(')',', 0.1)').replace('rgb','rgba'),
-        tension:0.3, pointRadius:4, pointHoverRadius:6
-      };
-    });
-
-    if (CH.line) { CH.line.destroy(); delete CH.line; }
-    CH.line = new Chart(document.getElementById('cLine'),{
-      type:'line', data:{ labels, datasets },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{labels:{color:'#8b949e',font:{size:10}}},
-          tooltip:{callbacks:{label:function(c){ return c.dataset.label+': '+c.raw+'%'; }}}},
-        scales:{
-          x:{ticks:{color:'#8b949e'},grid:{color:'#21262d'}},
-          y:{min:0,max:100,ticks:{color:'#8b949e',callback:function(v){return v+'%';}},grid:{color:'#21262d'}}
-        }
-      }
-    });
-
-    // 추이 테이블
-    var hdrEl = document.getElementById('trendHdr');
-    var bdrEl = document.getElementById('trendBody');
-    hdrEl.innerHTML = '<th>공정</th>' + labels.map(function(l){ return '<th>'+l+'</th>'; }).join('') + '<th>평균</th>';
-    var tbHtml = '';
-    tData.forEach(function(r){
-      tbHtml += '<tr><td>'+r.proc+(r.sub?' ('+r.sub+')':'')+'</td>';
-      labels.forEach(function(l){
-        var v = r.months[l];
-        var col = v === null ? '#555' : v >= TGT ? '#3fb950' : v >= 40 ? '#d29922' : '#f85149';
-        tbHtml += '<td class="tc" style="color:'+col+';font-family:monospace;font-weight:700">'+(v !== null ? v+'%' : '-')+'</td>';
-      });
-      tbHtml += '<td class="tc" style="font-family:monospace;font-weight:700;color:#58a6ff">'+(r.avg?r.avg+'%':'-')+'</td>';
-      tbHtml += '</tr>';
-    });
-    bdrEl.innerHTML = tbHtml || '<tr><td colspan="10" style="text-align:center;color:#8b949e;padding:20px">데이터 없음</td></tr>';
-
+function saveGHToken(){
+  var t = document.getElementById('gh-token').value.trim();
+  var a = document.getElementById('gh-auto-sync').checked;
+  if(t) localStorage.setItem('gh_token', t); else localStorage.removeItem('gh_token');
+  localStorage.setItem('gh_auto', a ? '1' : '0');
+  closeGHModal();
+  if(t){
+    toast('✅ 연동 완료 — 데이터 업로드 중...');
+    ghPush();
   } else {
-    // 추이 시트 없는 경우 → 현재 데이터로 막대 차트
-    var rows2 = sp ? d.rows.filter(function(r){ return r.proc===sp; }) : (d.summary.length ? d.summary : d.rows);
-    rows2 = rows2.slice().sort(function(a,b){ return a.rate-b.rate; });
-    if (CH.line) { CH.line.destroy(); delete CH.line; }
-    CH.line = new Chart(document.getElementById('cLine'),{
-      type:'bar',
-      data:{
-        labels: rows2.map(function(r){ return r.sub || r.proc; }),
-        datasets:[{
-          label:'가동율(%)', data: rows2.map(function(r){ return r.rate; }),
-          backgroundColor: rows2.map(function(r){
-            return r.rate>=TGT?'rgba(63,185,80,.75)':r.rate>=40?'rgba(210,153,34,.75)':'rgba(248,81,73,.75)';
-          }), borderRadius:3
-        },{
-          label:'목표('+TGT+'%)', type:'line',
-          data: rows2.map(function(){ return TGT; }),
-          borderColor:'#f85149', borderDash:[5,5], borderWidth:1.5,
-          pointRadius:0, fill:false
-        }]
+    toast('GitHub 연동 해제됨');
+  }
+}
+
+function disconnectGH(){
+  GH_TOKEN = '';
+  localStorage.removeItem('gh_token');
+  localStorage.removeItem('gh_auto');
+  closeGHModal();
+  toast('GitHub 연동 해제됨');
+}
+
+function testGHConn(){
+  var tok = document.getElementById('gh-token').value.trim();
+  var el  = document.getElementById('gh-test-result');
+  if(!tok){ el.textContent = '❌ 토큰을 먼저 입력하세요'; el.style.color = 'var(--red)'; return; }
+  el.textContent = '테스트 중...'; el.style.color = 'var(--muted)';
+  fetch('https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO, {
+    headers: { 'Authorization': 'token ' + tok, 'Accept': 'application/vnd.github.v3+json' }
+  }).then(function(r){
+    if(r.ok){ el.textContent = '✅ 연결 성공!'; el.style.color = 'var(--green)'; }
+    else     { el.textContent = '❌ 실패 (토큰 확인)'; el.style.color = 'var(--red)'; }
+  }).catch(function(){ el.textContent = '❌ 네트워크 오류'; el.style.color = 'var(--red)'; });
+}
+
+// ── 불러오기 (API 방식 — 캐시 없음, 토큰 불필요) ──
+
+function ghPush(){
+  if(!GH_TOKEN){ return; }
+  var payload = {
+    stops:   loadList(LS_STOP),
+    breaks:  loadList(LS_BREAK),
+    updated: new Date().toISOString()
+  };
+  var content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+  setGHStatus('저장 중...', 'var(--muted)');
+  // SHA 확인 (파일 업데이트 시 필요)
+  fetch(GH_API_URL, {
+    headers: {
+      'Authorization': 'token ' + GH_TOKEN,
+      'Accept': 'application/vnd.github.v3+json'
+    }
+  })
+  .then(function(r){ return r.ok ? r.json() : null; })
+  .then(function(existing){
+    var body = {
+      message: 'OEE: 설비 현황 업데이트 ' + new Date().toLocaleString('ko-KR'),
+      content: content,
+      branch:  GH_BRANCH
+    };
+    if(existing && existing.sha) body.sha = existing.sha;
+    return fetch(GH_API_URL, {
+      method: 'PUT',
+      headers: {
+        'Authorization': 'token ' + GH_TOKEN,
+        'Content-Type': 'application/json',
+        'Accept': 'application/vnd.github.v3+json'
       },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{labels:{color:'#8b949e',font:{size:10}}},
-          tooltip:{callbacks:{label:function(c){ return c.dataset.label+': '+c.raw+'%'; }}}},
-        scales:{
-          x:{ticks:{color:'#8b949e',font:{size:9},maxRotation:45},grid:{display:false}},
-          y:{min:0,max:100,ticks:{color:'#8b949e',callback:function(v){return v+'%';}},grid:{color:'#21262d'}}
-        }
-      }
+      body: JSON.stringify(body)
     });
-  }
-}
-
-// ════════════════════════════════════════
-// P3 - 설비 상세
-// ════════════════════════════════════════
-function buildDetail() {
-  updateHeader();
-  var d = cur(); if (!d) return;
-  var fp = document.getElementById('dtProc').value;
-  var fs = document.getElementById('dtStat').value;
-  var rows = d.rows.slice();
-  if (fp) rows = rows.filter(function(r){ return r.proc===fp; });
-  if (fs==='ok')   rows = rows.filter(function(r){ return r.rate>=TGT; });
-  if (fs==='warn') rows = rows.filter(function(r){ return r.rate>=40&&r.rate<TGT; });
-  if (fs==='crit') rows = rows.filter(function(r){ return r.rate<40; });
-  rows.sort(function(a,b){ return a.rate-b.rate; });
-
-  var html = '';
-  rows.forEach(function(r){
-    var cls = r.rate>=TGT?'ok':r.rate>=40?'warn':'crit';
-    var col = cls==='ok'?'#3fb950':cls==='warn'?'#d29922':'#f85149';
-    var lbl = cls==='ok'?'정상':cls==='warn'?'주의':'위험';
-    var bc  = cls==='ok'?'bok':cls==='warn'?'bwn':'bcr';
-    var loss = r.loss1 + r.loss2 + r.loss3;
-    html += '<tr'+(r.isSummary?' style="background:#1c1f2a"':'')+'>';
-    html += '<td style="font-weight:'+(r.isSummary?'700':'400')+'">'+r.proc+'</td>';
-    html += '<td>'+( r.sub || '<span style="color:#555">합계</span>')+'</td>';
-    html += '<td class="tc">'+( r.cnt || '-')+'</td>';
-    html += '<td class="tr" style="font-weight:700;color:'+col+'">'+r.rate+'%</td>';
-    html += '<td class="tr">'+(r.ref?Math.round(r.ref).toLocaleString():'-')+'</td>';
-    html += '<td class="tr">'+(r.run?Math.round(r.run).toLocaleString():'-')+'</td>';
-    html += '<td class="tr">'+(loss?Math.round(loss).toLocaleString():'-')+'</td>';
-    html += '<td class="tr">'+(r.area?r.area.toFixed(1):'-')+'</td>';
-    html += '<td class="tc"><span class="badge '+bc+'">'+lbl+'</span></td>';
-    html += '</tr>';
+  })
+  .then(function(r){
+    if(r && r.ok){
+      setGHStatus('☁ 저장됨 ' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}), 'var(--green)');
+    } else {
+      r.text().then(function(t){
+        console.warn('ghPush failed:', t);
+        setGHStatus('⚠ 저장 실패 — 토큰/권한 확인', 'var(--amber)');
+      });
+    }
+  })
+  .catch(function(e){
+    console.warn('ghPush error:', e);
+    setGHStatus('⚠ 저장 실패 — 네트워크 오류', 'var(--amber)');
   });
-  if (!html) html='<tr><td colspan="9" style="text-align:center;padding:28px;color:#8b949e">데이터 없음</td></tr>';
-  document.getElementById('dtBody').innerHTML = html;
 }
 
-// ════════════════════════════════════════
-// 설비 사이드 패널
-// ════════════════════════════════════════
-function showEP(equip, proc) {
-  var d = cur(); if (!d) return;
-  var r = null;
-  for (var i=0; i<d.rows.length; i++) {
-    if (d.rows[i].equip===equip && d.rows[i].proc===proc) { r=d.rows[i]; break; }
-  }
-  if (!r) return;
+// ── 자동 동기화 ──
 
-  var cls = r.rate>=TGT?'ok':r.rate>=40?'warn':'crit';
-  var col = cls==='ok'?'#3fb950':cls==='warn'?'#d29922':'#f85149';
-  var lbl = cls==='ok'?'정상':cls==='warn'?'주의':'위험';
+// ── 시작 ──
+(function waitChart(){
+  if(typeof Chart==='undefined'){ setTimeout(waitChart,150); return; }
 
-  document.getElementById('epNm').textContent = r.equip;
-  document.getElementById('epPr').textContent = r.proc;
-  document.getElementById('epRt').textContent = r.rate+'%';
-  document.getElementById('epRt').style.color = col;
-  document.getElementById('epSt').textContent = lbl;
-  document.getElementById('epSt').style.color = col;
+  // oee.json 먼저 로드 → 완료 후 renderTab0 실행 (순서 보장)
+  var OEE_API='https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/contents/data/oee.json';
+  fetch(OEE_API+'?t='+Date.now(),{headers:{'Accept':'application/vnd.github.v3+json'}})
+  .then(function(r){return r.ok?r.json():null;})
+  .then(function(fd){
+    // oee.json 데이터가 있으면 MODES 교체
+    if(fd&&fd.content){
+      try{
+        var d=JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g,'')))));
+        if(d&&d.MODES&&d.MODES.month&&d.MODES.month.summary&&d.MODES.month.summary.length>=5){
+          MODES=d.MODES;
+          if(d.TREND&&Object.keys(d.TREND).length) TREND=d.TREND;
+          if(d.ETRD&&Object.keys(d.ETRD).length)   ETRD=d.ETRD;
+        }
+      }catch(e){ console.warn('loadOEE:',e); }
+    }
+  })
+  .catch(function(){})
+  .finally(function(){
+    // fetch 완료 후 렌더링 (성공/실패 무관)
+    renderTab0(); tabInited[0]=1;
+    renderStop(); renderBreak();
+    updateGHBtn();
+    setTimeout(function(){ fetchMaintenance(); }, 800);
+  });
 
-  var rows2 = '';
-  if (r.cnt)   rows2+='<div class="eprow"><span class="lb">설비 대수</span><span class="vl">'+r.cnt+' 대</span></div>';
-  if (r.ref)   rows2+='<div class="eprow"><span class="lb">기준시간</span><span class="vl">'+Math.round(r.ref).toLocaleString()+' 분</span></div>';
-  if (r.run)   rows2+='<div class="eprow"><span class="lb">실운행시간</span><span class="vl">'+Math.round(r.run).toLocaleString()+' 분</span></div>';
-  if (r.loss1) rows2+='<div class="eprow"><span class="lb">계획비가동</span><span class="vl">'+Math.round(r.loss1).toLocaleString()+' 분</span></div>';
-  if (r.loss2) rows2+='<div class="eprow"><span class="lb">운영유실</span><span class="vl">'+Math.round(r.loss2).toLocaleString()+' 분</span></div>';
-  if (r.loss3) rows2+='<div class="eprow"><span class="lb">설비운영유실</span><span class="vl">'+Math.round(r.loss3).toLocaleString()+' 분</span></div>';
-  if (r.area)  rows2+='<div class="eprow"><span class="lb">생산면적</span><span class="vl">'+r.area.toFixed(1)+' ㎡</span></div>';
-  document.getElementById('epRows').innerHTML = rows2;
-
-  // 같은 공정 비교
-  var same = d.rows.filter(function(x){
-    return x.proc===proc && !x.isSummary && x.sub;
-  }).slice().sort(function(a,b){return b.rate-a.rate;});
-  if (same.length === 0) same = d.rows.filter(function(x){ return x.proc===proc; })
-                                      .slice().sort(function(a,b){return b.rate-a.rate;});
-
-  if (epCh) { epCh.destroy(); epCh=null; }
-  epCh = new Chart(document.getElementById('epC'),{
-    type:'bar',
-    data:{
-      labels: same.map(function(x){ return x.equip; }),
-      datasets:[{
-        data: same.map(function(x){ return x.rate; }),
-        backgroundColor: same.map(function(x){
-          if (x.equip===equip) return col;
-          return x.rate>=TGT?'rgba(63,185,80,.3)':x.rate>=40?'rgba(210,153,34,.3)':'rgba(248,81,73,.3)';
-        }), borderRadius:3
-      }]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.raw+'%';}}}},
-      scales:{
-        x:{ticks:{color:'#8b949e',font:{size:8}},grid:{display:false}},
-        y:{min:0,max:100,ticks:{color:'#8b949e',font:{size:8},callback:function(v){return v+'%';}},grid:{color:'#21262d'}}
-      }
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible'){
+      Object.keys(CH).forEach(function(k){try{if(CH[k]&&CH[k].resize)CH[k].resize();}catch(e){}});
     }
   });
-  document.getElementById('ep').classList.add('open');
-}
-
-function closeEP() {
-  document.getElementById('ep').classList.remove('open');
-}
+})();
 </script>
 </body>
 </html>
