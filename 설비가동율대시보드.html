@@ -443,7 +443,7 @@ var ETRD={"레이저_RTR": [72.0, 51.1, 50.0, 48.0, 33.2], "레이저_SHEET": [3
 
 // ── 상태 변수 ──
 var MODE='month', TGT=60, CH={}, HF_PROC='';
-var BUILD_TIME='2026-05-08T08:29:58Z';
+var BUILD_TIME='2026-05-11T10:00:00Z';
 var LS_STOP='syn_stop', LS_BREAK='syn_break';
 
 // ── 유틸 ──
@@ -1206,7 +1206,9 @@ function updateGHBtn(){
     if(fd&&fd.content){
       try{
         var d=JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g,'')))));
-        if(d&&d.MODES&&d.MODES.month&&d.MODES.month.summary&&d.MODES.month.summary.length>=5){
+        // GitHub 데이터가 BUILD_TIME보다 최신인 경우만 적용
+        var ghNewer = d&&d.saved&&(new Date(d.saved)>=new Date(BUILD_TIME));
+        if(ghNewer&&d.MODES&&d.MODES.month&&d.MODES.month.summary&&d.MODES.month.summary.length>=5){
           MODES=d.MODES;
           if(d.TREND&&Object.keys(d.TREND).length) TREND=d.TREND;
           if(d.ETRD&&Object.keys(d.ETRD).length)   ETRD=d.ETRD;
