@@ -398,6 +398,10 @@ tr:hover td{background:rgba(56,139,253,.05)}
       같은 대시보드를 사용하는 모든 인원이 <strong style="color:var(--teal)">실시간으로 공유</strong>할 수 있습니다.<br>
       <span style="color:var(--amber)">⚠ 토큰은 이 기기에만 저장되며 외부로 전송되지 않습니다.</span>
     </div>
+    <div style="background:rgba(46,160,67,.08);border:1px solid rgba(46,160,67,.3);border-radius:8px;padding:10px;margin-bottom:14px;font-size:11px;color:var(--muted);line-height:1.7">
+      👥 <strong style="color:var(--green)">팀원 (읽기 전용)</strong> — 토큰 없이도 자동으로 최신 데이터를 받아볼 수 있습니다.<br>
+      ✏️ <strong style="color:var(--teal)">등록 담당자</strong> — 토큰을 입력하면 고장/정지 설비를 등록하고 공유할 수 있습니다.
+    </div>
     <div class="mf">
       <label>GitHub Personal Access Token
         <a href="https://github.com/settings/tokens/new?scopes=repo&description=SYNOPEX+OEE" target="_blank" 
@@ -1148,10 +1152,12 @@ function testGHConn(){
 }
 function ghPush(){
   if(!GH_TOKEN){ return; }
+  var now = new Date().toISOString();
   var payload = {
     stops:   loadList(LS_STOP),
     breaks:  loadList(LS_BREAK),
-    updated: new Date().toISOString()
+    updated: now,
+    updatedBy: navigator.language || 'unknown'
   };
   var content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
   setGHStatus('저장 중...', 'var(--muted)');
@@ -1196,6 +1202,83 @@ function updateGHBtn(){
   if(el) el.textContent = GH_TOKEN ? '☁ GitHub 연동됨' : 'GitHub 연동';
 }
 
+// ══════════════════════════════════════════════
+// ── fetchMaintenance: GitHub에서 정지/고장 데이터 가져오기 ──
+// 토큰 없이도 공개 레포에서 읽기 가능 (팀원 포함)
+// ══════════════════════════════════════════════
+var _lastMaintSha = '';
+var _autoSyncTimer = null;
+
+function fetchMaintenance(){
+  // raw URL에 캐시 버스터 추가
+  var url = GH_RAW_URL + '?t=' + Date.now();
+  fetch(url)
+  .then(function(r){ return r.ok ? r.json() : null; })
+  .then(function(d){
+    if(!d) return;
+    // SHA 비교로 변경사항 있을 때만 업데이트
+    var newSha = d.updated || '';
+    if(newSha && newSha === _lastMaintSha) return; // 변경없음
+    _lastMaintSha = newSha;
+
+    var changed = false;
+    if(d.stops){
+      var cur = JSON.stringify(loadList(LS_STOP));
+      var next = JSON.stringify(d.stops);
+      if(cur !== next){ saveList(LS_STOP, d.stops); changed = true; }
+    }
+    if(d.breaks){
+      var cur2 = JSON.stringify(loadList(LS_BREAK));
+      var next2 = JSON.stringify(d.breaks);
+      if(cur2 !== next2){ saveList(LS_BREAK, d.breaks); changed = true; }
+    }
+    if(changed){
+      renderStop(); renderBreak();
+      var t = d.updated ? new Date(d.updated).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) : '';
+      setGHStatus('🔄 동기화됨 ' + t, 'var(--teal)');
+      toast('🔄 설비 현황이 업데이트됐습니다');
+    } else {
+      var t2 = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+      setGHStatus('✅ 최신 ' + t2, 'var(--green)');
+    }
+  })
+  .catch(function(e){
+    console.warn('fetchMaintenance:', e);
+    setGHStatus('⚠ 동기화 실패 (네트워크 확인)', 'var(--amber)');
+  });
+}
+
+// ── 자동 폴링 시작/중지 ──
+function startAutoSync(interval_ms){
+  stopAutoSync();
+  fetchMaintenance(); // 즉시 1회 실행
+  _autoSyncTimer = setInterval(fetchMaintenance, interval_ms || 30000);
+  setGHStatus('🔄 자동 동기화 ON (30초)', 'var(--teal)');
+}
+function stopAutoSync(){
+  if(_autoSyncTimer){ clearInterval(_autoSyncTimer); _autoSyncTimer = null; }
+}
+
+// ── 저장 시 GitHub 연동 + 자동 동기화 재시작 ──
+// saveGHToken override: 저장 후 자동 동기화 켜기
+var _origSaveGHToken = saveGHToken;
+saveGHToken = function(){
+  var t = document.getElementById('gh-token').value.trim();
+  var a = document.getElementById('gh-auto-sync').checked;
+  if(t) localStorage.setItem('gh_token', t); else localStorage.removeItem('gh_token');
+  localStorage.setItem('gh_auto', a ? '1' : '0');
+  GH_TOKEN = t;
+  closeGHModal();
+  if(t){
+    toast('✅ 연동 완료');
+    ghPush();
+    if(a) startAutoSync(30000);
+  } else {
+    stopAutoSync();
+    toast('GitHub 연동 해제됨');
+  }
+};
+
 // ── 시작 ──
 (function waitChart(){
   if(typeof Chart==='undefined'){ setTimeout(waitChart,150); return; }
@@ -1219,12 +1302,22 @@ function updateGHBtn(){
   .catch(function(){})
   .finally(function(){
     renderTab0(); tabInited[0]=1;
-    renderStop(); renderBreak();
     updateGHBtn();
+
+    // 시작 시 maintenance 데이터 가져오기 (토큰 없는 팀원도 가능)
+    fetchMaintenance();
+
+    // 자동 동기화 설정 복원
+    if(localStorage.getItem('gh_auto')==='1'){
+      startAutoSync(30000);
+    }
   });
+
+  // 탭 복귀 시 차트 리사이즈 + 즉시 동기화
   document.addEventListener('visibilitychange',function(){
     if(document.visibilityState==='visible'){
       Object.keys(CH).forEach(function(k){try{if(CH[k]&&CH[k].resize)CH[k].resize();}catch(e){}});
+      fetchMaintenance(); // 탭 돌아올 때마다 최신 데이터 확인
     }
   });
 })();
