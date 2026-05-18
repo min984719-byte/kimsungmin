@@ -176,6 +176,7 @@ var INIT = [
   {section:'생산 계획',status:'active',title:'2027년 생산운영계획',subtitle:'Kế hoạch vận hành sản xuất 2027',url:'2027년_생산운영계획.html',ico:'🏭',bg:'#FFF2CC',bd:'#BA7517',tag:'REV02 | 영업계획 변경',tgBg:'#FFF2CC',tgC:'#7c5103',desc:'월별 생산계획 (DS / MULTI) · 공정별 부하율\nCAPA 부족현황 · 설비 투자금액 · 설비 현황\n🇰🇷 한국어 / 🇻🇳 베트남어 전환 지원'},
   {section:'비용 관리',status:'active',title:'2026년 외주비 마감 내역',subtitle:'Chi phí nhà thầu 2026 (T4)',url:'2026년_외주비_마감내역(4월).html',ico:'📑',bg:'#FCE4D6',bd:'#C00000',tag:'2026년 4월 마감',tgBg:'#FCE4D6',tgC:'#C00000',desc:'월별 외주비 추이 · 공정별 / 업체별 현황\n계획대비 실적 달성율 · NEGO 절감 현황\n🇰🇷 한국어 / 🇻🇳 베트남어 전환 지원'},
   {section:'비용 관리',status:'active',title:'설비 가동율 대시보드',subtitle:'Bảng theo dõi tỷ lệ hoạt động TB',url:'설비가동율대시보드.html',ico:'📈',bg:'#E2EFDA',bd:'#1D9E75',tag:'Excel 업로드 연동',tgBg:'#E2EFDA',tgC:'#155724',desc:'공정별 설비 시간 가동율 현황\n엑셀 파일 업로드 → 자동 차트 생성\n🇰🇷 한국어 / 🇻🇳 베트남어 전환 지원'},
+  {section:'설비 관리',status:'active',title:'OEE AI 분석 대시보드',subtitle:'Phân tích OEE · Dự đoán hiệu suất & chất lượng bằng AI',url:'OEE_AI_분석대시보드.html',ico:'✨',bg:'#EDE7F6',bd:'#7c3aed',tag:'AI 성능율·품질율 예측',tgBg:'#7c3aed',tgC:'#ffffff',desc:'공정별 설비 가동율 현황 (엑셀 업로드)\nAI가 성능율(P) · 품질율(Q) 자동 예측\nOEE = A × P × Q 자동 계산 및 분석'},
   {section:'업무 보고',status:'active',title:'업무 보고 캘린더',subtitle:'Lịch báo cáo công việc',url:'업무보고_캘린더.html',ico:'📅',bg:'#E8F4FD',bd:'#2563eb',tag:'일자별 업무 보고',tgBg:'#E8F4FD',tgC:'#1e40af',desc:'날짜별 업무 보고 작성 및 조회\n작성자 · 부서 · 유형 · 상태 · 이슈 기록\n📤 내보내기 / 📥 가져오기 공유 지원'}
 ];
 
@@ -303,24 +304,18 @@ function delCard(){
   saveCards(cards); closeOv('editOv'); render(); toast('삭제됐습니다');
 }
 
-/* HTML 저장 — fetch로 원본 소스 가져와서 INIT 교체 */
+/* HTML 저장 */
 function exportHTML(){
   var cards = loadCards();
   var marker = 'var INIT = ';
-
-  // 방법1: fetch로 현재 파일 원본 가져오기 (GitHub Pages에서 동작)
   fetch(location.href)
     .then(function(r){ return r.text(); })
-    .then(function(src){
-      doExport(src, cards);
-    })
+    .then(function(src){ doExport(src, cards); })
     .catch(function(){
-      // 방법2: file:// 환경 등 fetch 실패 시 script 태그에서 직접 추출
       var scripts = document.querySelectorAll('script');
       var src = '';
       scripts.forEach(function(s){ if(s.innerHTML.indexOf(marker)>0) src = s.innerHTML; });
       if(src){
-        // 전체 HTML 재조립
         var fullHtml = document.documentElement.outerHTML;
         doExport(fullHtml, cards);
       } else {
@@ -331,13 +326,11 @@ function exportHTML(){
 
 function doExport(src, cards){
   var dataStr = JSON.stringify(cards, null, 2);
-  // var INIT = [...]; 패턴 교체
   var newSrc = src.replace(
     /var INIT = \[[\s\S]*?\];/,
     'var INIT = ' + dataStr + ';'
   );
   if(newSrc === src){
-    // 패턴 못 찾으면 다른 방식으로 시도
     newSrc = src.replace(
       /(var INIT\s*=\s*)(\[)[\s\S]*?(\];)/,
       '$1' + dataStr + ';'
