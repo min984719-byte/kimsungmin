@@ -269,9 +269,9 @@ function sw(i){
   document.querySelectorAll('.synopex-pane').forEach((p,j)=>p.classList.toggle('on',j===i));
 }
 const N=v=>Math.round(v||0).toLocaleString();
-const NB=v=>{ // 억 단위
+const NB=v=>{ // 억 단위 (1억=1e8 기준)
   const a=Math.abs(v||0);
-  if(a>=1e9) return (v/1e9).toFixed(1)+'억';
+  if(a>=1e8) return (v/1e8).toFixed(1)+'억';
   if(a>=1e6) return (v/1e6).toFixed(0)+'백만';
   return N(v);
 };
