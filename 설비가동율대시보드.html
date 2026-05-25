@@ -128,6 +128,14 @@ tr:hover td{background:rgba(56,139,253,.05)}
 ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--bor2);border-radius:2px}
 @media(max-width:900px){.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
 @media(max-width:600px){.g3,.g4{grid-template-columns:1fr}}
+
+.ai-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin:14px 0 18px}
+.ai-card{background:var(--card);border:1px solid var(--bor);border-radius:10px;padding:16px}
+.ai-title{font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+.ai-big{font-family:'Orbitron',monospace;font-size:20px;font-weight:700;color:var(--teal)}
+.ai-list{font-size:12px;line-height:1.7;color:var(--text)}
+.ai-chip{display:inline-block;padding:4px 8px;border-radius:999px;background:rgba(56,139,253,.12);border:1px solid rgba(56,139,253,.3);font-size:11px;margin:2px 4px 2px 0}
+
 </style>
 </head>
 <body>
@@ -215,6 +223,36 @@ tr:hover td{background:rgba(56,139,253,.05)}
       <thead><tr><th>공정명</th><th>가동율</th><th>기준시간</th><th>실운행시간</th><th>계획비가동</th><th>운영유실</th><th>설비유실</th><th>생산면적(㎡)</th><th>상태</th></tr></thead>
       <tbody id="t0b"></tbody>
     </table></div>
+  </div>
+</div>
+
+
+<div class="ai-grid">
+  <div class="ai-card">
+    <div class="ai-title">AWS AI INSIGHT ENGINE</div>
+    <div class="ai-big" id="ai-oee-score">92.4%</div>
+    <div class="ai-list">
+      • 예측 가동율: <span id="ai-predict">금일 야간 94.1%</span><br>
+      • 주요 리스크: <span id="ai-risk">DRY FILM #3 온도 편차 ↑</span><br>
+      • 권장 액션: <span id="ai-action">20:00 이전 점검 + 자재 선공급</span>
+    </div>
+  </div>
+  <div class="ai-card">
+    <div class="ai-title">연결 구조</div>
+    <div class="ai-list">
+      <span class="ai-chip">S3 업로드</span>
+      <span class="ai-chip">Lambda</span>
+      <span class="ai-chip">Amazon Bedrock</span>
+      <span class="ai-chip">QuickSight</span>
+    </div>
+  </div>
+  <div class="ai-card">
+    <div class="ai-title">AI 상태</div>
+    <div class="ai-list">
+      실시간 분석: 정상<br>
+      이상탐지: ON<br>
+      설비 예지보전: ON
+    </div>
   </div>
 </div>
 
@@ -1322,5 +1360,28 @@ saveGHToken = function(){
   });
 })();
 </script>
+
+<script>
+const API_URL = "https://YOUR_API_GATEWAY.execute-api.ap-northeast-2.amazonaws.com/ai";
+
+async function loadAI(){
+  try{
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    const body = data.body ? JSON.parse(data.body) : data;
+
+    document.getElementById("ai-oee-score").innerText = (body.oee ?? "-") + "%";
+    document.getElementById("ai-risk").innerText = body.risk ?? "-";
+    document.getElementById("ai-action").innerText = body.recommend ?? "-";
+    document.getElementById("ai-predict").innerText = body.predict ?? "AI 분석 완료";
+  }catch(err){
+    console.error("AI API 연결 오류:", err);
+  }
+}
+
+loadAI();
+setInterval(loadAI, 60000);
+</script>
+
 </body>
 </html>
