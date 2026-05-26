@@ -1445,8 +1445,8 @@ var AI_RESULT = {};
 
 // AWS 설정 (Lambda URL 입력 후 사용)
 var AWS_API = {
-  uploadUrl:     '',  // https://xxxx.execute-api.ap-southeast-1.amazonaws.com/prod/upload-url
-  predictionUrl: ''   // https://xxxx.execute-api.ap-southeast-1.amazonaws.com/prod/prediction
+  uploadUrl:     '',
+  predictionUrl: 'https://pbo5eiwibj.execute-api.ap-southeast-1.amazonaws.com/prod/predict'
 };
 
 async function runAIAnalysis() {
@@ -1489,12 +1489,21 @@ async function runAIAnalysis() {
     var availResult = null, lossResult = null;
 
     if (useAWS) {
-      // AWS Lambda → Bedrock 경로
-      var r = await fetch(AWS_API.predictionUrl + '?analyze=1', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ procs: procList, period: db.period||'' })
+      // AWS Lambda 프록시 호출 (API 키 서버 보관)
+      setAISt('st-avail','Lambda 호출 중...','var(--amber)');
+      setAISt('st-loss', 'Lambda 호출 중...','var(--amber)');
+      var r = await fetch(AWS_API.predictionUrl, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          procs:  procList,
+          period: db.period || '',
+          mode:   'both'
+        })
       });
+      if (!r.ok) throw new Error('Lambda 응답 오류: ' + r.status);
       var res = await r.json();
+      if (res.error) throw new Error(res.error);
       availResult = res.avail || null;
       lossResult  = res.loss  || null;
       var awsChip = document.getElementById('aws-chip');
@@ -1533,16 +1542,28 @@ function setAISt(id, txt, color) {
 }
 
 async function callClaude(prompt) {
+  // AWS Lambda 설정된 경우 → Lambda 프록시 사용
+  if (AWS_API.predictionUrl && AWS_API.predictionUrl.indexOf('xxxx') < 0) {
+    throw new Error('Lambda 경로는 runAIAnalysis에서 직접 처리됩니다');
+  }
+  // 직접 API 키 방식 (로컬 테스트용)
+  var apiKey = localStorage.getItem('claude_api_key') || '';
+  if (!apiKey) throw new Error('API 키 미설정 — 설정 버튼을 클릭하세요');
   var resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: {'Content-Type':'application/json'},
+    headers: {
+      'Content-Type':      'application/json',
+      'x-api-key':         apiKey,
+      'anthropic-version': '2023-06-01'
+    },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-haiku-4-5',
       max_tokens: 2500,
       messages: [{ role:'user', content: prompt }]
     })
   });
   var data = await resp.json();
+  if (data.error) throw new Error(data.error.message);
   return data.content ? data.content.map(function(b){return b.text||'';}).join('') : '';
 }
 
