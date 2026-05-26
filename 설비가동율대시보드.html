@@ -224,7 +224,6 @@ tr:hover td{background:rgba(56,139,253,.05)}
       <tbody id="t0b"></tbody>
     </table></div>
   </div>
-</div>
 
 
 <div class="ai-grid">
@@ -254,12 +253,7 @@ tr:hover td{background:rgba(56,139,253,.05)}
       disabled>
       ✨ AI 분석 실행
     </button>
-    <button onclick="setApiKey()"
-      style="width:100%;padding:6px;border-radius:6px;margin-top:6px;
-      border:1px solid var(--bor2);background:var(--card2);color:var(--muted);
-      font-size:11px;cursor:pointer;font-family:inherit" id="apiKeyBtn">
-      🔑 API 키 설정
-    </button>
+
     <div style="font-size:10px;color:var(--muted);margin-top:5px;text-align:center" id="ai-last-run">
       엑셀 업로드 후 활성화
     </div>
@@ -311,6 +305,7 @@ tr:hover td{background:rgba(56,139,253,.05)}
   <div style="padding:8px 12px;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-radius:8px;color:var(--muted);font-size:10px">
     ⚠ Claude AI가 가동율·비가동 데이터 기반으로 분석·예측한 값입니다. 현장 확인 후 활용하세요.
   </div>
+</div>
 </div>
 
 <!-- 탭1: 히트맵 -->
@@ -1460,40 +1455,54 @@ async function runAIAnalysis() {
   });
 
   try {
-    // 가동율 예측
     setSt('st-avail','분석 중...','var(--amber)');
-    var t1 = await aiCall(buildAvailP(procs, db.period||''));
-    AI_RESULT.avail = JSON.parse(t1.replace(/```json\n?|```\n?/g,'').trim());
+    setSt('st-loss', '분석 중...','var(--amber)');
+
+    // Lambda 1번 호출로 가동율 예측 + 손실 분석 동시 처리
+    var r = await fetch(LAMBDA_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ procs: procs, period: db.period||'', mode: 'both' })
+    });
+    if (!r.ok) throw new Error('Lambda 응답 오류: ' + r.status);
+    var res = await r.json();
+    if (res.error) throw new Error(res.error);
+
+    AI_RESULT.avail = res.avail || null;
+    AI_RESULT.loss  = res.loss  || null;
+
     setSt('st-avail','완료','var(--teal)');
-
-    // 손실 원인
-    setSt('st-loss','분석 중...','var(--amber)');
-    var t2 = await aiCall(buildLossP(procs, db.period||''));
-    AI_RESULT.loss = JSON.parse(t2.replace(/```json\n?|```\n?/g,'').trim());
-    setSt('st-loss','완료','var(--teal)');
-
+    setSt('st-loss', '완료','var(--teal)');
     renderAI(AI_RESULT.avail, AI_RESULT.loss);
-    setSt('st-risk', (AI_RESULT.avail.risk_procs||[]).join(', ')||'없음', 'var(--red)');
+    setSt('st-risk', (AI_RESULT.avail&&AI_RESULT.avail.risk_procs||[]).join(', ')||'없음', 'var(--red)');
 
   } catch(e) {
     setSt('st-avail','오류: '+e.message,'var(--red)');
-    if(e.message&&e.message.includes('401')){
-      localStorage.removeItem('synopex_api_key'); CLAUDE_KEY='';
-      alert('API 키 오류. 다시 설정해주세요.');
-    }
+    console.error('AI 오류:', e);
   }
   btn.disabled=false; btn.textContent='✨ AI 재분석';
 }
 
+// Lambda URL (Anthropic API는 브라우저 직접 호출 불가 → Lambda 프록시 필수)
+var LAMBDA_URL = 'https://thv7ei2fekdsduzcqjckgyacdu0bblqq.lambda-url.ap-southeast-1.on.aws/';
+
 async function aiCall(prompt) {
-  var r = await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':CLAUDE_KEY,'anthropic-version':'2023-06-01'},
-    body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:4000,messages:[{role:'user',content:prompt}]})
+  // Lambda 프록시를 통해 호출
+  var r = await fetch(LAMBDA_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      procs:  [{공정명:'single', 가동율:'0%'}],
+      period: '',
+      mode:   'avail',
+      _direct_prompt: prompt   // 직접 프롬프트 전달
+    })
   });
-  if(!r.ok){var e=await r.json();throw new Error(e.error?e.error.message:'오류'+r.status);}
-  var d=await r.json();
-  return d.content?d.content.map(function(b){return b.text||'';}).join(''):'';
+  if (!r.ok) throw new Error('Lambda 오류: ' + r.status);
+  var d = await r.json();
+  if (d.error) throw new Error(d.error);
+  // Lambda가 avail 결과 반환
+  return JSON.stringify(d.avail || d);
 }
 
 function setSt(id,txt,col){var e=document.getElementById(id);if(e){e.textContent=txt;e.style.color=col;}}
