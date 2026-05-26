@@ -1416,23 +1416,39 @@ function _st(id,t,c){var e=document.getElementById(id);if(e){e.textContent=t;e.s
 async function runAI(){
   var db=cur(); if(!db||!db.summary||!db.summary.length){alert('먼저 엑셀을 업로드하세요.');return;}
   var btn=document.getElementById('aiBtn'); btn.disabled=true; btn.textContent='⏳ 분석 중...';
-  _st('st-a','분석 중...','var(--amber)'); _st('st-l','분석 중...','var(--amber)');
+
   var procs=db.summary.map(function(r){
     var loss=(r.plan_down||0)+(r.op_loss||0)+(r.eq_loss||0)+(r.eq_fail||0);
     return {공정명:r.proc,가동율:r.rate+'%',기준시간_분:Math.round(r.base||0),실운행_분:Math.round(r.run||0),
       비가동_분:Math.round(loss),계획비가동_분:Math.round(r.plan_down||0),
       운영유실_분:Math.round(r.op_loss||0),설비유실_분:Math.round((r.eq_loss||0)+(r.eq_fail||0))};
   });
+
   try{
-    // GET 방식으로 CORS 우회 (브라우저 단순 요청)
-    var payload = encodeURIComponent(JSON.stringify({procs:procs,period:db.period||'',mode:'both'}));
-    var r=await fetch(_LU+'?d='+payload);
-    if(!r.ok) throw new Error('Lambda 오류:'+r.status);
-    var res=await r.json(); if(res.error) throw new Error(res.error);
-    _AIR={avail:res.avail||null,loss:res.loss||null};
-    _st('st-a','완료','var(--teal)'); _st('st-l','완료','var(--teal)');
+    // ① 가동율 예측 (avail) 먼저
+    _st('st-a','분석 중...','var(--amber)');
+    var p1=encodeURIComponent(JSON.stringify({procs:procs,period:db.period||'',mode:'avail'}));
+    var r1=await fetch(_LU+'?d='+p1);
+    if(!r1.ok) throw new Error('Lambda 오류:'+r1.status);
+    var res1=await r1.json();
+    if(res1.error) throw new Error(res1.error);
+    _AIR.avail=res1.avail||null;
+    _st('st-a','완료','var(--teal)');
+    if(_AIR.avail) _renderAI(_AIR.avail, null);
+
+    // ② 손실 원인 분석 (loss) 다음
+    _st('st-l','분석 중...','var(--amber)');
+    var p2=encodeURIComponent(JSON.stringify({procs:procs,period:db.period||'',mode:'loss'}));
+    var r2=await fetch(_LU+'?d='+p2);
+    if(!r2.ok) throw new Error('Lambda 오류:'+r2.status);
+    var res2=await r2.json();
+    if(res2.error) throw new Error(res2.error);
+    _AIR.loss=res2.loss||null;
+    _st('st-l','완료','var(--teal)');
     _st('st-r',(_AIR.avail&&_AIR.avail.risk_procs||[]).join(', ')||'없음','var(--red)');
-    _renderAI(_AIR.avail,_AIR.loss); _saveAI(_AIR);
+    _renderAI(_AIR.avail, _AIR.loss);
+    _saveAI(_AIR);
+
   }catch(e){ _st('st-a','오류: '+e.message,'var(--red)'); console.error('AI오류:',e); }
   btn.disabled=false; btn.textContent='✨ AI 재분석';
 }
