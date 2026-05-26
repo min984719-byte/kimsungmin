@@ -1,211 +1,222 @@
 {
   "avail": {
-    "summary": "FPCB SYNOPEX VIETNAM의 5월 1~25일 평균 가동율은 47.2%로 전반적으로 저조한 수준입니다. 금도금(81.4%), 타발(65%), 자동가접(56.7%) 공정은 상대적으로 양호하나 노광(21.9%), 동도금(29.3%), SUB(39%) 공정의 개선이 시급합니다.",
+    "summary": "FPCB SYNOPEX VIETNAM의 5월 1~25일 평균 가동율은 46.3%로 전반적으로 낮은 수준입니다. 금도금(81.4%), 타발(65%), 자동가접(56.7%) 공정은 양호하나 동도금(29.3%), 노광(21.9%), SUB(39%) 공정의 개선이 시급합니다.",
     "overall_trend": "stable",
-    "predicted_avg": 47.8,
+    "predicted_avg": 45.2,
     "risk_procs": [
-      "노광",
       "동도금",
+      "노광",
       "SUB"
     ],
     "processes": [
       {
         "name": "레이저",
         "current_rate": 44.7,
-        "predicted_rate": 45.2,
-        "trend": "up",
-        "trend_reason": "실운행시간이 안정적으로 유지되며 점진적 개선 추세",
+        "predicted_rate": 44.5,
+        "trend": "stable",
+        "trend_reason": "중간 수준의 가동율이 지속될 것으로 예상됩니다.",
         "risk_level": "medium",
-        "main_loss": "설비유실",
-        "action": "설비 유지보수 강화 및 예방적 점검 일정 수립"
+        "main_loss": "운영유실",
+        "action": "스케줄링 최적화를 통해 5% 이상 개선 목표로 설정하십시오."
       },
       {
         "name": "동도금",
         "current_rate": 29.3,
         "predicted_rate": 28.5,
         "trend": "down",
-        "trend_reason": "가동율이 30% 미만으로 심각한 수준이며 추가 악화 우려",
+        "trend_reason": "저조한 가동율이 지속되며 악화 추세를 보입니다.",
         "risk_level": "high",
-        "main_loss": "운영유실",
-        "action": "공정 병목 분석 및 즉시 개선 대책 수립"
+        "main_loss": "설비유실",
+        "action": "설비 점검 및 유지보수 계획을 즉시 수립하여 가동율 향상을 도모하십시오."
       },
       {
         "name": "노광",
         "current_rate": 21.9,
-        "predicted_rate": 22.1,
-        "trend": "stable",
-        "trend_reason": "최저 수준의 가동율로 지속적인 부진 중",
+        "predicted_rate": 21.2,
+        "trend": "down",
+        "trend_reason": "최저 수준의 가동율로 심각한 병목 공정입니다.",
         "risk_level": "high",
-        "main_loss": "운영유실",
-        "action": "공정 재구성 및 자동화 검토 시급"
+        "main_loss": "설비유실",
+        "action": "노광 공정의 근본 원인 분석과 설비 개선을 최우선으로 추진하십시오."
       },
       {
         "name": "회로",
         "current_rate": 37,
-        "predicted_rate": 37.5,
-        "trend": "up",
-        "trend_reason": "소폭의 개선 추세를 보이고 있음",
+        "predicted_rate": 37.3,
+        "trend": "stable",
+        "trend_reason": "저중간 수준의 가동율이 안정적으로 유지됩니다.",
         "risk_level": "medium",
-        "main_loss": "설비유실",
-        "action": "설비 효율 향상 프로그램 진행"
+        "main_loss": "운영유실",
+        "action": "공정 흐름 분석을 통해 40% 이상으로 개선하십시오."
       },
       {
         "name": "AOI",
         "current_rate": 52.2,
         "predicted_rate": 52.8,
         "trend": "up",
-        "trend_reason": "평균 이상의 가동율을 유지하며 개선 추세",
+        "trend_reason": "중상 수준에서 점진적인 개선 추세를 보입니다.",
         "risk_level": "low",
-        "main_loss": "설비유실",
-        "action": "현재 운영 방식 유지 및 지속 모니터링"
+        "main_loss": "운영유실",
+        "action": "현재의 개선 추세를 지속하되, 55% 달성을 목표로 추진하십시오."
       },
       {
         "name": "수가접",
         "current_rate": 46.4,
-        "predicted_rate": 46.9,
-        "trend": "up",
-        "trend_reason": "평균 수준을 유지하며 점진적 개선",
+        "predicted_rate": 46.2,
+        "trend": "stable",
+        "trend_reason": "평균 수준의 가동율이 안정적으로 유지됩니다.",
         "risk_level": "medium",
         "main_loss": "운영유실",
-        "action": "작업 흐름 최적화 지속 추진"
+        "action": "자동화 및 숙련도 향상을 통해 50% 이상으로 개선하십시오."
       },
       {
         "name": "적층",
         "current_rate": 40.2,
-        "predicted_rate": 40.8,
-        "trend": "up",
-        "trend_reason": "실운행시간 대비 일정한 가동율 유지",
+        "predicted_rate": 40.5,
+        "trend": "stable",
+        "trend_reason": "저중간 수준의 가동율이 안정적으로 유지됩니다.",
         "risk_level": "medium",
-        "main_loss": "설비유실",
-        "action": "공정 자동화 수준 향상 추진"
+        "main_loss": "운영유실",
+        "action": "작업 효율성 분석을 통해 가동율을 45% 이상으로 목표 설정하십시오."
       },
       {
         "name": "가이드",
         "current_rate": 50,
         "predicted_rate": 50.5,
-        "trend": "up",
-        "trend_reason": "평균 근처에서 안정적으로 운영 중",
+        "trend": "stable",
+        "trend_reason": "평균 수준의 가동율이 안정적입니다.",
         "risk_level": "low",
         "main_loss": "운영유실",
-        "action": "현재 운영 수준 유지 및 품질 관리 강화"
+        "action": "현재 수준을 유지하면서 점진적으로 55% 달성을 추진하십시오."
       },
       {
         "name": "금도금",
         "current_rate": 81.4,
-        "predicted_rate": 81,
+        "predicted_rate": 81.2,
         "trend": "stable",
-        "trend_reason": "최고 수준의 가동율을 안정적으로 유지",
+        "trend_reason": "최고 수준의 가동율로 우수한 성과를 지속하고 있습니다.",
         "risk_level": "low",
-        "main_loss": "계획비가동",
-        "action": "벤치마크 프로세스로 지정하여 타 공정에 모범 전파"
+        "main_loss": "운영유실",
+        "action": "현재의 우수한 운영 방식을 모범 사례로 타 공정에 전파하십시오."
       },
       {
         "name": "자동가접",
         "current_rate": 56.7,
         "predicted_rate": 57.2,
         "trend": "up",
-        "trend_reason": "상위 수준의 가동율을 유지하며 개선 중",
+        "trend_reason": "중상 수준에서 점진적인 개선 추세를 보입니다.",
         "risk_level": "low",
-        "main_loss": "설비유실",
-        "action": "현재의 우수한 운영 사례 문서화 및 확산"
+        "main_loss": "운영유실",
+        "action": "개선 추세를 지속하여 60% 달성을 목표로 추진하십시오."
       },
       {
         "name": "SUB",
         "current_rate": 39,
-        "predicted_rate": 38.2,
+        "predicted_rate": 37.8,
         "trend": "down",
-        "trend_reason": "가동율이 40% 미만으로 저조하며 악화 추세",
+        "trend_reason": "낮은 가동율이 악화되는 추세를 보입니다.",
         "risk_level": "high",
-        "main_loss": "운영유실",
-        "action": "공정 용량 분석 및 병목 해소 방안 마련"
+        "main_loss": "설비유실",
+        "action": "SUB 공정의 병목 요인을 파악하여 즉시 개선 대책을 수립하십시오."
       },
       {
         "name": "BBT",
         "current_rate": 43.8,
-        "predicted_rate": 44.3,
-        "trend": "up",
-        "trend_reason": "평균 근처에서 점진적 개선 추세",
+        "predicted_rate": 43.5,
+        "trend": "stable",
+        "trend_reason": "저중간 수준의 가동율이 안정적으로 유지됩니다.",
         "risk_level": "medium",
         "main_loss": "운영유실",
-        "action": "작업 스케줄링 최적화 및 설비 가용성 증대"
+        "action": "공정 능력 강화를 통해 45% 이상으로 개선하십시오."
       },
       {
         "name": "타발",
         "current_rate": 65,
-        "predicted_rate": 65.5,
+        "predicted_rate": 65.3,
         "trend": "up",
-        "trend_reason": "상위 수준의 가동율을 안정적으로 유지하며 개선 중",
+        "trend_reason": "상위 수준의 가동율에서 점진적인 개선을 지속하고 있습니다.",
         "risk_level": "low",
-        "main_loss": "설비유실",
-        "action": "현재 운영 기준 유지하며 추가 자동화 검토"
+        "main_loss": "운영유실",
+        "action": "우수한 성과를 유지하며 70% 달성을 목표로 추진하십시오."
       }
     ]
   },
   "loss": {
-    "summary": "FPCB SYNOPEX VIETNAM의 5월 1~25일 비가동 분석 결과, 전체 13개 공정 중 노광 공정(21.9%)의 가동율이 가장 낮아 병목 공정으로 확인되었습니다. 동도금(29.3%), SUB(39%) 공정 순으로 저가동율을 보이고 있어 즉시 개선이 필요합니다.",
+    "summary": "FPCB SYNOPEX VIETNAM의 5월 1~25일 비가동 분석 결과, 노광 공정의 21.9% 가동율로 최저 수준을 기록했으며 전사 평균 가동율은 46.1%입니다. 동도금(29.3%), 회로(37%), SUB(39%) 공정이 주요 병목으로 작용하고 있습니다.",
     "bottleneck": "노광",
-    "total_loss_min": 0,
+    "total_loss_min": 3008826,
     "top3_causes": [
-      "기준시간 설정 부재",
-      "실운행시간 대비 가동율 저조",
-      "설비유실 데이터 미집계"
+      "공정능력 부족으로 인한 저가동율",
+      "원료/부품 공급 차질",
+      "설비 운영 최적화 미흡"
     ],
     "processes": [
       {
         "name": "노광",
-        "loss_min": 0,
-        "loss_rate": 78.1,
+        "loss_min": 443640,
+        "loss_rate": "78.1%",
         "loss_type": "속도저하",
-        "loss_category": "설비유실",
-        "root_cause": "기준시간 대비 실운행시간 부족으로 인한 공정 능력 미달",
+        "loss_category": "운영유실",
+        "root_cause": "노광 공정의 처리 속도가 다운스트림 공정 대비 현저히 낮아 병목 현상 발생",
         "impact": "high",
-        "immediate_action": "노광 공정의 기준시간 재설정 및 병목 원인 파악",
-        "countermeasure": "노광 장비 유지보수 강화 및 작업 프로세스 최적화"
+        "immediate_action": "노광 공정 설비 능력 평가 및 병렬 운영 검토",
+        "countermeasure": "노광 공정 생산성 향상을 위한 설비 개선 및 운영 최적화"
       },
       {
         "name": "동도금",
-        "loss_min": 0,
-        "loss_rate": 70.7,
+        "loss_min": 184671,
+        "loss_rate": "70.7%",
         "loss_type": "속도저하",
-        "loss_category": "설비유실",
-        "root_cause": "화학 공정 특성상 반응 시간 및 온도 관리 편차",
+        "loss_category": "운영유실",
+        "root_cause": "동도금 공정의 저가동율로 후공정 대기 시간 증가",
         "impact": "high",
-        "immediate_action": "동도금 공정 온도 및 시간 관리 기준 점검",
-        "countermeasure": "자동화 제어 시스템 정밀도 향상 및 작업자 교육"
+        "immediate_action": "동도금 공정의 생산 스케줄 조정 및 자원 재배치",
+        "countermeasure": "도금액 관리 개선 및 설비 점검 강화"
+      },
+      {
+        "name": "회로",
+        "loss_min": 163725,
+        "loss_rate": "63%",
+        "loss_type": "속도저하",
+        "loss_category": "운영유실",
+        "root_cause": "회로 공정 설비 가동율 저하로 인한 생산 차질",
+        "impact": "high",
+        "immediate_action": "회로 공정 생산 계획 재수립 및 설비 상태 확인",
+        "countermeasure": "회로 공정 설비 유지보수 개선 및 운영 인력 교육"
       },
       {
         "name": "SUB",
-        "loss_min": 0,
-        "loss_rate": 61,
-        "loss_type": "속도저하",
+        "loss_min": 70307,
+        "loss_rate": "61%",
+        "loss_type": "속도저저",
         "loss_category": "운영유실",
-        "root_cause": "소량 공정으로 인한 비효율적 운영 및 대기시간 증가",
+        "root_cause": "SUB 공정 저가동율로 병목 심화",
         "impact": "medium",
-        "immediate_action": "SUB 공정 일정 최적화 및 배치 크기 조정",
-        "countermeasure": "공정 간 연계 운영 체계 개선"
+        "immediate_action": "SUB 공정 생산 병목 분석",
+        "countermeasure": "SUB 공정 작업 표준화 및 숙련도 향상"
       }
     ],
     "improvement_priority": [
       {
         "rank": 1,
         "proc": "노광",
-        "action": "기준시간 재설정 및 장비 메인터넌스 강화",
-        "expected_gain": "가동율 30% 이상 향상 기대"
+        "action": "설비 능력 증설 또는 병렬 운영",
+        "expected_gain": "가동율 50% 이상 개선 시 일일 1,500분 손실 감소"
       },
       {
         "rank": 2,
         "proc": "동도금",
-        "action": "온도/시간 관리 자동화 개선 및 공정 최적화",
-        "expected_gain": "가동율 20% 향상 및 품질 안정성 확보"
+        "action": "도금 공정 최적화 및 설비 메인테넌스 강화",
+        "expected_gain": "가동율 40% 달성 시 일일 650분 손실 감소"
       },
       {
         "rank": 3,
-        "proc": "SUB",
-        "action": "배치 스케줄링 개선 및 사전 준비 체계 구축",
-        "expected_gain": "가동율 15% 향상 및 대기시간 30% 감소"
+        "proc": "회로",
+        "action": "공정 표준화 및 운영 효율성 개선",
+        "expected_gain": "가동율 50% 달성 시 일일 520분 손실 감소"
       }
     ]
   },
-  "saved_at": "2026-05-26T10:22:05.803Z",
+  "saved_at": "2026-05-26T10:23:55.281Z",
   "saved_by": "ko"
 }
