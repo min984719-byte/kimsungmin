@@ -184,72 +184,6 @@ tr:hover td{background:rgba(56,139,253,.05)}
 
 <!-- 탭0: 종합 현황 -->
 <div class="npane on" id="t0">
-  <div class="g4">
-    <div class="kpi t"><div class="kv" id="k-avg">--%</div><div class="kl">전체 평균 가동율</div><div class="kd" id="k-period">-</div></div>
-    <div class="kpi g"><div class="kv" id="k-ok">-</div><div class="kl">정상 공정 (≥60%)</div><div class="kd">목표 초과</div></div>
-    <div class="kpi a"><div class="kv" id="k-warn">-</div><div class="kl">주의 공정 (40~60%)</div><div class="kd">개선 필요</div></div>
-    <div class="kpi r"><div class="kv" id="k-crit">-</div><div class="kl">위험 공정 (&lt;40%)</div><div class="kd">즉시 점검</div></div>
-  </div>
-  <div class="g3">
-    <div class="card"><div class="ct">// 공정별 가동율 (%)</div><div class="ch"><canvas id="c0a" height="240"></canvas></div></div>
-    <div class="card"><div class="ct">// 가동시간 구성 분석</div><div class="ch"><canvas id="c0b" height="240"></canvas></div></div>
-    <div class="card"><div class="ct" style="color:var(--blue)">// 가동율 누적 파레토 (공정별)</div><div class="ch"><canvas id="c0c" height="240"></canvas></div></div>
-  </div>
-  <div class="g2">
-    <div class="card">
-      <div class="ct" style="color:var(--amber)">// 계획 정지 설비 현황</div>
-      <div class="tw"><table>
-        <thead><tr><th>공정</th><th>설비명</th><th>대수</th><th>정지 시작일</th><th>정지 사유</th><th>예정 복구일</th><th>상태</th><th></th></tr></thead>
-        <tbody id="stop-tbody"></tbody>
-      </table></div>
-      <div style="text-align:right;margin-top:8px">
-        <button class="add-btn-sm" style="border-color:var(--amber);color:var(--amber)" onclick="openModal('stop')">+ 정지 설비 등록</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="ct" style="color:var(--red)">// 고장 설비 현황 및 수리 일정</div>
-      <div class="tw"><table>
-        <thead><tr><th>공정</th><th>설비명</th><th>대수</th><th>고장 발생일</th><th>고장 사유</th><th>수리 예정일</th><th>진행상태</th><th></th></tr></thead>
-        <tbody id="break-tbody"></tbody>
-      </table></div>
-      <div style="text-align:right;margin-top:8px">
-        <button class="add-btn-sm" style="border-color:var(--red);color:var(--red)" onclick="openModal('break')">+ 고장 설비 등록</button>
-      </div>
-    </div>
-  </div>
-  <div class="card" style="margin-bottom:14px">
-    <div class="ct a">// 공정별 상세 현황</div>
-    <div class="tw"><table>
-      <thead><tr><th>공정명</th><th>가동율</th><th>기준시간</th><th>실운행시간</th><th>계획비가동</th><th>운영유실</th><th>설비유실</th><th>생산면적(㎡)</th><th>상태</th></tr></thead>
-      <tbody id="t0b"></tbody>
-    </table></div>
-  </div>
-</div>
-
-
-<!-- 탭1: 히트맵 -->
-<div class="npane" id="t1">
-  <div class="card">
-    <div class="ct">// 설비별 가동율 히트맵</div>
-    <div class="hf-wrap">
-      <span style="font-size:11px;color:var(--muted);font-weight:600">공정:</span>
-      <button class="hf-btn on" id="hf-all" onclick="setHF('',this)">전체</button>
-      <span id="hf-btns" style="display:flex;gap:6px;flex-wrap:wrap"></span>
-      <select class="sort-sel" id="heat-sort" onchange="renderHeat()">
-        <option value="asc">가동율 낮은순</option>
-        <option value="desc">가동율 높은순</option>
-        <option value="proc">공정순</option>
-      </select>
-      <span class="heat-cnt" id="heat-cnt"></span>
-    </div>
-    <div class="heat-grid" id="heatmap" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"></div>
-    <div style="display:flex;gap:14px;margin-top:10px;font-size:11px">
-      <span style="color:var(--green)">■ 정상(≥60%)</span>
-      <span style="color:var(--amber)">■ 주의(40~60%)</span>
-      <span style="color:var(--red)">■ 위험(&lt;40%)</span>
-    </div>
-  </div>
-</div>
 
 <!-- ══ AWS AI INSIGHT ENGINE ══ -->
 <div class="ai-grid" style="margin:14px 0">
@@ -349,6 +283,73 @@ tr:hover td{background:rgba(56,139,253,.05)}
 
   <div style="padding:8px 12px;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-radius:8px;font-size:10px;color:var(--muted)">
     ⚠ 가동율 예측 및 손실 원인은 Claude AI가 현재 가동율·비가동 데이터 기반으로 분석·예측한 값입니다. 실제 현장 확인 후 활용하세요.
+  </div>
+</div>
+
+  <div class="g4">
+    <div class="kpi t"><div class="kv" id="k-avg">--%</div><div class="kl">전체 평균 가동율</div><div class="kd" id="k-period">-</div></div>
+    <div class="kpi g"><div class="kv" id="k-ok">-</div><div class="kl">정상 공정 (≥60%)</div><div class="kd">목표 초과</div></div>
+    <div class="kpi a"><div class="kv" id="k-warn">-</div><div class="kl">주의 공정 (40~60%)</div><div class="kd">개선 필요</div></div>
+    <div class="kpi r"><div class="kv" id="k-crit">-</div><div class="kl">위험 공정 (&lt;40%)</div><div class="kd">즉시 점검</div></div>
+  </div>
+  <div class="g3">
+    <div class="card"><div class="ct">// 공정별 가동율 (%)</div><div class="ch"><canvas id="c0a" height="240"></canvas></div></div>
+    <div class="card"><div class="ct">// 가동시간 구성 분석</div><div class="ch"><canvas id="c0b" height="240"></canvas></div></div>
+    <div class="card"><div class="ct" style="color:var(--blue)">// 가동율 누적 파레토 (공정별)</div><div class="ch"><canvas id="c0c" height="240"></canvas></div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct" style="color:var(--amber)">// 계획 정지 설비 현황</div>
+      <div class="tw"><table>
+        <thead><tr><th>공정</th><th>설비명</th><th>대수</th><th>정지 시작일</th><th>정지 사유</th><th>예정 복구일</th><th>상태</th><th></th></tr></thead>
+        <tbody id="stop-tbody"></tbody>
+      </table></div>
+      <div style="text-align:right;margin-top:8px">
+        <button class="add-btn-sm" style="border-color:var(--amber);color:var(--amber)" onclick="openModal('stop')">+ 정지 설비 등록</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct" style="color:var(--red)">// 고장 설비 현황 및 수리 일정</div>
+      <div class="tw"><table>
+        <thead><tr><th>공정</th><th>설비명</th><th>대수</th><th>고장 발생일</th><th>고장 사유</th><th>수리 예정일</th><th>진행상태</th><th></th></tr></thead>
+        <tbody id="break-tbody"></tbody>
+      </table></div>
+      <div style="text-align:right;margin-top:8px">
+        <button class="add-btn-sm" style="border-color:var(--red);color:var(--red)" onclick="openModal('break')">+ 고장 설비 등록</button>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="ct a">// 공정별 상세 현황</div>
+    <div class="tw"><table>
+      <thead><tr><th>공정명</th><th>가동율</th><th>기준시간</th><th>실운행시간</th><th>계획비가동</th><th>운영유실</th><th>설비유실</th><th>생산면적(㎡)</th><th>상태</th></tr></thead>
+      <tbody id="t0b"></tbody>
+    </table></div>
+  </div>
+</div>
+
+
+<!-- 탭1: 히트맵 -->
+<div class="npane" id="t1">
+  <div class="card">
+    <div class="ct">// 설비별 가동율 히트맵</div>
+    <div class="hf-wrap">
+      <span style="font-size:11px;color:var(--muted);font-weight:600">공정:</span>
+      <button class="hf-btn on" id="hf-all" onclick="setHF('',this)">전체</button>
+      <span id="hf-btns" style="display:flex;gap:6px;flex-wrap:wrap"></span>
+      <select class="sort-sel" id="heat-sort" onchange="renderHeat()">
+        <option value="asc">가동율 낮은순</option>
+        <option value="desc">가동율 높은순</option>
+        <option value="proc">공정순</option>
+      </select>
+      <span class="heat-cnt" id="heat-cnt"></span>
+    </div>
+    <div class="heat-grid" id="heatmap" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"></div>
+    <div style="display:flex;gap:14px;margin-top:10px;font-size:11px">
+      <span style="color:var(--green)">■ 정상(≥60%)</span>
+      <span style="color:var(--amber)">■ 주의(40~60%)</span>
+      <span style="color:var(--red)">■ 위험(&lt;40%)</span>
+    </div>
   </div>
 </div>
 
