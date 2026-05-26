@@ -1427,8 +1427,8 @@ async function runAI(){
   try{
     // ① 가동율 예측 (avail) 먼저
     _st('st-a','분석 중...','var(--amber)');
-    var p1=encodeURIComponent(JSON.stringify({procs:procs,period:db.period||'',mode:'avail'}));
-    var r1=await fetch(_LU+'?d='+p1);
+    var r1=await fetch(_LU,{method:'POST',headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({procs:procs,period:db.period||'',mode:'avail'})});
     if(!r1.ok) throw new Error('Lambda 오류:'+r1.status);
     var res1=await r1.json();
     if(res1.error) throw new Error(res1.error);
@@ -1438,8 +1438,8 @@ async function runAI(){
 
     // ② 손실 원인 분석 (loss) 다음
     _st('st-l','분석 중...','var(--amber)');
-    var p2=encodeURIComponent(JSON.stringify({procs:procs,period:db.period||'',mode:'loss'}));
-    var r2=await fetch(_LU+'?d='+p2);
+    var r2=await fetch(_LU,{method:'POST',headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({procs:procs,period:db.period||'',mode:'loss'})});
     if(!r2.ok) throw new Error('Lambda 오류:'+r2.status);
     var res2=await r2.json();
     if(res2.error) throw new Error(res2.error);
