@@ -130,6 +130,8 @@ tr:hover td{background:rgba(56,139,253,.05)}
 @media(max-width:600px){.g3,.g4{grid-template-columns:1fr}}
 
 .ai-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin:14px 0 18px}
+  @media(max-width:900px){.ai-grid{grid-template-columns:1fr}}
+  @media(max-width:600px){.ai-grid{grid-template-columns:1fr}}
 .ai-card{background:var(--card);border:1px solid var(--bor);border-radius:10px;padding:16px}
 .ai-title{font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
 .ai-big{font-family:'Orbitron',monospace;font-size:20px;font-weight:700;color:var(--teal)}
@@ -199,12 +201,13 @@ tr:hover td{background:rgba(56,139,253,.05)}
     <div class="ai-list" id="ai-summary-text" style="color:var(--muted);font-size:11px;line-height:1.7">엑셀 업로드 후 AI 분석 실행하세요</div>
     <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap" id="ai-risk-chips"></div>
   </div>
-  <div class="ai-card" style="display:flex;flex-direction:column;justify-content:center">
+  <div class="ai-card">
     <div class="ai-title">AI 분석</div>
     <button onclick="runAIAnalysis()" id="aiRunBtn"
-      style="width:100%;padding:9px;border-radius:8px;border:none;
+      style="width:100%;padding:10px;border-radius:8px;border:none;
       background:linear-gradient(135deg,#1f6feb,#7c3aed);color:#fff;
-      font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px"
+      font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;
+      margin-top:6px;min-height:44px"
       disabled>✨ AI 분석 실행</button>
     <div style="font-size:10px;color:var(--muted);margin-top:5px;text-align:center" id="ai-last-run">엑셀 업로드 후 활성화</div>
   </div>
@@ -1432,6 +1435,11 @@ saveGHToken = function(){
     }
   });
 })();
+
+// 모바일 대응 — window 로드 후 AI 결과 자동 로드
+window.addEventListener('load', function(){
+  setTimeout(loadAIfromGitHub, 1500);
+});
 
 // ═══ AI 분석 함수 ═══
 var AI_RESULT = {};
