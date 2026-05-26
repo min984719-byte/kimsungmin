@@ -1461,7 +1461,6 @@ async function runAIAnalysis() {
     // Lambda 1번 호출로 가동율 예측 + 손실 분석 동시 처리
     var r = await fetch(LAMBDA_URL, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ procs: procs, period: db.period||'', mode: 'both' })
     });
     if (!r.ok) throw new Error('Lambda 응답 오류: ' + r.status);
