@@ -130,8 +130,6 @@ tr:hover td{background:rgba(56,139,253,.05)}
 @media(max-width:600px){.g3,.g4{grid-template-columns:1fr}}
 
 .ai-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin:14px 0 18px}
-  @media(max-width:900px){.ai-grid{grid-template-columns:1fr}}
-  @media(max-width:600px){.ai-grid{grid-template-columns:1fr}}
 .ai-card{background:var(--card);border:1px solid var(--bor);border-radius:10px;padding:16px}
 .ai-title{font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
 .ai-big{font-family:'Orbitron',monospace;font-size:20px;font-weight:700;color:var(--teal)}
@@ -186,78 +184,6 @@ tr:hover td{background:rgba(56,139,253,.05)}
 
 <!-- 탭0: 종합 현황 -->
 <div class="npane on" id="t0">
-
-<!-- ══ AI INSIGHT ENGINE (종합현황 상단) ══ -->
-<div class="ai-grid" style="margin-bottom:14px">
-  <div class="ai-card">
-    <div class="ai-title">✨ AI INSIGHT ENGINE</div>
-    <div style="display:flex;align-items:baseline;gap:8px;margin:4px 0">
-      <div class="ai-big" id="ai-avg-now">--%</div>
-      <div style="font-size:11px;color:var(--muted)">현재</div>
-      <div class="ai-big" id="ai-trend-arrow" style="font-size:16px">→</div>
-      <div class="ai-big" id="ai-avg-pred" style="color:var(--amber)">--%</div>
-      <div style="font-size:11px;color:var(--muted)">1주 예측</div>
-    </div>
-    <div class="ai-list" id="ai-summary-text" style="color:var(--muted);font-size:11px;line-height:1.7">엑셀 업로드 후 AI 분석 실행하세요</div>
-    <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap" id="ai-risk-chips"></div>
-  </div>
-  <div class="ai-card">
-    <div class="ai-title">AI 분석</div>
-    <button onclick="runAIAnalysis()" id="aiRunBtn"
-      style="width:100%;padding:10px;border-radius:8px;border:none;
-      background:linear-gradient(135deg,#1f6feb,#7c3aed);color:#fff;
-      font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;
-      margin-top:6px;min-height:44px"
-      disabled>✨ AI 분석 실행</button>
-    <div style="font-size:10px;color:var(--muted);margin-top:5px;text-align:center" id="ai-last-run">엑셀 업로드 후 활성화</div>
-  </div>
-  <div class="ai-card">
-    <div class="ai-title">AI 분석 상태</div>
-    <div class="ai-list" style="font-size:11px;line-height:2.2">
-      ▸ 가동율 예측: <span id="st-avail" style="color:var(--muted)">대기</span><br>
-      ▸ 손실 원인: <span id="st-loss" style="color:var(--muted)">대기</span><br>
-      ▸ 위험 공정: <span id="st-risk" style="color:var(--muted)">-</span>
-    </div>
-  </div>
-</div>
-
-<!-- AI 상세 결과 -->
-<div id="ai-detail-panel" style="display:none;margin-bottom:14px">
-  <div class="card" style="margin-bottom:10px">
-    <div class="ct">// 가동율 예측  ·  현재 → 1주 후</div>
-    <div id="ai-avail-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin-bottom:8px"></div>
-    <div id="ai-risk-banner" style="display:none;background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3);border-radius:8px;padding:10px 12px">
-      <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:4px">⚠ 즉시 관리 필요 공정</div>
-      <div id="ai-risk-list" style="font-size:11px;color:var(--text);line-height:1.8"></div>
-    </div>
-  </div>
-  <div class="card" style="margin-bottom:10px">
-    <div class="ct">// 손실 원인 분석  ·  6대 손실 기준</div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="ai-loss-summary"></div>
-    <div style="overflow-x:auto">
-      <table style="width:100%;border-collapse:collapse;font-size:12px">
-        <thead><tr style="background:var(--card2)">
-          <th style="padding:7px 10px;text-align:left;color:var(--muted)">공정명</th>
-          <th style="padding:7px 10px;color:var(--muted)">손실(분)</th>
-          <th style="padding:7px 10px;color:var(--muted)">손실율</th>
-          <th style="padding:7px 10px;text-align:left;color:var(--muted)">손실유형</th>
-          <th style="padding:7px 10px;text-align:left;color:var(--muted)">근본원인</th>
-          <th style="padding:7px 10px;color:var(--muted)">영향도</th>
-          <th style="padding:7px 10px;text-align:left;color:var(--muted)">즉시조치</th>
-        </tr></thead>
-        <tbody id="ai-loss-tbody"></tbody>
-      </table>
-    </div>
-    <div id="ai-priority-wrap" style="margin-top:12px;display:none">
-      <div style="font-size:11px;font-weight:700;color:#a371f7;margin-bottom:6px">🎯 개선 우선순위 TOP 3</div>
-      <div id="ai-priority-list"></div>
-    </div>
-  </div>
-  <div style="padding:8px 12px;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-radius:8px;color:var(--muted);font-size:10px;margin-bottom:4px">
-    ⚠ Claude AI가 현재 가동율·비가동 데이터 기반으로 분석·예측한 값입니다. 현장 확인 후 활용하세요.
-  </div>
-</div>
-
   <div class="g4">
     <div class="kpi t"><div class="kv" id="k-avg">--%</div><div class="kl">전체 평균 가동율</div><div class="kd" id="k-period">-</div></div>
     <div class="kpi g"><div class="kv" id="k-ok">-</div><div class="kl">정상 공정 (≥60%)</div><div class="kd">목표 초과</div></div>
@@ -301,33 +227,74 @@ tr:hover td{background:rgba(56,139,253,.05)}
 </div>
 
 
-<!-- AI 섹션 상단으로 이동 -->
-<div style="display:none"><!--
-    <div class="ai-big" id="ai-oee-score">92.4%</div>
-    <div class="ai-list">
-      • 예측 가동율: <span id="ai-predict">금일 야간 94.1%</span><br>
-      • 주요 리스크: <span id="ai-risk">DRY FILM #3 온도 편차 ↑</span><br>
-      • 권장 액션: <span id="ai-action">20:00 이전 점검 + 자재 선공급</span>
+<div class="ai-grid">
+  <div class="ai-card">
+    <div class="ai-title">✨ AI INSIGHT ENGINE</div>
+    <div style="display:flex;align-items:baseline;gap:8px;margin:4px 0">
+      <div class="ai-big" id="ai-now">--%</div>
+      <div style="font-size:11px;color:var(--muted)">현재</div>
+      <div class="ai-big" id="ai-arrow" style="font-size:16px">→</div>
+      <div class="ai-big" id="ai-pred" style="color:var(--amber)">--%</div>
+      <div style="font-size:11px;color:var(--muted)">1주 예측</div>
     </div>
+    <div id="ai-summary" style="color:var(--muted);font-size:11px;line-height:1.7">엑셀 업로드 후 AI 분석을 실행하세요</div>
+    <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap" id="ai-rchips"></div>
   </div>
   <div class="ai-card">
-    <div class="ai-title">연결 구조</div>
-    <div class="ai-list">
-      <span class="ai-chip">S3 업로드</span>
-      <span class="ai-chip">Lambda</span>
-      <span class="ai-chip">Amazon Bedrock</span>
-      <span class="ai-chip">QuickSight</span>
-    </div>
+    <div class="ai-title">AI 분석 실행</div>
+    <button onclick="runAI()" id="aiBtn"
+      style="width:100%;padding:10px;border-radius:8px;border:none;min-height:44px;
+      background:linear-gradient(135deg,#1f6feb,#7c3aed);color:#fff;
+      font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px"
+      disabled>✨ AI 분석 실행</button>
+    <div style="font-size:10px;color:var(--muted);margin-top:5px;text-align:center" id="ai-status">엑셀 업로드 후 활성화</div>
   </div>
   <div class="ai-card">
-    <div class="ai-title">AI 상태</div>
-    <div class="ai-list">
-      실시간 분석: 정상<br>
-      이상탐지: ON<br>
-      설비 예지보전: ON
+    <div class="ai-title">AI 분석 상태</div>
+    <div style="font-size:11px;line-height:2.2">
+      ▸ 가동율 예측: <span id="st-a" style="color:var(--muted)">대기</span><br>
+      ▸ 손실 분석:   <span id="st-l" style="color:var(--muted)">대기</span><br>
+      ▸ 위험 공정:   <span id="st-r" style="color:var(--muted)">-</span>
     </div>
   </div>
--->
+</div>
+
+<!-- AI 상세 결과 (분석 후 표시) -->
+<div id="ai-panel" style="display:none;margin-top:12px">
+  <div class="card" style="margin-bottom:10px">
+    <div class="ct">// 가동율 예측 &nbsp;·&nbsp; 현재 → 1주 후</div>
+    <div id="ai-avail" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:8px"></div>
+    <div id="ai-warn" style="display:none;background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3);border-radius:8px;padding:10px">
+      <b style="font-size:11px;color:var(--red)">⚠ 즉시 관리 필요</b>
+      <div id="ai-wlist" style="font-size:11px;margin-top:4px;line-height:1.8"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="ct">// 손실 원인 분석 &nbsp;·&nbsp; 6대 손실 기준</div>
+    <div id="ai-lsummary" style="font-size:11px;color:var(--muted);margin-bottom:8px"></div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead><tr style="background:var(--card2)">
+          <th style="padding:7px 10px;text-align:left;color:var(--muted)">공정명</th>
+          <th style="padding:7px 10px;color:var(--muted)">손실(분)</th>
+          <th style="padding:7px 10px;color:var(--muted)">손실율</th>
+          <th style="padding:7px 10px;text-align:left;color:var(--muted)">손실유형</th>
+          <th style="padding:7px 10px;text-align:left;color:var(--muted)">근본원인</th>
+          <th style="padding:7px 10px;color:var(--muted)">영향도</th>
+          <th style="padding:7px 10px;text-align:left;color:var(--muted)">즉시조치</th>
+        </tr></thead>
+        <tbody id="ai-ltable"></tbody>
+      </table>
+    </div>
+    <div id="ai-prio" style="margin-top:12px;display:none">
+      <div style="font-size:11px;font-weight:700;color:#a371f7;margin-bottom:6px">🎯 개선 우선순위 TOP 3</div>
+      <div id="ai-plist"></div>
+    </div>
+  </div>
+  <div style="padding:8px 12px;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-radius:8px;font-size:10px;color:var(--muted)">
+    ⚠ Claude AI가 현재 가동율·비가동 데이터 기반으로 분석·예측한 값입니다. 현장 확인 후 활용하세요.
+  </div>
+</div>
 
 <!-- 탭1: 히트맵 -->
 <div class="npane" id="t1">
@@ -1075,9 +1042,9 @@ function loadExcel(input){
         statusEl.textContent='✅ '+m_data.period+' '+m_data.overall+'%';
         statusEl.style.color='var(--teal)';
         toast('✅ 완료! 월:'+m_data.period+' '+m_data.overall+'% | 일:'+d_data.period+' '+d_data.overall+'%');
-        var ab=document.getElementById('aiRunBtn'); if(ab) ab.disabled=false;
-        var an=document.getElementById('ai-avg-now'); if(an) an.textContent=m_data.overall+'%';
-        var lr=document.getElementById('ai-last-run'); if(lr) lr.textContent='데이터 준비 완료 — AI 분석 실행 가능';
+        var _ab=document.getElementById('aiBtn'); if(_ab) _ab.disabled=false;
+        var _an=document.getElementById('ai-now'); if(_an) _an.textContent=m_data.overall+'%';
+        var _as=document.getElementById('ai-status'); if(_as) _as.textContent='데이터 준비 완료 — AI 분석 실행 가능';
         if(GH_TOKEN){ setTimeout(function(){ ghPushHTML(); },500); }
       }catch(err){
         console.error('loadExcel:',err);
@@ -1436,130 +1403,128 @@ saveGHToken = function(){
   });
 })();
 
-// 모바일 대응 — window 로드 후 AI 결과 자동 로드
-window.addEventListener('load', function(){
-  setTimeout(loadAIfromGitHub, 1500);
-});
+// ═══════════════════════════════════════════
+// AI 가동율 예측 + 손실 원인 분석
+// Lambda URL: https://thv7ei2fekdsduzcqjckgyacdu0bblqq.lambda-url.ap-southeast-1.on.aws/
+// ═══════════════════════════════════════════
+var _AIR = {};
+var _LU  = 'https://thv7ei2fekdsduzcqjckgyacdu0bblqq.lambda-url.ap-southeast-1.on.aws/';
+var _GHR = 'https://raw.githubusercontent.com/'+GH_OWNER+'/'+GH_REPO+'/'+GH_BRANCH+'/data/ai_results.json';
+var _GHA = 'https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/contents/data/ai_results.json';
 
-// ═══ AI 분석 함수 ═══
-var AI_RESULT = {};
-var LAMBDA_URL = 'https://thv7ei2fekdsduzcqjckgyacdu0bblqq.lambda-url.ap-southeast-1.on.aws/';
+function _st(id,t,c){var e=document.getElementById(id);if(e){e.textContent=t;e.style.color=c;}}
 
-async function runAIAnalysis() {
-  var db = cur ? cur() : (MODES ? MODES[MODE] : null);
-  if (!db||!db.summary||!db.summary.length) { alert('먼저 엑셀을 업로드하세요.'); return; }
-  var btn=document.getElementById('aiRunBtn');
+async function runAI(){
+  var db=cur();
+  if(!db||!db.summary||!db.summary.length){alert('먼저 엑셀을 업로드하세요.');return;}
+  var btn=document.getElementById('aiBtn');
   btn.disabled=true; btn.textContent='⏳ 분석 중...';
-  setSt('st-avail','분석 중...','var(--amber)');
-  setSt('st-loss','분석 중...','var(--amber)');
+  _st('st-a','분석 중...','var(--amber)');
+  _st('st-l','분석 중...','var(--amber)');
 
   var procs=db.summary.map(function(r){
     var loss=(r.b||0)+(r.op||0)+(r.eq||0);
-    return {공정명:r.proc,가동율:r.rate+'%',기준시간_분:Math.round(r.ref||0),
-      실운행_분:Math.round(r.run||0),비가동_분:Math.round(loss),
-      계획비가동_분:Math.round(r.b||0),운영유실_분:Math.round(r.op||0),설비유실_분:Math.round(r.eq||0)};
+    return {공정명:r.proc,가동율:r.rate+'%',
+      기준시간_분:Math.round(r.ref||0),실운행_분:Math.round(r.run||0),
+      비가동_분:Math.round(loss),계획비가동_분:Math.round(r.b||0),
+      운영유실_분:Math.round(r.op||0),설비유실_분:Math.round(r.eq||0)};
   });
 
-  try {
-    var r=await fetch(LAMBDA_URL,{method:'POST',mode:'cors',credentials:'omit',
+  try{
+    var r=await fetch(_LU,{method:'POST',mode:'cors',credentials:'omit',
       headers:{'Content-Type':'text/plain'},
       body:JSON.stringify({procs:procs,period:db.period||'',mode:'both'})});
     if(!r.ok) throw new Error('Lambda 오류:'+r.status);
     var res=await r.json();
     if(res.error) throw new Error(res.error);
-    AI_RESULT={avail:res.avail||null,loss:res.loss||null};
-    setSt('st-avail','완료','var(--teal)');
-    setSt('st-loss','완료','var(--teal)');
-    renderAI(AI_RESULT.avail,AI_RESULT.loss);
-    setSt('st-risk',(AI_RESULT.avail&&AI_RESULT.avail.risk_procs||[]).join(', ')||'없음','var(--red)');
-  } catch(e) {
-    setSt('st-avail','오류: '+e.message,'var(--red)');
+    _AIR={avail:res.avail||null,loss:res.loss||null};
+    _st('st-a','완료','var(--teal)');
+    _st('st-l','완료','var(--teal)');
+    _st('st-r',(_AIR.avail&&_AIR.avail.risk_procs||[]).join(', ')||'없음','var(--red)');
+    _renderAI(_AIR.avail,_AIR.loss);
+    _saveAI(_AIR);
+  }catch(e){
+    _st('st-a','오류: '+e.message,'var(--red)');
     console.error('AI오류:',e);
-  }
-  // GitHub에 AI 결과 저장 (모든 팀원 공유)
-  if (GH_TOKEN && AI_RESULT.avail) {
-    saveAItoGitHub(AI_RESULT);
   }
   btn.disabled=false; btn.textContent='✨ AI 재분석';
 }
 
-function setSt(id,txt,col){var e=document.getElementById(id);if(e){e.textContent=txt;e.style.color=col;}}
+function _renderAI(avail,loss){
+  if(!avail) return;
+  var ap=document.getElementById('ai-pred');
+  var ar=document.getElementById('ai-arrow');
+  var as=document.getElementById('ai-summary');
+  var rc=document.getElementById('ai-rchips');
+  if(ap){ap.textContent=avail.predicted_avg+'%';
+    ap.style.color=avail.predicted_avg>=60?'var(--teal)':avail.predicted_avg>=40?'var(--amber)':'var(--red)';}
+  if(ar){ar.textContent=avail.overall_trend==='improving'?'↑':avail.overall_trend==='declining'?'↓':'→';
+    ar.style.color=avail.overall_trend==='improving'?'var(--green)':avail.overall_trend==='declining'?'var(--red)':'var(--muted)';}
+  if(as) as.textContent=avail.summary||'';
+  if(rc) rc.innerHTML=(avail.risk_procs||[]).map(function(p){
+    return '<span class="ai-chip" style="background:rgba(248,81,73,.15);color:var(--red)">⚠ '+p+'</span>';
+  }).join('');
 
-function renderAI(avail,loss){
-  if(avail){
-    var ap=document.getElementById('ai-avg-pred');
-    var ar=document.getElementById('ai-trend-arrow');
-    var as=document.getElementById('ai-summary-text');
-    var rc=document.getElementById('ai-risk-chips');
-    if(ap){ap.textContent=avail.predicted_avg+'%';
-      ap.style.color=avail.predicted_avg>=60?'var(--teal)':avail.predicted_avg>=40?'var(--amber)':'var(--red)';}
-    if(ar){ar.textContent=avail.overall_trend==='improving'?'↑':avail.overall_trend==='declining'?'↓':'→';
-      ar.style.color=avail.overall_trend==='improving'?'var(--green)':avail.overall_trend==='declining'?'var(--red)':'var(--muted)';}
-    if(as) as.textContent=avail.summary||'';
-    if(rc) rc.innerHTML=(avail.risk_procs||[]).map(function(p){
-      return '<span class="ai-chip" style="background:rgba(248,81,73,.15);color:var(--red)">⚠ '+p+'</span>';
-    }).join('');
-  }
-  document.getElementById('ai-detail-panel').style.display='block';
-  if(avail&&avail.processes){
-    var high=(avail.processes||[]).filter(function(p){return p.risk_level==='high';});
-    var rb=document.getElementById('ai-risk-banner');
-    var rl=document.getElementById('ai-risk-list');
-    if(rb) rb.style.display=high.length?'block':'none';
-    if(rl) rl.innerHTML=high.map(function(p){return '• <b>'+p.name+'</b> — '+p.action;}).join('<br>');
-    var g=document.getElementById('ai-avail-grid');
-    if(g) g.innerHTML=(avail.processes||[]).map(function(p){
-      var col=p.predicted_rate>=60?'var(--teal)':p.predicted_rate>=40?'var(--amber)':'var(--red)';
-      var diff=Math.round((p.predicted_rate-p.current_rate)*10)/10;
-      var ds=(diff>0?'+':'')+diff+'%';
-      var dc=diff>0?'var(--green)':diff<0?'var(--red)':'var(--muted)';
-      var ti=p.trend==='up'?'▲':p.trend==='down'?'▼':'▶';
-      var rc2=p.risk_level==='high'?'rgba(248,81,73,.15)':p.risk_level==='medium'?'rgba(210,153,34,.15)':'rgba(46,160,67,.15)';
-      var rf=p.risk_level==='high'?'var(--red)':p.risk_level==='medium'?'var(--amber)':'var(--green)';
-      return '<div style="background:var(--card2);border:1px solid var(--bor);border-radius:8px;padding:10px">'
-        +'<div style="display:flex;justify-content:space-between;margin-bottom:4px">'
-        +'<b style="font-size:12px">'+p.name+'</b>'
-        +'<span style="font-size:10px;padding:1px 6px;border-radius:6px;background:'+rc2+';color:'+rf+'">'+p.risk_level+'</span></div>'
-        +'<div style="display:flex;align-items:baseline;gap:5px;margin-bottom:4px">'
-        +'<span style="font-size:11px;color:var(--muted)">'+p.current_rate+'%</span>'
-        +'<span style="color:var(--muted)">'+ti+'</span>'
-        +'<span style="font-size:16px;font-weight:700;color:'+col+'">'+p.predicted_rate+'%</span>'
-        +'<span style="font-size:11px;color:'+dc+'">'+ds+'</span></div>'
-        +'<div style="height:3px;background:var(--bor);border-radius:2px;overflow:hidden;margin-bottom:5px">'
-        +'<div style="height:100%;width:'+Math.min(p.predicted_rate,100)+'%;background:'+col+'"></div></div>'
-        +'<div style="font-size:10px;color:var(--muted);line-height:1.4;margin-bottom:4px">'+p.trend_reason+'</div>'
-        +'<div style="font-size:10px;color:var(--amber);background:rgba(210,153,34,.08);padding:3px 6px;border-radius:4px">'+p.action+'</div>'
-        +'</div>';
-    }).join('');
-  }
+  document.getElementById('ai-panel').style.display='block';
+
+  var high=(avail.processes||[]).filter(function(p){return p.risk_level==='high';});
+  var wb=document.getElementById('ai-warn');
+  var wl=document.getElementById('ai-wlist');
+  if(wb) wb.style.display=high.length?'block':'none';
+  if(wl) wl.innerHTML=high.map(function(p){return '• <b>'+p.name+'</b> — '+p.action;}).join('<br>');
+
+  var ag=document.getElementById('ai-avail');
+  if(ag) ag.innerHTML=(avail.processes||[]).map(function(p){
+    var col=p.predicted_rate>=60?'var(--teal)':p.predicted_rate>=40?'var(--amber)':'var(--red)';
+    var d=Math.round((p.predicted_rate-p.current_rate)*10)/10;
+    var ds=(d>0?'+':'')+d+'%', dc=d>0?'var(--green)':d<0?'var(--red)':'var(--muted)';
+    var ti=p.trend==='up'?'▲':p.trend==='down'?'▼':'▶';
+    return '<div style="background:var(--card2);border:1px solid var(--bor);border-radius:8px;padding:10px">'
+      +'<div style="display:flex;justify-content:space-between;margin-bottom:3px">'
+      +'<b style="font-size:11px">'+p.name+'</b>'
+      +'<span style="font-size:9px;padding:1px 5px;border-radius:5px;background:'
+      +(p.risk_level==='high'?'rgba(248,81,73,.15)':p.risk_level==='medium'?'rgba(210,153,34,.15)':'rgba(46,160,67,.15)')
+      +';color:'+(p.risk_level==='high'?'var(--red)':p.risk_level==='medium'?'var(--amber)':'var(--green)')+'">'+p.risk_level+'</span></div>'
+      +'<div style="display:flex;align-items:baseline;gap:4px;margin-bottom:3px">'
+      +'<span style="font-size:10px;color:var(--muted)">'+p.current_rate+'%</span>'
+      +'<span>'+ti+'</span>'
+      +'<span style="font-size:15px;font-weight:700;color:'+col+'">'+p.predicted_rate+'%</span>'
+      +'<span style="font-size:10px;color:'+dc+'">'+ds+'</span></div>'
+      +'<div style="height:3px;background:var(--bor);border-radius:2px;overflow:hidden;margin-bottom:4px">'
+      +'<div style="height:100%;width:'+Math.min(p.predicted_rate,100)+'%;background:'+col+'"></div></div>'
+      +'<div style="font-size:9px;color:var(--muted);line-height:1.4;margin-bottom:3px">'+p.trend_reason+'</div>'
+      +'<div style="font-size:9px;color:var(--amber);background:rgba(210,153,34,.08);padding:2px 5px;border-radius:3px">'+p.action+'</div>'
+      +'</div>';
+  }).join('');
+
   if(loss){
-    var sl=document.getElementById('ai-loss-summary');
-    var tb=document.getElementById('ai-loss-tbody');
-    var pw=document.getElementById('ai-priority-wrap');
-    var pl=document.getElementById('ai-priority-list');
-    if(sl){
+    var ls=document.getElementById('ai-lsummary');
+    var lt=document.getElementById('ai-ltable');
+    var lp=document.getElementById('ai-prio');
+    var ll=document.getElementById('ai-plist');
+    if(ls){
       var chips=(loss.top3_causes||[]).map(function(c){
         return '<span class="ai-chip" style="background:rgba(248,81,73,.15);color:var(--red)">'+c+'</span>';
       }).join(' ');
-      sl.innerHTML=(loss.summary||'')+' 병목: <b style="color:var(--red)">'+loss.bottleneck+'</b> '+chips;
+      ls.innerHTML=(loss.summary||'')+' 병목: <b style="color:var(--red)">'+loss.bottleneck+'</b> '+chips;
     }
-    if(tb) tb.innerHTML=(loss.processes||[]).sort(function(a,b){return b.loss_min-a.loss_min;}).map(function(p,i){
+    if(lt) lt.innerHTML=(loss.processes||[]).sort(function(a,b){return b.loss_min-a.loss_min;}).map(function(p,i){
       var bg=i%2===0?'var(--card2)':'var(--card)';
       var ic=p.loss_type==='설비고장'?'⚡':p.loss_type==='속도저하'?'🐢':p.loss_type==='일시정지'?'⏸':p.loss_type==='준비조정'?'🔧':'🔴';
       var ic2=p.impact==='high'?'var(--red)':p.impact==='medium'?'var(--amber)':'var(--green)';
       return '<tr style="background:'+bg+';border-bottom:1px solid var(--bor)">'
-        +'<td style="padding:7px 10px;font-weight:700">'+p.name+'</td>'
-        +'<td style="padding:7px 10px;text-align:center;color:var(--red);font-weight:700">'+Math.round(p.loss_min).toLocaleString()+'</td>'
-        +'<td style="padding:7px 10px;text-align:center;color:var(--amber);font-weight:700">'+p.loss_rate+'%</td>'
-        +'<td style="padding:7px 10px">'+ic+' '+p.loss_type+'</td>'
-        +'<td style="padding:7px 10px;color:var(--muted);font-size:11px">'+p.root_cause+'</td>'
-        +'<td style="padding:7px 10px;text-align:center;color:'+ic2+';font-weight:700">'+p.impact+'</td>'
-        +'<td style="padding:7px 10px;color:var(--green);font-size:11px">'+p.immediate_action+'</td>'
+        +'<td style="padding:6px 10px;font-weight:700">'+p.name+'</td>'
+        +'<td style="padding:6px 10px;text-align:center;color:var(--red);font-weight:700">'+Math.round(p.loss_min).toLocaleString()+'</td>'
+        +'<td style="padding:6px 10px;text-align:center;color:var(--amber);font-weight:700">'+p.loss_rate+'%</td>'
+        +'<td style="padding:6px 10px">'+ic+' '+p.loss_type+'</td>'
+        +'<td style="padding:6px 10px;color:var(--muted);font-size:11px">'+p.root_cause+'</td>'
+        +'<td style="padding:6px 10px;text-align:center;color:'+ic2+';font-weight:700">'+p.impact+'</td>'
+        +'<td style="padding:6px 10px;color:var(--green);font-size:11px">'+p.immediate_action+'</td>'
         +'</tr>';
     }).join('');
-    if(pw&&pl&&loss.improvement_priority&&loss.improvement_priority.length){
-      pw.style.display='block';
-      pl.innerHTML=loss.improvement_priority.map(function(x){
+    if(lp&&ll&&loss.improvement_priority&&loss.improvement_priority.length){
+      lp.style.display='block';
+      ll.innerHTML=loss.improvement_priority.map(function(x){
         var c=x.rank===1?'var(--red)':x.rank===2?'var(--amber)':'var(--blue)';
         return '<div style="display:flex;gap:8px;align-items:flex-start;background:var(--card2);border-radius:6px;padding:8px;margin-bottom:5px">'
           +'<div style="width:20px;height:20px;border-radius:50%;background:'+c+';color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+x.rank+'</div>'
@@ -1568,78 +1533,47 @@ function renderAI(avail,loss){
       }).join('');
     }
   }
-  var lr=document.getElementById('ai-last-run');
-  if(lr) lr.textContent='마지막 분석: '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+  var st=document.getElementById('ai-status');
+  if(st) st.textContent='마지막 분석: '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
 }
 
-
-// ═══ AI 결과 GitHub 저장/로드 ═══
-var AI_GH_PATH = 'data/ai_results.json';
-var AI_GH_API  = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + AI_GH_PATH;
-var AI_GH_RAW  = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/' + AI_GH_PATH;
-
-function saveAItoGitHub(result) {
-  if (!GH_TOKEN) return;
-  var payload = {
-    avail:      result.avail,
-    loss:       result.loss,
-    saved_at:   new Date().toISOString(),
-    saved_by:   navigator.language || 'unknown'
-  };
-  var content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
-  var hdrs = {
-    'Authorization': 'token ' + GH_TOKEN,
-    'Content-Type':  'application/json',
-    'Accept':        'application/vnd.github.v3+json'
-  };
-  // 기존 파일 SHA 확인 후 저장
-  fetch(AI_GH_API, { headers: hdrs })
-    .then(function(r){ return r.ok ? r.json() : null; })
+// GitHub 저장 (팀원 공유)
+function _saveAI(r){
+  if(!GH_TOKEN||!r.avail) return;
+  var content=btoa(unescape(encodeURIComponent(JSON.stringify({avail:r.avail,loss:r.loss,saved_at:new Date().toISOString()},null,2))));
+  var hdrs={'Authorization':'token '+GH_TOKEN,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};
+  fetch(_GHA,{headers:hdrs})
+    .then(function(x){return x.ok?x.json():null;})
     .then(function(ex){
-      var body = {
-        message: 'AI 분석 결과 업데이트 ' + new Date().toLocaleString('ko-KR'),
-        content: content, branch: GH_BRANCH
-      };
-      if (ex && ex.sha) body.sha = ex.sha;
-      return fetch(AI_GH_API, {
-        method: 'PUT', headers: hdrs, body: JSON.stringify(body)
-      });
+      var body={message:'AI 분석 결과 업데이트',content:content,branch:GH_BRANCH};
+      if(ex&&ex.sha) body.sha=ex.sha;
+      return fetch(_GHA,{method:'PUT',headers:hdrs,body:JSON.stringify(body)});
     })
-    .then(function(r){
-      if (r && r.ok) {
-        toast('☁ AI 분석 결과 공유 완료 — 모든 팀원이 볼 수 있습니다');
-        var lr = document.getElementById('ai-last-run');
-        if (lr) lr.textContent = '마지막 분석: ' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ' (GitHub 공유됨)';
-      }
-    })
-    .catch(function(e){ console.warn('AI GitHub 저장 실패:', e); });
+    .then(function(x){if(x&&x.ok) toast('☁ AI 결과 GitHub 공유 완료');}
+    ).catch(function(e){console.warn('AI 저장 실패:',e);});
 }
 
-function loadAIfromGitHub() {
-  fetch(AI_GH_RAW + '?t=' + Date.now())
-    .then(function(r){ return r.ok ? r.json() : null; })
+// GitHub 로드 (페이지 접속 시 자동)
+function _loadAI(){
+  fetch(_GHR+'?t='+Date.now())
+    .then(function(r){return r.ok?r.json():null;})
     .then(function(d){
-      if (!d || !d.avail) return;
-      AI_RESULT = { avail: d.avail, loss: d.loss };
-      renderAI(d.avail, d.loss);
-
-      // 상태 업데이트
-      setSt('st-avail', '완료 (공유됨)', 'var(--teal)');
-      setSt('st-loss',  '완료 (공유됨)', 'var(--teal)');
-      setSt('st-risk',  (d.avail.risk_procs||[]).join(', ')||'없음', 'var(--red)');
-
-      var lr = document.getElementById('ai-last-run');
-      if (lr) {
-        var t = d.saved_at ? new Date(d.saved_at).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '-';
-        lr.textContent = '최근 분석: ' + t;
+      if(!d||!d.avail) return;
+      _AIR={avail:d.avail,loss:d.loss};
+      _renderAI(d.avail,d.loss);
+      _st('st-a','완료 (공유됨)','var(--teal)');
+      _st('st-l','완료 (공유됨)','var(--teal)');
+      _st('st-r',(d.avail.risk_procs||[]).join(', ')||'없음','var(--red)');
+      var st=document.getElementById('ai-status');
+      if(st){
+        var t=d.saved_at?new Date(d.saved_at).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+        st.textContent='최근 분석: '+t;
       }
-
-      // 현재 가동율 표시 (엑셀 미업로드 상태에서도)
-      var an = document.getElementById('ai-avg-now');
-      if (an && an.textContent === '--%') an.textContent = '-';
-    })
-    .catch(function(){ /* AI 결과 없음 — 정상 */ });
+    }).catch(function(){});
 }
+
+// 페이지 로드 시 자동 실행
+window.addEventListener('load',function(){setTimeout(_loadAI,1500);});
 
 </script>
 </body>
