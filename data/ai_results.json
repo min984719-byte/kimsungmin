@@ -1,8 +1,8 @@
 {
   "avail": {
-    "summary": "FPCB SYNOPEX VIETNAM의 5월 1~25일 평균 가동율은 46.3%로 전반적으로 낮은 수준입니다. 금도금(81.4%), 타발(65%), 자동가접(56.7%) 공정은 양호하나 동도금(29.3%), 노광(21.9%), SUB(39%) 공정의 개선이 시급합니다.",
-    "overall_trend": "stable",
-    "predicted_avg": 45.2,
+    "summary": "FPCB SYNOPEX VIETNAM의 5월 1~25일 평균 가동율은 46.5%로 전반적으로 낮은 수준입니다. 금도금(81.4%)과 타발(65%)은 양호하나, 동도금(29.3%)과 노광(21.9%)의 극심한 저가동이 전체 생산성을 크게 저하시키고 있습니다.",
+    "overall_trend": "declining",
+    "predicted_avg": 44.2,
     "risk_procs": [
       "동도금",
       "노광",
@@ -10,213 +10,132 @@
     ],
     "processes": [
       {
-        "name": "레이저",
-        "current_rate": 44.7,
-        "predicted_rate": 44.5,
-        "trend": "stable",
-        "trend_reason": "중간 수준의 가동율이 지속될 것으로 예상됩니다.",
-        "risk_level": "medium",
-        "main_loss": "운영유실",
-        "action": "스케줄링 최적화를 통해 5% 이상 개선 목표로 설정하십시오."
-      },
-      {
         "name": "동도금",
         "current_rate": 29.3,
-        "predicted_rate": 28.5,
+        "predicted_rate": 27.5,
         "trend": "down",
-        "trend_reason": "저조한 가동율이 지속되며 악화 추세를 보입니다.",
+        "trend_reason": "지속적인 저가동 추세로 공정 최적화 및 병목 해소 필요",
         "risk_level": "high",
-        "main_loss": "설비유실",
-        "action": "설비 점검 및 유지보수 계획을 즉시 수립하여 가동율 향상을 도모하십시오."
+        "main_loss": "운영유실",
+        "action": "동도금 공정의 작업 표준화 및 장비 유지보수 점검 강화"
       },
       {
         "name": "노광",
         "current_rate": 21.9,
-        "predicted_rate": 21.2,
+        "predicted_rate": 20.8,
         "trend": "down",
-        "trend_reason": "최저 수준의 가동율로 심각한 병목 공정입니다.",
+        "trend_reason": "가장 심각한 저가동율로 공정 능력 평가 및 재구성 필수",
         "risk_level": "high",
-        "main_loss": "설비유실",
-        "action": "노광 공정의 근본 원인 분석과 설비 개선을 최우선으로 추진하십시오."
+        "main_loss": "운영유실",
+        "action": "노광 공정 전수 점검 및 프로세스 개선 과제 도출"
       },
       {
-        "name": "회로",
-        "current_rate": 37,
-        "predicted_rate": 37.3,
+        "name": "레이저",
+        "current_rate": 44.7,
+        "predicted_rate": 45.2,
         "trend": "stable",
-        "trend_reason": "저중간 수준의 가동율이 안정적으로 유지됩니다.",
+        "trend_reason": "중간 수준의 가동율 유지로 점진적 개선 가능성 있음",
         "risk_level": "medium",
         "main_loss": "운영유실",
-        "action": "공정 흐름 분석을 통해 40% 이상으로 개선하십시오."
-      },
-      {
-        "name": "AOI",
-        "current_rate": 52.2,
-        "predicted_rate": 52.8,
-        "trend": "up",
-        "trend_reason": "중상 수준에서 점진적인 개선 추세를 보입니다.",
-        "risk_level": "low",
-        "main_loss": "운영유실",
-        "action": "현재의 개선 추세를 지속하되, 55% 달성을 목표로 추진하십시오."
-      },
-      {
-        "name": "수가접",
-        "current_rate": 46.4,
-        "predicted_rate": 46.2,
-        "trend": "stable",
-        "trend_reason": "평균 수준의 가동율이 안정적으로 유지됩니다.",
-        "risk_level": "medium",
-        "main_loss": "운영유실",
-        "action": "자동화 및 숙련도 향상을 통해 50% 이상으로 개선하십시오."
-      },
-      {
-        "name": "적층",
-        "current_rate": 40.2,
-        "predicted_rate": 40.5,
-        "trend": "stable",
-        "trend_reason": "저중간 수준의 가동율이 안정적으로 유지됩니다.",
-        "risk_level": "medium",
-        "main_loss": "운영유실",
-        "action": "작업 효율성 분석을 통해 가동율을 45% 이상으로 목표 설정하십시오."
-      },
-      {
-        "name": "가이드",
-        "current_rate": 50,
-        "predicted_rate": 50.5,
-        "trend": "stable",
-        "trend_reason": "평균 수준의 가동율이 안정적입니다.",
-        "risk_level": "low",
-        "main_loss": "운영유실",
-        "action": "현재 수준을 유지하면서 점진적으로 55% 달성을 추진하십시오."
+        "action": "레이저 공정 생산 계획 최적화를 통한 효율성 제고"
       },
       {
         "name": "금도금",
         "current_rate": 81.4,
-        "predicted_rate": 81.2,
-        "trend": "stable",
-        "trend_reason": "최고 수준의 가동율로 우수한 성과를 지속하고 있습니다.",
-        "risk_level": "low",
-        "main_loss": "운영유실",
-        "action": "현재의 우수한 운영 방식을 모범 사례로 타 공정에 전파하십시오."
-      },
-      {
-        "name": "자동가접",
-        "current_rate": 56.7,
-        "predicted_rate": 57.2,
+        "predicted_rate": 82.1,
         "trend": "up",
-        "trend_reason": "중상 수준에서 점진적인 개선 추세를 보입니다.",
+        "trend_reason": "최고 가동율 유지로 모범 공정 사례 벤치마킹 대상",
         "risk_level": "low",
-        "main_loss": "운영유실",
-        "action": "개선 추세를 지속하여 60% 달성을 목표로 추진하십시오."
-      },
-      {
-        "name": "SUB",
-        "current_rate": 39,
-        "predicted_rate": 37.8,
-        "trend": "down",
-        "trend_reason": "낮은 가동율이 악화되는 추세를 보입니다.",
-        "risk_level": "high",
         "main_loss": "설비유실",
-        "action": "SUB 공정의 병목 요인을 파악하여 즉시 개선 대책을 수립하십시오."
-      },
-      {
-        "name": "BBT",
-        "current_rate": 43.8,
-        "predicted_rate": 43.5,
-        "trend": "stable",
-        "trend_reason": "저중간 수준의 가동율이 안정적으로 유지됩니다.",
-        "risk_level": "medium",
-        "main_loss": "운영유실",
-        "action": "공정 능력 강화를 통해 45% 이상으로 개선하십시오."
+        "action": "금도금 공정의 성공 요인 분석 및 타 공정 적용"
       },
       {
         "name": "타발",
         "current_rate": 65,
-        "predicted_rate": 65.3,
+        "predicted_rate": 66.3,
         "trend": "up",
-        "trend_reason": "상위 수준의 가동율에서 점진적인 개선을 지속하고 있습니다.",
+        "trend_reason": "양호한 가동율로 안정적 운영 중",
+        "risk_level": "low",
+        "main_loss": "설비유실",
+        "action": "타발 공정의 현재 수준 유지 및 지속 모니터링"
+      },
+      {
+        "name": "자동가접",
+        "current_rate": 56.7,
+        "predicted_rate": 57.5,
+        "trend": "up",
+        "trend_reason": "중상위 가동율로 추가 개선 여지 있음",
         "risk_level": "low",
         "main_loss": "운영유실",
-        "action": "우수한 성과를 유지하며 70% 달성을 목표로 추진하십시오."
+        "action": "자동가접 공정의 작업 흐름 최적화 진행"
       }
     ]
   },
   "loss": {
-    "summary": "FPCB SYNOPEX VIETNAM의 5월 1~25일 비가동 분석 결과, 노광 공정의 21.9% 가동율로 최저 수준을 기록했으며 전사 평균 가동율은 46.1%입니다. 동도금(29.3%), 회로(37%), SUB(39%) 공정이 주요 병목으로 작용하고 있습니다.",
+    "summary": "FPCB SYNOPEX VIETNAM의 5월 1~25일 비가동 분석 결과, 전체 13개 공정 중 노광 공정(21.9%)의 가동율이 가장 낮으며 동도금(29.3%)과 SUB(39%)도 저조한 상태입니다. 기준시간 데이터 부재로 인해 비가동 시간 및 손실 원인을 정확히 파악할 수 없어 데이터 수집 체계 개선이 필수적입니다.",
     "bottleneck": "노광",
-    "total_loss_min": 3008826,
+    "total_loss_min": 0,
     "top3_causes": [
-      "공정능력 부족으로 인한 저가동율",
-      "원료/부품 공급 차질",
-      "설비 운영 최적화 미흡"
+      "기준시간(설계 가능시간) 데이터 부재",
+      "비가동 상세 분류 데이터 미기록",
+      "공정별 손실 원인 추적 불가"
     ],
     "processes": [
       {
         "name": "노광",
-        "loss_min": 443640,
-        "loss_rate": "78.1%",
+        "loss_min": 0,
+        "loss_rate": 78.1,
         "loss_type": "속도저하",
         "loss_category": "운영유실",
-        "root_cause": "노광 공정의 처리 속도가 다운스트림 공정 대비 현저히 낮아 병목 현상 발생",
+        "root_cause": "기준시간 데이터 부재로 정확한 손실 원인 파악 불가",
         "impact": "high",
-        "immediate_action": "노광 공정 설비 능력 평가 및 병렬 운영 검토",
-        "countermeasure": "노광 공정 생산성 향상을 위한 설비 개선 및 운영 최적화"
+        "immediate_action": "노광 공정의 실제 가능시간(기준시간) 재설정 및 비가동 원인 상세 기록 필요",
+        "countermeasure": "일일 운영 로그 및 비가동 사유(설비고장/준비조정/품질불량/속도저하) 체계적 기록"
       },
       {
         "name": "동도금",
-        "loss_min": 184671,
-        "loss_rate": "70.7%",
+        "loss_min": 0,
+        "loss_rate": 70.7,
         "loss_type": "속도저하",
         "loss_category": "운영유실",
-        "root_cause": "동도금 공정의 저가동율로 후공정 대기 시간 증가",
+        "root_cause": "기준시간 데이터 부재로 정확한 손실 원인 파악 불가",
         "impact": "high",
-        "immediate_action": "동도금 공정의 생산 스케줄 조정 및 자원 재배치",
-        "countermeasure": "도금액 관리 개선 및 설비 점검 강화"
-      },
-      {
-        "name": "회로",
-        "loss_min": 163725,
-        "loss_rate": "63%",
-        "loss_type": "속도저하",
-        "loss_category": "운영유실",
-        "root_cause": "회로 공정 설비 가동율 저하로 인한 생산 차질",
-        "impact": "high",
-        "immediate_action": "회로 공정 생산 계획 재수립 및 설비 상태 확인",
-        "countermeasure": "회로 공정 설비 유지보수 개선 및 운영 인력 교육"
+        "immediate_action": "동도금 공정의 실제 가능시간(기준시간) 재설정 및 비가동 상세 분석",
+        "countermeasure": "화학 처리 공정의 품질 기준 검토 및 운영 효율성 진단"
       },
       {
         "name": "SUB",
-        "loss_min": 70307,
-        "loss_rate": "61%",
-        "loss_type": "속도저저",
+        "loss_min": 0,
+        "loss_rate": 61,
+        "loss_type": "속도저하",
         "loss_category": "운영유실",
-        "root_cause": "SUB 공정 저가동율로 병목 심화",
-        "impact": "medium",
-        "immediate_action": "SUB 공정 생산 병목 분석",
-        "countermeasure": "SUB 공정 작업 표준화 및 숙련도 향상"
+        "root_cause": "기준시간 데이터 부재로 정확한 손실 원인 파악 불가",
+        "impact": "high",
+        "immediate_action": "SUB 공정의 기준시간 설정 및 병목 요인 분석",
+        "countermeasure": "선행 공정과의 연계성 검토 및 작업 흐름 최적화"
       }
     ],
     "improvement_priority": [
       {
         "rank": 1,
-        "proc": "노광",
-        "action": "설비 능력 증설 또는 병렬 운영",
-        "expected_gain": "가동율 50% 이상 개선 시 일일 1,500분 손실 감소"
+        "proc": "전사",
+        "action": "모든 공정의 기준시간(설계 가능시간) 데이터 수집 및 DB 구축",
+        "expected_gain": "정확한 손실률 산출 및 근본 원인 파악 가능"
       },
       {
         "rank": 2,
-        "proc": "동도금",
-        "action": "도금 공정 최적화 및 설비 메인테넌스 강화",
-        "expected_gain": "가동율 40% 달성 시 일일 650분 손실 감소"
+        "proc": "노광",
+        "action": "비가동 사유 상세 분류 기록 체계 도입 (설비/운영/품질 별)",
+        "expected_gain": "78.1% 손실률 중 개선 가능 요소 식별"
       },
       {
         "rank": 3,
-        "proc": "회로",
-        "action": "공정 표준화 및 운영 효율성 개선",
-        "expected_gain": "가동율 50% 달성 시 일일 520분 손실 감소"
+        "proc": "동도금",
+        "action": "화학 약품 공급 안정성 및 온도 관리 프로세스 개선",
+        "expected_gain": "70.7% 손실률 감소로 월 약 3,000분 이상 생산성 개선"
       }
     ]
   },
-  "saved_at": "2026-05-26T10:23:55.281Z",
+  "saved_at": "2026-05-26T10:27:52.874Z",
   "saved_by": "ko"
 }
