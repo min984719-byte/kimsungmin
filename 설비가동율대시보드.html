@@ -184,7 +184,7 @@ tr:hover td{background:rgba(56,139,253,.05)}
 
 <!-- 탭0: 종합 현황 -->
 <div class="npane on" id="t0">
-<!-- ══ AI INSIGHT ENGINE (종합현황 맨 위) ══ -->
+<!-- ══ AI INSIGHT ENGINE ══ -->
 <div class="ai-grid" style="margin-bottom:14px">
   <div class="ai-card">
     <div class="ai-title">✨ AI INSIGHT ENGINE</div>
@@ -251,7 +251,6 @@ tr:hover td{background:rgba(56,139,253,.05)}
     ⚠ Claude AI가 현재 가동율·비가동 데이터 기반으로 분석·예측한 값입니다. 현장 확인 후 활용하세요.
   </div>
 </div>
-
   <div class="g4">
     <div class="kpi t"><div class="kv" id="k-avg">--%</div><div class="kl">전체 평균 가동율</div><div class="kd" id="k-period">-</div></div>
     <div class="kpi g"><div class="kv" id="k-ok">-</div><div class="kl">정상 공정 (≥60%)</div><div class="kd">목표 초과</div></div>
@@ -292,8 +291,6 @@ tr:hover td{background:rgba(56,139,253,.05)}
       <tbody id="t0b"></tbody>
     </table></div>
   </div>
-
-
 </div>
 
 
@@ -372,6 +369,7 @@ tr:hover td{background:rgba(56,139,253,.05)}
   </div>
 </div>
 
+</div>
 </div><!-- /wrap -->
 
 <!-- 설비 상세 팝업 -->
@@ -1407,8 +1405,11 @@ saveGHToken = function(){
 // ═══ AI 분석 ═══
 var _AIR={};
 var _LU='https://thv7ei2fekdsduzcqjckgyacdu0bblqq.lambda-url.ap-southeast-1.on.aws/';
-var _GHR='https://raw.githubusercontent.com/'+GH_OWNER+'/'+GH_REPO+'/'+GH_BRANCH+'/data/ai_results.json';
-var _GHA='https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/contents/data/ai_results.json';
+var _GHR,_GHA;
+function _initAIGH(){
+  _GHR='https://raw.githubusercontent.com/'+GH_OWNER+'/'+GH_REPO+'/'+GH_BRANCH+'/data/ai_results.json';
+  _GHA='https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/contents/data/ai_results.json';
+}
 function _st(id,t,c){var e=document.getElementById(id);if(e){e.textContent=t;e.style.color=c;}}
 async function runAI(){
   var db=cur(); if(!db||!db.summary||!db.summary.length){alert('먼저 엑셀을 업로드하세요.');return;}
@@ -1462,7 +1463,10 @@ function _renderAI(avail,loss){
   if(loss){
     var ls=document.getElementById('ai-lsummary'),lt=document.getElementById('ai-ltable'),
         lp=document.getElementById('ai-prio'),ll=document.getElementById('ai-plist');
-    if(ls){var chips=(loss.top3_causes||[]).map(function(c){return '<span class="ai-chip" style="background:rgba(248,81,73,.15);color:var(--red)">'+c+'</span>';}).join(' ');ls.innerHTML=(loss.summary||'')+' 병목: <b style="color:var(--red)">'+loss.bottleneck+'</b> '+chips;}
+    if(ls){
+      var chips=(loss.top3_causes||[]).map(function(c){return '<span class="ai-chip" style="background:rgba(248,81,73,.15);color:var(--red)">'+c+'</span>';}).join(' ');
+      ls.innerHTML=(loss.summary||'')+' 병목: <b style="color:var(--red)">'+loss.bottleneck+'</b> '+chips;
+    }
     if(lt) lt.innerHTML=(loss.processes||[]).sort(function(a,b){return b.loss_min-a.loss_min;}).map(function(p,i){
       var bg=i%2===0?'var(--card2)':'var(--card)',ic=p.loss_type==='설비고장'?'⚡':p.loss_type==='속도저하'?'🐢':p.loss_type==='일시정지'?'⏸':p.loss_type==='준비조정'?'🔧':'🔴',ic2=p.impact==='high'?'var(--red)':p.impact==='medium'?'var(--amber)':'var(--green)';
       return '<tr style="background:'+bg+';border-bottom:1px solid var(--bor)"><td style="padding:6px 10px;font-weight:700">'+p.name+'</td><td style="padding:6px 10px;text-align:center;color:var(--red);font-weight:700">'+Math.round(p.loss_min).toLocaleString()+'</td><td style="padding:6px 10px;text-align:center;color:var(--amber);font-weight:700">'+p.loss_rate+'%</td><td style="padding:6px 10px">'+ic+' '+p.loss_type+'</td><td style="padding:6px 10px;color:var(--muted);font-size:11px">'+p.root_cause+'</td><td style="padding:6px 10px;text-align:center;color:'+ic2+';font-weight:700">'+p.impact+'</td><td style="padding:6px 10px;color:var(--green);font-size:11px">'+p.immediate_action+'</td></tr>';
@@ -1479,6 +1483,7 @@ function _renderAI(avail,loss){
 }
 function _saveAI(r){
   if(!GH_TOKEN||!r.avail) return;
+  _initAIGH();
   var content=btoa(unescape(encodeURIComponent(JSON.stringify({avail:r.avail,loss:r.loss,saved_at:new Date().toISOString()},null,2))));
   var hdrs={'Authorization':'token '+GH_TOKEN,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};
   fetch(_GHA,{headers:hdrs}).then(function(x){return x.ok?x.json():null;}).then(function(ex){
@@ -1488,6 +1493,7 @@ function _saveAI(r){
   }).then(function(x){if(x&&x.ok) toast('☁ AI 결과 GitHub 공유 완료');}).catch(function(e){console.warn('AI 저장 실패:',e);});
 }
 function _loadAI(){
+  _initAIGH();
   fetch(_GHR+'?t='+Date.now()).then(function(r){return r.ok?r.json():null;}).then(function(d){
     if(!d||!d.avail) return;
     _AIR={avail:d.avail,loss:d.loss}; _renderAI(d.avail,d.loss);
