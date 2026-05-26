@@ -1051,12 +1051,12 @@ function loadExcel(input){
         var sm_i=allSheets.findIndex(function(s){return s.includes('월 누적');});
         var sd_i=allSheets.findIndex(function(s){return s.includes('(일)');});
         var sy_i=allSheets.findIndex(function(s){return s.includes('2026')||s.includes('2027');});
-        if(sm_i<0||sd_i<0){statusEl.textContent='❌ 시트 없음';statusEl.style.color='var(--red)';return;}
-        var idxArr=[sm_i,sd_i]; if(sy_i>=0)idxArr.push(sy_i);
+        if(sm_i<0){statusEl.textContent='❌ 월 누적 시트 없음';statusEl.style.color='var(--red)';return;}
+        var idxArr=[sm_i]; if(sd_i>=0)idxArr.push(sd_i); if(sy_i>=0)idxArr.push(sy_i);
         var wb=XLSX.read(e.target.result,{type:'array',sheets:idxArr,sheetRows:150});
         var sm=allSheets[sm_i],sd=allSheets[sd_i],syr=sy_i>=0?allSheets[sy_i]:null;
         var m_data=parseSheet(wb.Sheets[sm]);
-        var d_data=parseSheet(wb.Sheets[sd]);
+        var d_data=sd_i>=0?parseSheet(wb.Sheets[sd]):m_data;
         var tr=syr?parseTrend(wb.Sheets[syr]):{trend:{},etrd:{}};
         if(!m_data||!m_data.summary||m_data.summary.length<3){statusEl.textContent='❌ 파싱 실패';statusEl.style.color='var(--red)';return;}
         Object.keys(CH).forEach(function(k){try{if(CH[k]&&typeof CH[k].destroy==='function')CH[k].destroy();}catch(xe){}});
