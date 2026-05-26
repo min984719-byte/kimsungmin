@@ -1483,43 +1483,25 @@ async function runAIAnalysis() {
     };
   });
 
-  // AWS 설정 여부 확인
-  var useAWS = AWS_API.predictionUrl && AWS_API.predictionUrl.indexOf('xxxx') < 0;
+  // API 키 직접 방식으로 분석
+  var apiKey = localStorage.getItem('claude_api_key') || '';
+  if (!apiKey) {
+    var key = prompt('Anthropic API 키를 입력하세요 (sk-ant-api03-...)');
+    if (!key) { btn.disabled=false; if(spin) spin.textContent='✨'; if(txt) txt.textContent='AI 분석 실행'; return; }
+    localStorage.setItem('claude_api_key', key.trim());
+  }
 
   try {
     var availResult = null, lossResult = null;
 
-    if (useAWS) {
-      // AWS Lambda 프록시 호출 (API 키 서버 보관)
-      setAISt('st-avail','Lambda 호출 중...','var(--amber)');
-      setAISt('st-loss', 'Lambda 호출 중...','var(--amber)');
-      var r = await fetch(AWS_API.predictionUrl, {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-          procs:  procList,
-          period: db.period || '',
-          mode:   'both'
-        })
-      });
-      if (!r.ok) throw new Error('Lambda 응답 오류: ' + r.status);
-      var res = await r.json();
-      if (res.error) throw new Error(res.error);
-      availResult = res.avail || null;
-      lossResult  = res.loss  || null;
-      var awsChip = document.getElementById('aws-chip');
-      if(awsChip) awsChip.style.opacity='1';
-    } else {
-      // 직접 Claude API 호출 (AWS 미설정 시)
-      setAISt('st-avail','분석 중...','var(--amber)');
-      var r1 = await callClaude(buildAvailPrompt(procList, db.period||''));
-      availResult = JSON.parse(cleanJSON(r1));
+    setAISt('st-avail','분석 중...','var(--amber)');
+    var r1 = await callClaude(buildAvailPrompt(procList, db.period||''));
+    availResult = JSON.parse(cleanJSON(r1));
+    setAISt('st-avail','완료','var(--teal)');
 
-      setAISt('st-avail','완료','var(--teal)');
-      setAISt('st-loss','분석 중...','var(--amber)');
-      var r2 = await callClaude(buildLossPrompt(procList, db.period||''));
-      lossResult = JSON.parse(cleanJSON(r2));
-    }
+    setAISt('st-loss','분석 중...','var(--amber)');
+    var r2 = await callClaude(buildLossPrompt(procList, db.period||''));
+    lossResult = JSON.parse(cleanJSON(r2));
 
     setAISt('st-avail', '완료', 'var(--teal)');
     setAISt('st-loss',  '완료', 'var(--teal)');
@@ -1543,13 +1525,8 @@ function setAISt(id, txt, color) {
 }
 
 async function callClaude(prompt) {
-  // AWS Lambda 설정된 경우 → Lambda 프록시 사용
-  if (AWS_API.predictionUrl && AWS_API.predictionUrl.indexOf('xxxx') < 0) {
-    throw new Error('Lambda 경로는 runAIAnalysis에서 직접 처리됩니다');
-  }
-  // 직접 API 키 방식 (로컬 테스트용)
   var apiKey = localStorage.getItem('claude_api_key') || '';
-  if (!apiKey) throw new Error('API 키 미설정 — 설정 버튼을 클릭하세요');
+  if (!apiKey) throw new Error('API 키 미설정');
   var resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -1559,7 +1536,7 @@ async function callClaude(prompt) {
     },
     body: JSON.stringify({
       model: 'claude-haiku-4-5',
-      max_tokens: 2500,
+      max_tokens: 4000,
       messages: [{ role:'user', content: prompt }]
     })
   });
