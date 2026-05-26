@@ -1,0 +1,153 @@
+{
+  "avail": {
+    "summary": "FPCB SYNOPEX VIETNAM의 5월 1~24일 평균 가동율은 46.5%로 전반적으로 낮은 수준입니다. 금도금(81.4%)과 타발(65.2%) 공정은 양호하나, 노광(21.9%)과 동도금(29.3%) 공정의 개선이 필요합니다.",
+    "overall_trend": "stable",
+    "predicted_avg": 46.8,
+    "risk_procs": [
+      "노광",
+      "동도금",
+      "SUB"
+    ],
+    "processes": [
+      {
+        "name": "노광",
+        "current_rate": 21.9,
+        "predicted_rate": 23.5,
+        "trend": "up",
+        "trend_reason": "최저 가동율 공정으로 점진적 개선 예상",
+        "risk_level": "high",
+        "main_loss": "운영유실",
+        "action": "노광 공정의 병목 원인 파악 및 즉시 개선 필요"
+      },
+      {
+        "name": "동도금",
+        "current_rate": 29.3,
+        "predicted_rate": 31.2,
+        "trend": "up",
+        "trend_reason": "저가동 상태에서 완만한 회복 추세",
+        "risk_level": "high",
+        "main_loss": "운영유실",
+        "action": "동도금 공정 운영 효율성 검토 및 개선 계획 수립"
+      },
+      {
+        "name": "금도금",
+        "current_rate": 81.4,
+        "predicted_rate": 80.8,
+        "trend": "stable",
+        "trend_reason": "가장 높은 가동율을 안정적으로 유지",
+        "risk_level": "low",
+        "main_loss": "운영유실",
+        "action": "현재의 운영 수준 유지 및 모범 사례 다른 공정으로 확대"
+      },
+      {
+        "name": "타발",
+        "current_rate": 65.2,
+        "predicted_rate": 65.5,
+        "trend": "stable",
+        "trend_reason": "양호한 가동율을 일관되게 유지",
+        "risk_level": "low",
+        "main_loss": "운영유실",
+        "action": "안정적 운영 지속"
+      },
+      {
+        "name": "SUB",
+        "current_rate": 39.4,
+        "predicted_rate": 40.8,
+        "trend": "up",
+        "trend_reason": "저가동 상태이나 점진적 개선 추세",
+        "risk_level": "medium",
+        "main_loss": "운영유실",
+        "action": "SUB 공정의 생산성 저하 원인 진단 및 시정 조치"
+      }
+    ]
+  },
+  "loss": {
+    "summary": "5월 1일~24일 FPCB SYNOPEX VIETNAM 전 공정의 평균 가동율은 46.5%로 낮은 수준이며, 노광 공정(21.9%)과 동도금 공정(29.3%)이 심각한 병목입니다. 설비유실과 운영유실 데이터 부재로 상세 원인 분석이 제한되어 있으나, 공정 간 불균형한 가동율 편차가 주요 문제입니다.",
+    "bottleneck": "노광",
+    "total_loss_min": 3312082,
+    "top3_causes": [
+      "설비가동율 불균형",
+      "공정 간 생산 밸런싱 부족",
+      "원자재 또는 작업지시 지연"
+    ],
+    "processes": [
+      {
+        "name": "노광",
+        "loss_min": 427830,
+        "loss_rate": "78.1%",
+        "loss_type": "속도저하",
+        "loss_category": "운영유실",
+        "root_cause": "노광 공정의 극히 낮은 가동율(21.9%)은 이전 공정(회로)의 산출 부족 또는 다음 공정의 처리 능력 초과로 인한 대기로 추정됩니다.",
+        "impact": "high",
+        "immediate_action": "노광 공정 전후 공정의 생산 일정을 긴급 검토하고 병목 원인을 파악하세요.",
+        "countermeasure": "회로→노광→동도금 구간의 밸런싱을 조정하고 WIP 수준을 최적화하세요."
+      },
+      {
+        "name": "적층",
+        "loss_min": 309180,
+        "loss_rate": "59.8%",
+        "loss_type": "속도저하",
+        "loss_category": "운영유실",
+        "root_cause": "적층 공정의 40.2% 가동율은 높은 실운행 시간에도 불구하고 산출 밸런싱 부족으로 보입니다.",
+        "impact": "medium",
+        "immediate_action": "적층 공정의 후속 공정(가이드, 금도금)의 처리 능력과 연계를 확인하세요.",
+        "countermeasure": "공정 간 버퍼 재고를 조정하고 생산 순서를 최적화하세요."
+      },
+      {
+        "name": "동도금",
+        "loss_min": 176156,
+        "loss_rate": "70.7%",
+        "loss_type": "속도저하",
+        "loss_category": "운영유실",
+        "root_cause": "동도금 공정의 낮은 가동율(29.3%)은 화학 처리 시간 지연, 장비 대기 또는 품질 이슈로 인한 재처리 가능성이 있습니다.",
+        "impact": "high",
+        "immediate_action": "동도금 공정의 사이클 타임과 처리량을 검토하여 병목 원인을 파악하세요.",
+        "countermeasure": "화학 공급 안정성을 확보하고 공정 파라미터를 최적화하여 가동율을 상향하세요."
+      },
+      {
+        "name": "회로",
+        "loss_min": 159785,
+        "loss_rate": "63.5%",
+        "loss_type": "속도저하",
+        "loss_category": "운영유실",
+        "root_cause": "회로 공정의 36.5% 가동율은 노광 공정의 낮은 산출로 인한 원자재 부족 또는 설비 문제로 추정됩니다.",
+        "impact": "high",
+        "immediate_action": "회로 공정의 설비 상태를 점검하고 선행 공정과의 연계를 확인하세요.",
+        "countermeasure": "노광 공정의 가동율 개선을 우선으로 하여 회로 공정의 원자재 공급을 정상화하세요."
+      },
+      {
+        "name": "SUB",
+        "loss_min": 66187,
+        "loss_rate": "60.6%",
+        "loss_type": "속도저하",
+        "loss_category": "운영유실",
+        "root_cause": "SUB 공정의 39.4% 가동율은 소량 배치 처리 또는 선행 공정의 불규칙한 산출로 인한 대기로 보입니다.",
+        "impact": "medium",
+        "immediate_action": "SUB 공정의 일일 작업 할당량과 배치 구성을 검토하세요.",
+        "countermeasure": "배치 크기를 최적화하고 생산 계획을 안정화하여 공정 연속성을 개선하세요."
+      }
+    ],
+    "improvement_priority": [
+      {
+        "rank": 1,
+        "proc": "노광",
+        "action": "노광 공정 전후 공정의 밸런싱 분석 및 병목 원인 규명",
+        "expected_gain": "공정 가동율 21.9%→45% 이상 달성 시 전사 생산성 15~20% 향상"
+      },
+      {
+        "rank": 2,
+        "proc": "동도금",
+        "action": "화학 공급 안정성 확보 및 공정 파라미터 최적화",
+        "expected_gain": "공정 가동율 29.3%→50% 이상 달성 시 후속 공정 대기 시간 감소로 8~12% 효율 개선"
+      },
+      {
+        "rank": 3,
+        "proc": "회로",
+        "action": "노광 공정 개선에 따른 원자재 공급 정상화 및 설비 점검",
+        "expected_gain": "공정 가동율 36.5%→55% 이상 달성 시 선행 공정 개선과 함께 5~10% 생산성 향상"
+      }
+    ]
+  },
+  "saved_at": "2026-05-26T08:28:46.799Z",
+  "saved_by": "ko"
+}
