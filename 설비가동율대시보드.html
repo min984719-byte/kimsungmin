@@ -227,6 +227,30 @@ tr:hover td{background:rgba(56,139,253,.05)}
 </div>
 
 
+<!-- 탭1: 히트맵 -->
+<div class="npane" id="t1">
+  <div class="card">
+    <div class="ct">// 설비별 가동율 히트맵</div>
+    <div class="hf-wrap">
+      <span style="font-size:11px;color:var(--muted);font-weight:600">공정:</span>
+      <button class="hf-btn on" id="hf-all" onclick="setHF('',this)">전체</button>
+      <span id="hf-btns" style="display:flex;gap:6px;flex-wrap:wrap"></span>
+      <select class="sort-sel" id="heat-sort" onchange="renderHeat()">
+        <option value="asc">가동율 낮은순</option>
+        <option value="desc">가동율 높은순</option>
+        <option value="proc">공정순</option>
+      </select>
+      <span class="heat-cnt" id="heat-cnt"></span>
+    </div>
+    <div class="heat-grid" id="heatmap" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"></div>
+    <div style="display:flex;gap:14px;margin-top:10px;font-size:11px">
+      <span style="color:var(--green)">■ 정상(≥60%)</span>
+      <span style="color:var(--amber)">■ 주의(40~60%)</span>
+      <span style="color:var(--red)">■ 위험(&lt;40%)</span>
+    </div>
+  </div>
+</div>
+
 <!-- ══ AWS AI INSIGHT ENGINE ══ -->
 <div class="ai-grid" style="margin:14px 0">
 
@@ -325,30 +349,6 @@ tr:hover td{background:rgba(56,139,253,.05)}
 
   <div style="padding:8px 12px;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-radius:8px;font-size:10px;color:var(--muted)">
     ⚠ 가동율 예측 및 손실 원인은 Claude AI가 현재 가동율·비가동 데이터 기반으로 분석·예측한 값입니다. 실제 현장 확인 후 활용하세요.
-  </div>
-</div>
-
-<!-- 탭1: 히트맵 -->
-<div class="npane" id="t1">
-  <div class="card">
-    <div class="ct">// 설비별 가동율 히트맵</div>
-    <div class="hf-wrap">
-      <span style="font-size:11px;color:var(--muted);font-weight:600">공정:</span>
-      <button class="hf-btn on" id="hf-all" onclick="setHF('',this)">전체</button>
-      <span id="hf-btns" style="display:flex;gap:6px;flex-wrap:wrap"></span>
-      <select class="sort-sel" id="heat-sort" onchange="renderHeat()">
-        <option value="asc">가동율 낮은순</option>
-        <option value="desc">가동율 높은순</option>
-        <option value="proc">공정순</option>
-      </select>
-      <span class="heat-cnt" id="heat-cnt"></span>
-    </div>
-    <div class="heat-grid" id="heatmap" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"></div>
-    <div style="display:flex;gap:14px;margin-top:10px;font-size:11px">
-      <span style="color:var(--green)">■ 정상(≥60%)</span>
-      <span style="color:var(--amber)">■ 주의(40~60%)</span>
-      <span style="color:var(--red)">■ 위험(&lt;40%)</span>
-    </div>
   </div>
 </div>
 
