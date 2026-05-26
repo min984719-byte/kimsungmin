@@ -214,6 +214,10 @@ tr:hover td{background:rgba(56,139,253,.05)}
       ▸ 손실 분석:   <span id="st-l" style="color:var(--muted)">대기</span><br>
       ▸ 위험 공정:   <span id="st-r" style="color:var(--muted)">-</span>
     </div>
+    <button onclick="testLambda()" style="width:100%;margin-top:8px;padding:5px;border-radius:6px;
+      border:1px solid var(--bor2);background:var(--card2);color:var(--muted);
+      font-size:10px;cursor:pointer;font-family:inherit">🔧 Lambda 연결 테스트</button>
+    <div id="lambda-test-result" style="font-size:10px;margin-top:4px;color:var(--muted)"></div>
   </div>
 </div>
 <div id="ai-panel" style="display:none;margin-bottom:14px">
@@ -1504,6 +1508,33 @@ function _loadAI(){
   }).catch(function(){});
 }
 window.addEventListener('load',function(){setTimeout(_loadAI,1500);});
+
+
+async function testLambda(){
+  var el=document.getElementById('lambda-test-result');
+  el.textContent='테스트 중...'; el.style.color='var(--muted)';
+  try{
+    // 1단계: GET 테스트
+    var r1=await fetch(_LU);
+    var t1=await r1.text();
+    el.textContent='GET ✅ | ';
+
+    // 2단계: POST text/plain 테스트
+    var r2=await fetch(_LU,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body:'{"procs":[],"period":"test","mode":"avail"}'
+    });
+    var t2=await r2.json();
+    if(r2.ok||t2.error){
+      el.textContent+='POST ✅ | 상태:'+r2.status;
+      el.style.color='var(--green)';
+    }
+  }catch(e){
+    el.textContent='오류: '+e.message;
+    el.style.color='var(--red)';
+  }
+}
 
 </script>
 </body>
