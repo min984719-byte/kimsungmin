@@ -227,32 +227,104 @@ tr:hover td{background:rgba(56,139,253,.05)}
 </div>
 
 
-<div class="ai-grid">
+<!-- ══ AWS AI INSIGHT ENGINE ══ -->
+<div class="ai-grid" style="margin:14px 0">
+
+  <!-- 카드1: AI 예측 결과 요약 -->
   <div class="ai-card">
-    <div class="ai-title">AWS AI INSIGHT ENGINE</div>
-    <div class="ai-big" id="ai-oee-score">92.4%</div>
-    <div class="ai-list">
-      • 예측 가동율: <span id="ai-predict">금일 야간 94.1%</span><br>
-      • 주요 리스크: <span id="ai-risk">DRY FILM #3 온도 편차 ↑</span><br>
-      • 권장 액션: <span id="ai-action">20:00 이전 점검 + 자재 선공급</span>
+    <div class="ai-title">✨ AWS AI INSIGHT ENGINE</div>
+    <div style="display:flex;align-items:baseline;gap:8px;margin:6px 0">
+      <div class="ai-big" id="ai-avg-now">--%</div>
+      <div style="font-size:11px;color:var(--muted)">현재 평균</div>
+      <div style="font-size:18px;font-weight:700;font-family:'Orbitron',monospace" id="ai-trend-arrow">→</div>
+      <div class="ai-big" id="ai-avg-pred" style="color:var(--amber)">--%</div>
+      <div style="font-size:11px;color:var(--muted)">1주 예측</div>
     </div>
+    <div class="ai-list" id="ai-summary-text" style="color:var(--muted);font-size:11px;line-height:1.7">
+      엑셀 업로드 후 AI 분석 버튼을 클릭하세요
+    </div>
+    <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap" id="ai-risk-chips"></div>
   </div>
+
+  <!-- 카드2: 연결 구조 + 실행 버튼 -->
   <div class="ai-card">
     <div class="ai-title">연결 구조</div>
-    <div class="ai-list">
-      <span class="ai-chip">S3 업로드</span>
-      <span class="ai-chip">Lambda</span>
-      <span class="ai-chip">Amazon Bedrock</span>
-      <span class="ai-chip">QuickSight</span>
+    <div class="ai-list" style="margin-bottom:10px">
+      <span class="ai-chip">엑셀 업로드</span>
+      <span class="ai-chip">Claude API</span>
+      <span class="ai-chip" id="aws-chip" style="opacity:.4">Amazon Bedrock</span>
+    </div>
+    <button onclick="runAIAnalysis()" id="aiRunBtn"
+      style="width:100%;padding:8px;border-radius:8px;border:none;
+      background:linear-gradient(135deg,#1f6feb,#7c3aed);color:#fff;
+      font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;
+      display:flex;align-items:center;justify-content:center;gap:6px"
+      disabled>
+      <span id="aiSpinIcon">✨</span>
+      <span id="aiRunText">AI 분석 실행</span>
+    </button>
+    <div style="font-size:10px;color:var(--muted);margin-top:6px;text-align:center" id="ai-last-run">
+      엑셀 업로드 후 활성화
     </div>
   </div>
+
+  <!-- 카드3: AI 상태 + 위험 공정 -->
   <div class="ai-card">
-    <div class="ai-title">AI 상태</div>
-    <div class="ai-list">
-      실시간 분석: 정상<br>
-      이상탐지: ON<br>
-      설비 예지보전: ON
+    <div class="ai-title">AI 분석 상태</div>
+    <div class="ai-list" id="ai-status-list" style="font-size:11px;line-height:2">
+      <span style="color:var(--muted)">▸ 가동율 예측:</span>
+      <span id="st-avail" style="color:var(--muted)">대기</span><br>
+      <span style="color:var(--muted)">▸ 손실 원인 분석:</span>
+      <span id="st-loss" style="color:var(--muted)">대기</span><br>
+      <span style="color:var(--muted)">▸ 위험 공정:</span>
+      <span id="st-risk" style="color:var(--muted)">-</span>
     </div>
+  </div>
+</div>
+
+<!-- AI 상세 결과 패널 (분석 후 표시) -->
+<div id="ai-detail-panel" style="display:none">
+
+  <!-- 가동율 예측 결과 -->
+  <div class="card" style="margin-bottom:12px">
+    <div class="ct">// 가동율 예측  ·  현재 → 1주 후</div>
+    <div id="ai-avail-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:10px"></div>
+    <div id="ai-risk-banner" style="display:none;background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3);border-radius:8px;padding:10px 12px">
+      <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:5px">⚠ 즉시 관리 필요 공정</div>
+      <div id="ai-risk-list" style="font-size:11px;color:var(--text);line-height:1.8"></div>
+    </div>
+  </div>
+
+  <!-- 손실 원인 분석 결과 -->
+  <div class="card" style="margin-bottom:12px">
+    <div class="ct">// 손실 원인 분석  ·  6대 손실 기준</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px" id="ai-loss-summary"></div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="background:var(--card2)">
+            <th style="padding:8px 10px;text-align:left;color:var(--muted);font-weight:700">공정명</th>
+            <th style="padding:8px 10px;color:var(--muted);font-weight:700">손실(분)</th>
+            <th style="padding:8px 10px;color:var(--muted);font-weight:700">손실율</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--muted);font-weight:700">손실유형</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--muted);font-weight:700">분류</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--muted);font-weight:700">근본 원인</th>
+            <th style="padding:8px 10px;color:var(--muted);font-weight:700">영향도</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--muted);font-weight:700">즉시 조치</th>
+          </tr>
+        </thead>
+        <tbody id="ai-loss-tbody"></tbody>
+      </table>
+    </div>
+    <!-- 개선 우선순위 TOP3 -->
+    <div id="ai-priority-wrap" style="margin-top:14px;display:none">
+      <div style="font-size:11px;font-weight:700;color:#a371f7;margin-bottom:8px">🎯 개선 우선순위 TOP 3</div>
+      <div id="ai-priority-list"></div>
+    </div>
+  </div>
+
+  <div style="padding:8px 12px;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-radius:8px;font-size:10px;color:var(--muted)">
+    ⚠ 가동율 예측 및 손실 원인은 Claude AI가 현재 가동율·비가동 데이터 기반으로 분석·예측한 값입니다. 실제 현장 확인 후 활용하세요.
   </div>
 </div>
 
@@ -1002,6 +1074,12 @@ function loadExcel(input){
         statusEl.textContent='✅ '+m_data.period+' '+m_data.overall+'%';
         statusEl.style.color='var(--teal)';
         toast('✅ 완료! 월:'+m_data.period+' '+m_data.overall+'% | 일:'+d_data.period+' '+d_data.overall+'%');
+        // AI 버튼 활성화
+        var ab=document.getElementById('aiRunBtn');
+        if(ab){ ab.disabled=false; ab.style.opacity='1'; }
+        var lr=document.getElementById('ai-last-run');
+        if(lr) lr.textContent='데이터 준비 완료 — AI 분석 실행 가능';
+        document.getElementById('ai-avg-now').textContent=m_data.overall+'%';
         if(GH_TOKEN){ setTimeout(function(){ ghPushHTML(); },500); }
       }catch(err){
         console.error('loadExcel:',err);
@@ -1359,29 +1437,259 @@ saveGHToken = function(){
     }
   });
 })();
-</script>
 
-<script>
-const API_URL = "https://YOUR_API_GATEWAY.execute-api.ap-northeast-2.amazonaws.com/ai";
+// ════════════════════════════════════════════════════════
+// AI 가동율 예측 + 손실 원인 분석
+// ════════════════════════════════════════════════════════
+var AI_RESULT = {};
 
-async function loadAI(){
-  try{
-    const res = await fetch(API_URL);
-    const data = await res.json();
-    const body = data.body ? JSON.parse(data.body) : data;
+// AWS 설정 (Lambda URL 입력 후 사용)
+var AWS_API = {
+  uploadUrl:     '',  // https://xxxx.execute-api.ap-southeast-1.amazonaws.com/prod/upload-url
+  predictionUrl: ''   // https://xxxx.execute-api.ap-southeast-1.amazonaws.com/prod/prediction
+};
 
-    document.getElementById("ai-oee-score").innerText = (body.oee ?? "-") + "%";
-    document.getElementById("ai-risk").innerText = body.risk ?? "-";
-    document.getElementById("ai-action").innerText = body.recommend ?? "-";
-    document.getElementById("ai-predict").innerText = body.predict ?? "AI 분석 완료";
-  }catch(err){
-    console.error("AI API 연결 오류:", err);
+async function runAIAnalysis() {
+  var db = cur ? cur() : (MODES ? MODES[MODE] : null);
+  if (!db || !db.summary || !db.summary.length) {
+    alert('먼저 엑셀을 업로드하세요.');
+    return;
   }
+
+  // 버튼 로딩 상태
+  var btn  = document.getElementById('aiRunBtn');
+  var spin = document.getElementById('aiSpinIcon');
+  var txt  = document.getElementById('aiRunText');
+  btn.disabled = true;
+  if(spin) spin.textContent = '⏳';
+  if(txt)  txt.textContent  = '분석 중...';
+  setAISt('st-avail', '분석 중...', 'var(--amber)');
+  setAISt('st-loss',  '대기',       'var(--muted)');
+
+  // 데이터 준비
+  var procList = db.summary.map(function(r) {
+    var loss = (r.b||0) + (r.op||0) + (r.eq||0);
+    return {
+      공정명:        r.proc,
+      가동율:        r.rate + '%',
+      기준시간_분:   r.ref  || 0,
+      실운행_분:     r.run  || 0,
+      비가동_분:     loss,
+      비가동율:      (r.ref > 0 ? Math.round(loss/r.ref*1000)/10 : 0) + '%',
+      계획비가동_분: r.b    || 0,
+      운영유실_분:   r.op   || 0,
+      설비유실_분:   r.eq   || 0
+    };
+  });
+
+  // AWS 설정 여부 확인
+  var useAWS = AWS_API.predictionUrl && AWS_API.predictionUrl.indexOf('xxxx') < 0;
+
+  try {
+    var availResult = null, lossResult = null;
+
+    if (useAWS) {
+      // AWS Lambda → Bedrock 경로
+      var r = await fetch(AWS_API.predictionUrl + '?analyze=1', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ procs: procList, period: db.period||'' })
+      });
+      var res = await r.json();
+      availResult = res.avail || null;
+      lossResult  = res.loss  || null;
+      var awsChip = document.getElementById('aws-chip');
+      if(awsChip) awsChip.style.opacity='1';
+    } else {
+      // 직접 Claude API 호출 (AWS 미설정 시)
+      setAISt('st-avail','분석 중...','var(--amber)');
+      var r1 = await callClaude(buildAvailPrompt(procList, db.period||''));
+      availResult = JSON.parse(cleanJSON(r1));
+
+      setAISt('st-avail','완료','var(--teal)');
+      setAISt('st-loss','분석 중...','var(--amber)');
+      var r2 = await callClaude(buildLossPrompt(procList, db.period||''));
+      lossResult = JSON.parse(cleanJSON(r2));
+    }
+
+    setAISt('st-avail', '완료', 'var(--teal)');
+    setAISt('st-loss',  '완료', 'var(--teal)');
+
+    AI_RESULT = { avail: availResult, loss: lossResult };
+    renderAIResult(availResult, lossResult, db);
+
+  } catch(e) {
+    setAISt('st-avail','오류: '+e.message,'var(--red)');
+    console.error('AI 분석 오류:', e);
+  }
+
+  btn.disabled = false;
+  if(spin) spin.textContent = '✨';
+  if(txt)  txt.textContent  = 'AI 재분석';
 }
 
-loadAI();
-setInterval(loadAI, 60000);
-</script>
+function setAISt(id, txt, color) {
+  var el = document.getElementById(id);
+  if(el) { el.textContent = txt; el.style.color = color; }
+}
 
+async function callClaude(prompt) {
+  var resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2500,
+      messages: [{ role:'user', content: prompt }]
+    })
+  });
+  var data = await resp.json();
+  return data.content ? data.content.map(function(b){return b.text||'';}).join('') : '';
+}
+
+function cleanJSON(raw) {
+  return raw.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+}
+
+function buildAvailPrompt(procs, period) {
+  return 'FPCB 제조 SYNOPEX VIETNAM 설비 가동율 데이터 (기간:'+period+')\n'
+    + JSON.stringify(procs,null,2)
+    + '\n\n반드시 JSON만 응답. 설명 없이 JSON만.\n\n'
+    + '각 공정 현재 가동율과 비가동 유형(계획비가동/운영유실/설비유실)을 분석하여 향후 1주일 가동율을 예측하세요.\n'
+    + '{"summary":"전체현황요약(2문장)","overall_trend":"improving|stable|declining",'
+    + '"predicted_avg":예측평균가동율숫자,"risk_procs":["위험공정1","위험공정2"],'
+    + '"processes":[{"name":"공정명","current_rate":현재가동율숫자,"predicted_rate":1주후예측숫자,'
+    + '"trend":"up|down|stable","trend_reason":"예측근거(1문장)","risk_level":"high|medium|low",'
+    + '"main_loss":"계획비가동|운영유실|설비유실","action":"권고조치(1문장)"}]}';
+}
+
+function buildLossPrompt(procs, period) {
+  return 'FPCB 제조 SYNOPEX VIETNAM 설비 비가동 데이터 (기간:'+period+')\n'
+    + JSON.stringify(procs,null,2)
+    + '\n\n반드시 JSON만 응답. 설명 없이 JSON만.\n\n'
+    + '각 공정 비가동 데이터를 6대 손실 관점으로 분석하고 근본 원인과 대책을 제시하세요.\n'
+    + '{"summary":"손실현황요약(2문장)","bottleneck":"최대손실공정명","total_loss_min":전체손실분숫자,'
+    + '"top3_causes":["원인1","원인2","원인3"],'
+    + '"processes":[{"name":"공정명","loss_min":비가동분숫자,"loss_rate":손실율숫자,'
+    + '"loss_type":"설비고장|준비조정|일시정지|속도저하|공정불량|초기수율",'
+    + '"loss_category":"계획비가동|운영유실|설비유실","root_cause":"근본원인(1문장)",'
+    + '"impact":"high|medium|low","immediate_action":"즉시조치(1문장)","countermeasure":"재발방지(1문장)"}],'
+    + '"improvement_priority":[{"rank":1,"proc":"공정명","action":"조치","expected_gain":"효과"},'
+    + '{"rank":2,"proc":"공정명","action":"조치","expected_gain":"효과"},'
+    + '{"rank":3,"proc":"공정명","action":"조치","expected_gain":"효과"}]}';
+}
+
+function renderAIResult(avail, loss, db) {
+  // 요약 카드 갱신
+  if (avail) {
+    var avgEl  = document.getElementById('ai-avg-pred');
+    var arrEl  = document.getElementById('ai-trend-arrow');
+    var sumEl  = document.getElementById('ai-summary-text');
+    var rchips = document.getElementById('ai-risk-chips');
+    var stRisk = document.getElementById('st-risk');
+
+    if(avgEl)  { avgEl.textContent = avail.predicted_avg+'%';
+      avgEl.style.color = avail.predicted_avg >= 60 ? 'var(--teal)' : avail.predicted_avg >= 40 ? 'var(--amber)' : 'var(--red)'; }
+    if(arrEl)  { arrEl.textContent = avail.overall_trend==='improving'?'↑':avail.overall_trend==='declining'?'↓':'→';
+      arrEl.style.color = avail.overall_trend==='improving'?'var(--green)':avail.overall_trend==='declining'?'var(--red)':'var(--muted)'; }
+    if(sumEl)  sumEl.textContent = avail.summary || '';
+    if(stRisk) stRisk.textContent = (avail.risk_procs||[]).join(', ') || '없음';
+    if(rchips) {
+      rchips.innerHTML = (avail.risk_procs||[]).map(function(p){
+        return '<span class="ai-chip" style="background:rgba(248,81,73,.15);color:var(--red)">⚠ '+p+'</span>';
+      }).join('');
+    }
+  }
+
+  // 상세 패널 표시
+  document.getElementById('ai-detail-panel').style.display='block';
+
+  // 가동율 예측 카드
+  if (avail && avail.processes) {
+    var grid = document.getElementById('ai-avail-grid');
+    var riskBanner = document.getElementById('ai-risk-banner');
+    var riskList   = document.getElementById('ai-risk-list');
+    var highRisk = avail.processes.filter(function(p){return p.risk_level==='high';});
+    if(riskBanner) riskBanner.style.display = highRisk.length ? 'block' : 'none';
+    if(riskList)   riskList.innerHTML = highRisk.map(function(p){
+      return '• <b>'+p.name+'</b> — '+p.action;
+    }).join('<br>');
+
+    if(grid) grid.innerHTML = avail.processes.map(function(p){
+      var col  = p.predicted_rate>=60?'var(--teal)':p.predicted_rate>=40?'var(--amber)':'var(--red)';
+      var diff = Math.round((p.predicted_rate - p.current_rate)*10)/10;
+      var dstr = diff>0?'+'+diff+'%':diff+'%';
+      var dcol = diff>0?'var(--green)':diff<0?'var(--red)':'var(--muted)';
+      var ti   = p.trend==='up'?'▲':p.trend==='down'?'▼':'▶';
+      var tc   = p.trend==='up'?'var(--green)':p.trend==='down'?'var(--red)':'var(--muted)';
+      var rc   = p.risk_level==='high'?'rgba(248,81,73,.15)':p.risk_level==='medium'?'rgba(210,153,34,.15)':'rgba(46,160,67,.15)';
+      var rf   = p.risk_level==='high'?'var(--red)':p.risk_level==='medium'?'var(--amber)':'var(--green)';
+      return '<div style="background:var(--card2);border:1px solid var(--bor);border-radius:8px;padding:12px">'
+        +'<div style="display:flex;justify-content:space-between;margin-bottom:5px">'
+        +'<span style="font-size:12px;font-weight:700;color:var(--text)">'+p.name+'</span>'
+        +'<span style="font-size:10px;padding:2px 6px;border-radius:8px;background:'+rc+';color:'+rf+'">'+p.risk_level+'</span>'
+        +'</div>'
+        +'<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">'
+        +'<span style="font-size:11px;color:var(--muted)">'+p.current_rate+'%</span>'
+        +'<span style="font-size:16px;color:'+tc+'">'+ti+'</span>'
+        +'<span style="font-size:18px;font-weight:700;font-family:Orbitron,monospace;color:'+col+'">'+p.predicted_rate+'%</span>'
+        +'<span style="font-size:11px;color:'+dcol+'">'+dstr+'</span>'
+        +'</div>'
+        +'<div style="height:4px;background:var(--bor);border-radius:2px;overflow:hidden;margin-bottom:6px">'
+        +'<div style="height:100%;width:'+Math.min(p.predicted_rate,100)+'%;background:'+col+';border-radius:2px"></div></div>'
+        +'<div style="font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:4px">'+p.trend_reason+'</div>'
+        +'<div style="font-size:10px;color:var(--amber);background:rgba(210,153,34,.08);padding:4px 6px;border-radius:4px">'+p.action+'</div>'
+        +'</div>';
+    }).join('');
+  }
+
+  // 손실 원인 테이블
+  if (loss) {
+    var sumEl2 = document.getElementById('ai-loss-summary');
+    var tbody  = document.getElementById('ai-loss-tbody');
+    var prioW  = document.getElementById('ai-priority-wrap');
+    var prioL  = document.getElementById('ai-priority-list');
+
+    if(sumEl2) {
+      var bc = (loss.top3_causes||[]).map(function(c){
+        return '<span class="ai-chip" style="background:rgba(248,81,73,.15);color:var(--red)">'+c+'</span>';
+      }).join(' ');
+      sumEl2.innerHTML = (loss.summary||'') + ' &nbsp;병목: <b style="color:var(--red)">'+loss.bottleneck+'</b> &nbsp;' + bc;
+    }
+
+    if(tbody) tbody.innerHTML = (loss.processes||[]).sort(function(a,b){return b.loss_min-a.loss_min;}).map(function(p,pi){
+      var bg = pi%2===0?'var(--card2)':'var(--card)';
+      var ic = p.loss_type==='설비고장'?'⚡':p.loss_type==='속도저하'?'🐢':p.loss_type==='일시정지'?'⏸':p.loss_type==='준비조정'?'🔧':p.loss_type==='공정불량'?'🔴':'📉';
+      var ic2= p.impact==='high'?'var(--red)':p.impact==='medium'?'var(--amber)':'var(--green)';
+      var cc = p.loss_category==='설비유실'?'var(--red)':p.loss_category==='운영유실'?'var(--amber)':'var(--blue)';
+      return '<tr style="background:'+bg+';border-bottom:1px solid var(--bor)">'
+        +'<td style="padding:8px 10px;font-weight:700">'+p.name+'</td>'
+        +'<td style="padding:8px 10px;text-align:center;color:var(--red);font-family:Orbitron,monospace;font-weight:700">'+Math.round(p.loss_min).toLocaleString()+'</td>'
+        +'<td style="padding:8px 10px;text-align:center;color:var(--amber);font-weight:700">'+p.loss_rate+'%</td>'
+        +'<td style="padding:8px 10px">'+ic+' '+p.loss_type+'</td>'
+        +'<td style="padding:8px 10px;color:'+cc+';font-weight:700">'+p.loss_category+'</td>'
+        +'<td style="padding:8px 10px;color:var(--muted);font-size:11px">'+p.root_cause+'</td>'
+        +'<td style="padding:8px 10px;text-align:center;color:'+ic2+';font-weight:700">'+p.impact+'</td>'
+        +'<td style="padding:8px 10px;color:var(--green);font-size:11px">'+p.immediate_action+'</td>'
+        +'</tr>';
+    }).join('');
+
+    if(prioW && prioL && loss.improvement_priority && loss.improvement_priority.length) {
+      prioW.style.display='block';
+      prioL.innerHTML = loss.improvement_priority.map(function(x){
+        var rc2 = x.rank===1?'var(--red)':x.rank===2?'var(--amber)':'var(--blue)';
+        return '<div style="display:flex;gap:10px;align-items:flex-start;background:var(--card2);border-radius:6px;padding:8px 10px;margin-bottom:5px">'
+          +'<div style="width:22px;height:22px;border-radius:50%;background:'+rc2+';color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+x.rank+'</div>'
+          +'<div><div style="font-size:11px;font-weight:700;color:var(--text)">'+x.proc+' — '+x.action+'</div>'
+          +'<div style="font-size:10px;color:var(--green)">'+x.expected_gain+'</div></div></div>';
+      }).join('');
+    }
+  }
+
+  // 마지막 실행 시간
+  var lr = document.getElementById('ai-last-run');
+  if(lr) lr.textContent = '마지막 분석: ' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+}
+
+</script>
 </body>
 </html>
