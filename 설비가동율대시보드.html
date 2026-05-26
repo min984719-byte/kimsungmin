@@ -1424,11 +1424,9 @@ async function runAI(){
       운영유실_분:Math.round(r.op_loss||0),설비유실_분:Math.round((r.eq_loss||0)+(r.eq_fail||0))};
   });
   try{
-    var r=await fetch(_LU,{
-      method:'POST',
-      headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({procs:procs,period:db.period||'',mode:'both'})
-    });
+    // GET 방식으로 CORS 우회 (브라우저 단순 요청)
+    var payload = encodeURIComponent(JSON.stringify({procs:procs,period:db.period||'',mode:'both'}));
+    var r=await fetch(_LU+'?d='+payload);
     if(!r.ok) throw new Error('Lambda 오류:'+r.status);
     var res=await r.json(); if(res.error) throw new Error(res.error);
     _AIR={avail:res.avail||null,loss:res.loss||null};
