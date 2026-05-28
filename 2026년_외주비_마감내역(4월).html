@@ -67,11 +67,11 @@ select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-siz
       <button onclick="document.getElementById('xl-input').click()"
         style="padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.3);
         background:rgba(255,255,255,.1);color:#fff;font-size:11px;cursor:pointer;
-        font-family:inherit;display:flex;align-items:center;gap:6px;transition:all .15s"
+        font-family:inherit;display:flex;align-items:center;gap:6px"
         onmouseover="this.style.background='rgba(255,255,255,.2)'"
         onmouseout="this.style.background='rgba(255,255,255,.1)'">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        <span id="xl-btn-txt">엑셀 업로드</span>
+        엑셀 업로드
       </button>
       <input type="file" id="xl-input" accept=".xlsx,.xls" style="display:none" onchange="loadCostExcel(this)">
       <div id="xl-status" style="font-size:10px;color:rgba(255,255,255,.5);margin-top:3px"></div>
@@ -96,7 +96,7 @@ select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-siz
   <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px">
     <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:14px">
       <div style="font-size:11px;font-weight:700;color:#79c0ff;letter-spacing:.08em;margin-bottom:8px">✨ AI COST INSIGHT ENGINE</div>
-      <div id="ai-cost-summary" style="font-size:11px;color:rgba(255,255,255,.75);line-height:1.7">AI 분석 버튼을 클릭하면 외주비 절감 인사이트를 분석합니다</div>
+      <div id="ai-cost-summary" style="font-size:11px;color:rgba(255,255,255,.75);line-height:1.7">엑셀 업로드 후 AI 분석을 실행하세요</div>
       <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap" id="ai-cost-chips"></div>
     </div>
     <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:14px;display:flex;flex-direction:column;justify-content:center">
@@ -107,7 +107,7 @@ select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-siz
         font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">
         ✨ AI 분석 실행
       </button>
-      <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:6px;text-align:center" id="ai-cost-status">외주비 절감·NEGO 분석 가능</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:6px;text-align:center" id="ai-cost-status">엑셀 업로드 후 AI 분석 가능</div>
     </div>
     <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:14px">
       <div style="font-size:11px;font-weight:700;color:#79c0ff;margin-bottom:8px">분석 상태</div>
@@ -119,8 +119,6 @@ select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-siz
     </div>
   </div>
 </div>
-
-<!-- AI 상세 결과 -->
 <div id="ai-cost-detail" style="display:none;margin-bottom:13px">
   <div class="card">
     <div class="card-title">✨ AI 외주비 분석 — 공정별 리스크 및 절감 대책</div>
@@ -131,7 +129,7 @@ select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-siz
     <div id="ai-cost-priority"></div>
   </div>
   <div style="font-size:10px;color:#999;padding:4px 2px">
-    ⚠ Claude AI가 외주비 데이터를 기반으로 분석한 내용입니다. 실제 의사결정 시 현장 확인 후 활용하세요.
+    ⚠ Claude AI가 외주비 데이터 기반으로 분석한 내용입니다. 실제 의사결정 시 현장 확인 후 활용하세요.
   </div>
 </div>
 
@@ -699,189 +697,138 @@ function renderCostAI(loss, avail) {
   if(st3) { st3.textContent=(loss&&loss.bottleneck)||'-'; st3.style.color='#f85149'; }
 }
 
-
-
-// ═══ 외주비 엑셀 업로드 파싱 ═══
+// ═══ 외주비 엑셀 업로드 ═══
 function loadCostExcel(input) {
   const file = input.files[0];
   if(!file) return;
   const st = document.getElementById('xl-status');
-  const btn = document.getElementById('xl-btn-txt');
   st.textContent = '⏳ 읽는 중...';
   st.style.color = 'rgba(255,255,255,.5)';
 
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
-      const wb = XLSX.read(e.target.result, {type:'array'});
-      const sheets = wb.SheetNames;
-      console.log('시트 목록:', sheets);
+      const wb = XLSX.read(e.target.result, {type:'array', cellDates:true});
+      const nv = v => { if(v==null) return 0; try{ return parseFloat(v)||0; } catch{return 0;} };
 
-      // 시트 찾기
-      const findSheet = (keywords) => {
-        const name = sheets.find(s => keywords.some(k => s.includes(k)));
-        return name ? XLSX.utils.sheet_to_json(wb.Sheets[name], {header:1, defval:null}) : null;
-      };
+      // data 시트에서 파싱
+      const dataSheet = wb.Sheets['data'];
+      if(!dataSheet) { st.textContent='❌ data 시트 없음'; return; }
 
-      // 파싱 시도 - 시트명에 따라 유연하게 처리
-      let parsed = false;
+      const rows = XLSX.utils.sheet_to_json(dataSheet, {header:1, defval:null, raw:true});
+      // 헤더: R3(index2) = Thời gian, Tháng, Năm, 구분, 구분2, 공정명, 공정명3, 외주사명, 비용, NEGO절감, ..., 매출
+      // 데이터: R4(index3)~
 
-      // 방법 1: 각 시트를 순회하며 데이터 구조 파악
-      for(const sheetName of sheets) {
-        const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {header:1, defval:null, raw:true});
-        if(rows.length > 3) {
-          console.log(`시트: ${sheetName}, 행수: ${rows.length}`);
-          console.log('첫 3행:', JSON.stringify(rows.slice(0,3)));
+      const newSummary = {sales_vnd:[...Array(12)].map(()=>0),cost_vat0:[...Array(12)].map(()=>0),
+        cost_ratio:[...Array(12)].map(()=>0),essential:[...Array(12)].map(()=>0),parallel:[...Array(12)].map(()=>0),
+        sales_usd:[...Array(12)].map(()=>0),exchange:[...Array(12)].map(()=>0)};
+      const newProcCost = {};
+      const vendorMap = {};
+      const negoMap = {};
+
+      for(let i=3; i<rows.length; i++) {
+        const row = rows[i];
+        if(!row || !row[2]) continue;
+        const month = parseInt(row[2]) - 1;
+        if(month < 0 || month >= 12) continue;
+        const loc   = String(row[4]||'');
+        const type_ = String(row[5]||'');
+        const proc  = String(row[6]||'');
+        const name  = String(row[8]||'');
+        const cost  = nv(row[9]);
+        const nego  = nv(row[10]);
+        const sales = nv(row[13]);
+
+        newSummary.cost_vat0[month] += cost;
+        if(sales > 0) newSummary.sales_vnd[month] = sales;
+        if(type_.includes('필수')) newSummary.essential[month] += cost;
+        else newSummary.parallel[month] += cost;
+
+        if(!newProcCost[proc]) newProcCost[proc] = new Array(12).fill(0);
+        newProcCost[proc][month] += cost;
+
+        const vkey = loc+'|'+type_+'|'+proc+'|'+name;
+        if(!vendorMap[vkey]) vendorMap[vkey] = {type:type_,loc:loc,proc:proc,name:name,total:0,m:new Array(12).fill(0)};
+        vendorMap[vkey].m[month] += cost;
+        vendorMap[vkey].total += cost;
+
+        if(nego > 0) {
+          if(!negoMap[vkey]) negoMap[vkey] = {type:type_,loc:loc,proc:proc,name:name,total:0,m:new Array(12).fill(0),before:0,after:0,rate:0};
+          negoMap[vkey].m[month] += nego;
+          negoMap[vkey].total += nego;
         }
       }
 
-      // 첫 번째 시트에서 데이터 파싱 시도
-      const firstSheet = XLSX.utils.sheet_to_json(wb.Sheets[sheets[0]], {header:1, defval:null, raw:true});
-      const newData = parseCostExcel(wb, sheets, firstSheet);
-
-      if(newData) {
-        // 전역 변수 업데이트
-        if(newData.SUMMARY)   SUMMARY   = newData.SUMMARY;
-        if(newData.PROC_COST) PROC_COST = newData.PROC_COST;
-        if(newData.VENDORS)   VENDORS   = newData.VENDORS;
-        if(newData.ACHIEVE)   ACHIEVE   = newData.ACHIEVE;
-        if(newData.NEGO)      NEGO      = newData.NEGO;
-
-        // 차트/테이블 전체 재빌드
-        buildAll();
-
-        st.textContent = '✅ ' + file.name.replace('.xlsx','').replace('.xls','');
-        st.style.color = '#56d364';
-        btn.textContent = '엑셀 업로드';
-        parsed = true;
+      // 비율 계산
+      for(let i=0;i<12;i++) {
+        const s=newSummary.sales_vnd[i], c=newSummary.cost_vat0[i];
+        newSummary.cost_ratio[i] = s>0 ? Math.round(c/s*10000)/10000 : 0;
       }
 
-      if(!parsed) {
-        // 엑셀 구조를 파악할 수 없으면 시트 목록 표시
-        st.textContent = '⚠ 시트: ' + sheets.slice(0,3).join(', ');
-        st.style.color = '#f0c040';
+      // 4.계획대비 시트 파싱
+      const achSheet = wb.Sheets['4.공정별 계획대비 실적'];
+      const newAchieve = [];
+      if(achSheet) {
+        const achRows = XLSX.utils.sheet_to_json(achSheet, {header:1, defval:null, raw:true});
+        for(let i=5; i<achRows.length; i++) {
+          const row = achRows[i];
+          if(!row||!row[1]) continue;
+          const proc = String(row[1]).trim();
+          if(!proc||proc.includes('합계')||proc.includes('Grand')) continue;
+          const data = [];
+          for(let mi=0; mi<6; mi++) {
+            const base = 2+mi*3;
+            const plan=nv(row[base]), actual=nv(row[base+1]);
+            if(plan===0&&actual===0) break;
+            const rate = row[base+2] ? nv(row[base+2]) : (plan>0?actual/plan:0);
+            data.push({plan:Math.round(plan),actual:Math.round(actual),rate:Math.round(rate*10000)/10000});
+          }
+          if(data.length) newAchieve.push({proc,data});
+        }
       }
+
+      // Detail 시트에서 NEGO before/after
+      const detSheet = wb.Sheets['Detail'];
+      if(detSheet) {
+        const detRows = XLSX.utils.sheet_to_json(detSheet, {header:1,defval:null,raw:true});
+        detRows.forEach(row=>{
+          if(!row||typeof row[1]!=='number') return;
+          const name=String(row[2]||'').trim(), proc=String(row[3]||'').trim();
+          const before=nv(row[4]), after=nv(row[5]), rate=nv(row[7]);
+          Object.values(negoMap).forEach(n=>{
+            if(n.name===name&&n.proc===proc) { n.before=Math.round(before); n.after=Math.round(after); n.rate=Math.round(rate*1000000)/1000000; }
+          });
+        });
+      }
+
+      // 전역 변수 업데이트
+      SUMMARY   = newSummary;
+      PROC_COST = newProcCost;
+      VENDORS   = Object.values(vendorMap);
+      ACHIEVE   = newAchieve.length ? newAchieve : ACHIEVE;
+      NEGO      = Object.values(negoMap);
+
+      // 기간 정보 업데이트
+      const activeMths = newSummary.cost_vat0.map((v,i)=>v>0?i:-1).filter(i=>i>=0);
+      const mNames = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+      if(activeMths.length) {
+        const period = mNames[activeMths[0]]+'~'+mNames[activeMths[activeMths.length-1]];
+        document.getElementById('h-sub').textContent =
+          '기준: 2026년 '+period+' | SYNOPEX VIETNAM | 단위: VND';
+      }
+
+      buildAll();
+      st.textContent = '✅ '+file.name.replace(/\.xlsx?$/,'');
+      st.style.color = '#56d364';
+      console.log('✅ 엑셀 로드 완료');
 
     } catch(err) {
       console.error('엑셀 오류:', err);
-      st.textContent = '❌ 오류: ' + err.message;
-      st.style.color = '#f85149';
+      document.getElementById('xl-status').textContent = '❌ '+err.message;
+      document.getElementById('xl-status').style.color = '#f85149';
     }
   };
   reader.readAsArrayBuffer(file);
-}
-
-function parseCostExcel(wb, sheets, firstRows) {
-  // 엑셀 구조에 따라 파싱
-  // 구조 1: 시트별로 SUMMARY, PROC_COST, VENDORS 등이 있는 경우
-  // 구조 2: 단일 시트에 모든 데이터가 있는 경우
-
-  const nv = v => {
-    if(v == null) return 0;
-    if(typeof v === 'number') return v;
-    return parseFloat(String(v).replace(/[,\s]/g,'')) || 0;
-  };
-
-  // 월별 데이터 추출 헬퍼 (최대 12개월)
-  const getMonthArr = (row, startCol, maxCols=12) => {
-    const arr = [];
-    for(let i=0; i<maxCols; i++) arr.push(nv(row[startCol+i]));
-    return arr;
-  };
-
-  // 시트 내용 기반으로 파싱
-  const result = {};
-  const newSummary = {
-    sales_usd: new Array(12).fill(0),
-    exchange: new Array(12).fill(0),
-    sales_vnd: new Array(12).fill(0),
-    cost_vat0: new Array(12).fill(0),
-    cost_ratio: new Array(12).fill(0),
-    essential: new Array(12).fill(0),
-    parallel: new Array(12).fill(0)
-  };
-  const newProcCost = {};
-  const newVendors = [];
-  const newAchieve = [];
-  const newNego = [];
-
-  // 각 시트 파싱
-  for(const sheetName of sheets) {
-    const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {header:1, defval:null, raw:true});
-    if(!rows || rows.length < 2) continue;
-
-    // 헤더 행 찾기
-    let headerRow = -1;
-    for(let i=0; i<Math.min(10, rows.length); i++) {
-      const row = rows[i];
-      if(!row) continue;
-      const rowStr = row.join('').toLowerCase();
-      if(rowStr.includes('매출') || rowStr.includes('외주') || rowStr.includes('공정') ||
-         rowStr.includes('업체') || rowStr.includes('nego') || rowStr.includes('계획')) {
-        headerRow = i;
-        break;
-      }
-    }
-
-    // 월별 데이터가 있는 시트 처리
-    if(headerRow >= 0) {
-      const headers = rows[headerRow].map(h => h ? String(h).trim() : '');
-      // 월 컬럼 위치 파악
-      const monthCols = [];
-      headers.forEach((h,i) => {
-        if(h.match(/^[1-9]월$/) || h.match(/^T[0-9]+$/) || h.match(/^[0-9]+$/)) {
-          monthCols.push(i);
-        }
-      });
-
-      if(monthCols.length > 0) {
-        for(let r=headerRow+1; r<rows.length; r++) {
-          const row = rows[r];
-          if(!row || !row[0]) continue;
-          const label = String(row[0]).trim();
-          if(!label || label.includes('합계') || label.includes('TTL')) continue;
-
-          const monthData = new Array(12).fill(0);
-          monthCols.forEach((col, mi) => {
-            if(mi < 12) monthData[mi] = nv(row[col]);
-          });
-
-          // 라벨에 따라 적절한 변수에 저장
-          if(label.includes('매출') && label.includes('VND')) {
-            newSummary.sales_vnd = monthData;
-          } else if(label.includes('외주비') || label.includes('합계')) {
-            newSummary.cost_vat0 = monthData;
-          } else if(label.includes('필수')) {
-            newSummary.essential = monthData;
-          } else if(label.includes('병행')) {
-            newSummary.parallel = monthData;
-          } else if(label.includes('비율') || label.includes('%')) {
-            newSummary.cost_ratio = monthData.map(v => v > 1 ? v/100 : v);
-          } else {
-            // 공정별 데이터
-            if(monthData.some(v=>v>0)) {
-              newProcCost[label] = monthData;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // 데이터가 있으면 반환
-  const hasData = Object.values(newProcCost).some(arr => arr.some(v=>v>0)) ||
-                  newSummary.cost_vat0.some(v=>v>0);
-
-  if(hasData) {
-    result.SUMMARY   = newSummary;
-    result.PROC_COST = Object.keys(newProcCost).length > 0 ? newProcCost : PROC_COST;
-    result.VENDORS   = VENDORS;
-    result.ACHIEVE   = ACHIEVE;
-    result.NEGO      = NEGO;
-    return result;
-  }
-
-  return null;
 }
 
 </script></body></html>
