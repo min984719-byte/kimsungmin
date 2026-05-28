@@ -729,7 +729,7 @@ async function runCostAI() {
     const r1 = await fetch(_COST_LU, {
       method:'POST',
       headers:{'Content-Type':'text/plain'},
-      body: JSON.stringify({procs, period:'2026년 1~4월 외주비', mode:'loss', _ctx:context})
+      body: JSON.stringify({procs, period:'2026년 1~4월 외주비', mode:'loss', _cost_mode:true})
     });
     if(!r1.ok) throw new Error('Lambda 오류:'+r1.status);
     const res1 = await r1.json();
@@ -740,7 +740,7 @@ async function runCostAI() {
     const r2 = await fetch(_COST_LU, {
       method:'POST',
       headers:{'Content-Type':'text/plain'},
-      body: JSON.stringify({procs, period:'2026년 1~4월 NEGO', mode:'avail'})
+      body: JSON.stringify({procs, period:'2026년 1~4월 NEGO', mode:'avail', _cost_mode:true})
     });
     const res2 = r2.ok ? await r2.json() : {};
     setSt('ai-st2','완료','#56d364');
