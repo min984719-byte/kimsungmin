@@ -644,45 +644,121 @@ function loadCostExcel(input) {
   var file=input.files[0]; if(!file) return;
   var st=document.getElementById('xl-status');
   st.textContent='⏳ 읽는 중...'; st.style.color='rgba(255,255,255,.5)';
+
   var reader=new FileReader();
   reader.onload=function(e) {
     try {
       var wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
-      var nv=function(v){if(v==null)return 0;try{return parseFloat(v)||0;}catch{return 0;}};
       if(!wb.Sheets['data']){st.textContent='❌ data 시트 없음';return;}
+
       var rows=XLSX.utils.sheet_to_json(wb.Sheets['data'],{header:1,defval:null,raw:true});
-      var newS={sales_vnd:new Array(12).fill(0),cost_vat0:new Array(12).fill(0),cost_ratio:new Array(12).fill(0),essential:new Array(12).fill(0),parallel:new Array(12).fill(0),sales_usd:new Array(12).fill(0),exchange:new Array(12).fill(0)};
+      var nv=function(v){if(v==null)return 0;try{return parseFloat(v)||0;}catch(ex){return 0;}};
+
+      var newS={sales_vnd:new Array(12).fill(0),cost_vat0:new Array(12).fill(0),
+        cost_ratio:new Array(12).fill(0),essential:new Array(12).fill(0),
+        parallel:new Array(12).fill(0),sales_usd:new Array(12).fill(0),exchange:new Array(12).fill(0)};
       var newP={},vMap={},nMap={};
-      for(var i=3;i<rows.length;i++) {
-        var row=rows[i]; if(!row||!row[2]) continue;
-        var month=parseInt(row[2])-1; if(month<0||month>=12) continue;
-        var loc=String(row[4]||''),type_=String(row[5]||''),proc=String(row[6]||''),name=String(row[8]||'');
-        var cost=nv(row[9]),nego=nv(row[10]),sales=nv(row[13]);
+
+      for(var i=3;i<rows.length;i++){
+        var row=rows[i];
+        if(!row||row[2]==null) continue;
+        var month=parseInt(row[2])-1;
+        if(isNaN(month)||month<0||month>=12) continue;
+
+        // 매출은 공정명 없는 소계 행에만 있음
+        if(row[13]&&!row[6]){
+          newS.sales_vnd[month]=nv(row[13]);
+          continue;
+        }
+        if(!row[6]) continue;
+
+        var loc=String(row[4]||''), type_=String(row[5]||'');
+        var proc=String(row[6]||''), name=String(row[8]||'');
+        var cost=nv(row[9]), nego=nv(row[10]);
+
         newS.cost_vat0[month]+=cost;
-        if(sales>0) newS.sales_vnd[month]+=sales;
-        if(type_.indexOf('필수')>=0) newS.essential[month]+=cost; else newS.parallel[month]+=cost;
+        if(type_.indexOf('필수')>=0) newS.essential[month]+=cost;
+        else newS.parallel[month]+=cost;
+
         if(!newP[proc]) newP[proc]=new Array(12).fill(0);
         newP[proc][month]+=cost;
+
         var vk=loc+'|'+type_+'|'+proc+'|'+name;
         if(!vMap[vk]) vMap[vk]={type:type_,loc:loc,proc:proc,name:name,total:0,m:new Array(12).fill(0)};
         vMap[vk].m[month]+=cost; vMap[vk].total+=cost;
-        if(nego>0){if(!nMap[vk])nMap[vk]={type:type_,loc:loc,proc:proc,name:name,total:0,m:new Array(12).fill(0),before:0,after:0,rate:0};nMap[vk].m[month]+=nego;nMap[vk].total+=nego;}
+
+        if(nego>0){
+          if(!nMap[vk]) nMap[vk]={type:type_,loc:loc,proc:proc,name:name,total:0,m:new Array(12).fill(0),before:0,after:0,rate:0};
+          nMap[vk].m[month]+=nego; nMap[vk].total+=nego;
+        }
       }
-      for(var i2=0;i2<12;i2++){var s2=newS.sales_vnd[i2],c2=newS.cost_vat0[i2];newS.cost_ratio[i2]=s2>0?Math.round(c2/s2*10000)/10000:0;}
-      var newA=[],aSheet=wb.Sheets['4.공정별 계획대비 실적'];
-      if(aSheet){var aRows=XLSX.utils.sheet_to_json(aSheet,{header:1,defval:null,raw:true});for(var ai=5;ai<aRows.length;ai++){var ar=aRows[ai];if(!ar||!ar[1])continue;var ap=String(ar[1]).trim();if(!ap||ap.indexOf('합계')>=0||ap.indexOf('Grand')>=0)continue;var data=[];for(var mi=0;mi<6;mi++){var b2=2+mi*3,pl=nv(ar[b2]),ac=nv(ar[b2+1]);if(pl===0&&ac===0)break;data.push({plan:Math.round(pl),actual:Math.round(ac),rate:Math.round((ar[b2+2]?nv(ar[b2+2]):(pl>0?ac/pl:0))*10000)/10000});}if(data.length)newA.push({proc:ap,data:data});}}
+
+      // 비율 계산
+      for(var j=0;j<12;j++){
+        var s2=newS.sales_vnd[j],c2=newS.cost_vat0[j];
+        newS.cost_ratio[j]=s2>0?Math.round(c2/s2*10000)/10000:0;
+      }
+
+      // 4.계획대비 시트 파싱
+      var newA=[];
+      var aSheet=wb.Sheets['4.공정별 계획대비 실적'];
+      if(aSheet){
+        var aRows=XLSX.utils.sheet_to_json(aSheet,{header:1,defval:null,raw:true});
+        for(var ai=5;ai<aRows.length;ai++){
+          var ar=aRows[ai]; if(!ar||!ar[1]) continue;
+          var ap=String(ar[1]).trim();
+          if(!ap||ap.indexOf('합계')>=0||ap.indexOf('Grand')>=0) continue;
+          var data=[];
+          for(var mi=0;mi<6;mi++){
+            var base=2+mi*3, pl=nv(ar[base]), ac=nv(ar[base+1]);
+            if(pl===0&&ac===0) break;
+            var rt=ar[base+2]?nv(ar[base+2]):(pl>0?ac/pl:0);
+            data.push({plan:Math.round(pl),actual:Math.round(ac),rate:Math.round(rt*10000)/10000});
+          }
+          if(data.length) newA.push({proc:ap,data:data});
+        }
+      }
+
+      // Detail 시트 NEGO before/after
       var dSheet=wb.Sheets['Detail'];
-      if(dSheet){var dRows=XLSX.utils.sheet_to_json(dSheet,{header:1,defval:null,raw:true});dRows.forEach(function(dr){if(!dr||typeof dr[1]!=='number')return;var dn=String(dr[2]||'').trim(),dp2=String(dr[3]||'').trim();Object.values(nMap).forEach(function(n){if(n.name===dn&&n.proc===dp2){n.before=Math.round(nv(dr[4]));n.after=Math.round(nv(dr[5]));n.rate=Math.round(nv(dr[7])*1000000)/1000000;}});});}
+      if(dSheet){
+        var dRows=XLSX.utils.sheet_to_json(dSheet,{header:1,defval:null,raw:true});
+        dRows.forEach(function(dr){
+          if(!dr||typeof dr[1]!=='number') return;
+          var dn=String(dr[2]||'').trim(), dp=String(dr[3]||'').trim();
+          Object.values(nMap).forEach(function(n){
+            if(n.name===dn&&n.proc===dp){
+              n.before=Math.round(nv(dr[4])); n.after=Math.round(nv(dr[5]));
+              n.rate=Math.round(nv(dr[7])*1000000)/1000000;
+            }
+          });
+        });
+      }
+
+      // 전역변수 업데이트
       SUMMARY=newS; PROC_COST=newP; VENDORS=Object.values(vMap);
-      if(newA.length) ACHIEVE=newA; NEGO=Object.values(nMap);
+      if(newA.length) ACHIEVE=newA;
+      NEGO=Object.values(nMap);
+
+      // activeIdx 재계산 후 전체 리빌드
       activeIdx=newS.cost_vat0.map(function(v,i){return v>0?i:-1;}).filter(function(i){return i>=0;});
-      Object.keys(charts).forEach(function(k){try{if(charts[k])charts[k].destroy();}catch(e){}});
-      charts={}; buildAll();
-      var cnt=activeIdx.length,mns=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+      Object.keys(charts).forEach(function(k){try{if(charts[k])charts[k].destroy();}catch(ex){}});
+      charts={};
+      buildAll();
+
+      // 상태 표시
+      var cnt=activeIdx.length;
+      var mns=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
       st.textContent='✅ '+(cnt>0?mns[activeIdx[0]]+'~'+mns[activeIdx[cnt-1]]:'완료')+'('+cnt+'개월)';
       st.style.color='#56d364';
+
+      // GitHub 자동 저장
       if(_COST_GH_TOKEN) setTimeout(pushCostToGH, 500);
-    }catch(err){console.error(err);st.textContent='❌ '+err.message;st.style.color='#f85149';}
+
+    }catch(err){
+      console.error('엑셀 오류:', err);
+      st.textContent='❌ '+err.message; st.style.color='#f85149';
+    }
   };
   reader.readAsArrayBuffer(file);
 }
