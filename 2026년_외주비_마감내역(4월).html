@@ -629,11 +629,12 @@ function pullCostFromGH() {
   fetch(_COST_GH_RAW+'?t='+Date.now()).then(function(r){return r.ok?r.json():null;})
   .then(function(d){
     if(!d||!d.SUMMARY) return;
+    var ghTotal=(d.SUMMARY.cost_vat0||[]).reduce(function(a,b){return a+b;},0);
+    if(ghTotal<=0) return;
     SUMMARY=d.SUMMARY; PROC_COST=d.PROC_COST; VENDORS=d.VENDORS; ACHIEVE=d.ACHIEVE; NEGO=d.NEGO;
-    activeIdx=SUMMARY.cost_vat0?SUMMARY.cost_vat0.map(function(v,i){return v>0?i:-1;}).filter(function(i){return i>=0;}):[];
+    activeIdx=SUMMARY.cost_vat0?SUMMARY.cost_vat0.map(function(v,i){return v>0?i:-1;}).filter(function(i){return i>=0;}):[]; 
     Object.keys(charts).forEach(function(k){try{if(charts[k])charts[k].destroy();}catch(e){}});
-    charts={};
-    buildAll();
+    charts={}; buildAll();
     var t=new Date(d.saved).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
     document.getElementById('cost-gh-sync-status').textContent='🔄 동기화됨 '+t;
     document.getElementById('cost-gh-sync-status').style.color='#39d0c5';
@@ -880,7 +881,7 @@ function renderCostAI(loss, avail) {
 }
 
 if(_COST_GH_TOKEN) document.getElementById('cost-gh-status-txt').textContent='연동됨 ✅';
-window.addEventListener('load',function(){setTimeout(pullCostFromGH,1200);});
+window.addEventListener('load',function(){ if(_COST_GH_TOKEN) setTimeout(pullCostFromGH,1200); });
 
 </script>
 <div id="cost-gh-modal" onclick="if(event.target===this)this.style.display='none'"
