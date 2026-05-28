@@ -342,7 +342,7 @@ const rateBadge=r=>{
 };
 
 // 실적 있는 월 인덱스
-const activeIdx = SUMMARY.cost_vat0 ? SUMMARY.cost_vat0.map((v,i)=>v>0?i:-1).filter(i=>i>=0) : [0,1,2];
+let activeIdx = SUMMARY.cost_vat0 ? SUMMARY.cost_vat0.map((v,i)=>v>0?i:-1).filter(i=>i>=0) : [0,1,2];
 
 let charts={};
 function dc(id){ if(charts[id]){charts[id].destroy();delete charts[id];} }
