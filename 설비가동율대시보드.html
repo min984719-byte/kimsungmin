@@ -143,41 +143,45 @@ tr:hover td{background:rgba(56,139,253,.05)}
 <div class="hdr">
   <div>
     <div class="hdr-logo">SYNOPEX // OEE</div>
-    <div class="hdr-sub">FPCB 설비 가동율 대시보드</div>
+    <div class="hdr-sub" data-ko="FPCB 설비 가동율 대시보드" data-vi="Bảng điều khiển tỷ lệ hoạt động thiết bị FPCB">FPCB 설비 가동율 대시보드</div>
   </div>
   <div class="hdr-right">
     <!-- 엑셀 업로드 -->
     <div style="display:flex;gap:8px;align-items:center">
       <button class="upload-btn" onclick="document.getElementById('file-input').click()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        엑셀 업로드
+        <span data-ko="엑셀 업로드" data-vi="Tải lên Excel">엑셀 업로드</span>
       </button>
       <input type="file" id="file-input" accept=".xlsx,.xls" onchange="loadExcel(this)">
       <button class="upload-btn" id="gh-btn" onclick="openGHModal()" title="GitHub 연동 — 계획정지/고장 데이터 공유">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
-        <span id="gh-status-icon">GitHub 연동</span>
+        <span id="gh-status-icon" data-ko="GitHub 연동" data-vi="Kết nối GitHub">GitHub 연동</span>
       </button>
       <div style="display:flex;flex-direction:column">
         <div class="upload-status" id="upload-status"></div>
         <div class="upload-status" id="gh-sync-status"></div>
       </div>
     </div>
+    <div class="mode-toggle" style="margin-right:6px">
+      <button class="mbtn on" id="btnKO" onclick="setLang('ko')" style="font-size:11px">🇰🇷 KO</button>
+      <button class="mbtn" id="btnVI" onclick="setLang('vi')" style="font-size:11px">🇻🇳 VI</button>
+    </div>
     <div class="mode-toggle">
-      <button class="mbtn month on" id="btnMonth" onclick="setMode('month')">📅 월 누적</button>
-      <button class="mbtn day" id="btnDay" onclick="setMode('day')">📆 일 기준</button>
+      <button class="mbtn month on" id="btnMonth" onclick="setMode('month')" data-ko="📅 월 누적" data-vi="📅 Lũy kế tháng">📅 월 누적</button>
+      <button class="mbtn day" id="btnDay" onclick="setMode('day')" data-ko="📆 일 기준" data-vi="📆 Theo ngày">📆 일 기준</button>
     </div>
     <div style="text-align:right">
       <div class="hdr-overall"><span id="h-avg">--%</span></div>
-      <div class="overall-label">OVERALL</div>
+      <div class="overall-label" data-ko="OVERALL" data-vi="TỔNG THỂ">OVERALL</div>
     </div>
   </div>
 </div>
 
 <div class="ntabs">
-  <button class="ntab on" onclick="sw(0,this)">[ 종합 현황 ]</button>
-  <button class="ntab" onclick="sw(1,this)">[ 설비 히트맵 ]</button>
-  <button class="ntab" onclick="sw(2,this)">[ 월별 추이 ]</button>
-  <button class="ntab" onclick="sw(3,this)">[ 설비 상세 ]</button>
+  <button class="ntab on" onclick="sw(0,this)" data-ko="[ 종합 현황 ]" data-vi="[ Tổng quan ]">[ 종합 현황 ]</button>
+  <button class="ntab" onclick="sw(1,this)" data-ko="[ 설비 히트맵 ]" data-vi="[ Bản đồ nhiệt ]">[ 설비 히트맵 ]</button>
+  <button class="ntab" onclick="sw(2,this)" data-ko="[ 월별 추이 ]" data-vi="[ Xu hướng tháng ]">[ 월별 추이 ]</button>
+  <button class="ntab" onclick="sw(3,this)" data-ko="[ 설비 상세 ]" data-vi="[ Chi tiết thiết bị ]">[ 설비 상세 ]</button>
 </div>
 
 <div class="wrap">
@@ -195,7 +199,7 @@ tr:hover td{background:rgba(56,139,253,.05)}
       <div class="ai-big" id="ai-pred" style="color:var(--amber)">--%</div>
       <div style="font-size:11px;color:var(--muted)">1주 예측</div>
     </div>
-    <div id="ai-summary" style="color:var(--muted);font-size:11px;line-height:1.7">엑셀 업로드 후 AI 분석을 실행하세요</div>
+    <div id="ai-summary" style="color:var(--muted);font-size:11px;line-height:1.7"><span data-ko="엑셀 업로드 후 AI 분석을 실행하세요" data-vi="Tải lên Excel để chạy phân tích AI">엑셀 업로드 후 AI 분석을 실행하세요</span></div>
     <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap" id="ai-rchips"></div>
   </div>
   <div class="ai-card">
@@ -204,15 +208,15 @@ tr:hover td{background:rgba(56,139,253,.05)}
       style="width:100%;padding:10px;border-radius:8px;border:none;min-height:44px;
       background:linear-gradient(135deg,#1f6feb,#7c3aed);color:#fff;
       font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px"
-      disabled>✨ AI 분석 실행</button>
-    <div style="font-size:10px;color:var(--muted);margin-top:5px;text-align:center" id="ai-status">엑셀 업로드 후 활성화</div>
+      disabled data-ko="✨ AI 분석 실행" data-vi="✨ Phân tích AI">✨ AI 분석 실행</button>
+    <div style="font-size:10px;color:var(--muted);margin-top:5px;text-align:center" id="ai-status"><span data-ko="엑셀 업로드 후 활성화" data-vi="Tải lên Excel để kích hoạt">엑셀 업로드 후 활성화</span></div>
   </div>
   <div class="ai-card">
     <div class="ai-title">AI 분석 상태</div>
     <div style="font-size:11px;line-height:2.2">
-      ▸ 가동율 예측: <span id="st-a" style="color:var(--muted)">대기</span><br>
-      ▸ 손실 분석:   <span id="st-l" style="color:var(--muted)">대기</span><br>
-      ▸ 위험 공정:   <span id="st-r" style="color:var(--muted)">-</span>
+      <span data-ko="▸ 가동율 예측: " data-vi="▸ Dự báo tỷ lệ HĐ: ">▸ 가동율 예측: </span><span id="st-a" style="color:var(--muted)">대기</span><br>
+      <span data-ko="▸ 손실 분석: " data-vi="▸ Phân tích tổn thất: ">▸ 손실 분석:   </span><span id="st-l" style="color:var(--muted)">대기</span><br>
+      <span data-ko="▸ 위험 공정: " data-vi="▸ Công đoạn nguy hiểm: ">▸ 위험 공정:   </span><span id="st-r" style="color:var(--muted)">-</span>
     </div>
     <button onclick="testLambda()" style="width:100%;margin-top:8px;padding:5px;border-radius:6px;
       border:1px solid var(--bor2);background:var(--card2);color:var(--muted);
@@ -256,42 +260,42 @@ tr:hover td{background:rgba(56,139,253,.05)}
   </div>
 </div>
   <div class="g4">
-    <div class="kpi t"><div class="kv" id="k-avg">--%</div><div class="kl">전체 평균 가동율</div><div class="kd" id="k-period">-</div></div>
-    <div class="kpi g"><div class="kv" id="k-ok">-</div><div class="kl">정상 공정 (≥60%)</div><div class="kd">목표 초과</div></div>
-    <div class="kpi a"><div class="kv" id="k-warn">-</div><div class="kl">주의 공정 (40~60%)</div><div class="kd">개선 필요</div></div>
-    <div class="kpi r"><div class="kv" id="k-crit">-</div><div class="kl">위험 공정 (&lt;40%)</div><div class="kd">즉시 점검</div></div>
+    <div class="kpi t"><div class="kv" id="k-avg">--%</div><div class="kl" data-ko="전체 평균 가동율" data-vi="Tỷ lệ hoạt động TB">전체 평균 가동율</div><div class="kd" id="k-period">-</div></div>
+    <div class="kpi g"><div class="kv" id="k-ok">-</div><div class="kl" data-ko="정상 공정 (≥60%)" data-vi="Công đoạn bình thường (≥60%)">정상 공정 (≥60%)</div><div class="kd" data-ko="목표 초과" data-vi="Vượt mục tiêu">목표 초과</div></div>
+    <div class="kpi a"><div class="kv" id="k-warn">-</div><div class="kl" data-ko="주의 공정 (40~60%)" data-vi="Công đoạn chú ý (40~60%)">주의 공정 (40~60%)</div><div class="kd" data-ko="개선 필요" data-vi="Cần cải thiện">개선 필요</div></div>
+    <div class="kpi r"><div class="kv" id="k-crit">-</div><div class="kl" data-ko="위험 공정 (&lt;40%)" data-vi="Công đoạn nguy hiểm (&lt;40%)">위험 공정 (&lt;40%)</div><div class="kd" data-ko="즉시 점검" data-vi="Kiểm tra ngay">즉시 점검</div></div>
   </div>
   <div class="g3">
-    <div class="card"><div class="ct">// 공정별 가동율 (%)</div><div class="ch"><canvas id="c0a" height="240"></canvas></div></div>
-    <div class="card"><div class="ct">// 가동시간 구성 분석</div><div class="ch"><canvas id="c0b" height="240"></canvas></div></div>
+    <div class="card"><div class="ct" data-ko="// 공정별 가동율 (%)" data-vi="// Tỷ lệ hoạt động theo công đoạn (%)">// 공정별 가동율 (%)</div><div class="ch"><canvas id="c0a" height="240"></canvas></div></div>
+    <div class="card"><div class="ct" data-ko="// 가동시간 구성 분석" data-vi="// Phân tích cơ cấu thời gian hoạt động">// 가동시간 구성 분석</div><div class="ch"><canvas id="c0b" height="240"></canvas></div></div>
     <div class="card"><div class="ct" style="color:var(--blue)">// 가동율 누적 파레토 (공정별)</div><div class="ch"><canvas id="c0c" height="240"></canvas></div></div>
   </div>
   <div class="g2">
     <div class="card">
-      <div class="ct" style="color:var(--amber)">// 계획 정지 설비 현황</div>
+      <div class="ct" style="color:var(--amber)"><span data-ko="// 계획 정지 설비 현황" data-vi="// Thiết bị dừng có kế hoạch">// 계획 정지 설비 현황</span></div>
       <div class="tw"><table>
-        <thead><tr><th>공정</th><th>설비명</th><th>대수</th><th>정지 시작일</th><th>정지 사유</th><th>예정 복구일</th><th>상태</th><th></th></tr></thead>
+        <thead><tr><th>공정</th><th data-ko="설비명" data-vi="Tên thiết bị">설비명</th><th data-ko="대수" data-vi="Số lượng">대수</th><th data-ko="정지 시작일" data-vi="Ngày dừng">정지 시작일</th><th data-ko="정지 사유" data-vi="Lý do dừng">정지 사유</th><th data-ko="예정 복구일" data-vi="Ngày phục hồi">예정 복구일</th><th data-ko="상태" data-vi="Trạng thái">상태</th><th></th></tr></thead>
         <tbody id="stop-tbody"></tbody>
       </table></div>
       <div style="text-align:right;margin-top:8px">
-        <button class="add-btn-sm" style="border-color:var(--amber);color:var(--amber)" onclick="openModal('stop')">+ 정지 설비 등록</button>
+        <button class="add-btn-sm" style="border-color:var(--amber);color:var(--amber)" onclick="openModal('stop')"><span data-ko="+ 정지 설비 등록" data-vi="+ Đăng ký dừng">+ 정지 설비 등록</span></button>
       </div>
     </div>
     <div class="card">
-      <div class="ct" style="color:var(--red)">// 고장 설비 현황 및 수리 일정</div>
+      <div class="ct" style="color:var(--red)"><span data-ko="// 고장 설비 현황 및 수리 일정" data-vi="// Thiết bị hỏng và lịch sửa chữa">// 고장 설비 현황 및 수리 일정</span></div>
       <div class="tw"><table>
-        <thead><tr><th>공정</th><th>설비명</th><th>대수</th><th>고장 발생일</th><th>고장 사유</th><th>수리 예정일</th><th>진행상태</th><th></th></tr></thead>
+        <thead><tr><th>공정</th><th data-ko="설비명" data-vi="Tên thiết bị">설비명</th><th data-ko="대수" data-vi="Số lượng">대수</th><th data-ko="고장 발생일" data-vi="Ngày hỏng">고장 발생일</th><th data-ko="고장 사유" data-vi="Lý do hỏng">고장 사유</th><th data-ko="수리 예정일" data-vi="Ngày sửa">수리 예정일</th><th data-ko="진행상태" data-vi="Tiến độ">진행상태</th><th></th></tr></thead>
         <tbody id="break-tbody"></tbody>
       </table></div>
       <div style="text-align:right;margin-top:8px">
-        <button class="add-btn-sm" style="border-color:var(--red);color:var(--red)" onclick="openModal('break')">+ 고장 설비 등록</button>
+        <button class="add-btn-sm" style="border-color:var(--red);color:var(--red)" onclick="openModal('break')"><span data-ko="+ 고장 설비 등록" data-vi="+ Đăng ký hỏng">+ 고장 설비 등록</span></button>
       </div>
     </div>
   </div>
   <div class="card" style="margin-bottom:14px">
-    <div class="ct a">// 공정별 상세 현황</div>
+    <div class="ct a"><span data-ko="// 공정별 상세 현황" data-vi="// Chi tiết theo công đoạn">// 공정별 상세 현황</span></div>
     <div class="tw"><table>
-      <thead><tr><th>공정명</th><th>가동율</th><th>기준시간</th><th>실운행시간</th><th>계획비가동</th><th>운영유실</th><th>설비유실</th><th>생산면적(㎡)</th><th>상태</th></tr></thead>
+      <thead><tr><th data-ko="공정명" data-vi="Công đoạn">공정명</th><th data-ko="가동율" data-vi="Tỷ lệ HĐ">가동율</th><th data-ko="기준시간" data-vi="Giờ chuẩn">기준시간</th><th data-ko="실운행시간" data-vi="Giờ thực">실운행시간</th><th data-ko="계획비가동" data-vi="Dừng KH">계획비가동</th><th data-ko="운영유실" data-vi="Mất vận hành">운영유실</th><th data-ko="설비유실" data-vi="Mất thiết bị">설비유실</th><th data-ko="생산면적(㎡)" data-vi="DT SX(㎡)">생산면적(㎡)</th><th data-ko="상태" data-vi="Trạng thái">상태</th></tr></thead>
       <tbody id="t0b"></tbody>
     </table></div>
   </div>
@@ -303,7 +307,7 @@ tr:hover td{background:rgba(56,139,253,.05)}
     <div class="ct">// 설비별 가동율 히트맵</div>
     <div class="hf-wrap">
       <span style="font-size:11px;color:var(--muted);font-weight:600">공정:</span>
-      <button class="hf-btn on" id="hf-all" onclick="setHF('',this)">전체</button>
+      <button class="hf-btn on" id="hf-all" onclick="setHF('',this)" data-ko="전체" data-vi="Tất cả">전체</button>
       <span id="hf-btns" style="display:flex;gap:6px;flex-wrap:wrap"></span>
       <select class="sort-sel" id="heat-sort" onchange="renderHeat()">
         <option value="asc">가동율 낮은순</option>
@@ -331,8 +335,8 @@ tr:hover td{background:rgba(56,139,253,.05)}
       <div class="ct" style="margin-bottom:0;color:var(--teal)">// 월별 누적 평균 가동율 (2026)</div>
       <div style="display:flex;gap:8px;align-items:center">
         <span style="font-size:11px;color:var(--muted)">표시:</span>
-        <button class="hf-btn on" id="cum-all-btn" onclick="setCumFilter('all',this)" style="padding:3px 12px">전체 평균</button>
-        <button class="hf-btn" id="cum-proc-btn" onclick="setCumFilter('proc',this)" style="padding:3px 12px">공정별</button>
+        <button class="hf-btn on" id="cum-all-btn" onclick="setCumFilter('all',this)" style="padding:3px 12px" data-ko="전체 평균" data-vi="Trung bình">전체 평균</button>
+        <button class="hf-btn" id="cum-proc-btn" onclick="setCumFilter('proc',this)" style="padding:3px 12px" data-ko="공정별" data-vi="Theo công đoạn">공정별</button>
       </div>
     </div>
     <div class="ch"><canvas id="c2c" height="200"></canvas></div>
@@ -366,7 +370,7 @@ tr:hover td{background:rgba(56,139,253,.05)}
   <div class="card">
     <div class="ct a">// 설비별 상세 가동율</div>
     <div class="tw"><table>
-      <thead><tr><th>#</th><th>공정</th><th>세부공정</th><th>설비수</th><th>가동율</th><th>기준시간</th><th>실운행</th><th>계획비가동</th><th>운영유실</th><th>설비유실</th><th>면적(㎡)</th><th>상태</th></tr></thead>
+      <thead><tr><th>#</th><th>공정</th><th>세부공정</th><th>설비수</th><th data-ko="가동율" data-vi="Tỷ lệ HĐ">가동율</th><th data-ko="기준시간" data-vi="Giờ chuẩn">기준시간</th><th>실운행</th><th data-ko="계획비가동" data-vi="Dừng KH">계획비가동</th><th data-ko="운영유실" data-vi="Mất vận hành">운영유실</th><th data-ko="설비유실" data-vi="Mất thiết bị">설비유실</th><th>면적(㎡)</th><th data-ko="상태" data-vi="Trạng thái">상태</th></tr></thead>
       <tbody id="t3b"></tbody>
     </table></div>
   </div>
@@ -654,7 +658,7 @@ function buildTable0(db){
   var h='';
   db.summary.forEach(function(d){
     if(!d.proc)return;
-    var c=gc(d.rate),st=d.rate>=TGT?'<span class="badge bgn">정상</span>':d.rate>=40?'<span class="badge bwn">주의</span>':'<span class="badge brd">위험</span>';
+    var c=gc(d.rate),st=d.rate>=TGT?'<span class="badge bgn" data-ko="정상" data-vi="Bình thường">정상</span>':d.rate>=40?'<span class="badge bwn" data-ko="주의" data-vi="Chú ý">주의</span>':'<span class="badge brd" data-ko="위험" data-vi="Nguy hiểm">위험</span>';
     var pct=Math.min(d.rate,100);
     h+='<tr><td>'+d.proc+'</td>'
       +'<td><div class="pbar"><div class="ptr"><div class="pfl" style="width:'+pct+'%;background:'+c+'"></div></div><span class="pval" style="color:'+c+'">'+Nf(d.rate)+'%</span></div></td>'
@@ -875,7 +879,7 @@ function renderDetail(){
   list.sort(function(a,b){return a.rate-b.rate;});
   var h='';
   list.forEach(function(d,i){
-    var c=gc(d.rate),st=d.rate>=TGT?'<span class="badge bgn">정상</span>':d.rate>=40?'<span class="badge bwn">주의</span>':'<span class="badge brd">위험</span>';
+    var c=gc(d.rate),st=d.rate>=TGT?'<span class="badge bgn" data-ko="정상" data-vi="Bình thường">정상</span>':d.rate>=40?'<span class="badge bwn" data-ko="주의" data-vi="Chú ý">주의</span>':'<span class="badge brd" data-ko="위험" data-vi="Nguy hiểm">위험</span>';
     h+='<tr><td style="color:var(--muted);font-size:11px">'+(i+1)+'</td>'
       +'<td>'+d.proc+'</td><td style="font-weight:600">'+(d.sub||'-')+'</td>'
       +'<td style="text-align:center">'+d.cnt+'대</td>'
@@ -1419,9 +1423,9 @@ async function runAI(){
 
   var procs=db.summary.map(function(r){
     var loss=(r.plan_down||0)+(r.op_loss||0)+(r.eq_loss||0)+(r.eq_fail||0);
-    return {공정명:r.proc,가동율:r.rate+'%',기준시간_분:Math.round(r.base||0),실운행_분:Math.round(r.run||0),
-      비가동_분:Math.round(loss),계획비가동_분:Math.round(r.plan_down||0),
-      운영유실_분:Math.round(r.op_loss||0),설비유실_분:Math.round((r.eq_loss||0)+(r.eq_fail||0))};
+    return {n:r.proc,r:r.rate,b:Math.round(r.base||0),u:Math.round(r.run||0),
+      p:Math.round(r.plan_down||0),o:Math.round(r.op_loss||0),
+      e:Math.round((r.eq_loss||0)+(r.eq_fail||0))};
   });
 
   try{
@@ -1548,6 +1552,50 @@ async function testLambda(){
     el.textContent='오류: '+e.message;
     el.style.color='var(--red)';
   }
+}
+
+
+// ═══ 언어 전환 (한국어 / 베트남어) ═══
+var CUR_LANG = 'ko';
+function setLang(lang) {
+  CUR_LANG = lang;
+  document.getElementById('btnKO').classList.toggle('on', lang==='ko');
+  document.getElementById('btnVI').classList.toggle('on', lang==='vi');
+
+  // data-ko / data-vi 속성 있는 모든 요소 텍스트 교체
+  document.querySelectorAll('[data-ko][data-vi]').forEach(function(el) {
+    var txt = el.getAttribute('data-' + lang);
+    if (txt) el.textContent = txt;
+  });
+
+  // innerHTML 필요한 요소 (배지 등)
+  document.querySelectorAll('[data-ko-html][data-vi-html]').forEach(function(el) {
+    el.innerHTML = el.getAttribute('data-' + lang + '-html');
+  });
+
+  // 차트 레이블 업데이트
+  var chartLabels = {
+    ko: { run:'실운행', plan:'계획비가동', op:'운영유실', eq:'설비유실',
+          avg:'평균', rate:'가동율(%)', cum:'전체 평균 가동율' },
+    vi: { run:'Thực chạy', plan:'Dừng KH', op:'Mất vận hành', eq:'Mất TB',
+          avg:'Trung bình', rate:'Tỷ lệ HĐ(%)', cum:'Tỷ lệ HĐ TB tháng' }
+  };
+
+  // 헤더 OVERALL 레이블
+  var ol = document.querySelector('.overall-label');
+  if (ol) ol.textContent = lang==='vi' ? 'TỔNG THỂ' : 'OVERALL';
+
+  // 월별 KPI 타이틀 (누적 평균 텍스트)
+  document.querySelectorAll('#cum-kpis [style]').forEach(function(el) {
+    var txt = el.textContent;
+    if (lang==='vi') {
+      el.textContent = txt.replace('월 누적 평균','TB lũy kế T');
+    } else {
+      el.textContent = txt.replace('TB lũy kế T','월 누적 평균');
+    }
+  });
+
+  toast(lang==='vi' ? '🇻🇳 Đã chuyển sang tiếng Việt' : '🇰🇷 한국어로 전환됨');
 }
 
 </script>
