@@ -660,6 +660,12 @@ function loadCostExcel(input) {
         parallel:new Array(12).fill(0),sales_usd:new Array(12).fill(0),exchange:new Array(12).fill(0)};
       var newP={},vMap={},nMap={};
 
+      // 첫 10행 덤프 - 구조 확인용
+      console.log('총 행수:', rows.length, '시트명 확인:', Object.keys(wb.Sheets));
+      for(var di=0;di<Math.min(6,rows.length);di++){
+        console.log('rows['+di+']:', JSON.stringify(rows[di]));
+      }
+
       for(var i=3;i<rows.length;i++){
         var row=rows[i];
         if(!row||row[2]==null) continue;
@@ -738,7 +744,14 @@ function loadCostExcel(input) {
 
       // 파싱 결과 검증
       var totalCost=newS.cost_vat0.reduce(function(a,b){return a+b;},0);
-      console.log('파싱결과 총비용:', totalCost, '공정수:', Object.keys(newP).length, 'activeIdx:', newS.cost_vat0.map(function(v,i){return v>0?i:-1;}).filter(function(i){return i>=0;}));
+      console.log('=== 외주비 파싱 결과 ===');
+      console.log('총 행수:', rows.length);
+      console.log('총 비용:', totalCost);
+      console.log('공정 수:', Object.keys(newP).length);
+      console.log('공정 목록:', Object.keys(newP));
+      console.log('cost_vat0:', newS.cost_vat0);
+      console.log('R4 샘플:', rows[3] ? rows[3].slice(0,11) : 'N/A');
+      console.log('R5 샘플:', rows[4] ? rows[4].slice(0,11) : 'N/A');
 
       if(totalCost<=0){
         st.textContent='❌ 비용 데이터 없음 - 파일 구조 확인 필요';
