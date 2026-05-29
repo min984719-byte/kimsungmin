@@ -660,28 +660,26 @@ function loadCostExcel(input) {
         parallel:new Array(12).fill(0),sales_usd:new Array(12).fill(0),exchange:new Array(12).fill(0)};
       var newP={},vMap={},nMap={};
 
-      // 첫 10행 덤프 - 구조 확인용
-      console.log('총 행수:', rows.length, '시트명 확인:', Object.keys(wb.Sheets));
-      for(var di=0;di<Math.min(6,rows.length);di++){
-        console.log('rows['+di+']:', JSON.stringify(rows[di]));
-      }
+      // JS 컬럼 인덱스 (Python보다 1 작음)
+      // col[1]=월, col[3]=구분, col[4]=구분2, col[5]=공정명
+      // col[7]=외주사명, col[8]=비용, col[9]=NEGO, col[12]=매출
 
-      for(var i=3;i<rows.length;i++){
+      for(var i=2;i<rows.length;i++){
         var row=rows[i];
-        if(!row||row[2]==null) continue;
-        var month=parseInt(row[2])-1;
+        if(!row||row[1]==null) continue;
+        var month=parseInt(row[1])-1;
         if(isNaN(month)||month<0||month>=12) continue;
 
         // 매출은 공정명 없는 소계 행에만 있음
-        if(row[13]&&!row[6]){
-          newS.sales_vnd[month]=nv(row[13]);
+        if(row[12]&&!row[5]){
+          newS.sales_vnd[month]=nv(row[12]);
           continue;
         }
-        if(!row[6]) continue;
+        if(!row[5]) continue;
 
-        var loc=String(row[4]||''), type_=String(row[5]||'');
-        var proc=String(row[6]||''), name=String(row[8]||'');
-        var cost=nv(row[9]), nego=nv(row[10]);
+        var loc=String(row[3]||''), type_=String(row[4]||'');
+        var proc=String(row[5]||''), name=String(row[7]||'');
+        var cost=nv(row[8]), nego=nv(row[9]);
 
         newS.cost_vat0[month]+=cost;
         if(type_.indexOf('필수')>=0) newS.essential[month]+=cost;
@@ -742,16 +740,8 @@ function loadCostExcel(input) {
         });
       }
 
-      // 파싱 결과 검증
       var totalCost=newS.cost_vat0.reduce(function(a,b){return a+b;},0);
-      console.log('=== 외주비 파싱 결과 ===');
-      console.log('총 행수:', rows.length);
-      console.log('총 비용:', totalCost);
-      console.log('공정 수:', Object.keys(newP).length);
-      console.log('공정 목록:', Object.keys(newP));
-      console.log('cost_vat0:', newS.cost_vat0);
-      console.log('R4 샘플:', rows[3] ? rows[3].slice(0,11) : 'N/A');
-      console.log('R5 샘플:', rows[4] ? rows[4].slice(0,11) : 'N/A');
+      console.log('외주비 파싱 완료 - 총비용:', totalCost, '공정수:', Object.keys(newP).length);
 
       if(totalCost<=0){
         st.textContent='❌ 비용 데이터 없음 - 파일 구조 확인 필요';
