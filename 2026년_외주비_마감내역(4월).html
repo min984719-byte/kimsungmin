@@ -736,6 +736,16 @@ function loadCostExcel(input) {
         });
       }
 
+      // 파싱 결과 검증
+      var totalCost=newS.cost_vat0.reduce(function(a,b){return a+b;},0);
+      console.log('파싱결과 총비용:', totalCost, '공정수:', Object.keys(newP).length, 'activeIdx:', newS.cost_vat0.map(function(v,i){return v>0?i:-1;}).filter(function(i){return i>=0;}));
+
+      if(totalCost<=0){
+        st.textContent='❌ 비용 데이터 없음 - 파일 구조 확인 필요';
+        st.style.color='#f85149';
+        return;
+      }
+
       // 전역변수 업데이트
       SUMMARY=newS; PROC_COST=newP; VENDORS=Object.values(vMap);
       if(newA.length) ACHIEVE=newA;
@@ -779,34 +789,56 @@ async function runCostAI() {
     const totalNego  = NEGO.reduce((s,n)=>s+n.total,0);
     const avgRatio   = totalSales>0 ? (totalCost/totalSales*100).toFixed(2) : 0;
 
+    // 공정별 비용 요약
     const procSummary = Object.entries(PROC_COST).map(([proc,arr])=>{
       const total = arr.reduce((a,b)=>a+b,0);
       return {proc, total, pct:(totalCost>0?total/totalCost*100:0).toFixed(1)};
     }).filter(p=>p.total>0).sort((a,b)=>b.total-a.total).slice(0,10);
 
-    const negoTop = NEGO.filter(n=>n.total>0)
-      .sort((a,b)=>b.total-a.total).slice(0,5)
-      .map(n=>({업체:n.name, 공정:n.proc, 절감액:n.total, 절감율:(n.rate*100).toFixed(1)+'%'}));
+    // NEGO 현황 상세 (이미 적용된 업체 포함)
+    const negoDetail = NEGO.filter(n=>n.total>0)
+      .sort((a,b)=>b.total-a.total)
+      .map(n=>({
+        업체: n.name, 공정: n.proc, 유형: n.type,
+        절감액: Math.round(n.total/1e6)+'백만VND',
+        절감율: (n.rate*100).toFixed(1)+'%',
+        상태: '적용중'
+      }));
 
-    // Lambda 에 외주비 컨텍스트로 전송
+    // NEGO 미적용 업체 (total=0인데 비용 있는 업체)
+    const noNego = VENDORS.filter(v=>{
+      const hasNego = NEGO.some(n=>n.name===v.name&&n.proc===v.proc&&n.total>0);
+      return !hasNego && v.total>0;
+    }).sort((a,b)=>b.total-a.total).slice(0,5)
+      .map(v=>({업체:v.name, 공정:v.proc, 누적비용:Math.round(v.total/1e6)+'백만VND', 상태:'NEGO미적용'}));
+
+    // Lambda 전송 데이터 - 공정별 외주비 + NEGO 현황 포함
     const procs = procSummary.map(p=>({
       공정명: p.proc,
-      가동율: p.pct+'%',
-      기준시간_분: Math.round(p.total/1e6),  // 백만VND 단위
+      가동율: p.pct+'%',       // 비중
+      기준시간_분: Math.round(p.total/1e6),  // 백만VND
       실운행_분: 0,
       비가동_분: 0,
-      계획비가동_분: 0,
+      계획비가동_분: Math.round(
+        (NEGO.filter(n=>n.proc===p.proc).reduce((s,n)=>s+n.total,0))/1e6
+      ),  // NEGO 절감액(백만VND)
       운영유실_분: 0,
       설비유실_분: 0
     }));
 
-    const context = '외주비분석. 총외주비:'+Math.round(totalCost/1e8)+'억VND, 매출대비:'+avgRatio+'%, NEGO절감:'+Math.round(totalNego/1e8)+'억VND. 공정별비중:'+JSON.stringify(procSummary.map(p=>p.proc+':'+p.pct+'%'))+'. NEGO상위:'+JSON.stringify(negoTop);
+    // NEGO 현황을 period에 포함
+    const negoSummary = '【적용중NEGO】' + negoDetail.slice(0,5).map(n=>
+      n.공정+'('+n.업체+'):'+n.절감율+' '+n.절감액
+    ).join(', ')
+    + ' 【NEGO미적용】' + noNego.map(n=>n.공정+'('+n.업체+'):'+n.누적비용).join(', ');
+
+    const period = '2026년1~4월 총외주비:'+Math.round(totalCost/1e8)+'억VND 매출비:'+avgRatio+'% NEGO절감:'+Math.round(totalNego/1e8)+'억VND ' + negoSummary;
 
     setSt('ai-st1','분석 중...','#f0c040');
     const r1 = await fetch(_COST_LU, {
       method:'POST',
       headers:{'Content-Type':'text/plain'},
-      body: JSON.stringify({procs, period:'2026년 1~4월 외주비', mode:'loss', _cost_mode:true})
+      body: JSON.stringify({procs, period, mode:'loss', _cost_mode:true})
     });
     if(!r1.ok) throw new Error('Lambda 오류:'+r1.status);
     const res1 = await r1.json();
@@ -817,7 +849,7 @@ async function runCostAI() {
     const r2 = await fetch(_COST_LU, {
       method:'POST',
       headers:{'Content-Type':'text/plain'},
-      body: JSON.stringify({procs, period:'2026년 1~4월 NEGO', mode:'avail', _cost_mode:true})
+      body: JSON.stringify({procs, period, mode:'avail', _cost_mode:true})
     });
     const res2 = r2.ok ? await r2.json() : {};
     setSt('ai-st2','완료','#56d364');
