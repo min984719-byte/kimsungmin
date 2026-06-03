@@ -779,16 +779,16 @@ function setCumFilter(f,btn){
 // [FIX 1] buildCumKpis — 5월(index 4) 색상 추가
 // ══════════════════════════════════════════
 function buildCumKpis(){
-  var months=['1월','2월','3월','4월','5월'];
+  var months=['1월','2월','3월','4월','5월','6월'];
   var procs=Object.keys(TREND);
   var avgs=months.map(function(_,mi){
     var vals=procs.map(function(p){return TREND[p][mi];}).filter(function(v){return v!=null;});
     return vals.length?Math.round(vals.reduce(function(a,b){return a+b;})/vals.length*10)/10:null;
   });
   // ★ FIX: 5개 색상 (기존 4개 → 5번째 보라색 추가)
-  var colors=['rgba(248,81,73,.15)','rgba(210,153,34,.15)','rgba(56,139,253,.15)','rgba(57,208,197,.15)','rgba(188,140,255,.15)'];
-  var textColors=['var(--red)','var(--amber)','var(--blue)','var(--teal)','#bc8cff'];
-  var borders=['var(--red)','var(--amber)','var(--blue)','var(--teal)','#bc8cff'];
+  var colors=['rgba(248,81,73,.15)','rgba(210,153,34,.15)','rgba(56,139,253,.15)','rgba(57,208,197,.15)','rgba(188,140,255,.15)','rgba(63,185,80,.15)'];
+  var textColors=['var(--red)','var(--amber)','var(--blue)','var(--teal)','#bc8cff','var(--green)'];
+  var borders=['var(--red)','var(--amber)','var(--blue)','var(--teal)','#bc8cff','var(--green)'];
   document.getElementById('cum-kpis').innerHTML=months.map(function(m,i){
     var v=avgs[i]; var prev=i>0?avgs[i-1]:null;
     var diff=v!=null&&prev!=null?Math.round((v-prev)*10)/10:null;
@@ -1105,7 +1105,7 @@ function parseTrend(ws){
     if(STOP.some(function(s){return c2.includes(s);})&&c2.length>2)break;
     var sub=row[3]?String(row[3]).trim():null;
     // ★ FIX: [6,7,8,9] → [6,7,8,9,10] (1월~5월)
-    var vals=[6,7,8,9,10].map(function(ci){var v=parseFloat(row[ci])||0;return v>0?(v<=1?Math.round(v*1000)/10:Math.round(v*10)/10):null;});
+    var vals=[6,7,8,9,10,11].map(function(ci){var v=parseFloat(row[ci])||0;return v>0?(v<=1?Math.round(v*1000)/10:Math.round(v*10)/10):null;});
     if(!vals.some(function(v){return v!=null;}))continue;
     if(!sub)trend[c2]=vals; else etrd[c2+'_'+sub]=vals;
   }
