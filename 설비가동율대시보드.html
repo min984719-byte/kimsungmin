@@ -734,7 +734,7 @@ function showEq(dj){
   var tw=document.getElementById('eq-trend-wrap');
   if(tr){
     tw.style.display='';
-    document.getElementById('eq-trend').innerHTML=['1월','2월','3월','4월','5월'].map(function(m,i){
+    document.getElementById('eq-trend').innerHTML=['1월','2월','3월','4월','5월','6월'].map(function(m,i){
       var v=tr[i]; var cv=v!=null?gc(v):'var(--muted)';
       return '<div style="flex:1;background:var(--card2);border:1px solid var(--bor);border-radius:8px;padding:8px;text-align:center">'
         +'<div style="font-family:Orbitron,monospace;font-size:13px;font-weight:700;color:'+cv+'">'+(v!=null?v+'%':'—')+'</div>'
@@ -747,7 +747,7 @@ function closeEq(){document.getElementById('eqOv').classList.remove('on');}
 
 // ── 탭2: 추이 ──
 function renderTrend(){
-  var months=['1월','2월','3월','4월','5월'];
+  var months=['1월','2월','3월','4월','5월','6월'];
   var colors=['#39d0c5','#2ea043','#d29922','#f85149','#388bfd','#bc8cff','#ff7b72','#ffa657','#79c0ff','#56d364','#e3b341','#ff6b9d','#7ee787'];
   var procs=Object.keys(TREND);
   if(CH.c2a)CH.c2a.destroy();
@@ -779,7 +779,7 @@ function setCumFilter(f,btn){
 // [FIX 1] buildCumKpis — 5월(index 4) 색상 추가
 // ══════════════════════════════════════════
 function buildCumKpis(){
-  var months=['1월','2월','3월','4월','5월','6월'];
+  var months=['1월','2월','3월','4월','5월','6월','6월'];
   var procs=Object.keys(TREND);
   var avgs=months.map(function(_,mi){
     var vals=procs.map(function(p){return TREND[p][mi];}).filter(function(v){return v!=null;});
@@ -803,7 +803,7 @@ function buildCumKpis(){
 }
 
 function buildCumChart(){
-  var months=['1월','2월','3월','4월','5월'];
+  var months=['1월','2월','3월','4월','5월','6월'];
   var procs=Object.keys(TREND);
   var colors=['#39d0c5','#2ea043','#d29922','#f85149','#388bfd','#bc8cff','#ff7b72','#ffa657','#79c0ff','#56d364','#e3b341','#ff6b9d','#7ee787'];
   if(CH.c2c)CH.c2c.destroy();
@@ -844,7 +844,7 @@ function renderEtrd(){
   var fp=document.getElementById('fProc').value;
   var keys=Object.keys(ETRD).filter(function(k){return !fp||k.startsWith(fp);});
   if(!keys.length)return;
-  var months=['1월','2월','3월','4월','5월'];
+  var months=['1월','2월','3월','4월','5월','6월'];
   var colors=['#39d0c5','#2ea043','#d29922','#f85149','#388bfd','#bc8cff','#ff7b72','#ffa657','#79c0ff','#56d364'];
   if(CH.c2b)CH.c2b.destroy();
   CH.c2b=new Chart(document.getElementById('c2b'),{
