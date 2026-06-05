@@ -631,6 +631,14 @@ function pullCostFromGH() {
     if(!d||!d.SUMMARY) return;
     var ghTotal=(d.SUMMARY.cost_vat0||[]).reduce(function(a,b){return a+b;},0);
     if(ghTotal<=0) return;
+    // GitHub 데이터가 로컬보다 최신인지 확인
+    var localBackup = localStorage.getItem('cost_data_backup');
+    if(localBackup) {
+      try {
+        var localSaved = JSON.parse(localBackup).saved;
+        if(localSaved && d.saved && new Date(d.saved) <= new Date(localSaved)) return; // 로컬이 더 최신
+      } catch(e) {}
+    }
     SUMMARY=d.SUMMARY; PROC_COST=d.PROC_COST; VENDORS=d.VENDORS; ACHIEVE=d.ACHIEVE; NEGO=d.NEGO;
     activeIdx=SUMMARY.cost_vat0?SUMMARY.cost_vat0.map(function(v,i){return v>0?i:-1;}).filter(function(i){return i>=0;}):[]; 
     Object.keys(charts).forEach(function(k){try{if(charts[k])charts[k].destroy();}catch(e){}});
@@ -767,6 +775,14 @@ function loadCostExcel(input) {
       st.style.color='#56d364';
 
       // GitHub 자동 저장
+      // localStorage 백업 저장 (새로고침 시 복원용)
+      try {
+        var saveData = JSON.stringify({SUMMARY:SUMMARY,PROC_COST:PROC_COST,
+          VENDORS:VENDORS,ACHIEVE:ACHIEVE,NEGO:NEGO,saved:new Date().toISOString()});
+        localStorage.setItem('cost_data_backup', saveData);
+        console.log('localStorage 백업 저장 완료');
+      } catch(le) { console.warn('localStorage 저장 실패:', le); }
+
       if(_COST_GH_TOKEN) setTimeout(pushCostToGH, 500);
 
     }catch(err){
@@ -916,7 +932,33 @@ function renderCostAI(loss, avail) {
 }
 
 if(_COST_GH_TOKEN) document.getElementById('cost-gh-status-txt').textContent='연동됨 ✅';
-window.addEventListener('load',function(){ if(_COST_GH_TOKEN) setTimeout(pullCostFromGH,1200); });
+window.addEventListener('load', function() {
+  // localStorage에서 먼저 복원
+  try {
+    var backup = localStorage.getItem('cost_data_backup');
+    if(backup) {
+      var d = JSON.parse(backup);
+      var localTotal = (d.SUMMARY&&d.SUMMARY.cost_vat0||[]).reduce(function(a,b){return a+b;},0);
+      if(localTotal > 0) {
+        SUMMARY=d.SUMMARY; PROC_COST=d.PROC_COST; VENDORS=d.VENDORS;
+        ACHIEVE=d.ACHIEVE; NEGO=d.NEGO;
+        activeIdx=SUMMARY.cost_vat0.map(function(v,i){return v>0?i:-1;}).filter(function(i){return i>=0;});
+        Object.keys(charts).forEach(function(k){try{if(charts[k])charts[k].destroy();}catch(e){}});
+        charts={}; buildAll();
+        var t = new Date(d.saved).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+        document.getElementById('cost-gh-sync-status').textContent='💾 로컬 복원됨 '+t;
+        document.getElementById('cost-gh-sync-status').style.color='#79c0ff';
+        console.log('localStorage에서 복원 완료');
+      }
+    }
+  } catch(le) { console.warn('localStorage 복원 실패:', le); }
+
+  // GitHub 토큰 있으면 GitHub에서도 동기화 (더 최신 데이터면 덮어씀)
+  if(_COST_GH_TOKEN) {
+    document.getElementById('cost-gh-status-txt').textContent='연동됨 ✅';
+    setTimeout(pullCostFromGH, 1500);
+  }
+});
 
 </script>
 <div id="cost-gh-modal" onclick="if(event.target===this)this.style.display='none'"
