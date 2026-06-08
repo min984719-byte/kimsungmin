@@ -78,8 +78,8 @@ select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-siz
         </button>
       </div>
       <input type="file" id="xl-input" accept=".xlsx,.xls" style="display:none" onchange="loadCostExcel(this)">
-      <div id="xl-status" style="font-size:10px;color:rgba(255,255,255,.5)"></div>
-      <div id="cost-gh-sync-status" style="font-size:10px;color:rgba(255,255,255,.5)"></div>
+      <div id="xl-status" style="font-size:11px;color:rgba(255,255,255,.6);font-weight:500;max-width:300px"></div>
+      <div id="cost-gh-sync-status" style="font-size:11px;color:rgba(255,255,255,.6);font-weight:500"></div>
     </div>
     <div class="lang-toggle">
       <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">🇰🇷 한국어</button>
@@ -804,8 +804,11 @@ function loadCostExcel(input) {
 
       var cnt=activeIdx.length;
       var mns=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-      st.textContent='✅ '+(cnt>0?mns[activeIdx[0]]+'~'+mns[activeIdx[cnt-1]]:'완료')+'('+cnt+'개월)';
+      var monthStr=cnt>0?mns[activeIdx[0]]+'~'+mns[activeIdx[cnt-1]]:'없음';
+      var totalBil=Math.round(SUMMARY.cost_vat0.reduce(function(a,b){return a+b;},0)/1e8);
+      st.textContent='✅ '+monthStr+' | 총'+totalBil+'억VND ('+cnt+'개월)';
       st.style.color='#56d364';
+      st.title='월별: '+activeIdx.map(function(i){return mns[i]+':'+Math.round(SUMMARY.cost_vat0[i]/1e8)+'억';}).join(', ');
 
       // localStorage 저장
       try{
@@ -988,7 +991,7 @@ window.addEventListener('load', function() {
   // GitHub 토큰 있으면 GitHub에서도 동기화 (더 최신 데이터면 덮어씀)
   if(_COST_GH_TOKEN) {
     document.getElementById('cost-gh-status-txt').textContent='연동됨 ✅';
-    setTimeout(pullCostFromGH, 1500);
+    // 자동 pull 비활성화 - 수동으로만 동기화
   }
 });
 
@@ -1025,6 +1028,10 @@ window.addEventListener('load', function() {
       <span id="cost-gh-test-result" style="font-size:11px;color:#8b949e"></span>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="pullCostFromGH()"
+        style="padding:6px 16px;border-radius:6px;border:1px solid #39d0c5;background:transparent;color:#39d0c5;font-size:11px;cursor:pointer;font-family:inherit">
+        🔄 데이터 불러오기
+      </button>
       <button onclick="disconnectCostGH()"
         style="padding:6px 16px;border-radius:6px;border:1px solid #f85149;background:transparent;color:#f85149;font-size:11px;cursor:pointer;font-family:inherit">
         연동 해제
