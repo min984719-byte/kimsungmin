@@ -81,7 +81,7 @@ tr.ttl td{background:var(--bg3);font-weight:700}
     <div id="upload-status" style="font-size:11px;color:var(--txt2)"></div>
     <!-- 단 1회 업로드 -->
     <button class="hbtn pri" onclick="document.getElementById('xl-file').click()">
-      📤 엑셀 업로드 (1회)
+      📤 EXCEL 업로드
     </button>
     <input type="file" id="xl-file" accept=".xlsx,.xls" style="display:none" onchange="loadAllSheets(this)">
   </div>
@@ -353,25 +353,35 @@ function loadAllSheets(input){
     try{
       var wb=XLSX.read(e.target.result,{type:'array'});
       var sheets=wb.SheetNames;
-      console.log('시트 목록:', sheets);
+      console.log('시트:', sheets);
 
-      // ① 설비배정 시트 파싱
+      // 설비배정 시트 파싱
       var sn=sheets.find(function(s){return s.includes('설비배정');}) || sheets[0];
       var rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:null,raw:true});
       parseEquipSheet(rows);
 
-      // ② main 시트 파싱 (월별 필요인력)
-      var mn=sheets.find(function(s){return s==='main'||s.includes('main');});
+      // main 시트 파싱
+      var mn=sheets.find(function(s){return s==='main';});
       if(mn){
         var mrows=XLSX.utils.sheet_to_json(wb.Sheets[mn],{header:1,defval:null,raw:true});
         parseMainSheet(mrows);
       }
 
-      // ③ 완료
+      // localStorage 백업
+      try{
+        localStorage.setItem('wf_data',JSON.stringify({
+          DATA:DATA, PROCS:PROCS, MONTH_DATA:MONTH_DATA, PROD_DATA:PROD_DATA,
+          saved:new Date().toISOString()
+        }));
+      }catch(le){}
+
       st.textContent='✅ '+file.name+' ('+sheets.length+'개 시트)';
       st.style.color='var(--green2)';
       document.getElementById('empty-guide').style.display='none';
       renderAll();
+
+      // GitHub 저장
+      if(_WF_GH_TOKEN) setTimeout(pushWFToGH, 800);
     }catch(err){
       console.error(err);
       st.textContent='❌ '+err.message; st.style.color='var(--red2)';
@@ -384,19 +394,26 @@ function loadAllSheets(input){
 function parseEquipSheet(rows){
   DATA=[]; PROCS={};
   var curProc='';
-  for(var i=5;i<rows.length;i++){
+  // 헤더 행 수 자동 감지 (R7 = index 6 기준)
+  var dataStart = 6;
+  for(var i=dataStart; i<rows.length; i++){
     var r=rows[i]; if(!r) continue;
+    // 공정명 업데이트
     if(r[1]&&typeof r[1]==='string'&&r[1].trim()) curProc=r[1].trim();
     var sub=r[2]?String(r[2]).trim():''; if(!sub) continue;
-    var loadRate=(r[8]!==null&&r[8]!=='#N/A'&&typeof r[8]==='number')?r[8]:null;
+
+    var loadRate=(r[10]!==null&&r[10]!=='#N/A'&&typeof r[10]==='number')?r[10]:null;
     var d={
       proc:curProc, sub:sub,
       owned:r[3], opRate:r[4],
-      toDay:r[5], toNight:r[6], toTotal:r[7],
+      toDay:r[5], toNight:r[6], toTotal:nv(r[5])+nv(r[6]),
       loadRate:loadRate, needed:calcNeeded(r[3],loadRate),
-      direct:nv(r[10]), indirect:nv(r[11]), total:nv(r[12]),
-      indType:r[13]?String(r[13]).trim():'',
-      dayPer:nv(r[14]), nightPer:nv(r[15]), status:getStatus(loadRate)
+      direct:nv(r[13]),   // PO 직접인원
+      indirect:nv(r[14]), // 간접인원
+      total:nv(r[15]),    // 총인원
+      indType:r[16]?String(r[16]).trim():'',
+      dayPer:nv(r[17]), nightPer:nv(r[18]),
+      status:getStatus(loadRate)
     };
     DATA.push(d);
     if(!PROCS[curProc]) PROCS[curProc]=[];
@@ -407,54 +424,29 @@ function parseEquipSheet(rows){
 // ── main 시트 파싱 ────────────────────────────
 function parseMainSheet(rows){
   MONTH_DATA={}; PROD_DATA={};
-  // R5~R8: 생산 지표 (행 인덱스 4~7)
-  // R5: 생산(PCS), R6: 생산면적, R7: 생산매출
-  var labels=['생산(PCS)','생산면적(㎡)','생산매출($)'];
-  for(var i=4;i<=7;i++){
-    var r=rows[i]; if(!r||!r[1]) continue;
-    var lbl=String(r[1]);
-    if(lbl.includes('생산')) PROD_DATA[lbl]={m1:nv(r[2]),m2:nv(r[5])||nv(r[3]),note:r[8]||''};
-  }
-
-  // 월 헤더 찾기 (R16 근처)
-  var headerRow=-1;
-  for(var i=14;i<20;i++){
+  // 생산 지표 (R5~R12)
+  var prodMap={'생산(PCS)':4,'생산면적':5,'생산매출':6,'필요인력':8,'현인력':9,'충원인력':11};
+  Object.keys(prodMap).forEach(function(k){
+    var ri=prodMap[k], r=rows[ri];
+    if(r&&r[1]&&String(r[1]).includes(k.slice(0,3)))
+      PROD_DATA[k]={m1:nv(r[2]),m2:nv(r[3])};
+  });
+  // 충원 필요 (R36)
+  for(var i=rows.length-6;i<rows.length;i++){
     var r=rows[i]; if(!r) continue;
-    if(r[1]==='부서명'||r[1]==='공정명') { headerRow=i; break; }
+    if(r[6]&&String(r[6]).includes('충원 필요'))
+      PROD_DATA['충원필요']={m1:nv(r[8]),m2:nv(r[8])};
   }
-  if(headerRow<0) headerRow=15;
-
-  // 월 라벨 추출
-  var mLabels=['6월','7월'];
-  var hr=rows[headerRow];
-  if(hr) {
-    for(var c=2;c<10;c++){
-      if(hr[c]&&String(hr[c]).includes('필요인력')){
-        var lbl2=String(hr[c]).replace(' 필요인력','');
-        if(lbl2&&!mLabels.includes(lbl2)) mLabels.push(lbl2);
-      }
-    }
-  }
-
-  // 공정별 데이터 (R18~)
-  for(var i=headerRow+2;i<rows.length;i++){
+  // 공정별 인력 (R18~R33): col[1]=부서명, [6]=TTL현인원, [7]=6월필요, [8]=GAP, [9]=7월필요
+  for(var i=17;i<rows.length;i++){
     var r=rows[i]; if(!r||!r[1]) continue;
     var proc=String(r[1]).trim();
-    if(!proc||proc.includes('*')||proc.includes('퇴사')||proc.includes('충원')) continue;
-    // col: [1]=공정, [2]=정직원, [3]=용역, [4]=용역실습생, [5]=임신휴가, [6]=TTL(현인원), [7]=6월필요, [8]=GAP, [9]=7월필요
+    if(!proc||proc.includes('*')||proc.includes('TTL')||proc.includes('퇴사')||proc.includes('충원')) continue;
     MONTH_DATA[proc]={
       current:nv(r[6]),
       m1:{need:nv(r[7]),gap:nv(r[8])},
-      m2:{need:nv(r[9]),gap:nv(r[9])-nv(r[6])||0}
+      m2:{need:nv(r[9]),gap:nv(r[9])-nv(r[6])}
     };
-  }
-
-  // 충원필요 추출
-  for(var i=rows.length-5;i<rows.length;i++){
-    var r=rows[i]; if(!r) continue;
-    if(r[6]&&String(r[6]).includes('충원')){
-      PROD_DATA['충원필요']={m1:nv(r[8]),m2:nv(r[9])};
-    }
   }
 }
 
@@ -847,6 +839,23 @@ function renderAI(loss, avail){
 }
 
 // ══ 샘플 데이터 ══════════════════════════
+
+function setupGH(){
+  var tok=prompt('GitHub Token (ghp_...) 입력:\n※ 팀원 공유용 데이터 저장에 사용됩니다');
+  if(tok===null) return;
+  if(tok){
+    localStorage.setItem('wf_gh_token',tok);
+    _WF_GH_TOKEN=tok;
+    document.getElementById('gh-btn').textContent='☁ 연동됨 ✅';
+    document.getElementById('gh-btn').style.color='var(--green2)';
+    if(DATA.length) pushWFToGH();
+  } else {
+    localStorage.removeItem('wf_gh_token');
+    _WF_GH_TOKEN='';
+    document.getElementById('gh-btn').textContent='☁ GitHub 연동';
+  }
+}
+
 function loadSample(){
   var rows=[
     [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
@@ -879,6 +888,72 @@ function loadSample(){
   document.getElementById('empty-guide').style.display='none';
   renderAll();
 }
+
+// ── GitHub 연동 ─────────────────────────────────────
+var _WF_GH_TOKEN = localStorage.getItem('wf_gh_token')||'';
+var _WF_GH_API   = 'https://api.github.com/repos/min984719-byte/kimsungmin/contents/data/workforce.json';
+var _WF_GH_RAW   = 'https://raw.githubusercontent.com/min984719-byte/kimsungmin/main/data/workforce.json';
+
+function pushWFToGH(){
+  if(!_WF_GH_TOKEN) return;
+  var content = btoa(unescape(encodeURIComponent(JSON.stringify({
+    DATA:DATA, PROCS:PROCS, MONTH_DATA:MONTH_DATA, PROD_DATA:PROD_DATA,
+    saved:new Date().toISOString()
+  }))));
+  var hdrs = {'Authorization':'token '+_WF_GH_TOKEN,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};
+  fetch(_WF_GH_API,{headers:hdrs}).then(function(r){return r.ok?r.json():null;})
+  .then(function(ex){
+    var body = {message:'인력배정 업데이트 '+new Date().toLocaleString('ko-KR'),content:content,branch:'main'};
+    if(ex&&ex.sha) body.sha=ex.sha;
+    return fetch(_WF_GH_API,{method:'PUT',headers:hdrs,body:JSON.stringify(body)});
+  }).then(function(r){
+    if(r&&r.ok) console.log('GitHub 저장 완료');
+  }).catch(function(e){console.warn('GitHub 저장 실패:',e);});
+}
+
+function pullWFFromGH(){
+  fetch(_WF_GH_RAW+'?t='+Date.now())
+  .then(function(r){return r.ok?r.json():null;})
+  .then(function(d){
+    if(!d||!d.DATA||!d.DATA.length) return;
+    DATA=d.DATA; PROCS=d.PROCS; MONTH_DATA=d.MONTH_DATA; PROD_DATA=d.PROD_DATA;
+    // PROCS 재구성
+    if(!Object.keys(PROCS).length){
+      DATA.forEach(function(item){
+        if(!PROCS[item.proc]) PROCS[item.proc]=[];
+        PROCS[item.proc].push(item);
+      });
+    }
+    try{localStorage.setItem('wf_data',JSON.stringify({DATA:DATA,PROCS:PROCS,MONTH_DATA:MONTH_DATA,PROD_DATA:PROD_DATA,saved:d.saved}));}catch(e){}
+    document.getElementById('empty-guide').style.display='none';
+    renderAll();
+    document.getElementById('upload-status').textContent='🔄 GitHub 동기화 '+new Date(d.saved).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    document.getElementById('upload-status').style.color='var(--teal2)';
+  }).catch(function(){});
+}
+
+// ── 페이지 로드: localStorage → GitHub 순서 ────────────
+window.addEventListener('load',function(){
+  // 1. localStorage 복원
+  try{
+    var backup=localStorage.getItem('wf_data');
+    if(backup){
+      var d=JSON.parse(backup);
+      if(d.DATA&&d.DATA.length){
+        DATA=d.DATA; PROCS=d.PROCS; MONTH_DATA=d.MONTH_DATA; PROD_DATA=d.PROD_DATA;
+        if(!Object.keys(PROCS).length){DATA.forEach(function(item){if(!PROCS[item.proc])PROCS[item.proc]=[];PROCS[item.proc].push(item);});}
+        document.getElementById('empty-guide').style.display='none';
+        renderAll();
+        var t=new Date(d.saved).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+        document.getElementById('upload-status').textContent='💾 복원됨 '+t;
+        document.getElementById('upload-status').style.color='var(--teal2)';
+      }
+    }
+  }catch(e){}
+  // 2. GitHub에서 최신 데이터 가져오기
+  setTimeout(pullWFFromGH, 1500);
+});
+
 </script>
 </body>
 </html>
