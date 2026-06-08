@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SYNOPEX — 생산 필요인력 배정 대시보드</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--bg4:#21262d;
+  --bor:#30363d;--bor2:#3d444d;
+  --txt:#e6edf3;--txt2:#8b949e;--txt3:#656d76;
+  --blue:#1f6feb;--blue2:#388bfd;
+  --green:#238636;--green2:#3fb950;
+  --amber:#9e6a03;--amber2:#d29922;
+  --red:#da3633;--red2:#f85149;
+  --purple2:#a371f7;--teal2:#39d0c5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"맑은 고딕","Segoe UI",sans-serif;background:var(--bg);color:var(--txt);font-size:13px}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--bor);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.hdr-logo{font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px}
+.hdr-logo span{color:var(--txt2);font-weight:400;font-size:12px}
+.hdr-right{display:flex;gap:8px;align-items:center}
+.hbtn{padding:5px 12px;border-radius:6px;border:1px solid var(--bor2);background:var(--bg4);color:var(--txt);font-size:11px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;transition:all .15s}
+.hbtn:hover{background:var(--bg3)}
+.hbtn.pri{background:var(--blue);border-color:var(--blue);color:#fff}
+.tabs{background:var(--bg2);border-bottom:1px solid var(--bor);display:flex;padding:0 20px;overflow-x:auto}
+.tab{padding:10px 14px;cursor:pointer;font-size:12px;font-weight:500;color:var(--txt2);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:all .15s}
+.tab.on{color:var(--blue2);border-bottom-color:var(--blue2)}
+.pane{display:none;padding:16px 20px}
+.pane.on{display:block}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.card{background:var(--bg2);border:1px solid var(--bor);border-radius:10px;padding:14px;margin-bottom:12px}
+.ct{font-size:11px;font-weight:700;color:var(--txt2);letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ct::before{content:"";width:3px;height:12px;background:var(--blue2);border-radius:2px}
+.kpi{background:var(--bg2);border:1px solid var(--bor);border-left:3px solid;border-radius:10px;padding:12px 15px}
+.kv{font-size:20px;font-weight:700;margin-bottom:2px}
+.kl{font-size:10px;color:var(--txt2)}
+.pbox{background:var(--bg3);border:1px solid var(--bor2);border-radius:8px;padding:12px;text-align:center}
+.pnum{font-size:26px;font-weight:700}
+.plbl{font-size:10px;color:var(--txt2);margin-top:2px}
+.tw{overflow-x:auto;border-radius:8px;border:1px solid var(--bor)}
+.tw.sc{max-height:500px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+thead{position:sticky;top:0;z-index:5}
+th{background:var(--bg3);color:var(--txt2);padding:7px 10px;font-size:10.5px;font-weight:500;text-align:center;border-bottom:1px solid var(--bor);border-right:1px solid var(--bor);white-space:nowrap}
+th.la{text-align:left}
+td{border-bottom:1px solid rgba(48,54,61,.5);padding:6px 10px;vertical-align:middle;border-right:1px solid rgba(48,54,61,.3)}
+td.r{text-align:right}td.c{text-align:center}
+tr:hover td{background:rgba(255,255,255,.02)}
+tr.ph td{background:rgba(31,111,235,.08);font-weight:700;color:var(--blue2)}
+tr.ttl td{background:var(--bg3);font-weight:700}
+.badge{display:inline-block;padding:2px 7px;border-radius:8px;font-size:10px;font-weight:600}
+.b-ok{background:rgba(35,134,54,.2);color:var(--green2)}
+.b-warn{background:rgba(158,106,3,.2);color:var(--amber2)}
+.b-danger{background:rgba(218,54,51,.2);color:var(--red2)}
+.b-lo{background:rgba(101,109,118,.15);color:var(--txt3)}
+.bar-wrap{display:flex;align-items:center;gap:6px}
+.bar-bg{flex:1;height:6px;background:var(--bg4);border-radius:3px;min-width:50px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px}
+.bar-pct{font-size:10px;font-weight:700;min-width:38px;text-align:right}
+.ai-box{background:linear-gradient(135deg,rgba(31,111,235,.12),rgba(110,64,201,.08));border:1px solid rgba(31,111,235,.25);border-radius:10px;padding:16px;margin-bottom:14px}
+.ai-chip{display:inline-block;padding:3px 10px;border-radius:10px;font-size:10px;background:rgba(218,54,51,.15);border:1px solid rgba(218,54,51,.3);color:var(--red2);margin:2px}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--bor2);border-radius:3px}
+@media(max-width:768px){.g4,.g3,.g2{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">
+    SYNOPEX // WORKFORCE
+    <span id="hdr-sub">생산 필요인력 배정 대시보드</span>
+  </div>
+  <div class="hdr-right">
+    <div id="upload-status" style="font-size:11px;color:var(--txt2)"></div>
+    <!-- 단 1회 업로드 -->
+    <button class="hbtn pri" onclick="document.getElementById('xl-file').click()">
+      📤 엑셀 업로드 (1회)
+    </button>
+    <input type="file" id="xl-file" accept=".xlsx,.xls" style="display:none" onchange="loadAllSheets(this)">
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab on" onclick="sw(0)">① 종합 현황</div>
+  <div class="tab" onclick="sw(1)">② 월별 인력 계획</div>
+  <div class="tab" onclick="sw(2)">③ 공정별 인원</div>
+  <div class="tab" onclick="sw(3)">④ 설비 부하율</div>
+  <div class="tab" onclick="sw(4)">⑤ 상세 테이블</div>
+  <div class="tab" onclick="sw(5)" style="color:var(--purple2)">⑥ ✨ AI 분석</div>
+</div>
+
+<!-- ① 종합 현황 -->
+<div class="pane on" id="t0">
+  <div class="g3" style="margin-bottom:12px">
+    <div class="pbox" style="border-color:var(--teal2)">
+      <div class="pnum" id="k-direct" style="color:var(--teal2)">-</div>
+      <div class="plbl">직접인원 합계</div>
+    </div>
+    <div class="pbox" style="border-color:var(--purple2)">
+      <div class="pnum" id="k-indirect" style="color:var(--purple2)">-</div>
+      <div class="plbl">간접인원 합계</div>
+    </div>
+    <div class="pbox" style="border-color:var(--green2);background:rgba(35,134,54,.08)">
+      <div class="pnum" id="k-total" style="color:var(--green2)">-</div>
+      <div class="plbl">총 인원 합계</div>
+    </div>
+  </div>
+  <div class="g4">
+    <div class="kpi" style="border-left-color:var(--blue2)">
+      <div class="kv" id="k-procs" style="color:var(--blue2)">-</div>
+      <div class="kl">총 공정 수</div>
+    </div>
+    <div class="kpi" style="border-left-color:var(--amber2)">
+      <div class="kv" id="k-equip" style="color:var(--amber2)">-</div>
+      <div class="kl">총 보유 설비</div>
+    </div>
+    <div class="kpi" style="border-left-color:var(--red2)">
+      <div class="kv" id="k-over" style="color:var(--red2)">-</div>
+      <div class="kl">과부하 설비 (≥80%)</div>
+    </div>
+    <div class="kpi" style="border-left-color:var(--teal2)">
+      <div class="kv" id="k-shortage" style="color:var(--teal2)">-</div>
+      <div class="kl">충원 필요 인원</div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">공정별 직접+간접 인원</div><div style="height:300px"><canvas id="c-person"></canvas></div></div>
+    <div class="card"><div class="ct">공정별 부하율</div><div style="height:300px"><canvas id="c-load"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="ct">공정별 인원 요약</div>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th class="la">공정</th>
+          <th>직접</th><th>간접</th>
+          <th style="color:var(--green2)">총 인원</th>
+          <th>평균 부하율</th><th>필요설비</th><th>상태</th>
+        </tr></thead>
+        <tbody id="summary-tbody"></tbody>
+        <tfoot><tr class="ttl">
+          <td>합 계</td>
+          <td class="c" id="f-d">-</td><td class="c" id="f-i">-</td>
+          <td class="c" id="f-t" style="color:var(--green2)">-</td>
+          <td></td><td></td><td></td>
+        </tr></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ② 월별 인력 계획 -->
+<div class="pane" id="t1">
+  <!-- 요약 KPI -->
+  <div id="month-kpi-area" class="g2" style="margin-bottom:12px"></div>
+
+  <div class="card">
+    <div class="ct">월별 공정별 필요인력 계획</div>
+    <div style="height:320px"><canvas id="c-month"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="ct">공정별 월별 필요인력 상세 (충원 GAP 포함)</div>
+    <div class="tw sc">
+      <table>
+        <thead id="month-thead"></thead>
+        <tbody id="month-tbody"></tbody>
+        <tfoot id="month-tfoot"></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- 생산/매출 지표 -->
+  <div class="card" id="prod-card" style="display:none">
+    <div class="ct">월별 생산 지표</div>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th class="la">구분</th>
+          <th id="prod-m1-h">6월</th>
+          <th id="prod-m2-h">7월</th>
+          <th>비고</th>
+        </tr></thead>
+        <tbody id="prod-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ③ 공정별 인원 -->
+<div class="pane" id="t2">
+  <div class="card">
+    <div class="ct">공정별 직접 / 간접 / 총인원</div>
+    <div class="tw sc">
+      <table>
+        <thead><tr>
+          <th class="la">공정</th>
+          <th>직접</th><th>간접</th>
+          <th style="background:rgba(35,134,54,.2);color:var(--green2)">총 인원</th>
+          <th>주간</th><th>야간</th>
+          <th class="la">간접유형</th>
+        </tr></thead>
+        <tbody id="person-tbody"></tbody>
+        <tfoot><tr class="ttl" id="person-foot"></tr></tfoot>
+      </table>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">직접 vs 간접 구성비</div><div style="height:260px"><canvas id="c-ratio"></canvas></div></div>
+    <div class="card"><div class="ct">주간 / 야간 분포</div><div style="height:260px"><canvas id="c-shift"></canvas></div></div>
+  </div>
+</div>
+
+<!-- ④ 설비 부하율 -->
+<div class="pane" id="t3">
+  <div class="card">
+    <div class="ct">세부설비별 부하율 & 필요설비</div>
+    <div class="tw sc">
+      <table>
+        <thead><tr>
+          <th class="la">공정</th><th class="la">세부설비</th>
+          <th>보유설비</th><th>설비운영(대/인)</th>
+          <th>주간TO</th><th>야간TO</th>
+          <th>부하율</th><th>필요설비</th><th>상태</th>
+        </tr></thead>
+        <tbody id="equip-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ⑤ 상세 테이블 -->
+<div class="pane" id="t4">
+  <div style="display:flex;gap:8px;margin-bottom:10px">
+    <select id="f-proc" onchange="filterDetail()" style="background:var(--bg3);border:1px solid var(--bor2);color:var(--txt);border-radius:6px;padding:5px 10px;font-size:11px;font-family:inherit"><option value="">전체 공정</option></select>
+    <select id="f-st" onchange="filterDetail()" style="background:var(--bg3);border:1px solid var(--bor2);color:var(--txt);border-radius:6px;padding:5px 10px;font-size:11px;font-family:inherit">
+      <option value="">전체 상태</option>
+      <option value="과부하">과부하 ≥80%</option>
+      <option value="주의">주의 30~80%</option>
+      <option value="저부하">저부하 &lt;30%</option>
+    </select>
+  </div>
+  <div class="card">
+    <div class="tw sc">
+      <table>
+        <thead><tr>
+          <th class="la">공정</th><th class="la">세부설비</th>
+          <th>보유</th><th>주간TO</th><th>야간TO</th>
+          <th>부하율</th><th>필요설비</th>
+          <th>직접</th><th>간접</th>
+          <th style="color:var(--green2)">총인원</th>
+          <th>주간</th><th>야간</th><th>상태</th>
+        </tr></thead>
+        <tbody id="detail-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ⑥ AI 분석 -->
+<div class="pane" id="t5">
+  <div class="ai-box">
+    <div style="font-size:11px;font-weight:700;color:#79c0ff;letter-spacing:.1em;margin-bottom:10px">✨ AI WORKFORCE INSIGHT ENGINE</div>
+    <div id="ai-summary" style="font-size:12px;color:var(--txt2);line-height:1.8">엑셀 업로드 후 AI 분석을 실행하세요</div>
+    <div style="margin-top:8px" id="ai-chips"></div>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
+    <button class="hbtn pri" onclick="runAI()" id="ai-btn">✨ AI 분석 실행</button>
+    <div style="font-size:11px;color:var(--txt2);display:flex;flex-direction:column;gap:2px">
+      <div>▸ 인력 분석: <span id="ai-st1" style="color:var(--txt3)">대기</span></div>
+      <div>▸ 부하율 분석: <span id="ai-st2" style="color:var(--txt3)">대기</span></div>
+    </div>
+  </div>
+
+  <div id="ai-detail" style="display:none">
+    <div class="card" style="margin-bottom:12px">
+      <div class="ct">✨ AI 공정별 인력 리스크 분석</div>
+      <div id="ai-proc-result"></div>
+    </div>
+    <div class="card">
+      <div class="ct">🎯 우선 조치 TOP 3</div>
+      <div id="ai-priority"></div>
+    </div>
+    <div style="font-size:10px;color:var(--txt3);padding:4px">⚠ Claude AI 분석 결과입니다. 현장 확인 후 활용하세요.</div>
+  </div>
+</div>
+
+<!-- 초기 안내 -->
+<div id="empty-guide" style="text-align:center;padding:60px 20px;color:var(--txt2)">
+  <div style="font-size:48px;margin-bottom:16px;opacity:.3">👥</div>
+  <div style="font-size:16px;font-weight:600;margin-bottom:8px;color:var(--txt)">생산_필요인력 엑셀을 업로드하세요</div>
+  <div style="font-size:12px;margin-bottom:6px">설비배정 + main + 6월/7월 시트가 포함된 파일</div>
+  <div style="font-size:11px;color:var(--txt3);margin-bottom:20px">한 번만 업로드하면 모든 탭이 자동으로 채워집니다</div>
+  <button class="hbtn pri" onclick="document.getElementById('xl-file').click()" style="margin:0 auto">📤 엑셀 업로드</button>
+  <div style="margin-top:10px"><button class="hbtn" onclick="loadSample()" style="margin:0 auto;font-size:11px">📋 샘플로 미리보기</button></div>
+</div>
+
+<script>
+var DATA=[], PROCS={}, MONTH_DATA={}, PROD_DATA={}, CHARTS={};
+var LU='https://bssy4msokyy3hvsphelxiuyzta0nwxml.lambda-url.ap-southeast-1.on.aws/';
+
+function sw(i){
+  document.querySelectorAll('.tab').forEach(function(t,j){t.classList.toggle('on',j===i);});
+  document.querySelectorAll('.pane').forEach(function(p,j){p.classList.toggle('on',j===i);});
+}
+function nv(v){try{return(v!==null&&v!==undefined&&v!=='#N/A'&&v!=='')?parseFloat(v)||0:0;}catch(e){return 0;}}
+
+function calcNeeded(owned,rate){
+  if(!owned||rate===null||rate===undefined)return null;
+  var d=nv(owned),r=nv(rate);
+  if(isNaN(d)||isNaN(r))return null;
+  if(r>=0.8)return d;
+  if(r>=0.3)return Math.ceil(d*r);
+  return Math.round(d*r*100)/100;
+}
+function getStatus(r){
+  if(r===null||isNaN(nv(r)))return '-';
+  var v=nv(r);
+  if(v>=0.8)return '과부하';
+  if(v>=0.3)return '주의';
+  if(v>0)return '저부하';
+  return '비가동';
+}
+function sBadge(s){
+  if(s==='과부하')return '<span class="badge b-danger">과부하</span>';
+  if(s==='주의')return '<span class="badge b-warn">주의</span>';
+  if(s==='저부하')return '<span class="badge b-lo">저부하</span>';
+  return '<span style="font-size:10px;color:var(--txt3)">-</span>';
+}
+function barH(r){
+  if(r===null||isNaN(nv(r)))return '-';
+  var v=nv(r),pct=Math.min(v*100,100);
+  var c=v>=0.8?'var(--red2)':v>=0.3?'var(--amber2)':'var(--teal2)';
+  return '<div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:'+pct+'%;background:'+c+'"></div></div>'
+    +'<span class="bar-pct" style="color:'+c+'">'+(v*100).toFixed(1)+'%</span></div>';
+}
+
+// ══ 1회 업로드 - 모든 시트 파싱 ══════════════
+function loadAllSheets(input){
+  var file=input.files[0]; if(!file) return;
+  var st=document.getElementById('upload-status');
+  st.textContent='⏳ 파싱 중...'; st.style.color='var(--txt2)';
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var wb=XLSX.read(e.target.result,{type:'array'});
+      var sheets=wb.SheetNames;
+      console.log('시트 목록:', sheets);
+
+      // ① 설비배정 시트 파싱
+      var sn=sheets.find(function(s){return s.includes('설비배정');}) || sheets[0];
+      var rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:null,raw:true});
+      parseEquipSheet(rows);
+
+      // ② main 시트 파싱 (월별 필요인력)
+      var mn=sheets.find(function(s){return s==='main'||s.includes('main');});
+      if(mn){
+        var mrows=XLSX.utils.sheet_to_json(wb.Sheets[mn],{header:1,defval:null,raw:true});
+        parseMainSheet(mrows);
+      }
+
+      // ③ 완료
+      st.textContent='✅ '+file.name+' ('+sheets.length+'개 시트)';
+      st.style.color='var(--green2)';
+      document.getElementById('empty-guide').style.display='none';
+      renderAll();
+    }catch(err){
+      console.error(err);
+      st.textContent='❌ '+err.message; st.style.color='var(--red2)';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ── 설비배정 시트 파싱 ────────────────────────
+function parseEquipSheet(rows){
+  DATA=[]; PROCS={};
+  var curProc='';
+  for(var i=5;i<rows.length;i++){
+    var r=rows[i]; if(!r) continue;
+    if(r[1]&&typeof r[1]==='string'&&r[1].trim()) curProc=r[1].trim();
+    var sub=r[2]?String(r[2]).trim():''; if(!sub) continue;
+    var loadRate=(r[8]!==null&&r[8]!=='#N/A'&&typeof r[8]==='number')?r[8]:null;
+    var d={
+      proc:curProc, sub:sub,
+      owned:r[3], opRate:r[4],
+      toDay:r[5], toNight:r[6], toTotal:r[7],
+      loadRate:loadRate, needed:calcNeeded(r[3],loadRate),
+      direct:nv(r[10]), indirect:nv(r[11]), total:nv(r[12]),
+      indType:r[13]?String(r[13]).trim():'',
+      dayPer:nv(r[14]), nightPer:nv(r[15]), status:getStatus(loadRate)
+    };
+    DATA.push(d);
+    if(!PROCS[curProc]) PROCS[curProc]=[];
+    PROCS[curProc].push(d);
+  }
+}
+
+// ── main 시트 파싱 ────────────────────────────
+function parseMainSheet(rows){
+  MONTH_DATA={}; PROD_DATA={};
+  // R5~R8: 생산 지표 (행 인덱스 4~7)
+  // R5: 생산(PCS), R6: 생산면적, R7: 생산매출
+  var labels=['생산(PCS)','생산면적(㎡)','생산매출($)'];
+  for(var i=4;i<=7;i++){
+    var r=rows[i]; if(!r||!r[1]) continue;
+    var lbl=String(r[1]);
+    if(lbl.includes('생산')) PROD_DATA[lbl]={m1:nv(r[2]),m2:nv(r[5])||nv(r[3]),note:r[8]||''};
+  }
+
+  // 월 헤더 찾기 (R16 근처)
+  var headerRow=-1;
+  for(var i=14;i<20;i++){
+    var r=rows[i]; if(!r) continue;
+    if(r[1]==='부서명'||r[1]==='공정명') { headerRow=i; break; }
+  }
+  if(headerRow<0) headerRow=15;
+
+  // 월 라벨 추출
+  var mLabels=['6월','7월'];
+  var hr=rows[headerRow];
+  if(hr) {
+    for(var c=2;c<10;c++){
+      if(hr[c]&&String(hr[c]).includes('필요인력')){
+        var lbl2=String(hr[c]).replace(' 필요인력','');
+        if(lbl2&&!mLabels.includes(lbl2)) mLabels.push(lbl2);
+      }
+    }
+  }
+
+  // 공정별 데이터 (R18~)
+  for(var i=headerRow+2;i<rows.length;i++){
+    var r=rows[i]; if(!r||!r[1]) continue;
+    var proc=String(r[1]).trim();
+    if(!proc||proc.includes('*')||proc.includes('퇴사')||proc.includes('충원')) continue;
+    // col: [1]=공정, [2]=정직원, [3]=용역, [4]=용역실습생, [5]=임신휴가, [6]=TTL(현인원), [7]=6월필요, [8]=GAP, [9]=7월필요
+    MONTH_DATA[proc]={
+      current:nv(r[6]),
+      m1:{need:nv(r[7]),gap:nv(r[8])},
+      m2:{need:nv(r[9]),gap:nv(r[9])-nv(r[6])||0}
+    };
+  }
+
+  // 충원필요 추출
+  for(var i=rows.length-5;i<rows.length;i++){
+    var r=rows[i]; if(!r) continue;
+    if(r[6]&&String(r[6]).includes('충원')){
+      PROD_DATA['충원필요']={m1:nv(r[8]),m2:nv(r[9])};
+    }
+  }
+}
+
+// ══ 렌더링 ══════════════════════════════════
+function renderAll(){
+  var ps=getProcSummary();
+  renderKPIs(ps);
+  renderSummary(ps);
+  renderPersonTab(ps);
+  renderEquipTab();
+  renderDetailTab();
+  renderMonthTab();
+  drawCharts(ps);
+  updateFilter();
+}
+
+function getProcSummary(){
+  var res={};
+  DATA.forEach(function(d){
+    if(!d.proc) return;
+    if(!res[d.proc]) res[d.proc]={direct:0,indirect:0,total:0,owned:0,needed:0,rates:[],dayPer:0,nightPer:0,set:false,indTypes:[]};
+    var p=res[d.proc];
+    p.owned+=nv(d.owned);
+    if(d.needed!==null) p.needed+=nv(d.needed);
+    if(d.loadRate!==null) p.rates.push(d.loadRate);
+    if(!p.set&&(d.direct||d.indirect||d.total)){
+      p.direct=d.direct; p.indirect=d.indirect; p.total=d.total;
+      p.dayPer=d.dayPer; p.nightPer=d.nightPer; p.set=true;
+    }
+    if(d.indType&&p.indTypes.indexOf(d.indType)<0) p.indTypes.push(d.indType);
+  });
+  return res;
+}
+
+function renderKPIs(ps){
+  var gd=0,gi=0,gt=0,gown=0,gov=0;
+  Object.values(ps).forEach(function(p){
+    gd+=p.direct; gi+=p.indirect; gt+=p.total;
+    gown+=p.owned;
+    p.rates.forEach(function(r){if(r>=0.8)gov++;});
+  });
+  document.getElementById('k-direct').textContent=Math.round(gd)+'명';
+  document.getElementById('k-indirect').textContent=Math.round(gi)+'명';
+  document.getElementById('k-total').textContent=Math.round(gt)+'명';
+  document.getElementById('k-procs').textContent=Object.keys(ps).length+'개';
+  document.getElementById('k-equip').textContent=Math.round(gown)+'대';
+  document.getElementById('k-over').textContent=gov+'개';
+  var shortage=PROD_DATA['충원필요']?Math.round(PROD_DATA['충원필요'].m1):'-';
+  document.getElementById('k-shortage').textContent=shortage+(shortage!=='-'?'명':'');
+}
+
+function renderSummary(ps){
+  var h='',gd=0,gi=0,gt=0;
+  Object.keys(ps).forEach(function(proc){
+    var p=ps[proc];
+    var avg=p.rates.length?p.rates.reduce(function(a,b){return a+b;})/p.rates.length:0;
+    h+='<tr>'
+      +'<td style="font-weight:700;color:var(--blue2)">'+proc+'</td>'
+      +'<td class="c" style="color:var(--teal2)">'+Math.round(p.direct)+'</td>'
+      +'<td class="c" style="color:var(--purple2)">'+Math.round(p.indirect)+'</td>'
+      +'<td class="c" style="color:var(--green2);font-weight:700">'+Math.round(p.total)+'</td>'
+      +'<td>'+barH(avg)+'</td>'
+      +'<td class="c" style="color:var(--amber2)">'+p.needed.toFixed(1)+'</td>'
+      +'<td class="c">'+sBadge(getStatus(avg))+'</td></tr>';
+    gd+=p.direct; gi+=p.indirect; gt+=p.total;
+  });
+  document.getElementById('summary-tbody').innerHTML=h;
+  document.getElementById('f-d').textContent=Math.round(gd)+'명';
+  document.getElementById('f-i').textContent=Math.round(gi)+'명';
+  document.getElementById('f-t').textContent=Math.round(gt)+'명';
+}
+
+function renderPersonTab(ps){
+  var h='',gd=0,gi=0,gt=0,gday=0,gnight=0;
+  Object.keys(ps).forEach(function(proc){
+    var p=ps[proc];
+    h+='<tr>'
+      +'<td style="font-weight:700;color:var(--blue2)">'+proc+'</td>'
+      +'<td class="c" style="color:var(--teal2);font-weight:600">'+Math.round(p.direct)+'명</td>'
+      +'<td class="c" style="color:var(--purple2)">'+Math.round(p.indirect)+'명</td>'
+      +'<td class="c" style="color:var(--green2);font-weight:700;background:rgba(35,134,54,.05)">'+Math.round(p.total)+'명</td>'
+      +'<td class="c">'+p.dayPer+'</td>'
+      +'<td class="c">'+p.nightPer+'</td>'
+      +'<td style="font-size:10px;color:var(--txt2)">'+p.indTypes.join(', ')+'</td></tr>';
+    gd+=p.direct; gi+=p.indirect; gt+=p.total; gday+=p.dayPer; gnight+=p.nightPer;
+  });
+  document.getElementById('person-tbody').innerHTML=h;
+  document.getElementById('person-foot').innerHTML=
+    '<td style="font-weight:700">합 계</td>'
+    +'<td class="c" style="color:var(--teal2);font-weight:700">'+Math.round(gd)+'명</td>'
+    +'<td class="c" style="color:var(--purple2);font-weight:700">'+Math.round(gi)+'명</td>'
+    +'<td class="c" style="color:var(--green2);font-weight:700;font-size:15px">'+Math.round(gt)+'명</td>'
+    +'<td class="c">'+gday+'</td><td class="c">'+gnight+'</td><td></td>';
+}
+
+function renderEquipTab(){
+  var h='', cur='';
+  DATA.forEach(function(d){
+    if(d.proc!==cur){cur=d.proc;h+='<tr class="ph"><td colspan="9">▸ '+cur+'</td></tr>';}
+    var nd=d.needed===null?'-':(typeof d.needed==='number'?d.needed.toFixed(d.needed%1===0?0:2):'-');
+    h+='<tr>'
+      +'<td style="padding-left:18px;color:var(--txt2)">'+d.proc+'</td>'
+      +'<td style="font-weight:500">'+d.sub+'</td>'
+      +'<td class="c">'+(d.owned||'-')+'</td>'
+      +'<td class="c">'+(d.opRate||'-')+'</td>'
+      +'<td class="c">'+(d.toDay?nv(d.toDay).toFixed(1):'-')+'</td>'
+      +'<td class="c">'+(d.toNight?nv(d.toNight).toFixed(1):'-')+'</td>'
+      +'<td>'+barH(d.loadRate)+'</td>'
+      +'<td class="c" style="font-weight:700;color:var(--amber2)">'+nd+'</td>'
+      +'<td class="c">'+sBadge(d.status)+'</td></tr>';
+  });
+  document.getElementById('equip-tbody').innerHTML=h;
+}
+
+function renderMonthTab(){
+  var procList=Object.keys(MONTH_DATA);
+  if(!procList.length){
+    document.getElementById('month-kpi-area').innerHTML='<div style="color:var(--txt3);font-size:12px;padding:10px">main 시트 데이터 없음 - 파일을 다시 확인해주세요</div>';
+    return;
+  }
+
+  // KPI
+  var tot6=procList.reduce(function(s,p){return s+nv(MONTH_DATA[p].m1.need);},0);
+  var tot7=procList.reduce(function(s,p){return s+nv(MONTH_DATA[p].m2.need);},0);
+  var gap6=PROD_DATA['충원필요']?PROD_DATA['충원필요'].m1:0;
+  var gap7=PROD_DATA['충원필요']?PROD_DATA['충원필요'].m2:0;
+  document.getElementById('month-kpi-area').innerHTML=
+    '<div class="pbox" style="border-color:var(--blue2)"><div class="pnum" style="color:var(--blue2)">'+Math.round(tot6)+'명</div><div class="plbl">6월 필요인력</div><div style="font-size:10px;color:var(--amber2);margin-top:4px">충원 필요: +'+Math.round(gap6)+'명</div></div>'
+    +'<div class="pbox" style="border-color:var(--amber2)"><div class="pnum" style="color:var(--amber2)">'+Math.round(tot7)+'명</div><div class="plbl">7월 필요인력</div><div style="font-size:10px;color:var(--amber2);margin-top:4px">충원 필요: +'+Math.round(gap7)+'명</div></div>';
+
+  // 테이블
+  document.getElementById('month-thead').innerHTML=
+    '<tr><th class="la">공정</th>'
+    +'<th style="background:rgba(31,111,235,.1);color:var(--blue2)">현인원</th>'
+    +'<th style="background:rgba(31,111,235,.1);color:var(--blue2)">6월 필요</th>'
+    +'<th style="background:rgba(31,111,235,.1);color:var(--amber2)">6월 GAP</th>'
+    +'<th style="background:rgba(210,153,34,.1);color:var(--amber2)">7월 필요</th>'
+    +'<th style="background:rgba(210,153,34,.1);color:var(--amber2)">7월 GAP</th></tr>';
+
+  var h='', gtot=0, g6need=0, g6gap=0, g7need=0, g7gap=0;
+  procList.forEach(function(proc){
+    var m=MONTH_DATA[proc];
+    var g6c=m.m1.gap>0?'var(--red2)':m.m1.gap<0?'var(--green2)':'var(--txt3)';
+    var g7c=m.m2.gap>0?'var(--red2)':m.m2.gap<0?'var(--green2)':'var(--txt3)';
+    var g6sign=m.m1.gap>0?'+':''; var g7sign=m.m2.gap>0?'+':'';
+    h+='<tr>'
+      +'<td style="font-weight:700;color:var(--blue2)">'+proc+'</td>'
+      +'<td class="c">'+Math.round(m.current)+'</td>'
+      +'<td class="c" style="color:var(--blue2);font-weight:600">'+Math.round(m.m1.need)+'</td>'
+      +'<td class="c" style="color:'+g6c+';font-weight:700">'+g6sign+Math.round(m.m1.gap)+'</td>'
+      +'<td class="c" style="color:var(--amber2);font-weight:600">'+Math.round(m.m2.need)+'</td>'
+      +'<td class="c" style="color:'+g7c+';font-weight:700">'+g7sign+Math.round(m.m2.gap)+'</td>'
+      +'</tr>';
+    gtot+=m.current; g6need+=m.m1.need; g6gap+=m.m1.gap; g7need+=m.m2.need;
+  });
+  document.getElementById('month-tbody').innerHTML=h;
+  document.getElementById('month-tfoot').innerHTML=
+    '<tr class="ttl"><td>TTL</td>'
+    +'<td class="c">'+Math.round(gtot)+'</td>'
+    +'<td class="c" style="color:var(--blue2)">'+Math.round(g6need)+'</td>'
+    +'<td class="c" style="color:var(--amber2)">'+g6gap.toFixed(1)+'</td>'
+    +'<td class="c" style="color:var(--amber2)">'+Math.round(g7need)+'</td>'
+    +'<td class="c">-</td></tr>';
+
+  // 생산 지표
+  var prodKeys=Object.keys(PROD_DATA).filter(function(k){return k!=='충원필요';});
+  if(prodKeys.length){
+    var ph='';
+    prodKeys.forEach(function(k){
+      ph+='<tr><td style="font-weight:500">'+k+'</td>'
+        +'<td class="r" style="color:var(--blue2)">'+PROD_DATA[k].m1.toLocaleString()+'</td>'
+        +'<td class="r" style="color:var(--amber2)">'+PROD_DATA[k].m2.toLocaleString()+'</td>'
+        +'<td style="font-size:10px;color:var(--txt3)">'+(PROD_DATA[k].note||'')+'</td></tr>';
+    });
+    document.getElementById('prod-tbody').innerHTML=ph;
+    document.getElementById('prod-card').style.display='block';
+  }
+
+  // 월별 차트
+  drawMonthChart(procList);
+}
+
+function drawMonthChart(procList){
+  var cur6=procList.map(function(p){return Math.round(nv(MONTH_DATA[p].current));});
+  var need6=procList.map(function(p){return Math.round(nv(MONTH_DATA[p].m1.need));});
+  var need7=procList.map(function(p){return Math.round(nv(MONTH_DATA[p].m2.need));});
+  if(CHARTS.month) CHARTS.month.destroy();
+  CHARTS.month=new Chart(document.getElementById('c-month'),{
+    type:'bar',
+    data:{labels:procList,datasets:[
+      {label:'현인원',data:cur6,backgroundColor:'rgba(101,109,118,.5)',borderRadius:3},
+      {label:'6월 필요',data:need6,backgroundColor:'rgba(56,139,253,.7)',borderRadius:3},
+      {label:'7월 필요',data:need7,backgroundColor:'rgba(210,153,34,.7)',borderRadius:3}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{color:'#8b949e',font:{size:10}}}},
+      scales:{x:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},
+              y:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}}
+  });
+}
+
+function renderDetailTab(filter){
+  var fd=DATA;
+  if(filter){
+    var fp=document.getElementById('f-proc').value;
+    var fs=document.getElementById('f-st').value;
+    fd=DATA.filter(function(d){return(!fp||d.proc===fp)&&(!fs||d.status===fs);});
+  }
+  var h='',cur='';
+  fd.forEach(function(d){
+    if(d.proc!==cur){cur=d.proc;h+='<tr class="ph"><td colspan="13">▸ '+cur+'</td></tr>';}
+    var nd=d.needed===null?'-':(typeof d.needed==='number'?d.needed.toFixed(d.needed%1===0?0:2):'-');
+    h+='<tr>'
+      +'<td style="color:var(--txt2);padding-left:14px">'+d.proc+'</td>'
+      +'<td style="font-weight:500">'+d.sub+'</td>'
+      +'<td class="c">'+(d.owned||'-')+'</td>'
+      +'<td class="c">'+(d.toDay?nv(d.toDay).toFixed(1):'-')+'</td>'
+      +'<td class="c">'+(d.toNight?nv(d.toNight).toFixed(1):'-')+'</td>'
+      +'<td>'+barH(d.loadRate)+'</td>'
+      +'<td class="c" style="font-weight:700;color:var(--amber2)">'+nd+'</td>'
+      +'<td class="c" style="color:var(--teal2)">'+(d.direct||'-')+'</td>'
+      +'<td class="c" style="color:var(--purple2)">'+(d.indirect||'-')+'</td>'
+      +'<td class="c" style="color:var(--green2);font-weight:700;background:rgba(35,134,54,.04)">'+(d.total||'-')+'</td>'
+      +'<td class="c">'+(d.dayPer||'-')+'</td>'
+      +'<td class="c">'+(d.nightPer||'-')+'</td>'
+      +'<td class="c">'+sBadge(d.status)+'</td></tr>';
+  });
+  document.getElementById('detail-tbody').innerHTML=h;
+}
+function filterDetail(){renderDetailTab(true);}
+function updateFilter(){
+  var s=document.getElementById('f-proc');
+  s.innerHTML='<option value="">전체 공정</option>';
+  Object.keys(PROCS).forEach(function(p){s.innerHTML+='<option>'+p+'</option>';});
+}
+
+// ══ 차트 ══════════════════════════════════
+function drawCharts(ps){
+  var pl=Object.keys(ps);
+  var directs=pl.map(function(p){return Math.round(ps[p].direct);});
+  var indirects=pl.map(function(p){return Math.round(ps[p].indirect);});
+  var rates=pl.map(function(p){
+    var r=ps[p].rates; return r.length?(r.reduce(function(a,b){return a+b;})/r.length*100).toFixed(1):0;
+  });
+
+  if(CHARTS.p) CHARTS.p.destroy();
+  CHARTS.p=new Chart(document.getElementById('c-person'),{type:'bar',
+    data:{labels:pl,datasets:[
+      {label:'직접',data:directs,backgroundColor:'rgba(57,208,197,.7)',borderRadius:3,stack:'s'},
+      {label:'간접',data:indirects,backgroundColor:'rgba(163,113,247,.7)',borderRadius:3,stack:'s'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{color:'#8b949e',font:{size:10}}}},
+      scales:{x:{stacked:true,ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},
+              y:{stacked:true,ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}}
+  });
+
+  if(CHARTS.l) CHARTS.l.destroy();
+  CHARTS.l=new Chart(document.getElementById('c-load'),{type:'bar',
+    data:{labels:pl,datasets:[{data:rates,backgroundColor:rates.map(function(r){return parseFloat(r)>=80?'rgba(248,81,73,.7)':parseFloat(r)>=30?'rgba(210,153,34,.7)':'rgba(57,208,197,.7)';}),borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},
+              y:{ticks:{color:'#8b949e',font:{size:10},callback:function(v){return v+'%';}},grid:{color:'rgba(255,255,255,.04)'}}}}
+  });
+
+  var gd=directs.reduce(function(a,b){return a+b;},0);
+  var gi=indirects.reduce(function(a,b){return a+b;},0);
+  if(CHARTS.r) CHARTS.r.destroy();
+  CHARTS.r=new Chart(document.getElementById('c-ratio'),{type:'doughnut',
+    data:{labels:['직접','간접'],datasets:[{data:[gd,gi],backgroundColor:['rgba(57,208,197,.8)','rgba(163,113,247,.8)'],borderWidth:2,borderColor:'#161b22'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#8b949e',font:{size:11},padding:10}}}}
+  });
+
+  var days=pl.map(function(p){return ps[p].dayPer;});
+  var nights=pl.map(function(p){return ps[p].nightPer;});
+  if(CHARTS.s) CHARTS.s.destroy();
+  CHARTS.s=new Chart(document.getElementById('c-shift'),{type:'bar',
+    data:{labels:pl,datasets:[
+      {label:'주간',data:days,backgroundColor:'rgba(56,139,253,.7)',borderRadius:3,stack:'s'},
+      {label:'야간',data:nights,backgroundColor:'rgba(110,64,201,.7)',borderRadius:3,stack:'s'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{color:'#8b949e',font:{size:10}}}},
+      scales:{x:{stacked:true,ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},
+              y:{stacked:true,ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}}
+  });
+}
+
+// ══ AI 분석 ══════════════════════════════
+async function runAI(){
+  var btn=document.getElementById('ai-btn');
+  btn.disabled=true; btn.textContent='⏳ 분석 중...';
+  var setSt=function(id,t,c){var e=document.getElementById(id);if(e){e.textContent=t;e.style.color=c;}};
+  setSt('ai-st1','분석 중...','var(--amber2)');
+  setSt('ai-st2','분석 중...','var(--amber2)');
+
+  try{
+    var ps=getProcSummary();
+    var procList=Object.keys(ps);
+
+    // 인력 현황 요약
+    var totalDirect=0, totalTotal=0;
+    procList.forEach(function(p){totalDirect+=ps[p].direct; totalTotal+=ps[p].total;});
+
+    // 6월 충원 필요
+    var shortage6=PROD_DATA['충원필요']?PROD_DATA['충원필요'].m1:0;
+    var shortage7=PROD_DATA['충원필요']?PROD_DATA['충원필요'].m2:0;
+
+    // 프롬프트용 공정 데이터
+    var procs=procList.map(function(p){
+      var ps2=ps[p];
+      var avg=ps2.rates.length?ps2.rates.reduce(function(a,b){return a+b;})/ps2.rates.length:0;
+      var m=MONTH_DATA[p];
+      return {
+        공정명:p,
+        가동율:(avg*100).toFixed(1)+'%',
+        기준시간_분:Math.round(ps2.total),
+        실운행_분:Math.round(ps2.direct),
+        비가동_분:Math.round(ps2.indirect),
+        계획비가동_분:m?Math.round(m.m1.need):0,
+        운영유실_분:m?Math.round(m.m1.gap):0,
+        설비유실_분:0
+      };
+    });
+
+    var period='인력배정분석. 총직접인원:'+Math.round(totalDirect)+'명, 총인원:'+Math.round(totalTotal)+'명'
+      +', 6월충원필요:'+Math.round(shortage6)+'명, 7월충원필요:'+Math.round(shortage7)+'명'
+      +', 과부하설비:'+DATA.filter(function(d){return d.status==='과부하';}).length+'개';
+
+    var r1=await fetch(LU,{method:'POST',headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({procs:procs,period:period,mode:'loss'})});
+    if(!r1.ok) throw new Error('Lambda 오류:'+r1.status);
+    var res1=await r1.json();
+    if(res1.error) throw new Error(res1.error);
+    setSt('ai-st1','완료','var(--green2)');
+
+    var r2=await fetch(LU,{method:'POST',headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({procs:procs,period:period,mode:'avail'})});
+    var res2=r2.ok?await r2.json():{};
+    setSt('ai-st2','완료','var(--green2)');
+
+    renderAI(res1.loss, res2.avail);
+  }catch(err){
+    setSt('ai-st1','오류: '+err.message,'var(--red2)');
+    console.error(err);
+  }
+  btn.disabled=false; btn.textContent='✨ AI 분석 실행';
+}
+
+function renderAI(loss, avail){
+  if(loss&&loss.summary) document.getElementById('ai-summary').textContent=loss.summary;
+  if(loss&&loss.top3_causes) document.getElementById('ai-chips').innerHTML=
+    (loss.top3_causes||[]).map(function(c){return '<span class="ai-chip">'+c+'</span>';}).join('');
+  document.getElementById('ai-detail').style.display='block';
+
+  if(loss&&loss.processes){
+    var h='<table style="width:100%;border-collapse:collapse;font-size:11px">'
+      +'<thead><tr style="background:var(--bg3)">'
+      +'<th style="padding:6px 10px;text-align:left;color:var(--txt2)">공정</th>'
+      +'<th style="padding:6px 10px;color:var(--txt2)">위험도</th>'
+      +'<th style="padding:6px 10px;text-align:left;color:var(--txt2)">원인</th>'
+      +'<th style="padding:6px 10px;color:var(--txt2)">영향도</th>'
+      +'<th style="padding:6px 10px;text-align:left;color:var(--txt2)">즉시조치</th>'
+      +'<th style="padding:6px 10px;text-align:left;color:var(--txt2)">중장기대책</th>'
+      +'</tr></thead><tbody>';
+    loss.processes.forEach(function(p,i){
+      var ic=p.impact==='high'?'var(--red2)':p.impact==='medium'?'var(--amber2)':'var(--green2)';
+      var rc=p.risk_level==='high'?'var(--red2)':p.risk_level==='medium'?'var(--amber2)':'var(--green2)';
+      h+='<tr style="background:'+(i%2?'var(--bg3)':'var(--bg2)')+';border-bottom:1px solid var(--bor)">'
+        +'<td style="padding:6px 10px;font-weight:600">'+p.name+'</td>'
+        +'<td style="padding:6px 10px;text-align:center;color:'+rc+';font-weight:700">'+p.risk_level+'</td>'
+        +'<td style="padding:6px 10px;color:var(--txt2);font-size:10px">'+p.root_cause+'</td>'
+        +'<td style="padding:6px 10px;text-align:center;color:'+ic+';font-weight:700">'+p.impact+'</td>'
+        +'<td style="padding:6px 10px;color:var(--teal2);font-size:10px">'+p.immediate_action+'</td>'
+        +'<td style="padding:6px 10px;color:var(--blue2);font-size:10px">'+p.countermeasure+'</td></tr>';
+    });
+    h+='</tbody></table>';
+    document.getElementById('ai-proc-result').innerHTML=h;
+  }
+
+  if(loss&&loss.improvement_priority){
+    document.getElementById('ai-priority').innerHTML=loss.improvement_priority.map(function(x){
+      var c=x.rank===1?'var(--red2)':x.rank===2?'var(--amber2)':'var(--blue2)';
+      return '<div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:var(--bg3);border-radius:8px;margin-bottom:6px;border-left:3px solid '+c+'">'
+        +'<div style="width:22px;height:22px;border-radius:50%;background:'+c+';color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+x.rank+'</div>'
+        +'<div><div style="font-size:12px;font-weight:700;color:var(--txt)">'+x.proc+' — '+x.action+'</div>'
+        +'<div style="font-size:11px;color:var(--green2);margin-top:2px">⚡ '+x.expected_gain+'</div></div></div>';
+    }).join('');
+  }
+}
+
+// ══ 샘플 데이터 ══════════════════════════
+function loadSample(){
+  var rows=[
+    [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    [null,'*샘플',null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    [null,null],[null,null],
+    [null,'세부공정','세부설비','보유설비','설비운영','TO',null,null,'부하율','필요','직접','간접','총','간접유형','주간','야간','TTL'],
+    [null,null,null,null,'대/인','주간','야간','총',null,null,null,null,null,null,null,null,null],
+    [null,'LASER','RTR LASER',10,3,3.33,3.33,6.67,0.415,5,3.4,4,15.4,'인수/인계',1,1,2],
+    [null,null,'SHEET LASER',2,1,2,2,4,0.5,1,2,null,null,'ADMIN',1,null,1],
+    [null,null,'BODY CUT',1,1,1,1,2,0.35,1,2,null,null,'자주검사',null,null,0],
+    [null,'동도금','블랙홀',1,0.5,2,2,4,0.355,1,4,6,24,'인수/인계',1,null,1],
+    [null,null,'디스미어',1,0.5,2,2,4,0.277,0.28,0,null,null,'ADMIN',1,null,1],
+    [null,null,'SHEET 전기동',1,0.5,2,2,4,0.981,1,4,null,null,'LEADER',1,null,1],
+    [null,'HP','OPEN HP',30,1,30,30,60,0.315,10,20,5,41,'인수/인계',1,1,2],
+    [null,'BBT','자동 BBT',9,2,4.5,4.5,9,0.607,6,6,6,12,'ADMIN',1,null,1],
+    [null,'PRESS','PRESS',25,1,25,25,50,1,25,50,10,80,'인수/인계',1,1,2],
+  ];
+  parseEquipSheet(rows);
+  // 샘플 main 데이터
+  MONTH_DATA={
+    'LASER':{current:15,m1:{need:16,gap:1},m2:{need:17,gap:2}},
+    '동도금':{current:24,m1:{need:25,gap:1},m2:{need:24,gap:0}},
+    'HP':{current:41,m1:{need:44,gap:3},m2:{need:44,gap:3}},
+    'BBT':{current:12,m1:{need:12,gap:0},m2:{need:13,gap:1}},
+    'PRESS':{current:80,m1:{need:80,gap:0},m2:{need:82,gap:2}},
+  };
+  PROD_DATA={'충원필요':{m1:5,m2:8}};
+  document.getElementById('upload-status').textContent='📋 샘플 데이터';
+  document.getElementById('upload-status').style.color='var(--blue2)';
+  document.getElementById('empty-guide').style.display='none';
+  renderAll();
+}
+</script>
+</body>
+</html>
