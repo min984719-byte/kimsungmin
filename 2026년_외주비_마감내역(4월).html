@@ -150,10 +150,7 @@ select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-siz
   <div class="card"><div class="card-title" data-ko="공정별 외주비 상세 (VND)" data-vi="Chi tiết chi phí GC theo CĐ">공정별 외주비 상세 (VND)</div>
     <div class="tw sc"><table><thead><tr>
 <th data-ko="공정" data-vi="Công đoạn">공정</th>
-<th data-ko="1월" data-vi="T1">1월</th>
-<th data-ko="2월" data-vi="T2">2월</th>
-<th data-ko="3월" data-vi="T3">3월</th>
-<th data-ko="4월" data-vi="T4">4월</th>
+<th id="proc-month-headers" colspan="4"><!-- 동적 --></th>
 <th data-ko="누적합계" data-vi="Lũy kế">누적합계</th>
 <th data-ko="비중" data-vi="Tỷ lệ">비중</th>
 </tr></thead><tbody id="proc-tbody"></tbody></table></div></div>
@@ -183,10 +180,7 @@ select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-siz
 <th data-ko="위치" data-vi="Vị trí">위치</th>
 <th data-ko="공정" data-vi="CĐ">공정</th>
 <th data-ko="업체명" data-vi="Nhà thầu">업체명</th>
-<th data-ko="1월" data-vi="T1">1월</th>
-<th data-ko="2월" data-vi="T2">2월</th>
-<th data-ko="3월" data-vi="T3">3월</th>
-<th data-ko="4월" data-vi="T4">4월</th>
+<th id="vendor-month-headers" colspan="4"><!-- 동적 --></th>
 <th data-ko="누적합계" data-vi="Lũy kế">누적합계</th>
 </tr></thead><tbody id="vendor-tbody"></tbody></table></div></div>
 </div>
@@ -235,10 +229,7 @@ select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-siz
 <th data-ko="구분" data-vi="Loại">구분</th>
 <th data-ko="공정" data-vi="CĐ">공정</th>
 <th data-ko="업체명" data-vi="Nhà thầu">업체명</th>
-<th data-ko="1월" data-vi="T1">1월</th>
-<th data-ko="2월" data-vi="T2">2월</th>
-<th data-ko="3월" data-vi="T3">3월</th>
-<th data-ko="4월" data-vi="T4">4월</th>
+<th id="nego-month-headers" colspan="4"><!-- 동적 --></th>
 <th data-ko="누적 절감액" data-vi="Lũy kế tiết kiệm">누적 절감액</th>
 <th data-ko="NEGO 전" data-vi="Trước NEGO">NEGO 전</th>
 <th data-ko="NEGO 후" data-vi="Sau NEGO">NEGO 후</th>
@@ -578,7 +569,22 @@ function buildNego(){
   document.getElementById('nego-tbody').innerHTML=h||`<tr><td colspan="8" style="text-align:center;padding:20px;color:#aaa">-</td></tr>`;
 }
 
+
+// ── 월 헤더 동적 업데이트 ──────────────────────────
+function updateMonthHeaders(){
+  const ML_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  const ML_VI = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
+  const thHtml = activeIdx.map(i =>
+    `<th data-ko="${ML_KO[i]}" data-vi="${ML_VI[i]}">${ML_KO[i]}</th>`
+  ).join('\n');
+  ['proc-month-headers','vendor-month-headers','nego-month-headers'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.outerHTML = thHtml;
+  });
+}
+
 function buildAll(){
+  updateMonthHeaders();
   buildSummary();buildTrend();renderProcCost();renderVendor();buildAchieve();buildNego();
 }
 buildAll();
