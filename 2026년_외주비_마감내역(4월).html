@@ -670,35 +670,57 @@ function loadCostExcel(input) {
     try {
       var wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
       if(!wb.Sheets['data']){st.textContent='❌ data 시트 없음';return;}
-
       var rows=XLSX.utils.sheet_to_json(wb.Sheets['data'],{header:1,defval:null,raw:true});
       var nv=function(v){if(v==null)return 0;try{return parseFloat(v)||0;}catch(ex){return 0;}};
 
+      // ── 헤더 행 자동 감지 ──────────────────────────────
+      var hdrRow=-1, colMonth=-1, colLoc=-1, colType=-1;
+      var colProc=-1, colVendor=-1, colCost=-1, colNego=-1, colSales=-1;
+      for(var hi=0;hi<5;hi++){
+        var hr=rows[hi]; if(!hr) continue;
+        for(var ci=0;ci<hr.length;ci++){
+          var v=hr[ci]?String(hr[ci]).trim():'';
+          if(v==='Tháng') colMonth=ci;
+          if(v==='구분'&&colLoc<0) colLoc=ci;
+          if(v==='구분2') colType=ci;
+          if(v==='공정명'&&colProc<0) colProc=ci;
+          if(v==='외주사명') colVendor=ci;
+          if(v.includes('chưa VAT')||v.includes('Phí gia')) colCost=ci;
+          if(v.includes('giảm được')||v.includes('Số tiền')) colNego=ci;
+          if(v.includes('bán hàng')||v.includes('Doanh thu bán')) colSales=ci;
+        }
+        if(colMonth>=0&&colProc>=0) { hdrRow=hi; break; }
+      }
+      if(hdrRow<0||colMonth<0){
+        st.textContent='❌ 헤더 인식 실패'; st.style.color='#f85149'; return;
+      }
+      console.log('컬럼 매핑:', {월:colMonth,구분:colLoc,구분2:colType,공정:colProc,업체:colVendor,비용:colCost,nego:colNego,매출:colSales});
+
+      // ── 데이터 파싱 ────────────────────────────────────
       var newS={sales_vnd:new Array(12).fill(0),cost_vat0:new Array(12).fill(0),
         cost_ratio:new Array(12).fill(0),essential:new Array(12).fill(0),
         parallel:new Array(12).fill(0),sales_usd:new Array(12).fill(0),exchange:new Array(12).fill(0)};
       var newP={},vMap={},nMap={};
 
-      // JS 컬럼 인덱스 (Python보다 1 작음)
-      // col[1]=월, col[3]=구분, col[4]=구분2, col[5]=공정명
-      // col[7]=외주사명, col[8]=비용, col[9]=NEGO, col[12]=매출
-
-      for(var i=2;i<rows.length;i++){
+      for(var i=hdrRow+1;i<rows.length;i++){
         var row=rows[i];
-        if(!row||row[1]==null) continue;
-        var month=parseInt(row[1])-1;
+        if(!row||row[colMonth]==null) continue;
+        var month=parseInt(row[colMonth])-1;
         if(isNaN(month)||month<0||month>=12) continue;
 
-        // 매출은 공정명 없는 소계 행에만 있음
-        if(row[12]&&!row[5]){
-          newS.sales_vnd[month]=nv(row[12]);
+        // 매출은 공정명 없는 소계 행
+        if(colSales>=0&&row[colSales]&&!row[colProc]){
+          newS.sales_vnd[month]=nv(row[colSales]);
           continue;
         }
-        if(!row[5]) continue;
+        if(!row[colProc]) continue;
 
-        var loc=String(row[3]||''), type_=String(row[4]||'');
-        var proc=String(row[5]||''), name=String(row[7]||'');
-        var cost=nv(row[8]), nego=nv(row[9]);
+        var loc   = String(row[colLoc]  ||'');
+        var type_ = String(row[colType] ||'');
+        var proc  = String(row[colProc] ||'');
+        var name  = colVendor>=0 ? String(row[colVendor]||'') : '';
+        var cost  = colCost>=0  ? nv(row[colCost])  : 0;
+        var nego  = colNego>=0  ? nv(row[colNego])  : 0;
 
         newS.cost_vat0[month]+=cost;
         if(type_.indexOf('필수')>=0) newS.essential[month]+=cost;
@@ -723,9 +745,8 @@ function loadCostExcel(input) {
         newS.cost_ratio[j]=s2>0?Math.round(c2/s2*10000)/10000:0;
       }
 
-      // 4.계획대비 시트 파싱
-      var newA=[];
-      var aSheet=wb.Sheets['4.공정별 계획대비 실적'];
+      // 4.계획대비 시트
+      var newA=[],aSheet=wb.Sheets['4.공정별 계획대비 실적'];
       if(aSheet){
         var aRows=XLSX.utils.sheet_to_json(aSheet,{header:1,defval:null,raw:true});
         for(var ai=5;ai<aRows.length;ai++){
@@ -734,7 +755,7 @@ function loadCostExcel(input) {
           if(!ap||ap.indexOf('합계')>=0||ap.indexOf('Grand')>=0) continue;
           var data=[];
           for(var mi=0;mi<6;mi++){
-            var base=2+mi*3, pl=nv(ar[base]), ac=nv(ar[base+1]);
+            var base=2+mi*3,pl=nv(ar[base]),ac=nv(ar[base+1]);
             if(pl===0&&ac===0) break;
             var rt=ar[base+2]?nv(ar[base+2]):(pl>0?ac/pl:0);
             data.push({plan:Math.round(pl),actual:Math.round(ac),rate:Math.round(rt*10000)/10000});
@@ -749,55 +770,45 @@ function loadCostExcel(input) {
         var dRows=XLSX.utils.sheet_to_json(dSheet,{header:1,defval:null,raw:true});
         dRows.forEach(function(dr){
           if(!dr||typeof dr[1]!=='number') return;
-          var dn=String(dr[2]||'').trim(), dp=String(dr[3]||'').trim();
+          var dn=String(dr[2]||'').trim(),dp2=String(dr[3]||'').trim();
           Object.values(nMap).forEach(function(n){
-            if(n.name===dn&&n.proc===dp){
-              n.before=Math.round(nv(dr[4])); n.after=Math.round(nv(dr[5]));
+            if(n.name===dn&&n.proc===dp2){
+              n.before=Math.round(nv(dr[4]));n.after=Math.round(nv(dr[5]));
               n.rate=Math.round(nv(dr[7])*1000000)/1000000;
             }
           });
         });
       }
 
+      // 파싱 결과 검증
       var totalCost=newS.cost_vat0.reduce(function(a,b){return a+b;},0);
-      console.log('외주비 파싱 완료 - 총비용:', totalCost, '공정수:', Object.keys(newP).length);
+      console.log('파싱완료: 총비용='+totalCost+', 공정수='+Object.keys(newP).length);
+      if(totalCost<=0){st.textContent='❌ 비용 데이터 없음';st.style.color='#f85149';return;}
 
-      if(totalCost<=0){
-        st.textContent='❌ 비용 데이터 없음 - 파일 구조 확인 필요';
-        st.style.color='#f85149';
-        return;
-      }
-
-      // 전역변수 업데이트
       SUMMARY=newS; PROC_COST=newP; VENDORS=Object.values(vMap);
-      if(newA.length) ACHIEVE=newA;
-      NEGO=Object.values(nMap);
-
-      // activeIdx 재계산 후 전체 리빌드
+      if(newA.length) ACHIEVE=newA; NEGO=Object.values(nMap);
       activeIdx=newS.cost_vat0.map(function(v,i){return v>0?i:-1;}).filter(function(i){return i>=0;});
-      Object.keys(charts).forEach(function(k){try{if(charts[k])charts[k].destroy();}catch(ex){}});
-      charts={};
-      buildAll();
 
-      // 상태 표시
+      Object.keys(charts).forEach(function(k){try{if(charts[k])charts[k].destroy();}catch(ex){}});
+      charts={}; buildAll();
+
       var cnt=activeIdx.length;
       var mns=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
       st.textContent='✅ '+(cnt>0?mns[activeIdx[0]]+'~'+mns[activeIdx[cnt-1]]:'완료')+'('+cnt+'개월)';
       st.style.color='#56d364';
 
-      // GitHub 자동 저장
-      // localStorage 백업 저장 (새로고침 시 복원용)
-      try {
-        var saveData = JSON.stringify({SUMMARY:SUMMARY,PROC_COST:PROC_COST,
-          VENDORS:VENDORS,ACHIEVE:ACHIEVE,NEGO:NEGO,saved:new Date().toISOString()});
-        localStorage.setItem('cost_data_backup', saveData);
-        console.log('localStorage 백업 저장 완료');
-      } catch(le) { console.warn('localStorage 저장 실패:', le); }
+      // localStorage 저장
+      try{
+        localStorage.setItem('cost_data_backup',JSON.stringify({
+          SUMMARY:SUMMARY,PROC_COST:PROC_COST,VENDORS:VENDORS,ACHIEVE:ACHIEVE,NEGO:NEGO,
+          saved:new Date().toISOString()
+        }));
+      }catch(le){}
 
-      if(_COST_GH_TOKEN) setTimeout(pushCostToGH, 500);
+      if(_COST_GH_TOKEN) setTimeout(pushCostToGH,500);
 
     }catch(err){
-      console.error('엑셀 오류:', err);
+      console.error('엑셀 오류:',err);
       st.textContent='❌ '+err.message; st.style.color='#f85149';
     }
   };
