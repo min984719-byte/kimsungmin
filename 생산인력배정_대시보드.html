@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏭</text></svg>">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SYNOPEX — 생산 필요인력 배정 대시보드</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -79,11 +80,14 @@ tr.ttl td{background:var(--bg3);font-weight:700}
   </div>
   <div class="hdr-right">
     <div id="upload-status" style="font-size:11px;color:var(--txt2)"></div>
-    <!-- 단 1회 업로드 -->
-    <button class="hbtn pri" onclick="document.getElementById('xl-file').click()">
-      📤 EXCEL 업로드
-    </button>
-    <input type="file" id="xl-file" accept=".xlsx,.xls" style="display:none" onchange="loadAllSheets(this)">
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+      <div style="display:flex;gap:6px">
+        <button class="hbtn" onclick="setupGH()" id="gh-btn">☁ GitHub 연동</button>
+        <button class="hbtn pri" onclick="document.getElementById('xl-file').click()">📤 EXCEL 업로드</button>
+      </div>
+      <input type="file" id="xl-file" accept=".xlsx,.xls" style="display:none" onchange="loadAllSheets(this)">
+      <div id="gh-sync-status" style="font-size:10px;color:rgba(255,255,255,.4)"></div>
+    </div>
   </div>
 </div>
 
@@ -908,7 +912,16 @@ function pushWFToGH(){
     return fetch(_WF_GH_API,{method:'PUT',headers:hdrs,body:JSON.stringify(body)});
   }).then(function(r){
     if(r&&r.ok) console.log('GitHub 저장 완료');
-  }).catch(function(e){console.warn('GitHub 저장 실패:',e);});
+  }).then(function(r){
+    if(r&&r.ok){
+      var t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+      var el=document.getElementById('gh-sync-status');
+      if(el){el.textContent='☁ 저장됨 '+t;el.style.color='#56d364';}
+    }
+  }).catch(function(e){
+    var el=document.getElementById('gh-sync-status');
+    if(el){el.textContent='⚠ 저장 실패';el.style.color='#d29922';}
+  });
 }
 
 function pullWFFromGH(){
@@ -934,6 +947,10 @@ function pullWFFromGH(){
 
 // ── 페이지 로드: localStorage → GitHub 순서 ────────────
 window.addEventListener('load',function(){
+  if(_WF_GH_TOKEN){
+    var btn=document.getElementById('gh-btn');
+    if(btn){btn.textContent='☁ 연동됨 ✅';btn.style.color='var(--green2)';}
+  }
   // 1. localStorage 복원
   try{
     var backup=localStorage.getItem('wf_data');

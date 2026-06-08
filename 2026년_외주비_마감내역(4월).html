@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏭</text></svg>">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>2026년 외주비 마감 내역 대시보드</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -668,7 +669,7 @@ function loadCostExcel(input) {
   var reader=new FileReader();
   reader.onload=function(e) {
     try {
-      var wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
+      var wb=XLSX.read(e.target.result,{type:'array'});
       if(!wb.Sheets['data']){st.textContent='❌ data 시트 없음';return;}
       var rows=XLSX.utils.sheet_to_json(wb.Sheets['data'],{header:1,defval:null,raw:true});
       var nv=function(v){if(v==null)return 0;try{return parseFloat(v)||0;}catch(ex){return 0;}};
@@ -686,10 +687,14 @@ function loadCostExcel(input) {
           if(v==='공정명'&&colProc<0) colProc=ci;
           if(v==='외주사명') colVendor=ci;
           if(v.includes('chưa VAT')||v.includes('Phí gia')) colCost=ci;
-          if(v.includes('giảm được')||v.includes('Số tiền')) colNego=ci;
-          if(v.includes('bán hàng')||v.includes('Doanh thu bán')) colSales=ci;
+          if(v.includes('giảm được')||v.includes('giảm')||v.includes('Số tiền')) colNego=ci;
+          if(v.includes('bán hàng')||v.includes('Doanh thu')||v.includes('bán')) colSales=ci;
         }
-        if(colMonth>=0&&colProc>=0) { hdrRow=hi; break; }
+        if(colMonth>=0&&colProc>=0) {
+          hdrRow=hi;
+          console.log('헤더감지 rows['+hi+']:', {월:colMonth,구분:colLoc,구분2:colType,공정:colProc,업체:colVendor,비용:colCost,nego:colNego,매출:colSales});
+          break;
+        }
       }
       if(hdrRow<0||colMonth<0){
         st.textContent='❌ 헤더 인식 실패'; st.style.color='#f85149'; return;
@@ -782,6 +787,11 @@ function loadCostExcel(input) {
 
       // 파싱 결과 검증
       var totalCost=newS.cost_vat0.reduce(function(a,b){return a+b;},0);
+      console.log('=== 파싱결과 ===');
+      console.log('총비용:', totalCost);
+      console.log('월별비용:', newS.cost_vat0.map(function(v,i){return v>0?(i+1)+'월:'+Math.round(v/1e8)+'억':'';}).filter(Boolean));
+      console.log('공정수:', Object.keys(newP).length);
+      console.log('activeIdx:', newS.cost_vat0.map(function(v,i){return v>0?i:-1;}).filter(function(i){return i>=0;}));
       console.log('파싱완료: 총비용='+totalCost+', 공정수='+Object.keys(newP).length);
       if(totalCost<=0){st.textContent='❌ 비용 데이터 없음';st.style.color='#f85149';return;}
 
