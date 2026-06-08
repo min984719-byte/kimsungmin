@@ -183,7 +183,19 @@ var INIT = [
   {section:'생산 관리',status:'active',title:'생산계획 & 가동율 산출',subtitle:'Kế hoạch SX & tỷ lệ hoạt động',url:'생산계획_가동율산출.html',ico:'⚡',bg:'#EDE7F6',bd:'#6e40c9',tag:'납품계획 | CAPA | CT',tgBg:'#EDE7F6',tgC:'#4a2080',desc:'모델별 납품계획 × 공정 라우팅 × CAPA\n공정별 가동율·OT 자동 산출 (일/주/월)\nAI 병목 분석 | Excel 업로드/다운로드'}
 ];
 
-function loadCards(){ try{ var r=localStorage.getItem(LS_KEY); return r?JSON.parse(r):INIT; }catch(e){ return INIT; } }
+function loadCards(){
+  try{
+    var r=localStorage.getItem(LS_KEY);
+    if(!r) return INIT;
+    var saved=JSON.parse(r);
+    // INIT에는 있지만 localStorage에 없는 카드 추가
+    INIT.forEach(function(ic){
+      var exists=saved.some(function(sc){return sc.url===ic.url;});
+      if(!exists) saved.push(ic);
+    });
+    return saved;
+  }catch(e){ return INIT; }
+}
 function saveCards(c){ localStorage.setItem(LS_KEY,JSON.stringify(c)); }
 
 function render(){
