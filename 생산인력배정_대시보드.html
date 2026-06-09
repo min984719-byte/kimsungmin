@@ -679,38 +679,42 @@ function selAI(btn){
   AI_TYPE=btn.dataset.type;
 }
 
-function buildPrompt(type, extra){
-  // 핵심 데이터 요약
-  var gd=0,gi=0,gt=0;
-  Object.values(P6).forEach(function(p){gd+=p.direct;gi+=p.indirect;gt+=p.total;});
-  var cur=nv(PR['현인력']?PR['현인력'].m1:0);
-  var gap6=nv(PR['충원인력']?PR['충원인력'].m1:0);
-  var gap7=nv(PR['충원인력']?PR['충원인력'].m2:0);
+// Lambda 응답 → 텍스트 렌더링
+function parseAIResponse(type, d1, d2){
+  var lines=[];
+  var typeLabel={'summary':'종합 분석','gap':'GAP 위험 분석','load':'설비 부하율 분석','recruit':'충원 계획 제안'};
+  lines.push('【'+typeLabel[type]+'】\n');
 
-  var procLines=Object.keys(MO).map(function(p){
-    var m=MO[p];
-    return p+'| 현='+m.current+'명 | 6월필요='+NF(m.m1.need,1)+'명(GAP='+sg(m.m1.gap,1)+') | 7월필요='+NF(m.m2.need,1)+'명(GAP='+sg(m.m2.gap,1)+')'+( m.remark?' | 비고='+m.remark:'');
-  }).join('\n');
-
-  // 부하율 높은 설비 TOP5
-  var loadItems=D6.filter(function(d){return d.loadRate!==null;})
-    .sort(function(a,b){return b.loadRate-a.loadRate;}).slice(0,5);
-  var loadLines=loadItems.map(function(d){return d.proc+' > '+d.sub+': '+Math.round(d.loadRate*1000)/10+'%';}).join('\n');
-
-  var base='SYNOPEX VIETNAM 생산인력배정 데이터 (2026년 6월 기준)\n'
-    +'- 총 필요인원: '+NF(gt,1)+'명 (직접='+NF(gd,1)+'명, 간접='+NF(gi,1)+'명)\n'
-    +'- 현 인원: '+NB(cur)+'명\n'
-    +'- 6월 GAP: '+sg(gap6,1)+'명 / 7월 GAP: '+sg(gap7,1)+'명\n\n'
-    +'[공정별 인력 현황]\n'+procLines+'\n\n'
-    +'[부하율 상위 설비 TOP5]\n'+loadLines+'\n';
-
-  var prompts={
-    summary: base+'위 데이터를 종합적으로 분석하여 핵심 이슈와 개선 방향을 한국어로 요약해주세요. (300자 이내)',
-    gap:     base+'각 공정의 인력 GAP을 분석하여 7월까지 충원이 긴급한 공정 순으로 우선순위를 정하고, 각 공정별 구체적인 대응 방안을 제시해주세요.',
-    load:    base+'설비 부하율이 높은 공정의 위험도를 평가하고, 생산 차질 방지를 위한 설비/인력 운용 개선안을 제시해주세요.',
-    recruit: base+'6월~7월 인력 GAP 데이터를 기반으로 공정별 충원 계획(인원수, 우선순위, 육성기간)을 표 형식으로 제안해주세요.'
-  };
-  return prompts[type]+(extra?'\n\n추가 질문: '+extra:'');
+  // 1차 응답 (avail 구조)
+  if(d1){
+    if(d1.summary) lines.push(d1.summary+'\n');
+    if(d1.risk_procs&&d1.risk_procs.length)
+      lines.push('⚠ 위험 공정: '+d1.risk_procs.join(', ')+'\n');
+    if(d1.predicted_avg!==undefined)
+      lines.push('📈 예측값: '+d1.predicted_avg+'%  (추세: '+(d1.overall_trend||'-')+')\n');
+    if(d1.processes&&d1.processes.length){
+      lines.push('\n[공정별 분석]');
+      d1.processes.forEach(function(p){
+        lines.push('▸ '+p.name+': '+(p.current_rate!==undefined?p.current_rate+'% → '+p.predicted_rate+'%  ':'')+
+          (p.action?'→ '+p.action:''));
+      });
+    }
+  }
+  // 2차 응답 (loss 구조)
+  if(d2){
+    if(d2.summary) lines.push('\n[손실 분석]\n'+d2.summary);
+    if(d2.top3_causes&&d2.top3_causes.length)
+      lines.push('\n주요 원인 TOP3:\n'+d2.top3_causes.map(function(c,i){return (i+1)+'. '+c;}).join('\n'));
+    if(d2.improvement_priority&&d2.improvement_priority.length){
+      lines.push('\n🎯 개선 우선순위:');
+      d2.improvement_priority.forEach(function(p,i){
+        lines.push((i+1)+'. '+(p.proc||p.name||'')+': '+(p.action||''));
+      });
+    }
+    if(d2.bottleneck)
+      lines.push('\n병목 공정: '+d2.bottleneck);
+  }
+  return lines.join('\n');
 }
 
 async function runAI(){
@@ -723,27 +727,84 @@ async function runAI(){
   res.textContent='🤔 AI가 분석 중입니다...';
 
   try{
-    var prompt=buildPrompt(AI_TYPE, extra);
-    var resp=await fetch(LAMBDA,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        type:'manpower',
-        prompt:prompt,
-        lang:LG
-      })
+    // Lambda 프로토콜: Content-Type:text/plain, {procs, period, mode}
+    // procs 배열: OEE Lambda가 기대하는 공정별 구조로 인력 데이터 매핑
+    var procs=Object.keys(MO).map(function(p){
+      var m=MO[p], ps=gP(SM)[p]||{direct:0,indirect:0,total:0};
+      // Lambda가 읽는 필드: 공정명, 가동율(%), 기준시간_분(필요), 실운행_분(현재), 비가동_분(GAP)
+      var need=SM===7?(m.m2?m.m2.need:0):(m.m1?m.m1.need:0);
+      var gap =SM===7?(m.m2?m.m2.gap:0):(m.m1?m.m1.gap:0);
+      var cur =m.current||0;
+      return {
+        공정명:      p,
+        가동율:      cur>0?Math.round(need/cur*100):0,  // 충족율(%)
+        기준시간_분: Math.round(need*100)/100,           // 필요인원
+        실운행_분:   cur,                                // 현인원
+        비가동_분:   Math.abs(gap),                      // GAP 절댓값
+        계획비가동_분: gap>0?gap:0,                      // 부족(+)
+        운영유실_분:  gap<0?Math.abs(gap):0,             // 초과(-)
+        설비유실_분:  Math.round(ps.indirect*10)/10,     // 간접인원
+        직접인원:    Math.round(ps.direct*10)/10,
+        간접인원:    Math.round(ps.indirect*10)/10,
+        총필요:      Math.round(ps.total*10)/10,
+        비고:        m.remark||''
+      };
     });
-    if(!resp.ok) throw new Error('HTTP '+resp.status);
-    var data=await resp.json();
-    var text=data.result||data.message||data.content||JSON.stringify(data);
+
+    var gd=0,gi=0,gt=0;
+    Object.values(gP(SM)).forEach(function(p){gd+=p.direct;gi+=p.indirect;gt+=p.total;});
+
+    var period='2026-06 생산인력배정 | '
+      +'총필요='+NF(gt,1)+'명 (직접='+NF(gd,1)+'/간접='+NF(gi,1)+') | '
+      +'현인원='+nv(PR['현인력']?PR['현인력'].m1:0)+'명 | '
+      +'6월GAP='+sg(nv(PR['충원인력']?PR['충원인력'].m1:0),1)+'명 | '
+      +'7월GAP='+sg(nv(PR['충원인력']?PR['충원인력'].m2:0),1)+'명'
+      +(extra?' | 추가요청:'+extra:'');
+
+    // 분석 유형에 따라 mode 선택
+    var mode1 = (AI_TYPE==='load') ? 'avail' : 'loss';
+    var mode2 = (AI_TYPE==='load') ? null    : 'avail';
+
+    // 1차 호출
+    var r1=await fetch(LAMBDA,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({procs:procs, period:period, mode:mode1})
+    });
+    if(!r1.ok) throw new Error('HTTP '+r1.status);
+    var d1=await r1.json();
+    if(d1.error) throw new Error(d1.error);
+
+    var d2=null;
+    // 2차 호출 (summary/gap/recruit만)
+    if(mode2){
+      var r2=await fetch(LAMBDA,{
+        method:'POST',
+        headers:{'Content-Type':'text/plain'},
+        body:JSON.stringify({procs:procs, period:period, mode:mode2})
+      });
+      if(r2.ok){
+        d2=await r2.json();
+        if(d2.error) d2=null;
+      }
+    }
+
+    var text=parseAIResponse(AI_TYPE,
+      d1.loss||d1.avail||d1,
+      d2?(d2.avail||d2.loss||d2):null);
+
     res.className='ai-result';
     res.textContent=text;
+
   }catch(err){
     res.className='ai-result';
-    res.textContent='❌ 오류: '+err.message+'\n\nLambda 연결을 확인해주세요.';
+    res.textContent='❌ 오류: '+err.message
+      +'\n\n[전송 형식] Content-Type: text/plain'
+      +'\n[Lambda] '+LAMBDA;
   }
   btn.disabled=false;
 }
+
 
 // ══ 엑셀 업로드 ══
 function loadExcel(input){
