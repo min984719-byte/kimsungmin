@@ -182,83 +182,13 @@ tr:hover td{background:rgba(56,139,253,.05)}
   <button class="ntab" onclick="sw(1,this)" data-ko="[ 설비 히트맵 ]" data-vi="[ Bản đồ nhiệt ]">[ 설비 히트맵 ]</button>
   <button class="ntab" onclick="sw(2,this)" data-ko="[ 월별 추이 ]" data-vi="[ Xu hướng tháng ]">[ 월별 추이 ]</button>
   <button class="ntab" onclick="sw(3,this)" data-ko="[ 설비 상세 ]" data-vi="[ Chi tiết thiết bị ]">[ 설비 상세 ]</button>
+  <button class="ntab" onclick="sw(4,this)" data-ko="[ ✨ AI 분석 ]" data-vi="[ ✨ Phân tích AI ]" style="background:linear-gradient(135deg,rgba(31,111,235,.2),rgba(124,58,237,.2));border-color:rgba(124,58,237,.4);color:#a371f7">[ ✨ AI 분석 ]</button>
 </div>
 
 <div class="wrap">
 
 <!-- 탭0: 종합 현황 -->
 <div class="npane on" id="t0">
-<!-- ══ AI INSIGHT ENGINE ══ -->
-<div class="ai-grid" style="margin-bottom:14px">
-  <div class="ai-card">
-    <div class="ai-title">✨ AI INSIGHT ENGINE</div>
-    <div style="display:flex;align-items:baseline;gap:8px;margin:4px 0">
-      <div class="ai-big" id="ai-now">--%</div>
-      <div style="font-size:11px;color:var(--muted)">현재</div>
-      <div class="ai-big" id="ai-arrow" style="font-size:16px">→</div>
-      <div class="ai-big" id="ai-pred" style="color:var(--amber)">--%</div>
-      <div style="font-size:11px;color:var(--muted)">1주 예측</div>
-    </div>
-    <div id="ai-summary" style="color:var(--muted);font-size:11px;line-height:1.7"><span data-ko="엑셀 업로드 후 AI 분석을 실행하세요" data-vi="Tải lên Excel để chạy phân tích AI">엑셀 업로드 후 AI 분석을 실행하세요</span></div>
-    <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap" id="ai-rchips"></div>
-  </div>
-  <div class="ai-card">
-    <div class="ai-title">AI 분석 실행</div>
-    <button onclick="runAI()" id="aiBtn"
-      style="width:100%;padding:10px;border-radius:8px;border:none;min-height:44px;
-      background:linear-gradient(135deg,#1f6feb,#7c3aed);color:#fff;
-      font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px"
-      disabled data-ko="✨ AI 분석 실행" data-vi="✨ Phân tích AI">✨ AI 분석 실행</button>
-    <div style="font-size:10px;color:var(--muted);margin-top:5px;text-align:center" id="ai-status"><span data-ko="엑셀 업로드 후 활성화" data-vi="Tải lên Excel để kích hoạt">엑셀 업로드 후 활성화</span></div>
-  </div>
-  <div class="ai-card">
-    <div class="ai-title">AI 분석 상태</div>
-    <div style="font-size:11px;line-height:2.2">
-      <span data-ko="▸ 가동율 예측: " data-vi="▸ Dự báo tỷ lệ HĐ: ">▸ 가동율 예측: </span><span id="st-a" style="color:var(--muted)">대기</span><br>
-      <span data-ko="▸ 손실 분석: " data-vi="▸ Phân tích tổn thất: ">▸ 손실 분석:   </span><span id="st-l" style="color:var(--muted)">대기</span><br>
-      <span data-ko="▸ 위험 공정: " data-vi="▸ Công đoạn nguy hiểm: ">▸ 위험 공정:   </span><span id="st-r" style="color:var(--muted)">-</span>
-    </div>
-    <button onclick="testLambda()" style="width:100%;margin-top:8px;padding:5px;border-radius:6px;
-      border:1px solid var(--bor2);background:var(--card2);color:var(--muted);
-      font-size:10px;cursor:pointer;font-family:inherit">🔧 Lambda 연결 테스트</button>
-    <div id="lambda-test-result" style="font-size:10px;margin-top:4px;color:var(--muted)"></div>
-  </div>
-</div>
-<div id="ai-panel" style="display:none;margin-bottom:14px">
-  <div class="card" style="margin-bottom:10px">
-    <div class="ct">// 가동율 예측 &nbsp;·&nbsp; 현재 → 1주 후</div>
-    <div id="ai-avail" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:8px"></div>
-    <div id="ai-warn" style="display:none;background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3);border-radius:8px;padding:10px">
-      <b style="font-size:11px;color:var(--red)">⚠ 즉시 관리 필요</b>
-      <div id="ai-wlist" style="font-size:11px;margin-top:4px;line-height:1.8"></div>
-    </div>
-  </div>
-  <div class="card" style="margin-bottom:10px">
-    <div class="ct">// 손실 원인 분석 &nbsp;·&nbsp; 6대 손실 기준</div>
-    <div id="ai-lsummary" style="font-size:11px;color:var(--muted);margin-bottom:8px"></div>
-    <div style="overflow-x:auto">
-      <table style="width:100%;border-collapse:collapse;font-size:12px">
-        <thead><tr style="background:var(--card2)">
-          <th style="padding:7px 10px;text-align:left;color:var(--muted)">공정명</th>
-          <th style="padding:7px 10px;color:var(--muted)">손실(분)</th>
-          <th style="padding:7px 10px;color:var(--muted)">손실율</th>
-          <th style="padding:7px 10px;text-align:left;color:var(--muted)">손실유형</th>
-          <th style="padding:7px 10px;text-align:left;color:var(--muted)">근본원인</th>
-          <th style="padding:7px 10px;color:var(--muted)">영향도</th>
-          <th style="padding:7px 10px;text-align:left;color:var(--muted)">즉시조치</th>
-        </tr></thead>
-        <tbody id="ai-ltable"></tbody>
-      </table>
-    </div>
-    <div id="ai-prio" style="margin-top:12px;display:none">
-      <div style="font-size:11px;font-weight:700;color:#a371f7;margin-bottom:6px">🎯 개선 우선순위 TOP 3</div>
-      <div id="ai-plist"></div>
-    </div>
-  </div>
-  <div style="padding:8px 12px;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-radius:8px;font-size:10px;color:var(--muted)">
-    ⚠ Claude AI가 현재 가동율·비가동 데이터 기반으로 분석·예측한 값입니다. 현장 확인 후 활용하세요.
-  </div>
-</div>
   <div class="g4">
     <div class="kpi t"><div class="kv" id="k-avg">--%</div><div class="kl" data-ko="전체 평균 가동율" data-vi="Tỷ lệ hoạt động TB">전체 평균 가동율</div><div class="kd" id="k-period">-</div></div>
     <div class="kpi g"><div class="kv" id="k-ok">-</div><div class="kl" data-ko="정상 공정 (≥60%)" data-vi="Công đoạn bình thường (≥60%)">정상 공정 (≥60%)</div><div class="kd" data-ko="목표 초과" data-vi="Vượt mục tiêu">목표 초과</div></div>
@@ -377,7 +307,100 @@ tr:hover td{background:rgba(56,139,253,.05)}
 </div>
 
 </div>
-</div><!-- /wrap -->
+</div><!-- 탭4: AI 분석 -->
+<div class="npane" id="t4">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+    <div>
+      <div style="font-size:16px;font-weight:700;color:#a371f7">✨ AI INSIGHT ENGINE</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px" data-ko="설비가동율 데이터 기반 AI 분석 및 예측" data-vi="Phân tích và dự báo AI dựa trên dữ liệu tỷ lệ hoạt động">설비가동율 데이터 기반 AI 분석 및 예측</div>
+    </div>
+    <button onclick="runAI()" id="aiBtn2"
+      style="padding:10px 24px;border-radius:8px;border:none;
+      background:linear-gradient(135deg,#1f6feb,#7c3aed);color:#fff;
+      font-size:13px;font-weight:700;cursor:pointer;font-family:inherit"
+      disabled data-ko="✨ AI 분석 실행" data-vi="✨ Phân tích AI">✨ AI 분석 실행</button>
+  </div>
+
+  <!-- 상태 카드 3개 -->
+  <div class="ai-grid" style="margin-bottom:18px">
+    <div class="ai-card">
+      <div class="ai-title">✨ AI INSIGHT ENGINE</div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin:4px 0">
+        <div class="ai-big" id="ai-now">--%</div>
+        <div style="font-size:11px;color:var(--muted)">현재</div>
+        <div class="ai-big" id="ai-arrow" style="font-size:16px">→</div>
+        <div class="ai-big" id="ai-pred" style="color:var(--amber)">--%</div>
+        <div style="font-size:11px;color:var(--muted)">1주 예측</div>
+      </div>
+      <div id="ai-summary" style="color:var(--muted);font-size:11px;line-height:1.7">
+        <span data-ko="엑셀 업로드 후 AI 분석을 실행하세요" data-vi="Tải lên Excel để chạy phân tích AI">엑셀 업로드 후 AI 분석을 실행하세요</span>
+      </div>
+      <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap" id="ai-rchips"></div>
+    </div>
+    <div class="ai-card">
+      <div class="ai-title">AI 분석 실행</div>
+      <button onclick="runAI()" id="aiBtn"
+        style="width:100%;padding:10px;border-radius:8px;border:none;min-height:44px;
+        background:linear-gradient(135deg,#1f6feb,#7c3aed);color:#fff;
+        font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px"
+        disabled data-ko="✨ AI 분석 실행" data-vi="✨ Phân tích AI">✨ AI 분석 실행</button>
+      <div style="font-size:10px;color:var(--muted);margin-top:5px;text-align:center" id="ai-status">
+        <span data-ko="엑셀 업로드 후 활성화" data-vi="Tải lên Excel để kích hoạt">엑셀 업로드 후 활성화</span>
+      </div>
+    </div>
+    <div class="ai-card">
+      <div class="ai-title">AI 분석 상태</div>
+      <div style="font-size:11px;line-height:2.2">
+        <span data-ko="▸ 가동율 예측: " data-vi="▸ Dự báo tỷ lệ HĐ: ">▸ 가동율 예측: </span><span id="st-a" style="color:var(--muted)">대기</span><br>
+        <span data-ko="▸ 손실 분석: " data-vi="▸ Phân tích tổn thất: ">▸ 손실 분석:   </span><span id="st-l" style="color:var(--muted)">대기</span><br>
+        <span data-ko="▸ 위험 공정: " data-vi="▸ Công đoạn nguy hiểm: ">▸ 위험 공정:   </span><span id="st-r" style="color:var(--muted)">-</span>
+      </div>
+      <button onclick="testLambda()" style="width:100%;margin-top:8px;padding:5px;border-radius:6px;
+        border:1px solid var(--bor2);background:var(--card2);color:var(--muted);
+        font-size:10px;cursor:pointer;font-family:inherit">🔧 Lambda 연결 테스트</button>
+      <div id="lambda-test-result" style="font-size:10px;margin-top:4px;color:var(--muted)"></div>
+    </div>
+  </div>
+
+  <!-- AI 결과 패널 -->
+  <div id="ai-panel" style="display:none">
+    <div class="card" style="margin-bottom:10px">
+      <div class="ct">// 가동율 예측 &nbsp;·&nbsp; 현재 → 1주 후</div>
+      <div id="ai-avail" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:8px"></div>
+      <div id="ai-warn" style="display:none;background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3);border-radius:8px;padding:10px">
+        <b style="font-size:11px;color:var(--red)">⚠ 즉시 관리 필요</b>
+        <div id="ai-wlist" style="font-size:11px;margin-top:4px;line-height:1.8"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:10px">
+      <div class="ct">// 손실 원인 분석 &nbsp;·&nbsp; 6대 손실 기준</div>
+      <div id="ai-lsummary" style="font-size:11px;color:var(--muted);margin-bottom:8px"></div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="background:var(--card2)">
+            <th style="padding:7px 10px;text-align:left;color:var(--muted)">공정명</th>
+            <th style="padding:7px 10px;color:var(--muted)">손실(분)</th>
+            <th style="padding:7px 10px;color:var(--muted)">손실율</th>
+            <th style="padding:7px 10px;text-align:left;color:var(--muted)">손실유형</th>
+            <th style="padding:7px 10px;text-align:left;color:var(--muted)">근본원인</th>
+            <th style="padding:7px 10px;color:var(--muted)">영향도</th>
+            <th style="padding:7px 10px;text-align:left;color:var(--muted)">즉시조치</th>
+          </tr></thead>
+          <tbody id="ai-ltable"></tbody>
+        </table>
+      </div>
+      <div id="ai-prio" style="margin-top:12px;display:none">
+        <div style="font-size:11px;font-weight:700;color:#a371f7;margin-bottom:6px">🎯 개선 우선순위 TOP 3</div>
+        <div id="ai-plist"></div>
+      </div>
+    </div>
+    <div style="padding:8px 12px;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-radius:8px;font-size:10px;color:var(--muted)">
+      ⚠ Claude AI가 현재 가동율·비가동 데이터 기반으로 분석·예측한 값입니다. 현장 확인 후 활용하세요.
+    </div>
+  </div>
+</div>
+
+<!-- /wrap -->
 
 <!-- 설비 상세 팝업 -->
 <div class="popup-ov" id="eqOv" onclick="if(event.target===this)closeEq()">
