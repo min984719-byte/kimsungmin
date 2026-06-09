@@ -19,30 +19,27 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--txt1);font-family:'Malgun Gothic','맑은 고딕',sans-serif;font-size:13px}
-/* 헤더 */
 .hdr{background:linear-gradient(135deg,var(--blue1),#0d2035);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
 .hdr-l{display:flex;align-items:center;gap:12px}
 .hdr-title{font-size:15px;font-weight:700}
 .hdr-sub{font-size:11px;color:var(--txt2);margin-top:2px}
-.hdr-r{display:flex;align-items:center;gap:8px}
-.btn-upload{background:var(--blue2);color:#fff;border:none;padding:6px 13px;border-radius:6px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px}
-.btn-upload:hover{background:var(--blue3)}
+.hdr-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn-u{background:var(--blue2);color:#fff;border:none;padding:6px 13px;border-radius:6px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px}
+.btn-u:hover{background:var(--blue3)}
+.btn-ai{background:linear-gradient(135deg,#7B2FBE,#4A9FD4);color:#fff;border:none;padding:6px 13px;border-radius:6px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;font-weight:600}
+.btn-ai:hover{opacity:.9}
 #upst{font-size:11px;color:var(--teal2)}
 .lbtn{background:var(--bg3);border:1px solid var(--border);color:var(--txt2);padding:4px 9px;border-radius:5px;font-size:11px;cursor:pointer}
 .lbtn.on{background:var(--blue2);color:#fff;border-color:var(--blue2)}
-/* 탭 */
 .tabs{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;padding:0 20px;gap:2px;overflow-x:auto}
 .tab{padding:11px 16px;font-size:12px;cursor:pointer;color:var(--txt2);border-bottom:2px solid transparent;white-space:nowrap;transition:.15s}
 .tab:hover{color:var(--txt1)}.tab.on{color:var(--blue3);border-bottom-color:var(--blue3);font-weight:700}
-/* 레이아웃 */
 .content{padding:18px 20px;max-width:1600px;margin:0 auto}
 .pane{display:none}.pane.on{display:block}
-/* KPI */
 .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin-bottom:18px}
 .kpi{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px 15px;border-left:3px solid var(--blue2)}
 .kpi .kv{font-size:21px;font-weight:700;line-height:1.2}
 .kpi .kl{font-size:10px;color:var(--txt2);margin-top:3px}
-/* 카드 */
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 @media(max-width:860px){.grid2{grid-template-columns:1fr}}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px}
@@ -50,11 +47,9 @@ body{background:var(--bg);color:var(--txt1);font-family:'Malgun Gothic','맑은 
 .ctitle{font-size:11px;font-weight:700;color:var(--txt2);margin-bottom:10px;display:flex;align-items:center;gap:5px}
 .ctitle::before{content:'●';color:var(--blue2);font-size:7px}
 .cw{position:relative;height:250px}
-/* 월 토글 */
 .mtabs{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
 .mtab{padding:5px 14px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--txt2);cursor:pointer;font-size:12px}
 .mtab.on{background:var(--blue2);color:#fff;border-color:var(--blue2)}
-/* 테이블 */
 .tw{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{background:var(--blue1);color:var(--txt1);padding:7px 9px;text-align:center;font-weight:600;white-space:nowrap;border:1px solid var(--border)}
@@ -62,50 +57,70 @@ td{padding:6px 9px;border:1px solid var(--border);vertical-align:middle}
 tr:hover td{background:rgba(33,118,174,.07)}
 td.r{text-align:right}td.c{text-align:center}
 tfoot td{background:var(--blue1);font-weight:700;color:var(--txt1)}
-/* 배지 */
 .badge{display:inline-block;padding:2px 6px;border-radius:9px;font-size:10px;font-weight:600}
 .bg{background:rgba(29,158,117,.2);color:var(--teal2)}
 .ba{background:rgba(232,160,32,.2);color:var(--amber2)}
 .br{background:rgba(192,0,0,.2);color:var(--red3)}
 .bb{background:rgba(33,118,174,.2);color:var(--blue3)}
 .bx{background:rgba(90,122,150,.15);color:var(--txt2)}
-/* 바 */
 .bar-bg{background:var(--bg3);border-radius:3px;height:7px;overflow:hidden;min-width:60px}
 .bar-fill{height:7px;border-radius:3px}
-/* 입력 */
 .sel{background:var(--bg3);border:1px solid var(--border);color:var(--txt1);padding:5px 9px;border-radius:5px;font-size:12px}
-/* GAP 색상 */
 .gp{color:var(--red3)}.gn{color:var(--teal2)}.gz{color:var(--txt2)}
-/* 특이사항 배지 */
 .remark{font-size:10px;color:var(--amber2)}
+
+/* AI 모달 */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center}
+.modal-bg.on{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;width:min(720px,94vw);max-height:85vh;overflow-y:auto;position:relative}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.modal-title{font-size:15px;font-weight:700;color:var(--blue3);display:flex;align-items:center;gap:8px}
+.modal-close{background:none;border:none;color:var(--txt2);font-size:20px;cursor:pointer;padding:4px}
+.modal-close:hover{color:var(--txt1)}
+.ai-selector{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.ai-sel-btn{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--txt2);cursor:pointer;font-size:12px;transition:.15s}
+.ai-sel-btn:hover{border-color:var(--blue3);color:var(--blue3)}
+.ai-sel-btn.on{background:rgba(33,118,174,.2);border-color:var(--blue2);color:var(--blue3);font-weight:600}
+.ai-input-row{display:flex;gap:8px;margin-bottom:12px}
+.ai-input{flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--txt1);padding:9px 12px;border-radius:8px;font-size:12px;font-family:inherit}
+.ai-input:focus{outline:none;border-color:var(--blue2)}
+.ai-run-btn{background:var(--blue2);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600;white-space:nowrap}
+.ai-run-btn:hover{background:var(--blue3)}
+.ai-run-btn:disabled{opacity:.5;cursor:default}
+.ai-result{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;min-height:80px;font-size:12px;line-height:1.7;color:var(--txt1);white-space:pre-wrap;word-break:break-word}
+.ai-result.loading{color:var(--txt2)}
+.ai-chip{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;background:rgba(123,47,190,.2);color:var(--purple3);margin-right:4px}
 </style>
 </head>
 <body>
 
+<!-- 헤더 -->
 <div class="hdr">
   <div class="hdr-l">
     <span style="font-size:20px">🏭</span>
     <div>
-      <div class="hdr-title">생산인력배정 대시보드</div>
+      <div class="hdr-title" id="ht">생산인력배정 대시보드</div>
       <div class="hdr-sub">SYNOPEX VIETNAM | 기준: 2026-06 | 단위: 명</div>
     </div>
   </div>
   <div class="hdr-r">
-    <span id="upst">✅ 6월 데이터 내장</span>
-    <label class="btn-upload">📂 엑셀 업로드
+    <span id="upst">✅ <span id="upst-txt">6월 데이터 내장</span></span>
+    <label class="btn-u">📂 <span id="h-upload">엑셀 업로드</span>
       <input type="file" accept=".xlsx,.xls" style="display:none" onchange="loadExcel(this)">
     </label>
+    <button class="btn-ai" onclick="openAI()">✨ <span id="h-ai">AI 분석</span></button>
     <button class="lbtn on" id="bko" onclick="setLang('ko')">KR 한국어</button>
     <button class="lbtn" id="bvi" onclick="setLang('vi')">VN Tiếng Việt</button>
   </div>
 </div>
 
+<!-- 탭 -->
 <div class="tabs">
-  <div class="tab on" onclick="sw(0)">① 종합 현황</div>
-  <div class="tab" onclick="sw(1)">② 공정별 인원</div>
-  <div class="tab" onclick="sw(2)">③ 설비 부하율</div>
-  <div class="tab" onclick="sw(3)">④ GAP 분석</div>
-  <div class="tab" onclick="sw(4)">⑤ 세부 현황</div>
+  <div class="tab on" onclick="sw(0)"><span data-ko="① 종합 현황" data-vi="① Tổng quan">① 종합 현황</span></div>
+  <div class="tab" onclick="sw(1)"><span data-ko="② 공정별 인원" data-vi="② Nhân lực theo công đoạn">② 공정별 인원</span></div>
+  <div class="tab" onclick="sw(2)"><span data-ko="③ 설비 부하율" data-vi="③ Tỷ lệ tải thiết bị">③ 설비 부하율</span></div>
+  <div class="tab" onclick="sw(3)"><span data-ko="④ GAP 분석" data-vi="④ Phân tích GAP">④ GAP 분석</span></div>
+  <div class="tab" onclick="sw(4)"><span data-ko="⑤ 세부 현황" data-vi="⑤ Chi tiết">⑤ 세부 현황</span></div>
 </div>
 
 <div class="content">
@@ -113,55 +128,37 @@ tfoot td{background:var(--blue1);font-weight:700;color:var(--txt1)}
 <!-- ① 종합 현황 -->
 <div class="pane on" id="p0">
   <div class="mtabs">
-    <span style="font-size:12px;color:var(--txt2);font-weight:600">기준월:</span>
-    <button class="mtab on" id="sb6" onclick="setSM(6,this)">📅 6월</button>
-    <button class="mtab" id="sb7" onclick="setSM(7,this)">📅 7월</button>
+    <span style="font-size:12px;color:var(--txt2);font-weight:600" data-ko="기준월:" data-vi="Tháng chuẩn:">기준월:</span>
+    <button class="mtab on" id="sb6" onclick="setSM(6,this)">📅 <span data-ko="6월" data-vi="Tháng 6">6월</span></button>
+    <button class="mtab" id="sb7" onclick="setSM(7,this)">📅 <span data-ko="7월" data-vi="Tháng 7">7월</span></button>
     <span id="smlabel" style="font-size:11px;color:var(--teal2);font-weight:600">▶ 6월 기준</span>
   </div>
   <div class="kpi-row">
-    <div class="kpi" style="border-left-color:var(--teal2)">
-      <div class="kv" id="kd" style="color:var(--teal2)">-</div>
-      <div class="kl" id="kld">직접인원 필요 (6월)</div>
-    </div>
-    <div class="kpi" style="border-left-color:var(--purple2)">
-      <div class="kv" id="ki" style="color:var(--purple3)">-</div>
-      <div class="kl" id="kli">간접인원 필요 (6월)</div>
-    </div>
-    <div class="kpi" style="border-left-color:var(--blue2)">
-      <div class="kv" id="kt" style="color:var(--blue3)">-</div>
-      <div class="kl" id="klt">총 필요인원 (6월)</div>
-    </div>
-    <div class="kpi" style="border-left-color:var(--amber2)">
-      <div class="kv" id="kc" style="color:var(--amber2)">-</div>
-      <div class="kl">현 인원</div>
-    </div>
-    <div class="kpi" style="border-left-color:var(--red2)">
-      <div class="kv" id="kg">-</div>
-      <div class="kl" id="klg">GAP (6월)</div>
-    </div>
-    <div class="kpi" style="border-left-color:var(--teal2)">
-      <div class="kv" id="kp" style="color:var(--teal2)">-</div>
-      <div class="kl" id="klp">생산면적 ㎡ (6월)</div>
-    </div>
-    <div class="kpi" style="border-left-color:var(--amber2)">
-      <div class="kv" id="ks" style="color:var(--amber2)">-</div>
-      <div class="kl" id="kls">생산매출 천$ (6월)</div>
-    </div>
-    <div class="kpi" style="border-left-color:#666">
-      <div class="kv" id="kn" style="color:var(--txt1)">15개</div>
-      <div class="kl">공정 수</div>
-    </div>
+    <div class="kpi" style="border-left-color:var(--teal2)"><div class="kv" id="kd" style="color:var(--teal2)">-</div><div class="kl" id="kld">직접인원 필요 (6월)</div></div>
+    <div class="kpi" style="border-left-color:var(--purple2)"><div class="kv" id="ki" style="color:var(--purple3)">-</div><div class="kl" id="kli">간접인원 필요 (6월)</div></div>
+    <div class="kpi" style="border-left-color:var(--blue2)"><div class="kv" id="kt" style="color:var(--blue3)">-</div><div class="kl" id="klt">총 필요인원 (6월)</div></div>
+    <div class="kpi" style="border-left-color:var(--amber2)"><div class="kv" id="kc" style="color:var(--amber2)">-</div><div class="kl" data-ko="현 인원" data-vi="Nhân lực hiện tại">현 인원</div></div>
+    <div class="kpi" style="border-left-color:var(--red2)"><div class="kv" id="kg">-</div><div class="kl" id="klg">GAP (6월)</div></div>
+    <div class="kpi" style="border-left-color:var(--teal2)"><div class="kv" id="kp" style="color:var(--teal2)">-</div><div class="kl" id="klp">생산면적 ㎡ (6월)</div></div>
+    <div class="kpi" style="border-left-color:var(--amber2)"><div class="kv" id="ks" style="color:var(--amber2)">-</div><div class="kl" id="kls">생산매출 천$ (6월)</div></div>
+    <div class="kpi" style="border-left-color:#666"><div class="kv" id="kn" style="color:var(--txt1)">15개</div><div class="kl" data-ko="공정 수" data-vi="Số công đoạn">공정 수</div></div>
   </div>
   <div class="grid2">
     <div class="card"><div class="ctitle" id="ct1">공정별 직접/간접 인원 (6월)</div><div class="cw"><canvas id="c1"></canvas></div></div>
-    <div class="card"><div class="ctitle">6월 vs 7월 필요인원 비교</div><div class="cw"><canvas id="c2"></canvas></div></div>
+    <div class="card"><div class="ctitle" data-ko="6월 vs 7월 필요인원 비교" data-vi="So sánh nhân lực T6 vs T7">6월 vs 7월 필요인원 비교</div><div class="cw"><canvas id="c2"></canvas></div></div>
   </div>
   <div class="card">
     <div class="ctitle" id="ct3">공정별 인원 현황 (6월 기준)</div>
     <div class="tw"><table>
       <thead><tr>
-        <th>공정명</th><th>직접인원</th><th>간접인원</th><th>총 필요</th>
-        <th>현 인원</th><th id="thg">GAP (6월)</th><th>판정</th><th>비고</th>
+        <th data-ko="공정명" data-vi="Công đoạn">공정명</th>
+        <th data-ko="직접인원" data-vi="Trực tiếp">직접인원</th>
+        <th data-ko="간접인원" data-vi="Gián tiếp">간접인원</th>
+        <th data-ko="총 필요" data-vi="Tổng cần">총 필요</th>
+        <th data-ko="현 인원" data-vi="Hiện tại">현 인원</th>
+        <th id="thg" data-ko="GAP (6월)" data-vi="GAP (T6)">GAP (6월)</th>
+        <th data-ko="판정" data-vi="Đánh giá">판정</th>
+        <th data-ko="비고" data-vi="Ghi chú">비고</th>
       </tr></thead>
       <tbody id="s-body"></tbody>
       <tfoot><tr id="s-foot"></tr></tfoot>
@@ -172,20 +169,26 @@ tfoot td{background:var(--blue1);font-weight:700;color:var(--txt1)}
 <!-- ② 공정별 인원 -->
 <div class="pane" id="p1">
   <div class="mtabs">
-    <button class="mtab on" onclick="setM2(6,this)">6월</button>
-    <button class="mtab" onclick="setM2(7,this)">7월</button>
+    <button class="mtab on" onclick="setM2(6,this)" data-ko="6월" data-vi="Tháng 6">6월</button>
+    <button class="mtab" onclick="setM2(7,this)" data-ko="7월" data-vi="Tháng 7">7월</button>
     <select class="sel" id="pf" onchange="rProc()" style="margin-left:6px">
-      <option value="">전체 공정</option><option value="생산관리">생산관리</option><option value="레이저">레이저</option><option value="동도금">동도금</option><option value="노광">노광</option><option value="SUB">SUB</option><option value="회로">회로</option><option value="AOI">AOI</option><option value="수가접">수가접</option><option value="적층">적층</option><option value="자동가접">자동가접</option><option value="금도금">금도금</option><option value="가이드">가이드</option><option value="BBT">BBT</option><option value="타발">타발</option><option value="최종검사">최종검사</option>
+      <option value="" data-ko="전체 공정" data-vi="Tất cả">전체 공정</option><option value="생산관리">생산관리</option><option value="레이저">레이저</option><option value="동도금">동도금</option><option value="노광">노광</option><option value="SUB">SUB</option><option value="회로">회로</option><option value="AOI">AOI</option><option value="수가접">수가접</option><option value="적층">적층</option><option value="자동가접">자동가접</option><option value="금도금">금도금</option><option value="가이드">가이드</option><option value="BBT">BBT</option><option value="타발">타발</option><option value="최종검사">최종검사</option>
     </select>
   </div>
   <div class="grid2">
-    <div class="card"><div class="ctitle">직접/간접 비율</div><div class="cw"><canvas id="c3"></canvas></div></div>
-    <div class="card"><div class="ctitle">공정별 직접/간접 구성</div><div class="cw"><canvas id="c4"></canvas></div></div>
+    <div class="card"><div class="ctitle" data-ko="직접/간접 비율" data-vi="Tỷ lệ TT/GT">직접/간접 비율</div><div class="cw"><canvas id="c3"></canvas></div></div>
+    <div class="card"><div class="ctitle" data-ko="공정별 직접/간접 구성" data-vi="Cơ cấu TT/GT theo công đoạn">공정별 직접/간접 구성</div><div class="cw"><canvas id="c4"></canvas></div></div>
   </div>
   <div class="card">
-    <div class="ctitle">공정별 세부 인원</div>
+    <div class="ctitle" data-ko="공정별 세부 인원" data-vi="Nhân lực chi tiết theo công đoạn">공정별 세부 인원</div>
     <div class="tw"><table>
-      <thead><tr><th>공정</th><th>직접인원</th><th>간접인원</th><th>총인원</th><th>직접비율</th></tr></thead>
+      <thead><tr>
+        <th data-ko="공정" data-vi="Công đoạn">공정</th>
+        <th data-ko="직접인원" data-vi="Trực tiếp">직접인원</th>
+        <th data-ko="간접인원" data-vi="Gián tiếp">간접인원</th>
+        <th data-ko="총인원" data-vi="Tổng">총인원</th>
+        <th data-ko="직접비율" data-vi="Tỷ lệ TT">직접비율</th>
+      </tr></thead>
       <tbody id="p-body"></tbody>
       <tfoot><tr id="p-foot"></tr></tfoot>
     </table></div>
@@ -195,17 +198,24 @@ tfoot td{background:var(--blue1);font-weight:700;color:var(--txt1)}
 <!-- ③ 설비 부하율 -->
 <div class="pane" id="p2">
   <div class="mtabs">
-    <button class="mtab on" onclick="setM3(6,this)">6월</button>
-    <button class="mtab" onclick="setM3(7,this)">7월</button>
+    <button class="mtab on" onclick="setM3(6,this)" data-ko="6월" data-vi="Tháng 6">6월</button>
+    <button class="mtab" onclick="setM3(7,this)" data-ko="7월" data-vi="Tháng 7">7월</button>
   </div>
   <div class="grid2">
-    <div class="card"><div class="ctitle">공정별 평균 부하율</div><div class="cw"><canvas id="c5"></canvas></div></div>
-    <div class="card"><div class="ctitle">부하율 분포</div><div class="cw"><canvas id="c6"></canvas></div></div>
+    <div class="card"><div class="ctitle" data-ko="공정별 평균 부하율" data-vi="Tỷ lệ tải TB theo công đoạn">공정별 평균 부하율</div><div class="cw"><canvas id="c5"></canvas></div></div>
+    <div class="card"><div class="ctitle" data-ko="부하율 분포" data-vi="Phân phối tỷ lệ tải">부하율 분포</div><div class="cw"><canvas id="c6"></canvas></div></div>
   </div>
   <div class="card">
-    <div class="ctitle">세부설비 부하율</div>
+    <div class="ctitle" data-ko="세부설비 부하율 현황" data-vi="Tỷ lệ tải thiết bị chi tiết">세부설비 부하율 현황</div>
     <div class="tw"><table>
-      <thead><tr><th>공정</th><th>설비명</th><th>보유</th><th>부하율</th><th>필요대수</th><th>상태</th></tr></thead>
+      <thead><tr>
+        <th data-ko="공정" data-vi="Công đoạn">공정</th>
+        <th data-ko="설비명" data-vi="Tên thiết bị">설비명</th>
+        <th data-ko="보유" data-vi="Số lượng">보유</th>
+        <th data-ko="부하율" data-vi="Tỷ lệ tải">부하율</th>
+        <th data-ko="필요대수" data-vi="Cần">필요대수</th>
+        <th data-ko="상태" data-vi="Trạng thái">상태</th>
+      </tr></thead>
       <tbody id="l-body"></tbody>
     </table></div>
   </div>
@@ -214,17 +224,21 @@ tfoot td{background:var(--blue1);font-weight:700;color:var(--txt1)}
 <!-- ④ GAP 분석 -->
 <div class="pane" id="p3">
   <div class="grid2">
-    <div class="card"><div class="ctitle">공정별 GAP (6월)</div><div class="cw"><canvas id="c7"></canvas></div></div>
-    <div class="card"><div class="ctitle">공정별 GAP (7월)</div><div class="cw"><canvas id="c8"></canvas></div></div>
+    <div class="card"><div class="ctitle" data-ko="공정별 GAP (6월)" data-vi="GAP theo công đoạn (T6)">공정별 GAP (6월)</div><div class="cw"><canvas id="c7"></canvas></div></div>
+    <div class="card"><div class="ctitle" data-ko="공정별 GAP (7월)" data-vi="GAP theo công đoạn (T7)">공정별 GAP (7월)</div><div class="cw"><canvas id="c8"></canvas></div></div>
   </div>
   <div class="card">
-    <div class="ctitle">월별 인력 GAP 상세</div>
+    <div class="ctitle" data-ko="월별 인력 GAP 상세" data-vi="Chi tiết GAP nhân lực theo tháng">월별 인력 GAP 상세</div>
     <div class="tw"><table>
       <thead><tr>
-        <th>공정명</th><th>현인원</th>
-        <th>6월 필요</th><th>6월 GAP</th>
-        <th>7월 필요</th><th>7월 GAP</th>
-        <th>판정</th><th>비고</th>
+        <th data-ko="공정명" data-vi="Công đoạn">공정명</th>
+        <th data-ko="현인원" data-vi="Hiện tại">현인원</th>
+        <th data-ko="6월 필요" data-vi="T6 cần">6월 필요</th>
+        <th data-ko="6월 GAP" data-vi="T6 GAP">6월 GAP</th>
+        <th data-ko="7월 필요" data-vi="T7 cần">7월 필요</th>
+        <th data-ko="7월 GAP" data-vi="T7 GAP">7월 GAP</th>
+        <th data-ko="판정" data-vi="Đánh giá">판정</th>
+        <th data-ko="비고" data-vi="Ghi chú">비고</th>
       </tr></thead>
       <tbody id="g-body"></tbody>
       <tfoot><tr id="g-foot"></tr></tfoot>
@@ -235,19 +249,29 @@ tfoot td{background:var(--blue1);font-weight:700;color:var(--txt1)}
 <!-- ⑤ 세부 현황 -->
 <div class="pane" id="p4">
   <div class="mtabs">
-    <button class="mtab on" onclick="setM5(6,this)">6월</button>
-    <button class="mtab" onclick="setM5(7,this)">7월</button>
-    <select class="sel" id="dp" onchange="rDet()" style="margin-left:6px"><option value="">전체 공정</option><option value="생산관리">생산관리</option><option value="레이저">레이저</option><option value="동도금">동도금</option><option value="노광">노광</option><option value="SUB">SUB</option><option value="회로">회로</option><option value="AOI">AOI</option><option value="수가접">수가접</option><option value="적층">적층</option><option value="자동가접">자동가접</option><option value="금도금">금도금</option><option value="가이드">가이드</option><option value="BBT">BBT</option><option value="타발">타발</option><option value="최종검사">최종검사</option></select>
+    <button class="mtab on" onclick="setM5(6,this)" data-ko="6월" data-vi="Tháng 6">6월</button>
+    <button class="mtab" onclick="setM5(7,this)" data-ko="7월" data-vi="Tháng 7">7월</button>
+    <select class="sel" id="dp" onchange="rDet()" style="margin-left:6px">
+      <option value="" data-ko="전체 공정" data-vi="Tất cả">전체 공정</option><option value="생산관리">생산관리</option><option value="레이저">레이저</option><option value="동도금">동도금</option><option value="노광">노광</option><option value="SUB">SUB</option><option value="회로">회로</option><option value="AOI">AOI</option><option value="수가접">수가접</option><option value="적층">적층</option><option value="자동가접">자동가접</option><option value="금도금">금도금</option><option value="가이드">가이드</option><option value="BBT">BBT</option><option value="타발">타발</option><option value="최종검사">최종검사</option>
+    </select>
     <input class="sel" id="ds" type="text" placeholder="설비명 검색..." oninput="rDet()" style="min-width:130px">
   </div>
   <div class="card">
-    <div class="ctitle">세부설비 인력 배정 현황</div>
+    <div class="ctitle" data-ko="세부설비 인력 배정" data-vi="Phân công nhân lực thiết bị chi tiết">세부설비 인력 배정</div>
     <div class="tw"><table>
       <thead><tr>
-        <th>공정</th><th>세부설비</th><th>보유</th>
-        <th>TO주간</th><th>TO야간</th><th>직접TO</th>
-        <th>부하율</th><th>필요대수</th><th>세부인원</th>
-        <th>직접PO</th><th>간접PO</th><th>총PO</th>
+        <th data-ko="공정" data-vi="Công đoạn">공정</th>
+        <th data-ko="세부설비" data-vi="Thiết bị">세부설비</th>
+        <th data-ko="보유" data-vi="SL">보유</th>
+        <th data-ko="TO주간" data-vi="Ca ngày TO">TO주간</th>
+        <th data-ko="TO야간" data-vi="Ca đêm TO">TO야간</th>
+        <th data-ko="직접TO" data-vi="TT TO">직접TO</th>
+        <th data-ko="부하율" data-vi="Tải">부하율</th>
+        <th data-ko="필요대수" data-vi="Cần">필요대수</th>
+        <th data-ko="세부인원" data-vi="Nhân lực">세부인원</th>
+        <th data-ko="직접PO" data-vi="TT PO">직접PO</th>
+        <th data-ko="간접PO" data-vi="GT PO">간접PO</th>
+        <th data-ko="총PO" data-vi="Tổng PO">총PO</th>
       </tr></thead>
       <tbody id="d-body"></tbody>
     </table></div>
@@ -256,6 +280,33 @@ tfoot td{background:var(--blue1);font-weight:700;color:var(--txt1)}
 
 </div><!-- /content -->
 
+<!-- AI 분석 모달 -->
+<div class="modal-bg" id="ai-modal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">✨ <span data-ko="AI 인력 분석" data-vi="Phân tích AI nhân lực">AI 인력 분석</span></div>
+      <button class="modal-close" onclick="closeAI()">✕</button>
+    </div>
+    <div class="ai-selector" id="ai-selector">
+      <button class="ai-sel-btn on" data-type="summary" onclick="selAI(this)">📊 <span data-ko="종합 분석" data-vi="Phân tích tổng hợp">종합 분석</span></button>
+      <button class="ai-sel-btn" data-type="gap" onclick="selAI(this)">⚠️ <span data-ko="GAP 위험 분석" data-vi="Phân tích rủi ro GAP">GAP 위험 분석</span></button>
+      <button class="ai-sel-btn" data-type="load" onclick="selAI(this)">🔧 <span data-ko="설비 부하율 분석" data-vi="Phân tích tỷ lệ tải">설비 부하율 분석</span></button>
+      <button class="ai-sel-btn" data-type="recruit" onclick="selAI(this)">👥 <span data-ko="충원 계획 제안" data-vi="Đề xuất kế hoạch tuyển dụng">충원 계획 제안</span></button>
+    </div>
+    <div class="ai-input-row">
+      <input class="ai-input" id="ai-question" type="text"
+        placeholder="추가 질문을 입력하세요 (선택사항)..."
+        onkeydown="if(event.key==='Enter')runAI()">
+      <button class="ai-run-btn" id="ai-run-btn" onclick="runAI()">
+        🚀 <span data-ko="분석 실행" data-vi="Chạy phân tích">분석 실행</span>
+      </button>
+    </div>
+    <div id="ai-result" class="ai-result">
+      <span style="color:var(--txt2)">분석 유형을 선택하고 실행하세요.</span>
+    </div>
+  </div>
+</div>
+
 <script>
 var D6=[{"proc": "생산관리", "sub": "생산관리", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 0.0, "loadRate": null, "needed": 0, "subPerson": 0, "directPO": 0.0, "indirectPO": 29.0, "totalPO": 29.0}, {"proc": "레이저", "sub": "RTR LASER", "owned": 10, "opRate": 3.0, "toDay": 3.33, "toNight": 3.33, "directTO": 6.67, "loadRate": 0.3873, "needed": 4.0, "subPerson": 3.0, "directPO": 9.7, "indirectPO": 4.0, "totalPO": 13.7}, {"proc": "레이저", "sub": "SHEET LASER", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.5, "needed": 1.0, "subPerson": 2.2, "directPO": 9.7, "indirectPO": 4.0, "totalPO": 13.7}, {"proc": "레이저", "sub": "BODY CUT", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.0533, "needed": 0.05, "subPerson": 0.2, "directPO": 9.7, "indirectPO": 4.0, "totalPO": 13.7}, {"proc": "레이저", "sub": "QR CODE", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.0214, "needed": 0.02, "subPerson": 0.1, "directPO": 9.7, "indirectPO": 4.0, "totalPO": 13.7}, {"proc": "레이저", "sub": "RTR COV", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.5, "needed": 1.0, "subPerson": 2.2, "directPO": 9.7, "indirectPO": 4.0, "totalPO": 13.7}, {"proc": "레이저", "sub": "세척", "owned": 0, "opRate": 0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 1.0, "needed": 0, "subPerson": 2.0, "directPO": 9.7, "indirectPO": 4.0, "totalPO": 13.7}, {"proc": "동도금", "sub": "블랙홀", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.3413, "needed": 1.0, "subPerson": 4.4, "directPO": 21.7, "indirectPO": 4.0, "totalPO": 25.7}, {"proc": "동도금", "sub": "디스미어", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.2171, "needed": 0.22, "subPerson": 1.0, "directPO": 21.7, "indirectPO": 4.0, "totalPO": 25.7}, {"proc": "동도금", "sub": "화학동", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.304, "needed": 1.0, "subPerson": 4.4, "directPO": 21.7, "indirectPO": 4.0, "totalPO": 25.7}, {"proc": "동도금", "sub": "BACKING", "owned": 2, "opRate": 2.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.4325, "needed": 1.0, "subPerson": 1.1, "directPO": 21.7, "indirectPO": 4.0, "totalPO": 25.7}, {"proc": "동도금", "sub": "RTR 전기동", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.3598, "needed": 1.0, "subPerson": 4.4, "directPO": 21.7, "indirectPO": 4.0, "totalPO": 25.7}, {"proc": "동도금", "sub": "SHEET 전기동", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.7943, "needed": 1.0, "subPerson": 4.4, "directPO": 21.7, "indirectPO": 4.0, "totalPO": 25.7}, {"proc": "노광", "sub": "RTR L/M", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.1367, "needed": 0.27, "subPerson": 0.7, "directPO": 11.4, "indirectPO": 4.0, "totalPO": 15.4}, {"proc": "노광", "sub": "수동 / WET", "owned": 7, "opRate": 1.0, "toDay": 7.0, "toNight": 7.0, "directTO": 14.0, "loadRate": 0.1186, "needed": 0.83, "subPerson": 1.9, "directPO": 11.4, "indirectPO": 4.0, "totalPO": 15.4}, {"proc": "노광", "sub": "진공 L/M", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": null, "needed": 0.0, "subPerson": 0.0, "directPO": 11.4, "indirectPO": 4.0, "totalPO": 15.4}, {"proc": "노광", "sub": "RTR FILM 노광", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.3611, "needed": 1.0, "subPerson": 2.2, "directPO": 11.4, "indirectPO": 4.0, "totalPO": 15.4}, {"proc": "노광", "sub": "LDI", "owned": 4, "opRate": 2.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.3712, "needed": 2.0, "subPerson": 2.2, "directPO": 11.4, "indirectPO": 4.0, "totalPO": 15.4}, {"proc": "노광", "sub": "RTR DI 노광", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": null, "needed": 0.0, "subPerson": 0.0, "directPO": 11.4, "indirectPO": 4.0, "totalPO": 15.4}, {"proc": "노광", "sub": "CLEAN/M", "owned": 2, "opRate": 0.5, "toDay": 4.0, "toNight": 4.0, "directTO": 8.0, "loadRate": 0.5, "needed": 1.0, "subPerson": 4.4, "directPO": 11.4, "indirectPO": 4.0, "totalPO": 15.4}, {"proc": "회로", "sub": "HAFT ETCHING", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.364, "needed": 1.0, "subPerson": 2.2, "directPO": 28.6, "indirectPO": 4.0, "totalPO": 32.6}, {"proc": "회로", "sub": "초음파 수세", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.0628, "needed": 0.06, "subPerson": 0.3, "directPO": 28.6, "indirectPO": 4.0, "totalPO": 32.6}, {"proc": "회로", "sub": "RTR S/E", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.2449, "needed": 0.24, "subPerson": 1.1, "directPO": 28.6, "indirectPO": 4.0, "totalPO": 32.6}, {"proc": "회로", "sub": "S/E", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.6517, "needed": 1.0, "subPerson": 4.4, "directPO": 28.6, "indirectPO": 4.0, "totalPO": 32.6}, {"proc": "회로", "sub": "옥사이드", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.216, "needed": 0.22, "subPerson": 1.0, "directPO": 28.6, "indirectPO": 4.0, "totalPO": 32.6}, {"proc": "회로", "sub": "CZ", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.3836, "needed": 1.0, "subPerson": 4.4, "directPO": 28.6, "indirectPO": 4.0, "totalPO": 32.6}, {"proc": "회로", "sub": "DES", "owned": 2, "opRate": 0.5, "toDay": 4.0, "toNight": 4.0, "directTO": 8.0, "loadRate": 0.5934, "needed": 2.0, "subPerson": 8.8, "directPO": 28.6, "indirectPO": 4.0, "totalPO": 32.6}, {"proc": "회로", "sub": "아대", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.5934, "needed": 2.0, "subPerson": 4.4, "directPO": 28.6, "indirectPO": 4.0, "totalPO": 32.6}, {"proc": "AOI", "sub": "VISION CUT", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.0955, "needed": 0.1, "subPerson": 0.3, "directPO": 17.5, "indirectPO": 3.0, "totalPO": 20.5}, {"proc": "AOI", "sub": "RTR AOI", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.4636, "needed": 1.0, "subPerson": 2.2, "directPO": 17.5, "indirectPO": 3.0, "totalPO": 20.5}, {"proc": "AOI", "sub": "RTR VRS", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.4636, "needed": 1.0, "subPerson": 2.2, "directPO": 17.5, "indirectPO": 3.0, "totalPO": 20.5}, {"proc": "AOI", "sub": "SHEET AOI", "owned": 6, "opRate": 1.0, "toDay": 6.0, "toNight": 6.0, "directTO": 12.0, "loadRate": 0.2436, "needed": 1.46, "subPerson": 3.3, "directPO": 17.5, "indirectPO": 3.0, "totalPO": 20.5}, {"proc": "AOI", "sub": "SHEET VRS", "owned": 12, "opRate": 1.0, "toDay": 12.0, "toNight": 12.0, "directTO": 24.0, "loadRate": 0.2754, "needed": 3.3, "subPerson": 7.3, "directPO": 17.5, "indirectPO": 3.0, "totalPO": 20.5}, {"proc": "AOI", "sub": "TAPE", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 1.0, "needed": 1.0, "subPerson": 2.2, "directPO": 17.5, "indirectPO": 3.0, "totalPO": 20.5}, {"proc": "수가접", "sub": "COV 가접", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 0, "loadRate": null, "needed": 0, "subPerson": 27.17, "directPO": 57.04, "indirectPO": 4.0, "totalPO": 61.04}, {"proc": "수가접", "sub": "합지가접", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 0, "loadRate": null, "needed": 0, "subPerson": 5.74, "directPO": 57.04, "indirectPO": 4.0, "totalPO": 61.04}, {"proc": "수가접", "sub": "CLEAN/M", "owned": 3, "opRate": 1.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 1.0, "needed": 3.0, "subPerson": 4.4, "directPO": 57.04, "indirectPO": 4.0, "totalPO": 61.04}, {"proc": "수가접", "sub": "EMI 가접", "owned": 2, "opRate": 2.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.7857, "needed": 2.0, "subPerson": 2.2, "directPO": 57.04, "indirectPO": 4.0, "totalPO": 61.04}, {"proc": "수가접", "sub": "COV 가접", "owned": 4, "opRate": 2.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.2343, "needed": 0.94, "subPerson": 1.1, "directPO": 57.04, "indirectPO": 4.0, "totalPO": 61.04}, {"proc": "수가접", "sub": "수동 EMI", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 0, "loadRate": null, "needed": 0, "subPerson": 2.43, "directPO": 57.04, "indirectPO": 4.0, "totalPO": 61.04}, {"proc": "적층", "sub": "OPEN HP", "owned": 30, "opRate": 1.0, "toDay": 30.0, "toNight": 30.0, "directTO": 60.0, "loadRate": 0.2838, "needed": 8.52, "subPerson": 18.8, "directPO": 34.3, "indirectPO": 3.0, "totalPO": 37.3}, {"proc": "적층", "sub": "진공 HP", "owned": 8, "opRate": 1.0, "toDay": 8.0, "toNight": 8.0, "directTO": 16.0, "loadRate": 0.1937, "needed": 1.55, "subPerson": 3.5, "directPO": 34.3, "indirectPO": 3.0, "totalPO": 37.3}, {"proc": "적층", "sub": "LAYUP", "owned": 38, "opRate": 2.0, "toDay": 19.0, "toNight": 19.0, "directTO": 38.0, "loadRate": 0.2388, "needed": 9.07, "subPerson": 10.0, "directPO": 34.3, "indirectPO": 3.0, "totalPO": 37.3}, {"proc": "가이드", "sub": "X-RAY", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.3731, "needed": 1.0, "subPerson": 2.2, "directPO": 11.0, "indirectPO": 3.0, "totalPO": 14.0}, {"proc": "가이드", "sub": "자동가이드", "owned": 10, "opRate": 2.0, "toDay": 5.0, "toNight": 5.0, "directTO": 10.0, "loadRate": 0.505, "needed": 6.0, "subPerson": 6.6, "directPO": 11.0, "indirectPO": 3.0, "totalPO": 14.0}, {"proc": "가이드", "sub": "RTR 가이드", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.6761, "needed": 1.0, "subPerson": 2.2, "directPO": 11.0, "indirectPO": 3.0, "totalPO": 14.0}, {"proc": "금도금", "sub": "수직플라즈마", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.3275, "needed": 1.0, "subPerson": 2.2, "directPO": 23.96, "indirectPO": 4.0, "totalPO": 27.96}, {"proc": "금도금", "sub": "수평플라즈마", "owned": 3, "opRate": 1.0, "toDay": 3.0, "toNight": 3.0, "directTO": 6.0, "loadRate": 1.038, "needed": 3.0, "subPerson": 6.6, "directPO": 23.96, "indirectPO": 4.0, "totalPO": 27.96}, {"proc": "금도금", "sub": "아대부착", "owned": 1, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.4888, "needed": 1.0, "subPerson": 1.96, "directPO": 23.96, "indirectPO": 4.0, "totalPO": 27.96}, {"proc": "금도금", "sub": "JET 정면", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.4888, "needed": 1.0, "subPerson": 4.4, "directPO": 23.96, "indirectPO": 4.0, "totalPO": 27.96}, {"proc": "금도금", "sub": "수세기", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.4385, "needed": 1.0, "subPerson": 4.4, "directPO": 23.96, "indirectPO": 4.0, "totalPO": 27.96}, {"proc": "금도금", "sub": "금도금", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.4385, "needed": 1.0, "subPerson": 2.2, "directPO": 23.96, "indirectPO": 4.0, "totalPO": 27.96}, {"proc": "금도금", "sub": "X-RAY", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.3731, "needed": 1.0, "subPerson": 2.2, "directPO": 23.96, "indirectPO": 4.0, "totalPO": 27.96}, {"proc": "자동가접", "sub": "자동설비(QUICK)", "owned": 2, "opRate": 2.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 1.0, "needed": 2.0, "subPerson": 2.2, "directPO": 39.52, "indirectPO": 10.0, "totalPO": 49.52}, {"proc": "자동가접", "sub": "자동설비(DAWON)", "owned": 4, "opRate": 2.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 1.0, "needed": 4.0, "subPerson": 4.4, "directPO": 39.52, "indirectPO": 10.0, "totalPO": 49.52}, {"proc": "자동가접", "sub": "자동설비(FAST)", "owned": 3, "opRate": 2.0, "toDay": 1.5, "toNight": 1.5, "directTO": 3.0, "loadRate": 0.6981, "needed": 3.0, "subPerson": 3.3, "directPO": 39.52, "indirectPO": 10.0, "totalPO": 49.52}, {"proc": "자동가접", "sub": "AIR BAG", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.2512, "needed": 0.5, "subPerson": 10.0, "directPO": 39.52, "indirectPO": 10.0, "totalPO": 49.52}, {"proc": "자동가접", "sub": "Quick press", "owned": 2, "opRate": 0.5, "toDay": 4.0, "toNight": 4.0, "directTO": 8.0, "loadRate": null, "needed": 0, "subPerson": 11.62, "directPO": 39.52, "indirectPO": 10.0, "totalPO": 49.52}, {"proc": "SUB", "sub": "캐리어 제거", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 0, "loadRate": null, "needed": 0, "subPerson": 2.31, "directPO": 35.21, "indirectPO": 8.0, "totalPO": 43.21}, {"proc": "SUB", "sub": "EMI 제거", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 0, "loadRate": null, "needed": 0, "subPerson": 5.74, "directPO": 35.21, "indirectPO": 8.0, "totalPO": 43.21}, {"proc": "SUB", "sub": "STIFF 가접", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 0, "loadRate": null, "needed": 0, "subPerson": 3.56, "directPO": 35.21, "indirectPO": 8.0, "totalPO": 43.21}, {"proc": "SUB", "sub": "Quick press", "owned": 5, "opRate": 0.5, "toDay": 10.0, "toNight": 10.0, "directTO": 20.0, "loadRate": 0.5, "needed": 3.0, "subPerson": 13.2, "directPO": 35.21, "indirectPO": 8.0, "totalPO": 43.21}, {"proc": "SUB", "sub": "EPOXY 합지", "owned": 3, "opRate": 1.0, "toDay": 3.0, "toNight": 3.0, "directTO": 6.0, "loadRate": 0.4, "needed": 2.0, "subPerson": 4.4, "directPO": 35.21, "indirectPO": 8.0, "totalPO": 43.21}, {"proc": "BBT", "sub": "수동 BBT", "owned": 5, "opRate": 1.0, "toDay": 5.0, "toNight": 5.0, "directTO": 10.0, "loadRate": 0.1329, "needed": 0.66, "subPerson": 1.5, "directPO": 9.0, "indirectPO": 4.0, "totalPO": 13.0}, {"proc": "BBT", "sub": "자동 BBT", "owned": 9, "opRate": 2.0, "toDay": 4.5, "toNight": 4.5, "directTO": 9.0, "loadRate": 0.5359, "needed": 5.0, "subPerson": 5.5, "directPO": 9.0, "indirectPO": 4.0, "totalPO": 13.0}, {"proc": "타발", "sub": "재단-2", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.7, "needed": 2.0, "subPerson": 4.4, "directPO": 68.2, "indirectPO": 14.0, "totalPO": 82.2}, {"proc": "타발", "sub": "PRESS-1", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 1.0, "needed": 1.0, "subPerson": 2.2, "directPO": 68.2, "indirectPO": 14.0, "totalPO": 82.2}, {"proc": "타발", "sub": "PRESS-2", "owned": 25, "opRate": 1.0, "toDay": 27.0, "toNight": 27.0, "directTO": 54.0, "loadRate": 1.0, "needed": 25.0, "subPerson": 55.0, "directPO": 68.2, "indirectPO": 14.0, "totalPO": 82.2}, {"proc": "타발", "sub": "PRESS-3", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 1.0, "needed": 2.0, "subPerson": 4.4, "directPO": 68.2, "indirectPO": 14.0, "totalPO": 82.2}, {"proc": "타발", "sub": "고속프레스", "owned": 1, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.4, "needed": 1.0, "subPerson": 2.2, "directPO": 68.2, "indirectPO": 14.0, "totalPO": 82.2}, {"proc": "최종검사", "sub": "추림", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 11.32, "loadRate": null, "needed": 0, "subPerson": 11.32, "directPO": 90.36, "indirectPO": 5.0, "totalPO": 95.36}, {"proc": "최종검사", "sub": "검사", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 67.41, "loadRate": null, "needed": 0, "subPerson": 67.41, "directPO": 90.36, "indirectPO": 5.0, "totalPO": 95.36}, {"proc": "최종검사", "sub": "포장", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 11.63, "loadRate": null, "needed": 0, "subPerson": 11.63, "directPO": 90.36, "indirectPO": 5.0, "totalPO": 95.36}];
 var D7=[{"proc": "생산관리", "sub": "생산관리", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 0.0, "loadRate": null, "needed": 0, "subPerson": 0, "directPO": 0.0, "indirectPO": 29.0, "totalPO": 29.0}, {"proc": "레이저", "sub": "RTR LASER", "owned": 10, "opRate": 3.0, "toDay": 3.33, "toNight": 3.33, "directTO": 6.67, "loadRate": 0.544, "needed": 6.0, "subPerson": 4.4, "directPO": 11.3, "indirectPO": 4.0, "totalPO": 15.3}, {"proc": "레이저", "sub": "SHEET LASER", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.5, "needed": 1.0, "subPerson": 2.2, "directPO": 11.3, "indirectPO": 4.0, "totalPO": 15.3}, {"proc": "레이저", "sub": "BODY CUT", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.0466, "needed": 0.05, "subPerson": 0.2, "directPO": 11.3, "indirectPO": 4.0, "totalPO": 15.3}, {"proc": "레이저", "sub": "QR CODE", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.1132, "needed": 0.11, "subPerson": 0.3, "directPO": 11.3, "indirectPO": 4.0, "totalPO": 15.3}, {"proc": "레이저", "sub": "RTR COV", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.5, "needed": 1.0, "subPerson": 2.2, "directPO": 11.3, "indirectPO": 4.0, "totalPO": 15.3}, {"proc": "레이저", "sub": "세척", "owned": 0, "opRate": 0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 1.0, "needed": 0, "subPerson": 2.0, "directPO": 11.3, "indirectPO": 4.0, "totalPO": 15.3}, {"proc": "동도금", "sub": "블랙홀", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.4291, "needed": 1.0, "subPerson": 4.4, "directPO": 23.0, "indirectPO": 4.0, "totalPO": 27.0}, {"proc": "동도금", "sub": "디스미어", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.2518, "needed": 0.25, "subPerson": 1.2, "directPO": 23.0, "indirectPO": 4.0, "totalPO": 27.0}, {"proc": "동도금", "sub": "화학동", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.3371, "needed": 1.0, "subPerson": 4.4, "directPO": 23.0, "indirectPO": 4.0, "totalPO": 27.0}, {"proc": "동도금", "sub": "BACKING", "owned": 2, "opRate": 2.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.5111, "needed": 2.0, "subPerson": 2.2, "directPO": 23.0, "indirectPO": 4.0, "totalPO": 27.0}, {"proc": "동도금", "sub": "RTR 전기동", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.4863, "needed": 1.0, "subPerson": 4.4, "directPO": 23.0, "indirectPO": 4.0, "totalPO": 27.0}, {"proc": "동도금", "sub": "SHEET 전기동", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.9095, "needed": 1.0, "subPerson": 4.4, "directPO": 23.0, "indirectPO": 4.0, "totalPO": 27.0}, {"proc": "노광", "sub": "RTR L/M", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.1599, "needed": 0.32, "subPerson": 0.8, "directPO": 12.0, "indirectPO": 4.0, "totalPO": 16.0}, {"proc": "노광", "sub": "수동 / WET", "owned": 7, "opRate": 1.0, "toDay": 7.0, "toNight": 7.0, "directTO": 14.0, "loadRate": 0.1501, "needed": 1.05, "subPerson": 2.4, "directPO": 12.0, "indirectPO": 4.0, "totalPO": 16.0}, {"proc": "노광", "sub": "진공 L/M", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": null, "needed": 0.0, "subPerson": 0.0, "directPO": 12.0, "indirectPO": 4.0, "totalPO": 16.0}, {"proc": "노광", "sub": "RTR FILM 노광", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.4341, "needed": 1.0, "subPerson": 2.2, "directPO": 12.0, "indirectPO": 4.0, "totalPO": 16.0}, {"proc": "노광", "sub": "LDI", "owned": 4, "opRate": 2.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.4647, "needed": 2.0, "subPerson": 2.2, "directPO": 12.0, "indirectPO": 4.0, "totalPO": 16.0}, {"proc": "노광", "sub": "RTR DI 노광", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": null, "needed": 0.0, "subPerson": 0.0, "directPO": 12.0, "indirectPO": 4.0, "totalPO": 16.0}, {"proc": "노광", "sub": "CLEAN/M", "owned": 2, "opRate": 0.5, "toDay": 4.0, "toNight": 4.0, "directTO": 8.0, "loadRate": 0.5, "needed": 1.0, "subPerson": 4.4, "directPO": 12.0, "indirectPO": 4.0, "totalPO": 16.0}, {"proc": "회로", "sub": "HAFT ETCHING", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.4205, "needed": 1.0, "subPerson": 2.2, "directPO": 29.1, "indirectPO": 4.0, "totalPO": 33.1}, {"proc": "회로", "sub": "초음파 수세", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.0725, "needed": 0.07, "subPerson": 0.4, "directPO": 29.1, "indirectPO": 4.0, "totalPO": 33.1}, {"proc": "회로", "sub": "RTR S/E", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.2995, "needed": 0.3, "subPerson": 1.4, "directPO": 29.1, "indirectPO": 4.0, "totalPO": 33.1}, {"proc": "회로", "sub": "S/E", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.8063, "needed": 1.0, "subPerson": 4.4, "directPO": 29.1, "indirectPO": 4.0, "totalPO": 33.1}, {"proc": "회로", "sub": "옥사이드", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.2419, "needed": 0.24, "subPerson": 1.1, "directPO": 29.1, "indirectPO": 4.0, "totalPO": 33.1}, {"proc": "회로", "sub": "CZ", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.4139, "needed": 1.0, "subPerson": 4.4, "directPO": 29.1, "indirectPO": 4.0, "totalPO": 33.1}, {"proc": "회로", "sub": "DES", "owned": 2, "opRate": 0.5, "toDay": 4.0, "toNight": 4.0, "directTO": 8.0, "loadRate": 0.7192, "needed": 2.0, "subPerson": 8.8, "directPO": 29.1, "indirectPO": 4.0, "totalPO": 33.1}, {"proc": "회로", "sub": "아대", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.7192, "needed": 2.0, "subPerson": 4.4, "directPO": 29.1, "indirectPO": 4.0, "totalPO": 33.1}, {"proc": "AOI", "sub": "VISION CUT", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.1181, "needed": 0.12, "subPerson": 0.3, "directPO": 24.5, "indirectPO": 3.0, "totalPO": 27.5}, {"proc": "AOI", "sub": "RTR AOI", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.5392, "needed": 1.0, "subPerson": 2.2, "directPO": 24.5, "indirectPO": 3.0, "totalPO": 27.5}, {"proc": "AOI", "sub": "RTR VRS", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.5392, "needed": 2.0, "subPerson": 4.4, "directPO": 24.5, "indirectPO": 3.0, "totalPO": 27.5}, {"proc": "AOI", "sub": "SHEET AOI", "owned": 6, "opRate": 1.0, "toDay": 6.0, "toNight": 6.0, "directTO": 12.0, "loadRate": 0.3091, "needed": 2.0, "subPerson": 4.4, "directPO": 24.5, "indirectPO": 3.0, "totalPO": 27.5}, {"proc": "AOI", "sub": "SHEET VRS", "owned": 12, "opRate": 1.0, "toDay": 12.0, "toNight": 12.0, "directTO": 24.0, "loadRate": 0.3495, "needed": 5.0, "subPerson": 11.0, "directPO": 24.5, "indirectPO": 3.0, "totalPO": 27.5}, {"proc": "AOI", "sub": "TAPE", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 1.0, "needed": 1.0, "subPerson": 2.2, "directPO": 24.5, "indirectPO": 3.0, "totalPO": 27.5}, {"proc": "수가접", "sub": "COV 가접", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 0, "loadRate": null, "needed": 0, "subPerson": 36.99, "directPO": 69.04, "indirectPO": 4.0, "totalPO": 73.04}, {"proc": "수가접", "sub": "합지가접", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 0, "loadRate": null, "needed": 0, "subPerson": 7.82, "directPO": 69.04, "indirectPO": 4.0, "totalPO": 73.04}, {"proc": "수가접", "sub": "CLEAN/M", "owned": 3, "opRate": 1.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 1.0, "needed": 3.0, "subPerson": 4.4, "directPO": 69.04, "indirectPO": 4.0, "totalPO": 73.04}, {"proc": "수가접", "sub": "EMI 가접", "owned": 2, "opRate": 2.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.8783, "needed": 2.0, "subPerson": 2.2, "directPO": 69.04, "indirectPO": 4.0, "totalPO": 73.04}, {"proc": "수가접", "sub": "COV 가접", "owned": 4, "opRate": 2.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.2521, "needed": 1.01, "subPerson": 1.2, "directPO": 69.04, "indirectPO": 4.0, "totalPO": 73.04}, {"proc": "수가접", "sub": "수동 EMI", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 0, "loadRate": null, "needed": 0, "subPerson": 2.43, "directPO": 69.04, "indirectPO": 4.0, "totalPO": 73.04}, {"proc": "적층", "sub": "OPEN HP", "owned": 30, "opRate": 1.0, "toDay": 30.0, "toNight": 30.0, "directTO": 60.0, "loadRate": 0.356, "needed": 11.0, "subPerson": 24.2, "directPO": 43.8, "indirectPO": 3.0, "totalPO": 46.8}, {"proc": "적층", "sub": "진공 HP", "owned": 8, "opRate": 1.0, "toDay": 8.0, "toNight": 8.0, "directTO": 16.0, "loadRate": 0.2457, "needed": 1.97, "subPerson": 4.4, "directPO": 43.8, "indirectPO": 3.0, "totalPO": 46.8}, {"proc": "적층", "sub": "LAYUP", "owned": 38, "opRate": 2.0, "toDay": 19.0, "toNight": 19.0, "directTO": 38.0, "loadRate": 0.3009, "needed": 12.0, "subPerson": 13.2, "directPO": 43.8, "indirectPO": 3.0, "totalPO": 46.8}, {"proc": "가이드", "sub": "X-RAY", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.4342, "needed": 1.0, "subPerson": 2.2, "directPO": 12.1, "indirectPO": 3.0, "totalPO": 15.1}, {"proc": "가이드", "sub": "자동가이드", "owned": 10, "opRate": 2.0, "toDay": 5.0, "toNight": 5.0, "directTO": 10.0, "loadRate": 0.6452, "needed": 7.0, "subPerson": 7.7, "directPO": 12.1, "indirectPO": 3.0, "totalPO": 15.1}, {"proc": "가이드", "sub": "RTR 가이드", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.8429, "needed": 1.0, "subPerson": 2.2, "directPO": 12.1, "indirectPO": 3.0, "totalPO": 15.1}, {"proc": "금도금", "sub": "수직플라즈마", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.3866, "needed": 1.0, "subPerson": 2.2, "directPO": 24.65, "indirectPO": 4.0, "totalPO": 28.65}, {"proc": "금도금", "sub": "수평플라즈마", "owned": 3, "opRate": 1.0, "toDay": 3.0, "toNight": 3.0, "directTO": 6.0, "loadRate": 0.7991, "needed": 3.0, "subPerson": 6.6, "directPO": 24.65, "indirectPO": 4.0, "totalPO": 28.65}, {"proc": "금도금", "sub": "아대부착", "owned": 1, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.6635, "needed": 1.0, "subPerson": 2.65, "directPO": 24.65, "indirectPO": 4.0, "totalPO": 28.65}, {"proc": "금도금", "sub": "JET 정면", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.6635, "needed": 1.0, "subPerson": 4.4, "directPO": 24.65, "indirectPO": 4.0, "totalPO": 28.65}, {"proc": "금도금", "sub": "수세기", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.55, "needed": 1.0, "subPerson": 4.4, "directPO": 24.65, "indirectPO": 4.0, "totalPO": 28.65}, {"proc": "금도금", "sub": "금도금", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.55, "needed": 1.0, "subPerson": 2.2, "directPO": 24.65, "indirectPO": 4.0, "totalPO": 28.65}, {"proc": "금도금", "sub": "X-RAY", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 0.4342, "needed": 1.0, "subPerson": 2.2, "directPO": 24.65, "indirectPO": 4.0, "totalPO": 28.65}, {"proc": "자동가접", "sub": "자동설비(QUICK)", "owned": 2, "opRate": 2.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 1.0, "needed": 2.0, "subPerson": 2.2, "directPO": 39.52, "indirectPO": 10.0, "totalPO": 49.52}, {"proc": "자동가접", "sub": "자동설비(DAWON)", "owned": 4, "opRate": 2.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 1.0, "needed": 4.0, "subPerson": 4.4, "directPO": 39.52, "indirectPO": 10.0, "totalPO": 49.52}, {"proc": "자동가접", "sub": "자동설비(FAST)", "owned": 3, "opRate": 2.0, "toDay": 1.5, "toNight": 1.5, "directTO": 3.0, "loadRate": 0.8248, "needed": 3.0, "subPerson": 3.3, "directPO": 39.52, "indirectPO": 10.0, "totalPO": 49.52}, {"proc": "자동가접", "sub": "AIR BAG", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.2339, "needed": 0.47, "subPerson": 10.0, "directPO": 39.52, "indirectPO": 10.0, "totalPO": 49.52}, {"proc": "자동가접", "sub": "Quick press", "owned": 2, "opRate": 0.5, "toDay": 4.0, "toNight": 4.0, "directTO": 8.0, "loadRate": null, "needed": 0, "subPerson": 11.62, "directPO": 39.52, "indirectPO": 10.0, "totalPO": 49.52}, {"proc": "SUB", "sub": "캐리어 제거", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 0, "loadRate": null, "needed": 0, "subPerson": 2.9, "directPO": 41.61, "indirectPO": 8.0, "totalPO": 49.61}, {"proc": "SUB", "sub": "EMI 제거", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 0, "loadRate": null, "needed": 0, "subPerson": 11.96, "directPO": 41.61, "indirectPO": 8.0, "totalPO": 49.61}, {"proc": "SUB", "sub": "STIFF 가접", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 0, "loadRate": null, "needed": 0, "subPerson": 3.14, "directPO": 41.61, "indirectPO": 8.0, "totalPO": 49.61}, {"proc": "SUB", "sub": "Quick press", "owned": 5, "opRate": 0.5, "toDay": 10.0, "toNight": 10.0, "directTO": 20.0, "loadRate": 0.5, "needed": 3.0, "subPerson": 13.2, "directPO": 41.61, "indirectPO": 8.0, "totalPO": 49.61}, {"proc": "SUB", "sub": "EPOXY 합지", "owned": 3, "opRate": 1.0, "toDay": 3.0, "toNight": 3.0, "directTO": 6.0, "loadRate": 0.4, "needed": 2.0, "subPerson": 4.4, "directPO": 41.61, "indirectPO": 8.0, "totalPO": 49.61}, {"proc": "BBT", "sub": "수동 BBT", "owned": 5, "opRate": 1.0, "toDay": 5.0, "toNight": 5.0, "directTO": 10.0, "loadRate": 0.1067, "needed": 0.53, "subPerson": 1.2, "directPO": 10.9, "indirectPO": 4.0, "totalPO": 14.9}, {"proc": "BBT", "sub": "자동 BBT", "owned": 9, "opRate": 2.0, "toDay": 4.5, "toNight": 4.5, "directTO": 9.0, "loadRate": 0.6903, "needed": 7.0, "subPerson": 7.7, "directPO": 10.9, "indirectPO": 4.0, "totalPO": 14.9}, {"proc": "타발", "sub": "재단-2", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.7, "needed": 2.0, "subPerson": 4.4, "directPO": 68.2, "indirectPO": 14.0, "totalPO": 82.2}, {"proc": "타발", "sub": "PRESS-1", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "directTO": 2.0, "loadRate": 1.0, "needed": 1.0, "subPerson": 2.2, "directPO": 68.2, "indirectPO": 14.0, "totalPO": 82.2}, {"proc": "타발", "sub": "PRESS-2", "owned": 25, "opRate": 1.0, "toDay": 27.0, "toNight": 27.0, "directTO": 54.0, "loadRate": 1.0, "needed": 25.0, "subPerson": 55.0, "directPO": 68.2, "indirectPO": 14.0, "totalPO": 82.2}, {"proc": "타발", "sub": "PRESS-3", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 1.0, "needed": 2.0, "subPerson": 4.4, "directPO": 68.2, "indirectPO": 14.0, "totalPO": 82.2}, {"proc": "타발", "sub": "고속프레스", "owned": 1, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "directTO": 4.0, "loadRate": 0.4, "needed": 1.0, "subPerson": 2.2, "directPO": 68.2, "indirectPO": 14.0, "totalPO": 82.2}, {"proc": "최종검사", "sub": "추림", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 15.09, "loadRate": null, "needed": 0, "subPerson": 15.09, "directPO": 120.45, "indirectPO": 5.0, "totalPO": 125.45}, {"proc": "최종검사", "sub": "검사", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 89.83, "loadRate": null, "needed": 0, "subPerson": 89.83, "directPO": 120.45, "indirectPO": 5.0, "totalPO": 125.45}, {"proc": "최종검사", "sub": "포장", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "directTO": 15.53, "loadRate": null, "needed": 0, "subPerson": 15.53, "directPO": 120.45, "indirectPO": 5.0, "totalPO": 125.45}];
@@ -263,8 +314,11 @@ var P6={"생산관리": {"direct": 0.0, "indirect": 29.0, "total": 29.0}, "레�
 var P7={"생산관리": {"direct": 0.0, "indirect": 29.0, "total": 29.0}, "레이저": {"direct": 11.3, "indirect": 4.0, "total": 15.3}, "동도금": {"direct": 23.0, "indirect": 4.0, "total": 27.0}, "노광": {"direct": 12.0, "indirect": 4.0, "total": 16.0}, "SUB": {"direct": 41.61, "indirect": 8.0, "total": 49.61}, "회로": {"direct": 29.1, "indirect": 4.0, "total": 33.1}, "AOI": {"direct": 24.5, "indirect": 3.0, "total": 27.5}, "수가접": {"direct": 69.04, "indirect": 4.0, "total": 73.04}, "적층": {"direct": 43.8, "indirect": 3.0, "total": 46.8}, "자동가접": {"direct": 39.52, "indirect": 10.0, "total": 49.52}, "금도금": {"direct": 24.65, "indirect": 4.0, "total": 28.65}, "가이드": {"direct": 12.1, "indirect": 3.0, "total": 15.1}, "BBT": {"direct": 10.9, "indirect": 4.0, "total": 14.9}, "타발": {"direct": 68.2, "indirect": 14.0, "total": 82.2}, "최종검사": {"direct": 120.45, "indirect": 5.0, "total": 125.45}};
 var PR={"생산PCS": {"m1": 11505094.4, "m2": 15495592.3}, "생산면적": {"m1": 13544.6, "m2": 18246.9}, "생산매출": {"m1": 5401203.9, "m2": 7322149.9}, "필요인력": {"m1": 560.5, "m2": 613.18}, "현인력": {"m1": 566, "m2": 566}, "충원인력": {"m1": -5.5, "m2": 47.18}};
 var MO={"생산관리": {"current": 29, "m1": {"need": 29.0, "gap": 0.0}, "m2": {"need": 29.0, "gap": 0.0}, "remark": ""}, "레이저": {"current": 20, "m1": {"need": 13.7, "gap": -6.3}, "m2": {"need": 15.3, "gap": -4.7}, "remark": ""}, "동도금": {"current": 30, "m1": {"need": 25.7, "gap": -4.3}, "m2": {"need": 27.0, "gap": -3.0}, "remark": "타공정 지원"}, "노광": {"current": 19, "m1": {"need": 15.4, "gap": -3.6}, "m2": {"need": 16.0, "gap": -3.0}, "remark": ""}, "SUB": {"current": 55, "m1": {"need": 43.21, "gap": -11.79}, "m2": {"need": 49.61, "gap": -5.39}, "remark": "타공정 지원"}, "회로": {"current": 23, "m1": {"need": 32.6, "gap": 9.6}, "m2": {"need": 33.1, "gap": 10.1}, "remark": ""}, "AOI": {"current": 30, "m1": {"need": 20.5, "gap": -9.5}, "m2": {"need": 27.5, "gap": -2.5}, "remark": ""}, "수가접": {"current": 69, "m1": {"need": 61.04, "gap": -7.96}, "m2": {"need": 73.04, "gap": 4.04}, "remark": ""}, "적층": {"current": 33, "m1": {"need": 37.3, "gap": 4.3}, "m2": {"need": 46.8, "gap": 13.8}, "remark": ""}, "자동가접": {"current": 52, "m1": {"need": 49.52, "gap": -2.48}, "m2": {"need": 49.52, "gap": -2.48}, "remark": "타공정 지원"}, "금도금": {"current": 20, "m1": {"need": 27.96, "gap": 7.96}, "m2": {"need": 28.65, "gap": 8.65}, "remark": ""}, "가이드": {"current": 11, "m1": {"need": 14.0, "gap": 3.0}, "m2": {"need": 15.1, "gap": 4.1}, "remark": ""}, "BBT": {"current": 20, "m1": {"need": 13.0, "gap": -7.0}, "m2": {"need": 14.9, "gap": -5.1}, "remark": "타공정 지원"}, "타발": {"current": 82, "m1": {"need": 82.2, "gap": 0.2}, "m2": {"need": 82.2, "gap": 0.2}, "remark": ""}, "최종검사": {"current": 73, "m1": {"need": 95.36, "gap": 22.36}, "m2": {"need": 105.45, "gap": 32.45}, "remark": "외주 대응 가능"}};
+var VI_MAP={"생산관리": "Quản lý SX", "레이저": "Laser", "동도금": "Mạ đồng", "노광": "Phơi sáng", "SUB": "SUB", "회로": "Mạch", "AOI": "AOI", "수가접": "Hàn tay", "적층": "Ép", "자동가접": "Hàn tự động", "금도금": "Mạ vàng", "가이드": "Guide", "BBT": "BBT", "타발": "Đột dập", "최종검사": "KT cuối"};
+var LAMBDA='https://bssy4msokyy3hvsphelxiuyzta0nwxml.lambda-url.ap-southeast-1.on.aws/';
 
 var SM=6,M2=6,M3=6,M5=6,CH={},LG='ko';
+var AI_TYPE='summary';
 
 function nv(v){try{return(v!==null&&v!==undefined&&v!=='')?parseFloat(v)||0:0;}catch(e){return 0;}}
 function NF(v,d){return Number(v).toLocaleString('ko-KR',{minimumFractionDigits:d!==undefined?d:1,maximumFractionDigits:d!==undefined?d:1});}
@@ -281,16 +335,61 @@ function lc(r){
 }
 function lbadge(r){
   if(r===null)return '<span class="badge bx">-</span>';
-  if(r>=1.0)return '<span class="badge br">과부하</span>';
-  if(r>=0.8)return '<span class="badge ba">주의</span>';
-  if(r>=0.5)return '<span class="badge bb">적정</span>';
-  return '<span class="badge bg">여유</span>';
+  if(r>=1.0)return '<span class="badge br">'+(LG==='ko'?'과부하':'Quá tải')+'</span>';
+  if(r>=0.8)return '<span class="badge ba">'+(LG==='ko'?'주의':'Chú ý')+'</span>';
+  if(r>=0.5)return '<span class="badge bb">'+(LG==='ko'?'적정':'Phù hợp')+'</span>';
+  return '<span class="badge bg">'+(LG==='ko'?'여유':'Rảnh')+'</span>';
 }
 function gbadge(g6,g7){
-  if(g6>5||g7>10)return '<span class="badge br">충원필요</span>';
-  if(g6>0||g7>0)return '<span class="badge ba">소폭부족</span>';
-  if(g6<-8&&g7<-8)return '<span class="badge bb">여유</span>';
-  return '<span class="badge bg">적정</span>';
+  if(g6>5||g7>10)return '<span class="badge br">'+(LG==='ko'?'충원필요':'Cần tuyển')+'</span>';
+  if(g6>0||g7>0)return '<span class="badge ba">'+(LG==='ko'?'소폭부족':'Thiếu ít')+'</span>';
+  if(g6<-8&&g7<-8)return '<span class="badge bb">'+(LG==='ko'?'여유':'Dư')+'</span>';
+  return '<span class="badge bg">'+(LG==='ko'?'적정':'Ổn định')+'</span>';
+}
+
+// ── 언어 전환 ──
+function setLang(l){
+  LG=l;
+  document.getElementById('bko').classList.toggle('on',l==='ko');
+  document.getElementById('bvi').classList.toggle('on',l==='vi');
+
+  // data-ko/data-vi 속성 있는 모든 요소 교체
+  document.querySelectorAll('[data-ko]').forEach(function(el){
+    el.textContent=l==='ko'?el.dataset.ko:el.dataset.vi;
+  });
+
+  // 헤더
+  document.getElementById('ht').textContent=l==='ko'?'생산인력배정 대시보드':'Bảng điều phối nhân lực sản xuất';
+  document.getElementById('h-upload').textContent=l==='ko'?'엑셀 업로드':'Tải Excel';
+  document.getElementById('h-ai').textContent=l==='ko'?'AI 분석':'Phân tích AI';
+
+  // KPI 레이블 (동적)
+  var mn=l==='ko'?SM+'월':'Tháng '+SM;
+  document.getElementById('kld').textContent=l==='ko'?'직접인원 필요 ('+SM+'월)':'TT cần (T'+SM+')';
+  document.getElementById('kli').textContent=l==='ko'?'간접인원 필요 ('+SM+'월)':'GT cần (T'+SM+')';
+  document.getElementById('klt').textContent=l==='ko'?'총 필요인원 ('+SM+'월)':'Tổng cần (T'+SM+')';
+  document.getElementById('klg').textContent=l==='ko'?'GAP ('+SM+'월)':'GAP (T'+SM+')';
+  document.getElementById('klp').textContent=l==='ko'?'생산면적 ㎡ ('+SM+'월)':'DT sản xuất ㎡ (T'+SM+')';
+  document.getElementById('kls').textContent=l==='ko'?'생산매출 천$ ('+SM+'월)':'Doanh thu nghìn$ (T'+SM+')';
+  document.getElementById('ct1').textContent=l==='ko'?'공정별 직접/간접 인원 ('+SM+'월)':'Nhân lực TT/GT (T'+SM+')';
+  document.getElementById('ct3').textContent=l==='ko'?'공정별 인원 현황 ('+SM+'월 기준)':'Tình trạng nhân lực (T'+SM+')';
+  document.getElementById('thg').textContent=l==='ko'?'GAP ('+SM+'월)':'GAP (T'+SM+')';
+  document.getElementById('smlabel').textContent=l==='ko'?'▶ '+SM+'월 기준':'▶ Tháng '+SM;
+
+  // 검색 placeholder
+  var ds=document.getElementById('ds');
+  if(ds) ds.placeholder=l==='ko'?'설비명 검색...':'Tìm tên thiết bị...';
+  var aq=document.getElementById('ai-question');
+  if(aq) aq.placeholder=l==='ko'?'추가 질문을 입력하세요 (선택사항)...':'Nhập câu hỏi thêm (tùy chọn)...';
+
+  // 공정 셀렉트 옵션 업데이트
+  ['pf','dp'].forEach(function(sid){
+    var sel=document.getElementById(sid); if(!sel) return;
+    Array.from(sel.options).forEach(function(opt){
+      if(!opt.value) return;
+      opt.textContent=l==='ko'?opt.value:(VI_MAP[opt.value]||opt.value);
+    });
+  });
 }
 
 function sw(i){
@@ -298,27 +397,21 @@ function sw(i){
   document.querySelectorAll('.pane').forEach(function(p,j){p.classList.toggle('on',j===i);});
   if(i===1)rProc();if(i===2)rLoad();if(i===3)rGap();if(i===4)rDet();
 }
-function setLang(l){
-  LG=l;
-  document.getElementById('bko').classList.toggle('on',l==='ko');
-  document.getElementById('bvi').classList.toggle('on',l==='vi');
-}
 
 // ══ ① 종합 현황 ══
 function setSM(m,btn){
   SM=m;
   document.getElementById('sb6').classList.toggle('on',m===6);
   document.getElementById('sb7').classList.toggle('on',m===7);
-  document.getElementById('smlabel').textContent='▶ '+m+'월 기준';
-  rSum();
+  rSum(); setLang(LG);
 }
 function rSum(){
   var ps=gP(SM), mk=SM===7?'m2':'m1';
   var gd=0,gi=0,gt=0;
   Object.values(ps).forEach(function(p){gd+=p.direct;gi+=p.indirect;gt+=p.total;});
-  var cur=PR['현인력']?PR['현인력'].m1:0;
-  var nf=PR['필요인력']?PR['필요인력'][mk]:0;
-  var gap=nv(nf)-nv(cur);
+  var cur=nv(PR['현인력']?PR['현인력'].m1:0);
+  var nf=nv(PR['필요인력']?PR['필요인력'][mk]:0);
+  var gap=nf-cur;
 
   document.getElementById('kd').textContent=NF(gd,1)+'명';
   document.getElementById('ki').textContent=NF(gi,1)+'명';
@@ -330,40 +423,37 @@ function rSum(){
   document.getElementById('kp').textContent=NF(PR['생산면적']?PR['생산면적'][mk]:0,1);
   document.getElementById('ks').textContent=NF((PR['생산매출']?PR['생산매출'][mk]:0)/1000,1);
 
-  ['kld','kli','klt','klg','klp','kls'].forEach(function(id){
-    document.getElementById(id).textContent={
-      'kld':'직접인원 필요 ('+SM+'월)','kli':'간접인원 필요 ('+SM+'월)',
-      'klt':'총 필요인원 ('+SM+'월)','klg':'GAP ('+SM+'월)',
-      'klp':'생산면적 ㎡ ('+SM+'월)','kls':'생산매출 천$ ('+SM+'월)'
-    }[id];
-  });
-  document.getElementById('ct1').textContent='공정별 직접/간접 인원 ('+SM+'월)';
-  document.getElementById('ct3').textContent='공정별 인원 현황 ('+SM+'월 기준)';
-  document.getElementById('thg').textContent='GAP ('+SM+'월)';
+  document.getElementById('kld').textContent=LG==='ko'?'직접인원 필요 ('+SM+'월)':'TT cần (T'+SM+')';
+  document.getElementById('kli').textContent=LG==='ko'?'간접인원 필요 ('+SM+'월)':'GT cần (T'+SM+')';
+  document.getElementById('klt').textContent=LG==='ko'?'총 필요인원 ('+SM+'월)':'Tổng cần (T'+SM+')';
+  document.getElementById('klg').textContent=LG==='ko'?'GAP ('+SM+'월)':'GAP (T'+SM+')';
+  document.getElementById('klp').textContent=LG==='ko'?'생산면적 ㎡ ('+SM+'월)':'DT sản xuất ㎡ (T'+SM+')';
+  document.getElementById('kls').textContent=LG==='ko'?'생산매출 천$ ('+SM+'월)':'Doanh thu nghìn$ (T'+SM+')';
+  document.getElementById('ct1').textContent=LG==='ko'?'공정별 직접/간접 인원 ('+SM+'월)':'Nhân lực TT/GT (T'+SM+')';
+  document.getElementById('ct3').textContent=LG==='ko'?'공정별 인원 현황 ('+SM+'월 기준)':'Tình trạng nhân lực (T'+SM+')';
+  document.getElementById('thg').textContent=LG==='ko'?'GAP ('+SM+'월)':'GAP (T'+SM+')';
+  document.getElementById('smlabel').textContent=LG==='ko'?'▶ '+SM+'월 기준':'▶ Tháng '+SM;
 
-  // 차트1 - 직접/간접 스택바
   dc('c1');
   var labs=Object.keys(ps);
   CH['c1']=new Chart(document.getElementById('c1'),{
     type:'bar',
     data:{labels:labs,datasets:[
-      {label:'직접',data:labs.map(function(p){return Math.round(ps[p].direct*10)/10;}),backgroundColor:'rgba(29,158,117,.8)',borderRadius:3},
-      {label:'간접',data:labs.map(function(p){return Math.round(ps[p].indirect*10)/10;}),backgroundColor:'rgba(123,47,190,.7)',borderRadius:3}
+      {label:LG==='ko'?'직접':'Trực tiếp',data:labs.map(function(p){return Math.round(ps[p].direct*10)/10;}),backgroundColor:'rgba(29,158,117,.8)',borderRadius:3},
+      {label:LG==='ko'?'간접':'Gián tiếp',data:labs.map(function(p){return Math.round(ps[p].indirect*10)/10;}),backgroundColor:'rgba(123,47,190,.7)',borderRadius:3}
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'top',labels:{color:'#94afc8',font:{size:10}}}},
       scales:{x:{stacked:true,ticks:{color:'#94afc8',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},
               y:{stacked:true,ticks:{color:'#94afc8',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}}}}
   });
-
-  // 차트2 - 6월 vs 7월
   dc('c2');
   var ap=Object.keys(P6);
   CH['c2']=new Chart(document.getElementById('c2'),{
     type:'bar',
     data:{labels:ap,datasets:[
-      {label:'6월',data:ap.map(function(p){return P6[p]?Math.round(P6[p].total*10)/10:0;}),backgroundColor:'rgba(33,118,174,.8)',borderRadius:3},
-      {label:'7월',data:ap.map(function(p){return P7[p]?Math.round(P7[p].total*10)/10:0;}),backgroundColor:'rgba(232,160,32,.8)',borderRadius:3}
+      {label:LG==='ko'?'6월':'T6',data:ap.map(function(p){return P6[p]?Math.round(P6[p].total*10)/10:0;}),backgroundColor:'rgba(33,118,174,.8)',borderRadius:3},
+      {label:LG==='ko'?'7월':'T7',data:ap.map(function(p){return P7[p]?Math.round(P7[p].total*10)/10:0;}),backgroundColor:'rgba(232,160,32,.8)',borderRadius:3}
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'top',labels:{color:'#94afc8',font:{size:10}}}},
@@ -371,7 +461,6 @@ function rSum(){
               y:{ticks:{color:'#94afc8',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}}}}
   });
 
-  // 테이블
   var h='',tgd=0,tgi=0,tgt=0,tc=0,tg=0;
   Object.keys(ps).forEach(function(proc){
     var p=ps[proc], md=MO[proc]||{};
@@ -379,8 +468,9 @@ function rSum(){
     var g6v=md.m1?md.m1.gap:0, g7v=md.m2?md.m2.gap:0;
     var gv=SM===7?g7v:g6v;
     var rem=md.remark||'';
+    var pn=LG==='ko'?proc:(VI_MAP[proc]||proc);
     h+='<tr>'
-      +'<td style="font-weight:700;color:var(--blue3)">'+proc+'</td>'
+      +'<td style="font-weight:700;color:var(--blue3)">'+pn+'</td>'
       +'<td class="r" style="color:var(--teal2)">'+NF(p.direct,1)+'</td>'
       +'<td class="r" style="color:var(--purple3)">'+NF(p.indirect,1)+'</td>'
       +'<td class="r" style="font-weight:700">'+NF(p.total,1)+'</td>'
@@ -392,8 +482,9 @@ function rSum(){
     tgd+=p.direct;tgi+=p.indirect;tgt+=p.total;tc+=cur2;tg+=gv;
   });
   document.getElementById('s-body').innerHTML=h;
+  var ftxt=LG==='ko'?'합계':'Tổng';
   document.getElementById('s-foot').innerHTML=
-    '<td>합계</td><td class="r">'+NF(tgd,1)+'</td><td class="r">'+NF(tgi,1)+'</td>'
+    '<td>'+ftxt+'</td><td class="r">'+NF(tgd,1)+'</td><td class="r">'+NF(tgi,1)+'</td>'
     +'<td class="r" style="color:var(--blue3)">'+NF(tgt,1)+'</td>'
     +'<td class="c">'+NB(tc)+'</td>'
     +'<td class="r '+gc(tg)+'">'+sg(tg,1)+'</td><td></td><td></td>';
@@ -401,9 +492,7 @@ function rSum(){
 
 // ══ ② 공정별 인원 ══
 function setM2(m,btn){
-  M2=m;
-  document.querySelectorAll('#p1 .mtab').forEach(function(b){b.classList.remove('on');});
-  btn.classList.add('on');rProc();
+  M2=m;document.querySelectorAll('#p1 .mtab').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');rProc();
 }
 function rProc(){
   var ps=gP(M2), pf=document.getElementById('pf').value;
@@ -411,11 +500,10 @@ function rProc(){
   if(pf&&ps[pf]){filt={};filt[pf]=ps[pf];}else{filt=ps;}
   var gd=0,gi=0,gt=0;
   Object.values(filt).forEach(function(p){gd+=p.direct;gi+=p.indirect;gt+=p.total;});
-
   dc('c3');
   CH['c3']=new Chart(document.getElementById('c3'),{
     type:'doughnut',
-    data:{labels:['직접인원','간접인원'],datasets:[{
+    data:{labels:[LG==='ko'?'직접인원':'Trực tiếp',LG==='ko'?'간접인원':'Gián tiếp'],datasets:[{
       data:[Math.round(gd*10)/10,Math.round(gi*10)/10],
       backgroundColor:['rgba(29,158,117,.8)','rgba(123,47,190,.8)'],
       borderColor:['#1D9E75','#7B2FBE'],borderWidth:2
@@ -423,51 +511,44 @@ function rProc(){
     options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
       plugins:{legend:{position:'bottom',labels:{color:'#94afc8',padding:14,font:{size:11}}}}}
   });
-
   dc('c4');
   CH['c4']=new Chart(document.getElementById('c4'),{
     type:'bar',
     data:{labels:Object.keys(filt),datasets:[
-      {label:'직접',data:Object.values(filt).map(function(p){return p.direct;}),backgroundColor:'rgba(29,158,117,.8)',borderRadius:3},
-      {label:'간접',data:Object.values(filt).map(function(p){return p.indirect;}),backgroundColor:'rgba(123,47,190,.7)',borderRadius:3}
+      {label:LG==='ko'?'직접':'TT',data:Object.values(filt).map(function(p){return p.direct;}),backgroundColor:'rgba(29,158,117,.8)',borderRadius:3},
+      {label:LG==='ko'?'간접':'GT',data:Object.values(filt).map(function(p){return p.indirect;}),backgroundColor:'rgba(123,47,190,.7)',borderRadius:3}
     ]},
     options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
       plugins:{legend:{position:'top',labels:{color:'#94afc8',font:{size:10}}}},
       scales:{x:{stacked:true,ticks:{color:'#94afc8',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},
               y:{stacked:true,ticks:{color:'#94afc8',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}}}}
   });
-
   var h='',td=0,ti=0,tt=0;
   Object.keys(filt).forEach(function(proc){
-    var p=filt[proc];
-    var rt=p.total>0?Math.round(p.direct/p.total*100):0;
-    h+='<tr>'
-      +'<td style="font-weight:700;color:var(--blue3)">'+proc+'</td>'
+    var p=filt[proc], rt=p.total>0?Math.round(p.direct/p.total*100):0;
+    var pn=LG==='ko'?proc:(VI_MAP[proc]||proc);
+    h+='<tr><td style="font-weight:700;color:var(--blue3)">'+pn+'</td>'
       +'<td class="r" style="color:var(--teal2)">'+NF(p.direct,1)+'</td>'
       +'<td class="r" style="color:var(--purple3)">'+NF(p.indirect,1)+'</td>'
       +'<td class="r" style="font-weight:700">'+NF(p.total,1)+'</td>'
       +'<td><div style="display:flex;align-items:center;gap:5px">'
       +'<div class="bar-bg" style="flex:1"><div class="bar-fill" style="width:'+rt+'%;background:var(--teal2)"></div></div>'
-      +'<span style="color:var(--teal2);font-size:11px;min-width:28px">'+rt+'%</span></div></td>'
-      +'</tr>';
+      +'<span style="color:var(--teal2);font-size:11px;min-width:28px">'+rt+'%</span></div></td></tr>';
     td+=p.direct;ti+=p.indirect;tt+=p.total;
   });
   document.getElementById('p-body').innerHTML=h;
   document.getElementById('p-foot').innerHTML=
-    '<td>합계</td><td class="r">'+NF(td,1)+'</td><td class="r">'+NF(ti,1)+'</td>'
+    '<td>'+(LG==='ko'?'합계':'Tổng')+'</td><td class="r">'+NF(td,1)+'</td><td class="r">'+NF(ti,1)+'</td>'
     +'<td class="r" style="color:var(--blue3)">'+NF(tt,1)+'</td>'
     +'<td class="c">'+Math.round(tt>0?td/tt*100:0)+'%</td>';
 }
 
 // ══ ③ 설비 부하율 ══
 function setM3(m,btn){
-  M3=m;
-  document.querySelectorAll('#p2 .mtab').forEach(function(b){b.classList.remove('on');});
-  btn.classList.add('on');rLoad();
+  M3=m;document.querySelectorAll('#p2 .mtab').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');rLoad();
 }
 function rLoad(){
-  var data=gD(M3);
-  var pl={};
+  var data=gD(M3), pl={};
   data.forEach(function(d){
     if(d.loadRate===null)return;
     if(!pl[d.proc])pl[d.proc]={s:0,n:0};
@@ -476,7 +557,7 @@ function rLoad(){
   var lb=[],lv=[],lc2=[];
   Object.keys(pl).forEach(function(p){
     var avg=pl[p].s/pl[p].n;
-    lb.push(p);lv.push(Math.round(avg*1000)/10);lc2.push(lc(avg));
+    lb.push(LG==='ko'?p:(VI_MAP[p]||p));lv.push(Math.round(avg*1000)/10);lc2.push(lc(avg));
   });
   dc('c5');
   CH['c5']=new Chart(document.getElementById('c5'),{
@@ -495,9 +576,8 @@ function rLoad(){
   dc('c6');
   CH['c6']=new Chart(document.getElementById('c6'),{
     type:'doughnut',
-    data:{labels:['여유(<30%)','보통(30~50%)','적정(50~80%)','주의(80%+)'],datasets:[{
-      data:dist,backgroundColor:['rgba(29,158,117,.8)','rgba(33,118,174,.8)','rgba(232,160,32,.8)','rgba(192,0,0,.8)'],borderWidth:2
-    }]},
+    data:{labels:LG==='ko'?['여유(<30%)','보통(30~50%)','적정(50~80%)','주의(80%+)']:['Rảnh(<30%)','TB(30~50%)','OK(50~80%)','Chú ý(80%+)'],
+      datasets:[{data:dist,backgroundColor:['rgba(29,158,117,.8)','rgba(33,118,174,.8)','rgba(232,160,32,.8)','rgba(192,0,0,.8)'],borderWidth:2}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'55%',
       plugins:{legend:{position:'bottom',labels:{color:'#94afc8',padding:10,font:{size:10}}}}}
   });
@@ -505,16 +585,13 @@ function rLoad(){
   data.filter(function(d){return d.sub&&d.loadRate!==null;}).forEach(function(d){
     var lrP=Math.round(d.loadRate*1000)/10;
     var bw=Math.min(d.loadRate*100,100);
-    h+='<tr>'
-      +'<td style="color:var(--blue3);font-weight:600">'+d.proc+'</td>'
-      +'<td>'+d.sub+'</td>'
+    var pn=LG==='ko'?d.proc:(VI_MAP[d.proc]||d.proc);
+    h+='<tr><td style="color:var(--blue3);font-weight:600">'+pn+'</td><td>'+d.sub+'</td>'
       +'<td class="c">'+d.owned+'</td>'
       +'<td style="min-width:110px"><div style="display:flex;align-items:center;gap:5px">'
       +'<div class="bar-bg" style="flex:1"><div class="bar-fill" style="width:'+bw+'%;background:'+lc(d.loadRate)+'"></div></div>'
       +'<span style="color:'+lc(d.loadRate)+';font-size:11px;min-width:36px">'+lrP+'%</span></div></td>'
-      +'<td class="c">'+NF(d.needed,1)+'</td>'
-      +'<td class="c">'+lbadge(d.loadRate)+'</td>'
-      +'</tr>';
+      +'<td class="c">'+NF(d.needed,1)+'</td><td class="c">'+lbadge(d.loadRate)+'</td></tr>';
   });
   document.getElementById('l-body').innerHTML=h;
 }
@@ -529,11 +606,12 @@ function rGap(){
     c6.push(v6>0?'rgba(192,0,0,.75)':v6<0?'rgba(29,158,117,.75)':'rgba(90,122,150,.5)');
     c7.push(v7>0?'rgba(192,0,0,.75)':v7<0?'rgba(29,158,117,.75)':'rgba(90,122,150,.5)');
   });
+  var plabs=procs.map(function(p){return LG==='ko'?p:(VI_MAP[p]||p);});
   var gOpt=function(data,colors){return{
-    type:'bar',data:{labels:procs,datasets:[{data:data,backgroundColor:colors,borderRadius:4}]},
+    type:'bar',data:{labels:plabs,datasets:[{data:data,backgroundColor:colors,borderRadius:4}]},
     options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
       plugins:{legend:{display:false}},
-      scales:{x:{ticks:{color:'#94afc8',font:{size:9},callback:function(v){return v+'명';}},grid:{color:'rgba(255,255,255,.04)'}},
+      scales:{x:{ticks:{color:'#94afc8',font:{size:9},callback:function(v){return v+(LG==='ko'?'명':'N');}},grid:{color:'rgba(255,255,255,.04)'}},
               y:{ticks:{color:'#94afc8',font:{size:9}},grid:{display:false}}}}};};
   dc('c7');CH['c7']=new Chart(document.getElementById('c7'),gOpt(g6,c6));
   dc('c8');CH['c8']=new Chart(document.getElementById('c8'),gOpt(g7,c7));
@@ -544,21 +622,19 @@ function rGap(){
     var cur=m.current||0,n6=m.m1?m.m1.need:0,n7=m.m2?m.m2.need:0;
     var v6=m.m1?m.m1.gap:0, v7=m.m2?m.m2.gap:0;
     var rem=m.remark||'';
-    h+='<tr>'
-      +'<td style="font-weight:700;color:var(--blue3)">'+p+'</td>'
+    var pn=LG==='ko'?p:(VI_MAP[p]||p);
+    h+='<tr><td style="font-weight:700;color:var(--blue3)">'+pn+'</td>'
       +'<td class="c">'+cur+'</td>'
-      +'<td class="r">'+NF(n6,2)+'</td>'
-      +'<td class="r '+gc(v6)+'">'+sg(v6,1)+'</td>'
-      +'<td class="r">'+NF(n7,2)+'</td>'
-      +'<td class="r '+gc(v7)+'">'+sg(v7,1)+'</td>'
+      +'<td class="r">'+NF(n6,2)+'</td><td class="r '+gc(v6)+'">'+sg(v6,1)+'</td>'
+      +'<td class="r">'+NF(n7,2)+'</td><td class="r '+gc(v7)+'">'+sg(v7,1)+'</td>'
       +'<td class="c">'+gbadge(v6,v7)+'</td>'
-      +'<td class="c"><span class="remark">'+rem+'</span></td>'
-      +'</tr>';
+      +'<td class="c"><span class="remark">'+rem+'</span></td></tr>';
     tc+=cur;tn6+=n6;tn7+=n7;tg6+=v6;tg7+=v7;
   });
   document.getElementById('g-body').innerHTML=h;
+  var ft=LG==='ko'?'합계':'Tổng';
   document.getElementById('g-foot').innerHTML=
-    '<td>합계</td><td class="c">'+NB(tc)+'</td>'
+    '<td>'+ft+'</td><td class="c">'+NB(tc)+'</td>'
     +'<td class="r">'+NF(tn6,2)+'</td><td class="r '+gc(tg6)+'">'+sg(tg6,1)+'</td>'
     +'<td class="r">'+NF(tn7,2)+'</td><td class="r '+gc(tg7)+'">'+sg(tg7,1)+'</td>'
     +'<td></td><td></td>';
@@ -566,9 +642,7 @@ function rGap(){
 
 // ══ ⑤ 세부 현황 ══
 function setM5(m,btn){
-  M5=m;
-  document.querySelectorAll('#p4 .mtab').forEach(function(b){b.classList.remove('on');});
-  btn.classList.add('on');rDet();
+  M5=m;document.querySelectorAll('#p4 .mtab').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');rDet();
 }
 function rDet(){
   var data=gD(M5);
@@ -581,29 +655,101 @@ function rDet(){
     return true;
   }).forEach(function(d){
     var lr=d.loadRate, lrP=lr!==null?Math.round(lr*1000)/10:null;
-    h+='<tr>'
-      +'<td style="color:var(--blue3);font-weight:600">'+d.proc+'</td>'
-      +'<td>'+d.sub+'</td>'
+    var pn=LG==='ko'?d.proc:(VI_MAP[d.proc]||d.proc);
+    h+='<tr><td style="color:var(--blue3);font-weight:600">'+pn+'</td><td>'+d.sub+'</td>'
       +'<td class="c">'+d.owned+'</td>'
-      +'<td class="r">'+NF(d.toDay,2)+'</td>'
-      +'<td class="r">'+NF(d.toNight,2)+'</td>'
+      +'<td class="r">'+NF(d.toDay,2)+'</td><td class="r">'+NF(d.toNight,2)+'</td>'
       +'<td class="r">'+NF(d.directTO,2)+'</td>'
       +'<td class="c"><span style="color:'+lc(lr)+'">'+(lrP!==null?lrP+'%':'-')+'</span></td>'
       +'<td class="c">'+NF(d.needed,2)+'</td>'
       +'<td class="r">'+NF(d.subPerson,1)+'</td>'
       +'<td class="r" style="color:var(--teal2)">'+NF(d.directPO,1)+'</td>'
       +'<td class="r" style="color:var(--purple3)">'+NF(d.indirectPO,1)+'</td>'
-      +'<td class="r" style="font-weight:700">'+NF(d.totalPO,1)+'</td>'
-      +'</tr>';
+      +'<td class="r" style="font-weight:700">'+NF(d.totalPO,1)+'</td></tr>';
   });
   document.getElementById('d-body').innerHTML=h;
+}
+
+// ══ AI 분석 ══
+function openAI(){document.getElementById('ai-modal').classList.add('on');}
+function closeAI(){document.getElementById('ai-modal').classList.remove('on');}
+function selAI(btn){
+  document.querySelectorAll('.ai-sel-btn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  AI_TYPE=btn.dataset.type;
+}
+
+function buildPrompt(type, extra){
+  // 핵심 데이터 요약
+  var gd=0,gi=0,gt=0;
+  Object.values(P6).forEach(function(p){gd+=p.direct;gi+=p.indirect;gt+=p.total;});
+  var cur=nv(PR['현인력']?PR['현인력'].m1:0);
+  var gap6=nv(PR['충원인력']?PR['충원인력'].m1:0);
+  var gap7=nv(PR['충원인력']?PR['충원인력'].m2:0);
+
+  var procLines=Object.keys(MO).map(function(p){
+    var m=MO[p];
+    return p+'| 현='+m.current+'명 | 6월필요='+NF(m.m1.need,1)+'명(GAP='+sg(m.m1.gap,1)+') | 7월필요='+NF(m.m2.need,1)+'명(GAP='+sg(m.m2.gap,1)+')'+( m.remark?' | 비고='+m.remark:'');
+  }).join('\n');
+
+  // 부하율 높은 설비 TOP5
+  var loadItems=D6.filter(function(d){return d.loadRate!==null;})
+    .sort(function(a,b){return b.loadRate-a.loadRate;}).slice(0,5);
+  var loadLines=loadItems.map(function(d){return d.proc+' > '+d.sub+': '+Math.round(d.loadRate*1000)/10+'%';}).join('\n');
+
+  var base='SYNOPEX VIETNAM 생산인력배정 데이터 (2026년 6월 기준)\n'
+    +'- 총 필요인원: '+NF(gt,1)+'명 (직접='+NF(gd,1)+'명, 간접='+NF(gi,1)+'명)\n'
+    +'- 현 인원: '+NB(cur)+'명\n'
+    +'- 6월 GAP: '+sg(gap6,1)+'명 / 7월 GAP: '+sg(gap7,1)+'명\n\n'
+    +'[공정별 인력 현황]\n'+procLines+'\n\n'
+    +'[부하율 상위 설비 TOP5]\n'+loadLines+'\n';
+
+  var prompts={
+    summary: base+'위 데이터를 종합적으로 분석하여 핵심 이슈와 개선 방향을 한국어로 요약해주세요. (300자 이내)',
+    gap:     base+'각 공정의 인력 GAP을 분석하여 7월까지 충원이 긴급한 공정 순으로 우선순위를 정하고, 각 공정별 구체적인 대응 방안을 제시해주세요.',
+    load:    base+'설비 부하율이 높은 공정의 위험도를 평가하고, 생산 차질 방지를 위한 설비/인력 운용 개선안을 제시해주세요.',
+    recruit: base+'6월~7월 인력 GAP 데이터를 기반으로 공정별 충원 계획(인원수, 우선순위, 육성기간)을 표 형식으로 제안해주세요.'
+  };
+  return prompts[type]+(extra?'\n\n추가 질문: '+extra:'');
+}
+
+async function runAI(){
+  var btn=document.getElementById('ai-run-btn');
+  var res=document.getElementById('ai-result');
+  var extra=document.getElementById('ai-question').value.trim();
+
+  btn.disabled=true;
+  res.className='ai-result loading';
+  res.textContent='🤔 AI가 분석 중입니다...';
+
+  try{
+    var prompt=buildPrompt(AI_TYPE, extra);
+    var resp=await fetch(LAMBDA,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        type:'manpower',
+        prompt:prompt,
+        lang:LG
+      })
+    });
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    var data=await resp.json();
+    var text=data.result||data.message||data.content||JSON.stringify(data);
+    res.className='ai-result';
+    res.textContent=text;
+  }catch(err){
+    res.className='ai-result';
+    res.textContent='❌ 오류: '+err.message+'\n\nLambda 연결을 확인해주세요.';
+  }
+  btn.disabled=false;
 }
 
 // ══ 엑셀 업로드 ══
 function loadExcel(input){
   var file=input.files[0]; if(!file) return;
-  var st=document.getElementById('upst');
-  st.textContent='⏳ 파싱 중...';st.style.color='var(--txt2)';
+  var st=document.getElementById('upst-txt');
+  st.textContent='⏳ '+(LG==='ko'?'파싱 중...':'Đang xử lý...');
   var reader=new FileReader();
   reader.onload=function(e){
     try{
@@ -634,10 +780,8 @@ function loadExcel(input){
       if(sn7){var r7=parseWS(wb.Sheets[sn7]);D7=r7.data;P7=r7.procs;}
       if(mn){
         var mr=XLSX.utils.sheet_to_json(wb.Sheets[mn],{header:1,defval:null,raw:true});
-        ['생산PCS','생산면적','생산매출','_','필요인력','현인력','충원인력'].forEach(function(k,idx){
-          if(k==='_')return;
-          var r=mr[idx+4]; if(r) PR[k]={m1:nv(r[2]),m2:nv(r[3])};
-        });
+        var pk={'생산PCS':4,'생산면적':5,'생산매출':6,'필요인력':8,'현인력':9,'충원인력':10};
+        Object.keys(pk).forEach(function(k){var r=mr[pk[k]];if(r)PR[k]={m1:nv(r[2]),m2:nv(r[3])};});
         MO={};
         for(var i=16;i<32;i++){
           if(!mr[i]||!mr[i][1])continue;
@@ -649,10 +793,10 @@ function loadExcel(input){
             remark:mr[i][11]?String(mr[i][11]).trim():''};
         }
       }
-      st.textContent='✅ '+file.name;st.style.color='var(--teal2)';
+      st.textContent=file.name;
       rAll();
     }catch(err){
-      st.textContent='❌ '+err.message;st.style.color='var(--red3)';
+      st.textContent='❌ '+err.message;
       console.error(err);
     }
   };
@@ -664,6 +808,10 @@ function rAll(){
   var ai=[...document.querySelectorAll('.pane')].findIndex(function(p){return p.classList.contains('on');});
   if(ai===1)rProc();if(ai===2)rLoad();if(ai===3)rGap();if(ai===4)rDet();
 }
+
+// ESC로 모달 닫기
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAI();});
+document.getElementById('ai-modal').addEventListener('click',function(e){if(e.target===this)closeAI();});
 
 document.addEventListener('DOMContentLoaded',function(){rAll();});
 </script>
