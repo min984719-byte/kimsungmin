@@ -308,7 +308,12 @@ tr.ttl td{background:var(--bg3);font-weight:700}
 </div>
 
 <script>
-var DATA=[], PROCS={}, MONTH_DATA={}, PROD_DATA={}, CHARTS={};
+var DATA=[{"proc": "LASER", "sub": "RTR LASER", "owned": 10, "opRate": 3.0, "toDay": 3.3, "toNight": 3.3, "loadRate": 0.6232, "needed": 7.0, "direct": 11.9, "indirect": 4.0, "total": 15.9, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "LASER", "sub": "SHEET LASER", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.5, "needed": 1.0, "direct": 11.9, "indirect": 4.0, "total": 15.9, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "LASER", "sub": "BODY CUT", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 0.35, "needed": 1.0, "direct": 11.9, "indirect": 4.0, "total": 15.9, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "LASER", "sub": "QR CODE", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 0.0076, "needed": 0.01, "direct": 11.9, "indirect": 4.0, "total": 15.9, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "LASER", "sub": "RTR COV", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.5, "needed": 1.0, "direct": 11.9, "indirect": 4.0, "total": 15.9, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "LASER", "sub": "세척", "owned": 0, "opRate": 0.1, "toDay": 1.0, "toNight": 1.0, "loadRate": 1.0, "needed": 0, "direct": 11.9, "indirect": 4.0, "total": 15.9, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "동도금", "sub": "블랙홀", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.3551, "needed": 1.0, "direct": 21.1, "indirect": 6.0, "total": 27.1, "indType": "인수/인계", "dayPer": 1, "nightPer": 0}, {"proc": "동도금", "sub": "디스미어", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.2769, "needed": 0.28, "direct": 21.1, "indirect": 6.0, "total": 27.1, "indType": "인수/인계", "dayPer": 1, "nightPer": 0}, {"proc": "동도금", "sub": "화학동", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.387, "needed": 1.0, "direct": 21.1, "indirect": 6.0, "total": 27.1, "indType": "인수/인계", "dayPer": 1, "nightPer": 0}, {"proc": "동도금", "sub": "BACKING", "owned": 2, "opRate": 2.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 0.5145, "needed": 2.0, "direct": 21.1, "indirect": 6.0, "total": 27.1, "indType": "인수/인계", "dayPer": 1, "nightPer": 0}, {"proc": "동도금", "sub": "RTR 전기동", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.38, "needed": 1.0, "direct": 21.1, "indirect": 6.0, "total": 27.1, "indType": "인수/인계", "dayPer": 1, "nightPer": 0}, {"proc": "동도금", "sub": "SHEET 전기동", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.9812, "needed": 1.0, "direct": 21.1, "indirect": 6.0, "total": 27.1, "indType": "인수/인계", "dayPer": 1, "nightPer": 0}, {"proc": "노광", "sub": "RTR L/M", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.1676, "needed": 0.34, "direct": 12.7, "indirect": 4.0, "total": 16.7, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "노광", "sub": "수동 / WET", "owned": 7, "opRate": 1.0, "toDay": 7.0, "toNight": 7.0, "loadRate": 0.13, "needed": 0.91, "direct": 12.7, "indirect": 4.0, "total": 16.7, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "노광", "sub": "진공 L/M", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 0.2, "needed": 0.2, "direct": 12.7, "indirect": 4.0, "total": 16.7, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "노광", "sub": "RTR FILM 노광", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.338, "needed": 1.0, "direct": 12.7, "indirect": 4.0, "total": 16.7, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "노광", "sub": "LDI", "owned": 4, "opRate": 2.0, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.4654, "needed": 2.0, "direct": 12.7, "indirect": 4.0, "total": 16.7, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "노광", "sub": "RTR DI 노광", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 0.2, "needed": 0.2, "direct": 12.7, "indirect": 4.0, "total": 16.7, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "노광", "sub": "CLEAN/M", "owned": 2, "opRate": 0.5, "toDay": 4.0, "toNight": 4.0, "loadRate": 0.5, "needed": 1.0, "direct": 12.7, "indirect": 4.0, "total": 16.7, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "회로", "sub": "HAFT ETCHING", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 0.3728, "needed": 1.0, "direct": 26.9, "indirect": 6.0, "total": 32.9, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "회로", "sub": "초음파 수세", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.0539, "needed": 0.05, "direct": 26.9, "indirect": 6.0, "total": 32.9, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "회로", "sub": "RTR S/E", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.5, "needed": 1.0, "direct": 26.9, "indirect": 6.0, "total": 32.9, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "회로", "sub": "S/E", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.2461, "needed": 0.25, "direct": 26.9, "indirect": 6.0, "total": 32.9, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "회로", "sub": "옥사이드", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.275, "needed": 0.28, "direct": 26.9, "indirect": 6.0, "total": 32.9, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "회로", "sub": "CZ", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.5195, "needed": 1.0, "direct": 26.9, "indirect": 6.0, "total": 32.9, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "회로", "sub": "DES", "owned": 2, "opRate": 0.5, "toDay": 4.0, "toNight": 4.0, "loadRate": 0.7042, "needed": 2.0, "direct": 26.9, "indirect": 6.0, "total": 32.9, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "회로", "sub": "아대", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "loadRate": 1.0, "needed": 2.0, "direct": 26.9, "indirect": 6.0, "total": 32.9, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "AOI", "sub": "VISION CUT", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 0.5, "needed": 1.0, "direct": 24.2, "indirect": 3.0, "total": 27.2, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "AOI", "sub": "RTR AOI", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 0.4314, "needed": 1.0, "direct": 24.2, "indirect": 3.0, "total": 27.2, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "AOI", "sub": "RTR VRS", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.4314, "needed": 1.0, "direct": 24.2, "indirect": 3.0, "total": 27.2, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "AOI", "sub": "SHEET AOI", "owned": 6, "opRate": 1.0, "toDay": 6.0, "toNight": 6.0, "loadRate": 0.3078, "needed": 2.0, "direct": 24.2, "indirect": 3.0, "total": 27.2, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "AOI", "sub": "SHEET VRS", "owned": 12, "opRate": 1.0, "toDay": 12.0, "toNight": 12.0, "loadRate": 0.3479, "needed": 5.0, "direct": 24.2, "indirect": 3.0, "total": 27.2, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "AOI", "sub": "TAPE", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 1.0, "needed": 1.0, "direct": 24.2, "indirect": 3.0, "total": 27.2, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "COV", "sub": "COV 가접", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "loadRate": null, "needed": 0.0, "direct": 51.3, "indirect": 18.0, "total": 69.3, "indType": "인수/인계", "dayPer": 0, "nightPer": 0}, {"proc": "COV", "sub": "합지가접", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "loadRate": null, "needed": 0.0, "direct": 51.3, "indirect": 18.0, "total": 69.3, "indType": "인수/인계", "dayPer": 0, "nightPer": 0}, {"proc": "COV", "sub": "CLEAN/M", "owned": 3, "opRate": 3.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 1.0, "needed": 3.0, "direct": 51.3, "indirect": 18.0, "total": 69.3, "indType": "인수/인계", "dayPer": 0, "nightPer": 0}, {"proc": "COV", "sub": "EMI 가접", "owned": 2, "opRate": 2.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 0.9287, "needed": 2.0, "direct": 51.3, "indirect": 18.0, "total": 69.3, "indType": "인수/인계", "dayPer": 0, "nightPer": 0}, {"proc": "COV", "sub": "COV 가접", "owned": 4, "opRate": 2.0, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.1927, "needed": 0.77, "direct": 51.3, "indirect": 18.0, "total": 69.3, "indType": "인수/인계", "dayPer": 0, "nightPer": 0}, {"proc": "COV", "sub": "수동 EMI", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "loadRate": null, "needed": 0.0, "direct": 51.3, "indirect": 18.0, "total": 69.3, "indType": "인수/인계", "dayPer": 0, "nightPer": 0}, {"proc": "HP", "sub": "OPEN HP", "owned": 30, "opRate": 1.0, "toDay": 30.0, "toNight": 30.0, "loadRate": 0.3146, "needed": 10.0, "direct": 44.0, "indirect": 5.0, "total": 49.0, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "HP", "sub": "진공 HP", "owned": 8, "opRate": 1.0, "toDay": 8.0, "toNight": 8.0, "loadRate": 0.2459, "needed": 1.97, "direct": 44.0, "indirect": 5.0, "total": 49.0, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "HP", "sub": "LAYUP", "owned": 38, "opRate": 1.5, "toDay": 25.3, "toNight": 25.3, "loadRate": 0.3146, "needed": 12.0, "direct": 44.0, "indirect": 5.0, "total": 49.0, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "가이드", "sub": "X-RAY", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 0.5388, "needed": 1.0, "direct": 12.1, "indirect": 3.0, "total": 15.1, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "가이드", "sub": "수동가이드", "owned": 2, "opRate": 0.0, "toDay": 0.0, "toNight": 0.0, "loadRate": 0.0, "needed": 0.0, "direct": 12.1, "indirect": 3.0, "total": 15.1, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "가이드", "sub": "자동가이드", "owned": 10, "opRate": 2.0, "toDay": 5.0, "toNight": 5.0, "loadRate": 0.6907, "needed": 7.0, "direct": 12.1, "indirect": 3.0, "total": 15.1, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "가이드", "sub": "RTR 가이드", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 0.6536, "needed": 1.0, "direct": 12.1, "indirect": 3.0, "total": 15.1, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "금도금", "sub": "수직플라즈마", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 0.4208, "needed": 1.0, "direct": 24.2, "indirect": 4.0, "total": 28.2, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "금도금", "sub": "수평플라즈마", "owned": 3, "opRate": 1.0, "toDay": 3.0, "toNight": 3.0, "loadRate": 1.1877, "needed": 3.0, "direct": 24.2, "indirect": 4.0, "total": 28.2, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "금도금", "sub": "아대부착", "owned": 1, "opRate": 1.0, "toDay": 3.0, "toNight": 3.0, "loadRate": 0.48, "needed": 1.0, "direct": 24.2, "indirect": 4.0, "total": 28.2, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "금도금", "sub": "JET 정면", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.5814, "needed": 1.0, "direct": 24.2, "indirect": 4.0, "total": 28.2, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "금도금", "sub": "수세기", "owned": 1, "opRate": 0.5, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.4812, "needed": 1.0, "direct": 24.2, "indirect": 4.0, "total": 28.2, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "금도금", "sub": "금도금", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 0.4812, "needed": 1.0, "direct": 24.2, "indirect": 4.0, "total": 28.2, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "금도금", "sub": "X-RAY", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 0.5388, "needed": 1.0, "direct": 24.2, "indirect": 4.0, "total": 28.2, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "AUTO STIFF", "sub": "자동설비(QUICK)", "owned": 2, "opRate": 2.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 1.0, "needed": 2.0, "direct": 19.9, "indirect": 13.0, "total": 32.9, "indType": "인수/인계", "dayPer": 2, "nightPer": 2}, {"proc": "AUTO STIFF", "sub": "자동설비(DAWON)", "owned": 4, "opRate": 2.0, "toDay": 2.0, "toNight": 2.0, "loadRate": 1.0, "needed": 4.0, "direct": 19.9, "indirect": 13.0, "total": 32.9, "indType": "인수/인계", "dayPer": 2, "nightPer": 2}, {"proc": "AUTO STIFF", "sub": "자동설비(FAST)", "owned": 3, "opRate": 2.0, "toDay": 1.5, "toNight": 1.5, "loadRate": 0.6733, "needed": 3.0, "direct": 19.9, "indirect": 13.0, "total": 32.9, "indType": "인수/인계", "dayPer": 2, "nightPer": 2}, {"proc": "AUTO STIFF", "sub": "Quick press", "owned": 2, "opRate": 0, "toDay": 0, "toNight": 0, "loadRate": null, "needed": 0, "direct": 19.9, "indirect": 13.0, "total": 32.9, "indType": "인수/인계", "dayPer": 2, "nightPer": 2}, {"proc": "SUB", "sub": "캐리어 제거", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "loadRate": null, "needed": 0, "direct": 35.4, "indirect": 18.0, "total": 53.4, "indType": "인수/인계", "dayPer": 2, "nightPer": 2}, {"proc": "SUB", "sub": "EMI 제거", "owned": 0, "opRate": 0, "toDay": 4.0, "toNight": 4.0, "loadRate": 0.5, "needed": 0, "direct": 35.4, "indirect": 18.0, "total": 53.4, "indType": "인수/인계", "dayPer": 2, "nightPer": 2}, {"proc": "SUB", "sub": "STIFF 가접", "owned": 0, "opRate": 0, "toDay": 5.0, "toNight": 5.0, "loadRate": 0.5, "needed": 0, "direct": 35.4, "indirect": 18.0, "total": 53.4, "indType": "인수/인계", "dayPer": 2, "nightPer": 2}, {"proc": "SUB", "sub": "Quick press", "owned": 5, "opRate": 0, "toDay": 0, "toNight": 0, "loadRate": 0.5, "needed": 3.0, "direct": 35.4, "indirect": 18.0, "total": 53.4, "indType": "인수/인계", "dayPer": 2, "nightPer": 2}, {"proc": "SUB", "sub": "EPOXY 합지", "owned": 3, "opRate": 1.0, "toDay": 3.0, "toNight": 3.0, "loadRate": 0.5, "needed": 2.0, "direct": 35.4, "indirect": 18.0, "total": 53.4, "indType": "인수/인계", "dayPer": 2, "nightPer": 2}, {"proc": "BBT", "sub": "수동 BBT", "owned": 5, "opRate": 1.0, "toDay": 5.0, "toNight": 5.0, "loadRate": 0.1606, "needed": 0.8, "direct": 8.4, "indirect": 6.0, "total": 14.4, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "BBT", "sub": "자동 BBT", "owned": 9, "opRate": 2.0, "toDay": 4.5, "toNight": 4.5, "loadRate": 0.6067, "needed": 6.0, "direct": 8.4, "indirect": 6.0, "total": 14.4, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "PRESS", "sub": "금형셋팅", "owned": 0, "opRate": 0, "toDay": 2.0, "toNight": 2.0, "loadRate": null, "needed": 0, "direct": 74.2, "indirect": 10.0, "total": 84.2, "indType": "인수/인계", "dayPer": 3, "nightPer": 3}, {"proc": "PRESS", "sub": "재단-2", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.6, "needed": 2.0, "direct": 74.2, "indirect": 10.0, "total": 84.2, "indType": "인수/인계", "dayPer": 3, "nightPer": 3}, {"proc": "PRESS", "sub": "수동 재단인원", "owned": 0, "opRate": 0, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.5, "needed": 0, "direct": 74.2, "indirect": 10.0, "total": 84.2, "indType": "인수/인계", "dayPer": 3, "nightPer": 3}, {"proc": "PRESS", "sub": "톰슨", "owned": 1, "opRate": 1.0, "toDay": 1.0, "toNight": 1.0, "loadRate": 0.4872, "needed": 1.0, "direct": 74.2, "indirect": 10.0, "total": 84.2, "indType": "인수/인계", "dayPer": 3, "nightPer": 3}, {"proc": "PRESS", "sub": "PRESS", "owned": 25, "opRate": 1.0, "toDay": 27.0, "toNight": 27.0, "loadRate": 1.0, "needed": 25.0, "direct": 74.2, "indirect": 10.0, "total": 84.2, "indType": "인수/인계", "dayPer": 3, "nightPer": 3}, {"proc": "PRESS", "sub": "AUTO PRESS", "owned": 2, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.8, "needed": 2.0, "direct": 74.2, "indirect": 10.0, "total": 84.2, "indType": "인수/인계", "dayPer": 3, "nightPer": 3}, {"proc": "PRESS", "sub": "고속프레스", "owned": 1, "opRate": 1.0, "toDay": 2.0, "toNight": 2.0, "loadRate": 0.3, "needed": 1.0, "direct": 74.2, "indirect": 10.0, "total": 84.2, "indType": "인수/인계", "dayPer": 3, "nightPer": 3}, {"proc": "최종검사", "sub": "추림", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "loadRate": null, "needed": 0, "direct": 85.69, "indirect": 5.0, "total": 90.69, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "최종검사", "sub": "검사", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "loadRate": null, "needed": 0, "direct": 85.69, "indirect": 5.0, "total": 90.69, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "최종검사", "sub": "포장", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "loadRate": null, "needed": 0, "direct": 85.69, "indirect": 5.0, "total": 90.69, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}, {"proc": "최종검사", "sub": "15413.510513606143", "owned": 0, "opRate": 0, "toDay": 0, "toNight": 0, "loadRate": null, "needed": 0, "direct": 85.69, "indirect": 5.0, "total": 90.69, "indType": "인수/인계", "dayPer": 1, "nightPer": 1}];
+var PROCS=(function(){var p={};DATA.forEach(function(d){if(!p[d.proc])p[d.proc]=[];p[d.proc].push(d);});return p;})();
+var MONTH_DATA={"생산관리": {"current": 29, "m1": {"need": 29.0, "gap": 0}, "m2": {"need": 29.0, "gap": 0}}, "레이저": {"current": 23, "m1": {"need": 23.0, "gap": 0}, "m2": {"need": 23.0, "gap": 0}}, "동도금": {"current": 29, "m1": {"need": 25.0, "gap": -4}, "m2": {"need": 25.0, "gap": -4}}, "노광": {"current": 19, "m1": {"need": 20.0, "gap": 1}, "m2": {"need": 20.0, "gap": 1}}, "SUB": {"current": 55, "m1": {"need": 52.0, "gap": -3}, "m2": {"need": 47.0, "gap": -8}}, "회로": {"current": 28, "m1": {"need": 32.0, "gap": 4}, "m2": {"need": 32.0, "gap": 4}}, "AOI": {"current": 30, "m1": {"need": 31.0, "gap": 1}, "m2": {"need": 31.0, "gap": 1}}, "수가접": {"current": 73, "m1": {"need": 73.0, "gap": 0}, "m2": {"need": 73.0, "gap": 0}}, "적층": {"current": 39, "m1": {"need": 39.0, "gap": 0}, "m2": {"need": 43.0, "gap": 4}}, "자동가접": {"current": 50, "m1": {"need": 46.0, "gap": -4}, "m2": {"need": 52.0, "gap": 2}}, "금도금": {"current": 28, "m1": {"need": 30.0, "gap": 2}, "m2": {"need": 30.0, "gap": 2}}, "가이드": {"current": 12, "m1": {"need": 13.0, "gap": 1}, "m2": {"need": 15.0, "gap": 3}}, "BBT": {"current": 21, "m1": {"need": 20.0, "gap": -1}, "m2": {"need": 20.0, "gap": -1}}, "타발": {"current": 80, "m1": {"need": 80.0, "gap": 0}, "m2": {"need": 80.0, "gap": 0}}, "최종검사": {"current": 86, "m1": {"need": 90.7, "gap": 4}, "m2": {"need": 95.4, "gap": 9}}};
+var PROD_DATA={"생산(PCS)": {"m1": 13084511.1, "m2": 13559918.0}, "생산면적": {"m1": 15413.5, "m2": 17936.2}, "생산매출": {"m1": 6456250.8, "m2": 8492586.9}, "필요인력": {"m1": 603.7, "m2": 615.4}, "현인력": {"m1": 602.0, "m2": 602.0}, "충원인력": {"m1": 32.7, "m2": 44.4}, "충원필요": {"m1": 1.7, "m2": 13.4}};
+var CHARTS={};
+var _DATA_PRELOADED=true;
 var LU='https://bssy4msokyy3hvsphelxiuyzta0nwxml.lambda-url.ap-southeast-1.on.aws/';
 
 function sw(i){
@@ -397,93 +402,89 @@ function loadAllSheets(input){
 // ── 설비배정 시트 파싱 ────────────────────────
 function parseEquipSheet(rows){
   DATA=[]; PROCS={};
+  var procInfo={};
+  var ci='';
 
-  // ── 1단계: col[13] 값 있는 행 = 공정 대표 행 → 공정명/인원 추출
-  var procInfo={};  // {공정명: {direct,indirect,total,dayPer,nightPer,indType}}
-  var rowProcMap={}; // {rowIndex: 공정명}
-  var curProc='';
+  function isNum(v){ return v!==null&&v!==undefined&&typeof v==='number'&&!isNaN(v); }
 
+  // 1단계: col[13]>0 행 = 공정 대표행
   for(var i=6;i<rows.length;i++){
     var r=rows[i]; if(!r) continue;
+    if(r[1]&&typeof r[1]==='string'&&r[1].trim()) ci=r[1].trim();
     var sub=r[2]?String(r[2]).trim():''; if(!sub) continue;
-    var isNum=function(v){return v!==null&&v!==undefined&&typeof v==='number'&&!isNaN(v);};
-
-    // col[13]에 값 있는 행 = 공정 대표 행
-    if(isNum(r[13])){
-      if(r[1]&&typeof r[1]==='string'&&r[1].trim()) curProc=r[1].trim();
-      if(!procInfo[curProc]){
-        procInfo[curProc]={
-          direct:r[13]||0, indirect:r[14]||0, total:r[15]||0,
-          indType:r[16]?String(r[16]).trim():'',
-          dayPer:r[17]||0, nightPer:r[18]||0
-        };
-      }
-    } else {
-      // col[13] 없는 행 → 공정명만 업데이트
-      if(r[1]&&typeof r[1]==='string'&&r[1].trim()) curProc=r[1].trim();
+    if(isNum(r[13])&&r[13]>0&&ci&&!procInfo[ci]){
+      procInfo[ci]={
+        direct:nv(r[13]),indirect:nv(r[14]),total:nv(r[15]),
+        indType:r[16]?String(r[16]).trim():'',
+        dayPer:isNum(r[17])?r[17]:0,nightPer:isNum(r[18])?r[18]:0
+      };
     }
-    rowProcMap[i]=curProc;
   }
+  console.log('procInfo:',Object.keys(procInfo).map(function(p){return p+'='+procInfo[p].total.toFixed(0)+'명';}).join(','));
 
-  // ── 2단계: 세부설비 데이터 파싱 (공정명 올바르게 매핑)
-  curProc='';
+  // 2단계: 세부설비 파싱
+  var curProc='';
   for(var i=6;i<rows.length;i++){
     var r=rows[i]; if(!r) continue;
     if(r[1]&&typeof r[1]==='string'&&r[1].trim()) curProc=r[1].trim();
     var sub=r[2]?String(r[2]).trim():''; if(!sub) continue;
-
-    // 이상 행 필터 (숫자가 공정명인 경우)
-    if(!curProc||typeof curProc!=='string'||!isNaN(parseFloat(curProc))) continue;
-
-    var loadRate=(r[10]!==null&&r[10]!==undefined&&typeof r[10]==='number')?r[10]:null;
+    if(!curProc||!isNaN(parseFloat(curProc))) continue;
+    var lr=isNum(r[10])?r[10]:null;
     var pi=procInfo[curProc]||{direct:0,indirect:0,total:0,indType:'',dayPer:0,nightPer:0};
-
-    var d={
-      proc:curProc, sub:sub,
-      owned:r[3], opRate:r[4],
-      toDay:r[5], toNight:r[6], toTotal:nv(r[5])+nv(r[6]),
-      loadRate:loadRate, needed:calcNeeded(r[3],loadRate),
-      direct:pi.direct, indirect:pi.indirect, total:pi.total,
-      indType:pi.indType, dayPer:pi.dayPer, nightPer:pi.nightPer,
-      status:getStatus(loadRate)
-    };
-    DATA.push(d);
+    var dd={proc:curProc,sub:sub,owned:isNum(r[3])?r[3]:0,opRate:nv(r[4]),
+      toDay:nv(r[5]),toNight:nv(r[6]),toTotal:nv(r[5])+nv(r[6]),
+      loadRate:lr,needed:isNum(r[11])?r[11]:0,
+      direct:pi.direct,indirect:pi.indirect,total:pi.total,
+      indType:pi.indType,dayPer:pi.dayPer,nightPer:pi.nightPer,
+      status:getStatus(lr)};
+    DATA.push(dd);
     if(!PROCS[curProc]) PROCS[curProc]=[];
-    PROCS[curProc].push(d);
+    PROCS[curProc].push(dd);
   }
-  console.log('파싱완료: 공정수='+Object.keys(PROCS).length+', 세부설비수='+DATA.length);
+  var td=0,ti=0,tt=0,seen={};
+  DATA.forEach(function(d){if(!seen[d.proc]){td+=d.direct;ti+=d.indirect;tt+=d.total;seen[d.proc]=true;}});
+  console.log('파싱완료: 공정='+Object.keys(PROCS).length+'개, 세부='+DATA.length+'개, 직접='+Math.round(td)+'명, 간접='+Math.round(ti)+'명, 총='+Math.round(tt)+'명');
 }
 
 // ── main 시트 파싱 ────────────────────────────
+
 function parseMainSheet(rows){
   MONTH_DATA={}; PROD_DATA={};
-  // 생산 지표 (R5~R12)
   var prodMap={'생산(PCS)':4,'생산면적':5,'생산매출':6,'필요인력':8,'현인력':9,'충원인력':11};
   Object.keys(prodMap).forEach(function(k){
-    var ri=prodMap[k], r=rows[ri];
-    if(r&&r[1]&&String(r[1]).includes(k.slice(0,3)))
-      PROD_DATA[k]={m1:nv(r[2]),m2:nv(r[3])};
+    var ri=prodMap[k],r=rows[ri];
+    if(r) PROD_DATA[k]={m1:nv(r[2]),m2:nv(r[3])};
   });
-  // 충원 필요 (R36)
-  for(var i=rows.length-6;i<rows.length;i++){
-    var r=rows[i]; if(!r) continue;
-    if(r[6]&&String(r[6]).includes('충원 필요'))
-      PROD_DATA['충원필요']={m1:nv(r[8]),m2:nv(r[8])};
+  // 충원필요 (하단 탐색)
+  for(var ci=rows.length-9;ci<rows.length;ci++){
+    var r=rows[ci]; if(!r) continue;
+    for(var j=0;j<r.length-2;j++){
+      if(r[j]&&String(r[j]).indexOf('충원')>=0&&String(r[j]).indexOf('필요')>=0){
+        PROD_DATA['충원필요']={m1:nv(r[j+2]),m2:nv(r[j+4])};
+        break;
+      }
+    }
+    if(PROD_DATA['충원필요']) break;
   }
-  // 공정별 인력 (R18~R33): col[1]=부서명, [6]=TTL현인원, [7]=6월필요, [8]=GAP, [9]=7월필요
-  for(var i=17;i<rows.length;i++){
+  if(!PROD_DATA['충원필요']){
+    var m1=(PROD_DATA['필요인력']?PROD_DATA['필요인력'].m1:0)-(PROD_DATA['현인력']?PROD_DATA['현인력'].m1:0);
+    var m2=(PROD_DATA['필요인력']?PROD_DATA['필요인력'].m2:0)-(PROD_DATA['현인력']?PROD_DATA['현인력'].m2:0);
+    PROD_DATA['충원필요']={m1:Math.round(m1*10)/10,m2:Math.round(m2*10)/10};
+  }
+  // 공정별 인력
+  for(var i=17;i<Math.min(rows.length,38);i++){
     var r=rows[i]; if(!r||!r[1]) continue;
     var proc=String(r[1]).trim();
-    if(!proc||proc.includes('*')||proc.includes('TTL')||proc.includes('퇴사')||proc.includes('충원')) continue;
+    if(!proc||proc.indexOf('*')>=0||proc.indexOf('TTL')>=0||proc.indexOf('퇴사')>=0||proc.indexOf('충원')>=0||proc.indexOf('출산')>=0) continue;
     MONTH_DATA[proc]={
-      current:nv(r[6]),
-      m1:{need:nv(r[7]),gap:nv(r[8])},
-      m2:{need:nv(r[9]),gap:nv(r[9])-nv(r[6])}
+      current:Math.round(nv(r[6])),
+      m1:{need:Math.round(nv(r[7])*10)/10,gap:Math.round(nv(r[8]))},
+      m2:{need:Math.round(nv(r[9])*10)/10,gap:Math.round(nv(r[10]))}
     };
   }
+  console.log('main파싱완료: PROD='+Object.keys(PROD_DATA)+'|충원='+JSON.stringify(PROD_DATA['충원필요']));
 }
 
-// ══ 렌더링 ══════════════════════════════════
 function renderAll(){
   var ps=getProcSummary();
   renderKPIs(ps);
@@ -1006,6 +1007,25 @@ window.addEventListener('load',function(){
   setTimeout(pullWFFromGH, 1500);
 });
 
+
+// 사전 내장 데이터 자동 렌더링
+(function(){
+  var checkRender = function(){
+    if(typeof renderAll === 'function' && typeof getProcSummary === 'function'){
+      try{
+        document.getElementById('empty-guide').style.display='none';
+        document.getElementById('upload-status').textContent='✅ 사전 내장 데이터 (6월 기준)';
+        document.getElementById('upload-status').style.color='var(--green2)';
+        renderAll();
+      }catch(e){console.warn('자동렌더링 오류:',e);}
+    }
+  };
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', checkRender);
+  } else {
+    setTimeout(checkRender, 100);
+  }
+})();
 </script>
 </body>
 </html>
