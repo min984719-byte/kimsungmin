@@ -562,9 +562,12 @@ function buildNego(){
       <td style="font-weight:500">${n.name}</td>`;
     activeIdx.forEach(i=>{ h+=`<td class="r" style="color:${(n.m[i]||0)>0?'#1D9E75':'#ccc'}">${(n.m[i]||0)>0?NB(n.m[i]):'-'}</td>` });
     h+=`<td class="r" style="color:#1D9E75;font-weight:700">${NB(n.total)}</td>`;
-    h+=`<td class="r">${n.before>0?NB(n.before):'-'}</td>`;
-    h+=`<td class="r">${n.after>0?NB(n.after):'-'}</td>`;
-    h+=`<td class="c" style="color:${n.rate>0.08?'#C00000':n.rate>0?'#1D9E75':'#ccc'};font-weight:700">${n.rate>0?(n.rate*100).toFixed(2)+'%':'-'}</td>`;
+    var nb2=n.before>0?n.before:(n.after>0?n.after+n.total:0);
+    var na2=n.after>0?n.after:(nb2>0?nb2-n.total:0);
+    var nr2=n.rate>0?n.rate:(nb2>0&&n.total>0?n.total/nb2:0);
+    h+=`<td class="r">${nb2>0?NB(nb2):'-'}</td>`;
+    h+=`<td class="r">${na2>0?NB(na2):'-'}</td>`;
+    h+=`<td class="c" style="color:${nr2>0.08?'#C00000':nr2>0?'#1D9E75':'#ccc'};font-weight:700">${nr2>0?(nr2*100).toFixed(2)+'%':'-'}</td>`;
     h+=`</tr>`;
   });
   document.getElementById('nego-tbody').innerHTML=h||`<tr><td colspan="8" style="text-align:center;padding:20px;color:#aaa">-</td></tr>`;
@@ -687,7 +690,7 @@ function loadCostExcel(input) {
           if(v==='공정명'&&colProc<0) colProc=ci;
           if(v==='외주사명') colVendor=ci;
           if(v.includes('chưa VAT')||v.includes('Phí gia')) colCost=ci;
-          if(v.includes('giảm được')||v.includes('giảm')||v.includes('Số tiền')) colNego=ci;
+          if(v==='NEGO절감액'||v==='절감액'||v.includes('tiết kiệm')||v.includes('giảm giá')||v.includes('NEGO')||v==='Số tiền giảm được') colNego=ci;
           if(v.includes('bán hàng')||v.includes('Doanh thu')||v.includes('bán')) colSales=ci;
         }
         if(colMonth>=0&&colProc>=0) {
@@ -770,18 +773,50 @@ function loadCostExcel(input) {
       }
 
       // Detail 시트 NEGO before/after
-      var dSheet=wb.Sheets['Detail'];
+      // Detail 시트 NEGO before/after 처리 (시트명 다중 시도)
+      var dSheetName = ['Detail','NEGO Detail','nego','5.NEGO'].find(function(sn){return wb.Sheets[sn];});
+      var dSheet = dSheetName ? wb.Sheets[dSheetName] : null;
       if(dSheet){
         var dRows=XLSX.utils.sheet_to_json(dSheet,{header:1,defval:null,raw:true});
-        dRows.forEach(function(dr){
-          if(!dr||typeof dr[1]!=='number') return;
-          var dn=String(dr[2]||'').trim(),dp2=String(dr[3]||'').trim();
+        // 헤더 행 건너뛰기 (업체명 컬럼 자동 감지)
+        var dHdrRow=0, dColName=-1, dColProc=-1, dColBefore=-1, dColAfter=-1, dColRate=-1;
+        for(var dhi=0;dhi<4;dhi++){
+          var dhr=dRows[dhi]; if(!dhr) continue;
+          for(var dci=0;dci<dhr.length;dci++){
+            var dv=dhr[dci]?String(dhr[dci]).trim():'';
+            if(dv==='외주사명'||dv==='업체명'||dv==='nhà thầu') dColName=dci;
+            if((dv==='공정명'||dv==='공정')&&dColProc<0) dColProc=dci;
+            if(dv.includes('NEGO전')||dv.includes('before')||dv.includes('trước')) dColBefore=dci;
+            if(dv.includes('NEGO후')||dv.includes('after')||dv.includes('sau')) dColAfter=dci;
+            if(dv.includes('율')||dv.includes('%')||dv.includes('tỷ lệ')) dColRate=dci;
+          }
+          if(dColName>=0&&dColProc>=0){dHdrRow=dhi+1; break;}
+        }
+        // 헤더 감지 실패 시 기본값 적용 (col 순서: NO/업체/공정/NEGO전/NEGO후/절감/율)
+        if(dColName<0){ dColName=2; dColProc=3; dColBefore=4; dColAfter=5; dColRate=7; dHdrRow=2; }
+        console.log('Detail 시트('+dSheetName+') 헤더:', {name:dColName,proc:dColProc,before:dColBefore,after:dColAfter,rate:dColRate,start:dHdrRow});
+        for(var di=dHdrRow;di<dRows.length;di++){
+          var dr=dRows[di]; if(!dr) continue;
+          var dn=String(dr[dColName]||'').trim();
+          if(!dn||dn==='합계'||dn==='Total'||dn==='nan') continue;
+          var dp2=String(dr[dColProc]||'').trim();
+          var db=Math.round(nv(dr[dColBefore]));
+          var da=Math.round(nv(dr[dColAfter]));
+          var dr2=dColRate>=0?Math.round(nv(dr[dColRate])*1000000)/1000000:0;
           Object.values(nMap).forEach(function(n){
             if(n.name===dn&&n.proc===dp2){
-              n.before=Math.round(nv(dr[4]));n.after=Math.round(nv(dr[5]));
-              n.rate=Math.round(nv(dr[7])*1000000)/1000000;
+              n.before=db; n.after=da; n.rate=dr2;
             }
           });
+        }
+      } else {
+        // Detail 시트 없으면 nMap에서 직접 계산 (before = after + total)
+        Object.values(nMap).forEach(function(n){
+          if(n.total>0 && n.before===0){
+            // VENDORS에서 동일 업체/공정 비용으로 before 추정
+            var vk2=n.loc+'|'+n.type+'|'+n.proc+'|'+n.name;
+            if(vMap[vk2]){ n.before=vMap[vk2].total; n.after=vMap[vk2].total-n.total; }
+          }
         });
       }
 
