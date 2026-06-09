@@ -397,32 +397,61 @@ function loadAllSheets(input){
 // ── 설비배정 시트 파싱 ────────────────────────
 function parseEquipSheet(rows){
   DATA=[]; PROCS={};
+
+  // ── 1단계: col[13] 값 있는 행 = 공정 대표 행 → 공정명/인원 추출
+  var procInfo={};  // {공정명: {direct,indirect,total,dayPer,nightPer,indType}}
+  var rowProcMap={}; // {rowIndex: 공정명}
   var curProc='';
-  // 헤더 행 수 자동 감지 (R7 = index 6 기준)
-  var dataStart = 6;
-  for(var i=dataStart; i<rows.length; i++){
+
+  for(var i=6;i<rows.length;i++){
     var r=rows[i]; if(!r) continue;
-    // 공정명 업데이트
+    var sub=r[2]?String(r[2]).trim():''; if(!sub) continue;
+    var isNum=function(v){return v!==null&&v!==undefined&&typeof v==='number'&&!isNaN(v);};
+
+    // col[13]에 값 있는 행 = 공정 대표 행
+    if(isNum(r[13])){
+      if(r[1]&&typeof r[1]==='string'&&r[1].trim()) curProc=r[1].trim();
+      if(!procInfo[curProc]){
+        procInfo[curProc]={
+          direct:r[13]||0, indirect:r[14]||0, total:r[15]||0,
+          indType:r[16]?String(r[16]).trim():'',
+          dayPer:r[17]||0, nightPer:r[18]||0
+        };
+      }
+    } else {
+      // col[13] 없는 행 → 공정명만 업데이트
+      if(r[1]&&typeof r[1]==='string'&&r[1].trim()) curProc=r[1].trim();
+    }
+    rowProcMap[i]=curProc;
+  }
+
+  // ── 2단계: 세부설비 데이터 파싱 (공정명 올바르게 매핑)
+  curProc='';
+  for(var i=6;i<rows.length;i++){
+    var r=rows[i]; if(!r) continue;
     if(r[1]&&typeof r[1]==='string'&&r[1].trim()) curProc=r[1].trim();
     var sub=r[2]?String(r[2]).trim():''; if(!sub) continue;
 
-    var loadRate=(r[10]!==null&&r[10]!=='#N/A'&&typeof r[10]==='number')?r[10]:null;
+    // 이상 행 필터 (숫자가 공정명인 경우)
+    if(!curProc||typeof curProc!=='string'||!isNaN(parseFloat(curProc))) continue;
+
+    var loadRate=(r[10]!==null&&r[10]!==undefined&&typeof r[10]==='number')?r[10]:null;
+    var pi=procInfo[curProc]||{direct:0,indirect:0,total:0,indType:'',dayPer:0,nightPer:0};
+
     var d={
       proc:curProc, sub:sub,
       owned:r[3], opRate:r[4],
       toDay:r[5], toNight:r[6], toTotal:nv(r[5])+nv(r[6]),
       loadRate:loadRate, needed:calcNeeded(r[3],loadRate),
-      direct:nv(r[13]),   // PO 직접인원
-      indirect:nv(r[14]), // 간접인원
-      total:nv(r[15]),    // 총인원
-      indType:r[16]?String(r[16]).trim():'',
-      dayPer:nv(r[17]), nightPer:nv(r[18]),
+      direct:pi.direct, indirect:pi.indirect, total:pi.total,
+      indType:pi.indType, dayPer:pi.dayPer, nightPer:pi.nightPer,
       status:getStatus(loadRate)
     };
     DATA.push(d);
     if(!PROCS[curProc]) PROCS[curProc]=[];
     PROCS[curProc].push(d);
   }
+  console.log('파싱완료: 공정수='+Object.keys(PROCS).length+', 세부설비수='+DATA.length);
 }
 
 // ── main 시트 파싱 ────────────────────────────
@@ -469,14 +498,20 @@ function renderAll(){
 
 function getProcSummary(){
   var res={};
+  // 공정별 대표 인원값 (첫 번째 등장 기준)
+  var procSeen={};
   DATA.forEach(function(d){
     if(!d.proc) return;
-    if(!res[d.proc]) res[d.proc]={direct:0,indirect:0,total:0,owned:0,needed:0,rates:[],dayPer:0,nightPer:0,set:false,indTypes:[]};
+    if(!res[d.proc]) res[d.proc]={
+      direct:0,indirect:0,total:0,owned:0,needed:0,
+      rates:[],dayPer:0,nightPer:0,set:false,indTypes:[]
+    };
     var p=res[d.proc];
     p.owned+=nv(d.owned);
     if(d.needed!==null) p.needed+=nv(d.needed);
     if(d.loadRate!==null) p.rates.push(d.loadRate);
-    if(!p.set&&(d.direct||d.indirect||d.total)){
+    // 인원은 공정당 1회만 설정 (모든 세부설비에 동일한 값이 있으므로)
+    if(!p.set){
       p.direct=d.direct; p.indirect=d.indirect; p.total=d.total;
       p.dayPer=d.dayPer; p.nightPer=d.nightPer; p.set=true;
     }
