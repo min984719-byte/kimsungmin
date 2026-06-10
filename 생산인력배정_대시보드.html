@@ -403,10 +403,13 @@ function setSM(m,btn){
   SM=m;
   document.getElementById('sb6').classList.toggle('on',m===6);
   document.getElementById('sb7').classList.toggle('on',m===7);
-  rSum(); setLang(LG);
+  rSum();
 }
 function rSum(){
   var ps=gP(SM), mk=SM===7?'m2':'m1';
+  // 디버그: 업로드 후 데이터 확인
+  var _pkeys=Object.keys(ps), _ptot=_pkeys.reduce(function(s,k){return s+ps[k].total;},0);
+  console.log('rSum SM='+SM+' 공정수='+_pkeys.length+' 총='+Math.round(_ptot*10)/10);
   var gd=0,gi=0,gt=0;
   Object.values(ps).forEach(function(p){gd+=p.direct;gi+=p.indirect;gt+=p.total;});
   var cur=nv(PR['현인력']?PR['현인력'].m1:0);
@@ -877,9 +880,7 @@ function loadExcel(input){
         }
       }
       st.textContent=file.name;
-      // 현재 선택된 월 기준으로 재렌더링 (7월 선택 상태면 7월 데이터 반영)
-      setSM(SM, document.getElementById(SM===7?'sb7':'sb6'));
-      rAll();
+      rAll();  // 엑셀 업로드 완료 → 전체 재렌더링
     }catch(err){
       st.textContent='❌ '+err.message;
       console.error(err);
@@ -889,6 +890,9 @@ function loadExcel(input){
 }
 
 function rAll(){
+  // SM 버튼 상태 동기화 (업로드 후에도 선택 월 유지)
+  document.getElementById('sb6').classList.toggle('on',SM===6);
+  document.getElementById('sb7').classList.toggle('on',SM===7);
   rSum();
   var ai=[...document.querySelectorAll('.pane')].findIndex(function(p){return p.classList.contains('on');});
   if(ai===1)rProc();if(ai===2)rLoad();if(ai===3)rGap();if(ai===4)rDet();
