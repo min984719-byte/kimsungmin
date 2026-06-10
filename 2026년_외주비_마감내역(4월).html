@@ -99,10 +99,10 @@ select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-siz
 <div class="synopex-pane on" id="t0">
 <!-- AI 섹션 -->
 <div class="g4">
-    <div class="kpi" style="border-left-color:#185FA5"><div class="kv" id="k-sales" style="color:#185FA5">-</div><div class="kl" data-ko="누적 매출(VND)" data-vi="Doanh thu lũy kế">누적 매출(VND)</div></div>
-    <div class="kpi" style="border-left-color:#C00000"><div class="kv" id="k-cost" style="color:#C00000">-</div><div class="kl" data-ko="누적 외주비(VND)" data-vi="Chi phí GC lũy kế">누적 외주비(VND)</div></div>
-    <div class="kpi" style="border-left-color:#BA7517"><div class="kv" id="k-ratio" style="color:#BA7517">-</div><div class="kl" data-ko="외주비 비율" data-vi="Tỷ lệ chi phí GC">외주비 비율</div></div>
-    <div class="kpi" style="border-left-color:#1D9E75"><div class="kv" id="k-nego" style="color:#1D9E75">-</div><div class="kl" data-ko="NEGO 절감액" data-vi="Tiết kiệm NEGO">NEGO 절감액</div></div>
+    <div class="kpi" style="border-left-color:#185FA5"><div class="kv" id="k-sales" style="color:#185FA5">0</div><div class="kl" data-ko="누적 매출(VND)" data-vi="Doanh thu lũy kế">누적 매출(VND)</div></div>
+    <div class="kpi" style="border-left-color:#C00000"><div class="kv" id="k-cost" style="color:#C00000">0</div><div class="kl" data-ko="누적 외주비(VND)" data-vi="Chi phí GC lũy kế">누적 외주비(VND)</div></div>
+    <div class="kpi" style="border-left-color:#BA7517"><div class="kv" id="k-ratio" style="color:#BA7517">0</div><div class="kl" data-ko="외주비 비율" data-vi="Tỷ lệ chi phí GC">외주비 비율</div></div>
+    <div class="kpi" style="border-left-color:#1D9E75"><div class="kv" id="k-nego" style="color:#1D9E75">0</div><div class="kl" data-ko="NEGO 절감액" data-vi="Tiết kiệm NEGO">NEGO 절감액</div></div>
   </div>
   <div class="g2">
     <div class="card"><div class="card-title" data-ko="월별 매출 vs 외주비 (VND)" data-vi="Doanh thu vs Chi phí GC theo tháng">월별 매출 vs 외주비 (VND)</div><div class="ch" style="height:250px"><canvas id="c-main"></canvas></div></div>
@@ -216,9 +216,9 @@ select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-siz
 </div>
 <div class="synopex-pane" id="t5">
   <div class="g3">
-    <div class="kpi" style="border-left-color:#1D9E75"><div class="kv" id="k-nego-total" style="color:#1D9E75">-</div><div class="kl" data-ko="누적 NEGO 절감액" data-vi="Tổng tiết kiệm NEGO">누적 NEGO 절감액</div></div>
-    <div class="kpi" style="border-left-color:#185FA5"><div class="kv" id="k-nego-cnt" style="color:#185FA5">-</div><div class="kl" data-ko="NEGO 적용 업체수" data-vi="Số nhà thầu NEGO">NEGO 적용 업체수</div></div>
-    <div class="kpi" style="border-left-color:#BA7517"><div class="kv" id="k-nego-rate" style="color:#BA7517">-</div><div class="kl" data-ko="평균 절감율" data-vi="Tỷ lệ tiết kiệm TB">평균 절감율</div></div>
+    <div class="kpi" style="border-left-color:#1D9E75"><div class="kv" id="k-nego-total" style="color:#1D9E75">0</div><div class="kl" data-ko="누적 NEGO 절감액" data-vi="Tổng tiết kiệm NEGO">누적 NEGO 절감액</div></div>
+    <div class="kpi" style="border-left-color:#185FA5"><div class="kv" id="k-nego-cnt" style="color:#185FA5">0</div><div class="kl" data-ko="NEGO 적용 업체수" data-vi="Số nhà thầu NEGO">NEGO 적용 업체수</div></div>
+    <div class="kpi" style="border-left-color:#BA7517"><div class="kv" id="k-nego-rate" style="color:#BA7517">0</div><div class="kl" data-ko="평균 절감율" data-vi="Tỷ lệ tiết kiệm TB">평균 절감율</div></div>
   </div>
   <div class="g2">
     <div class="card"><div class="card-title" data-ko="업체별 NEGO 절감액" data-vi="Tiết kiệm NEGO theo nhà thầu">업체별 NEGO 절감액</div><div class="ch" style="height:260px"><canvas id="c-nego"></canvas></div></div>
@@ -286,7 +286,9 @@ let SUMMARY = {"sales_vnd": [216728555919.39996, 113629550680.79999, 15239734960
 let PROC_COST = {"CNC": [2021415041.0, 1808539064.0, 1833353979.0, 1548647689.0, 3631329492.0, 0, 0, 0, 0, 0, 0, 0], "PSR": [4582750709.0, 2427216151.0, 2758432858.0, 2051501184.0, 3029272096.0, 0, 0, 0, 0, 0, 0, 0], "MARKING": [632801180.0, 371912340.0, 587777640.0, 510846040.0, 454951920.0, 0, 0, 0, 0, 0, 0, 0], "LASER": [1748366051.0, 630041975.0000002, 387791745.0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "동도금": [0.0, 0.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "AOI": [10476500.0, 289426500.0, 33696000.0, 21747500.0, 60006000.0, 0, 0, 0, 0, 0, 0, 0], "금도금": [197696094.0, 196707647.0, 154739655.0, 25852931.0, 90322618.0, 0, 0, 0, 0, 0, 0, 0], "자동가접": [164400.0, 0.0, 182400.0, 0.0, 7056000.0, 0, 0, 0, 0, 0, 0, 0], "BBT": [604998880.0, 212069240.0, 242170920.0, 129298872.0, 46965216.0, 0, 0, 0, 0, 0, 0, 0], "Router": [21503664.0, 29231156.0, 47954768.00000001, 26766767.0, 17637153.0, 0, 0, 0, 0, 0, 0, 0], "타발": [1263594698.0, 742811111.0, 893641014.0, 470360972.0, 471147218.0, 0, 0, 0, 0, 0, 0, 0], "최종검사": [948561785.0, 664370280.0, 826644880.0, 619459420.0, 530593150.0, 0, 0, 0, 0, 0, 0, 0], "적층": [0, 0, 133742350.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "LASER DRILL": [0, 0, 0, 555734772.0, 1531922246.0, 0, 0, 0, 0, 0, 0, 0]};
 let VENDORS = [{"type": "필수외주", "loc": "사내", "proc": "CNC", "name": "디아이", "total": 9242899891.0, "m": [1653415705.0, 1517412624.0, 1537878909.0, 1314243680.0, 3219948973.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사내", "proc": "PSR", "name": "월드시스템", "total": 14849172998.0, "m": [4582750709.0, 2427216151.0, 2758432858.0, 2051501184.0, 3029272096.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사내", "proc": "MARKING", "name": "KORNIC", "total": 2558289120.0, "m": [632801180.0, 371912340.0, 587777640.0, 510846040.0, 454951920.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "CNC", "name": "JOOYEON VINA ELECTRONICS", "total": 0.0, "m": [0.0, 0.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "CNC", "name": "KV TECH VINA", "total": 1600385374.0, "m": [367999336.0, 291126440.0, 295475070.0, 234404009.0, 411380519.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER", "name": "CSY TECH VINA", "total": 34128000.0, "m": [34128000.0, 0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER", "name": "JDI VINA", "total": 1198561458.0000002, "m": [906649900.0, 291911558.0000003, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER", "name": "HS VIỆT NAM", "total": 1144157362.0, "m": [680225444.0, 273924537.0, 190007381.0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER", "name": "JOOYEON VINA ELECTRONICS", "total": 389352951.0, "m": [127362707.0, 64205880.0, 197784364.0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "동도금", "name": "ORCHEM VINA", "total": 0.0, "m": [0.0, 0.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "동도금", "name": "YMT VINA", "total": 0.0, "m": [0.0, 0.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "AOI", "name": "WORLD SOLUTION", "total": 128842000.0, "m": [10476500.0, 2916000.0, 33696000.0, 21747500.0, 60006000.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "AOI", "name": "SE JONG TECHNICAL VINA", "total": 286510500.0, "m": [0.0, 286510500.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "PSR", "name": "DONG HWAN ELECTRONIC VINA", "total": 0.0, "m": [0.0, 0.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "금도금", "name": "YMT VINA", "total": 49967190.0, "m": [14586600.0, 3422370.0, 16765140.0, 3710910.0, 11482170.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "금도금", "name": "YT SOLUTION VINA", "total": 615351755.0, "m": [183109494.0, 193285277.0, 137974515.0, 22142021.0, 78840448.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "금도금", "name": "NEW PROTEC VINA", "total": 0.0, "m": [0.0, 0.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "자동가접", "name": "NEW PROTEC VINA", "total": 7402800.0, "m": [164400.0, 0.0, 182400.0, 0.0, 7056000.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "BBT", "name": "CSY TECH VINA", "total": 1228888360.0, "m": [602688480.0, 209471560.0, 242170920.0, 128032680.0, 46524720.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "BBT", "name": "ASIA PRECESION VINA", "total": 6614768.0, "m": [2310400.0, 2597680.0, 0, 1266192.0, 440496.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "Router", "name": "TECH WIN", "total": 143093508.0, "m": [21503664.0, 29231156.0, 47954768.00000001, 26766767.0, 17637153.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "Router", "name": "DIC VINA", "total": 0.0, "m": [0.0, 0.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "타발", "name": "NEW PROTEC VINA", "total": 0.0, "m": [0.0, 0.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "타발", "name": "DIC VINA", "total": 1618135717.0, "m": [618531720.0, 305001735.0, 330214484.0, 120345040.0, 244042738.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "타발", "name": "NFT FLEX KOVI", "total": 3728256.0, "m": [0.0, 0.0, 0, 0.0, 3728256.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "타발", "name": "MVT VINA", "total": 1431091030.0, "m": [444441568.0, 281344056.0, 385108450.0, 214075952.0, 106121004.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "타발", "name": "IB ENG VINA", "total": 733639930.0, "m": [200621410.0, 156465320.0, 177431040.0, 112306060.0, 86816100.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "타발", "name": "HAEYOUN INNOVATION VINA", "total": 54960080.0, "m": [0.0, 0.0, 887040.0, 23633920.0, 30439120.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "최종검사", "name": "T&T VINA", "total": 3238022440.0, "m": [858633835.0, 634358355.0, 731875380.0, 552130420.0, 461024450.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "최종검사", "name": "WORLD SOLUTION", "total": 351607075.0, "m": [89927950.0, 30011925.0, 94769500.0, 67329000.0, 69568700.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "적층", "name": "디아이", "total": 133742350.0, "m": [0, 0, 133742350.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER DRILL", "name": "CSY TECH VINA", "total": 0.0, "m": [0, 0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER DRILL", "name": "JDI VINA", "total": 186806732.0, "m": [0, 0, 0, 0.0, 186806732.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER DRILL", "name": "HS VIỆT NAM", "total": 358744501.0, "m": [0, 0, 0, 98992114.0, 259752387.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER DRILL", "name": "JOOYEON VINA ELECTRONICS", "total": 1542105785.0, "m": [0, 0, 0, 456742658.0, 1085363127.0, 0, 0, 0, 0, 0, 0, 0]}];
 let ACHIEVE = [{"proc": "CNC", "data": [{"plan": 3066836995, "actual": 2021415041, "rate": 0.6591}, {"plan": 1949343660, "actual": 1808539064, "rate": 0.9278}, {"plan": 2154198009, "actual": 1833353979, "rate": 0.8511}, {"plan": 2238438232, "actual": 1548647689, "rate": 0.6918}, {"plan": 3401124139, "actual": 3631329492, "rate": 1.0677}]}, {"proc": "LASER DRILL", "data": [{"plan": 2577490400, "actual": 1748366051, "rate": 0.6783}, {"plan": 739325144, "actual": 630041975, "rate": 0.8522}, {"plan": 473214979, "actual": 387791745, "rate": 0.8195}, {"plan": 627999345, "actual": 555734772, "rate": 0.8849}, {"plan": 2917791332, "actual": 1531922246, "rate": 0.525}]}, {"proc": "AOI", "data": [{"plan": 56573902, "actual": 10476500, "rate": 0.1852}, {"plan": 283360500, "actual": 289426500, "rate": 1.0214}, {"plan": 0, "actual": 33696000, "rate": 0.0}, {"plan": 44222168, "actual": 21747500, "rate": 0.4918}, {"plan": 0, "actual": 60006000, "rate": 0.0}]}, {"proc": "PSR", "data": [{"plan": 4816981085, "actual": 4582750709, "rate": 0.9514}, {"plan": 3871710298, "actual": 2427216151, "rate": 0.6269}, {"plan": 2588983228, "actual": 2758432858, "rate": 1.0655}, {"plan": 2740871343, "actual": 2051501184, "rate": 0.7485}, {"plan": 3185293036, "actual": 3029272096, "rate": 0.951}]}, {"proc": "금도금", "data": [{"plan": 42000000, "actual": 14586600, "rate": 0.3473}, {"plan": 8547277, "actual": 3422370, "rate": 0.4004}, {"plan": 15739843, "actual": 16765140, "rate": 1.0651}, {"plan": 11755889, "actual": 3710910, "rate": 0.3157}, {"plan": 3840413, "actual": 11482170, "rate": 2.9898}]}, {"proc": "플라스마", "data": [{"plan": 368435500, "actual": 183109494, "rate": 0.497}, {"plan": 299967258, "actual": 193285277, "rate": 0.6444}, {"plan": 136800000, "actual": 137974515, "rate": 1.0086}, {"plan": 68400000, "actual": 22142021, "rate": 0.3237}, {"plan": 34200000, "actual": 78840448, "rate": 2.3053}]}, {"proc": "MARKING", "data": [{"plan": 742381180, "actual": 632801180, "rate": 0.8524}, {"plan": 428888525, "actual": 371912340, "rate": 0.8672}, {"plan": 650457517, "actual": 587777640, "rate": 0.9036}, {"plan": 713974277, "actual": 510846040, "rate": 0.7155}, {"plan": 776327001, "actual": 454951920, "rate": 0.586}]}, {"proc": "자동가접", "data": [{"plan": 37282192, "actual": 164400, "rate": 0.0044}]}, {"proc": "BBT", "data": [{"plan": 624164472, "actual": 604998880, "rate": 0.9693}, {"plan": 208650141, "actual": 212069240, "rate": 1.0164}, {"plan": 56921129, "actual": 242170920, "rate": 4.2545}, {"plan": 91229562, "actual": 129298872, "rate": 1.4173}, {"plan": 0, "actual": 46965216, "rate": 0.0}]}, {"proc": "Router", "data": [{"plan": 49235090, "actual": 21503664, "rate": 0.4368}, {"plan": 35840485, "actual": 29231156, "rate": 0.8156}, {"plan": 42128420, "actual": 47954768, "rate": 1.1383}, {"plan": 42128420, "actual": 26766767, "rate": 0.6354}, {"plan": 42128420, "actual": 17637153, "rate": 0.4187}]}, {"proc": "자동타발", "data": [{"plan": 537677416, "actual": 618531720, "rate": 1.1504}, {"plan": 305001735, "actual": 305001735, "rate": 1.0}, {"plan": 330214484, "actual": 330214484, "rate": 1.0}, {"plan": 120345040, "actual": 120345040, "rate": 1.0}, {"plan": 302178067, "actual": 244042738, "rate": 0.8076}]}, {"proc": "수동타발", "data": [{"plan": 928177483, "actual": 645062978, "rate": 0.695}, {"plan": 584678507, "actual": 437809376, "rate": 0.7488}, {"plan": 500286250, "actual": 563426530, "rate": 1.1262}, {"plan": 413204234, "actual": 350015932, "rate": 0.8471}, {"plan": 1550935990, "actual": 227104480, "rate": 0.1464}]}, {"proc": "최종검사", "data": [{"plan": 1079628723, "actual": 948561785, "rate": 0.8786}, {"plan": 663875023, "actual": 664370280, "rate": 1.0007}, {"plan": 1806001726, "actual": 826644880, "rate": 0.4577}, {"plan": 862652789, "actual": 619459420, "rate": 0.7181}, {"plan": 375619867, "actual": 530593150, "rate": 1.4126}]}, {"proc": "TTL", "data": [{"plan": 14926864439, "actual": 12032329002, "rate": 0.8061}, {"plan": 9379188553, "actual": 7372325464, "rate": 0.786}, {"plan": 9358625585, "actual": 7900128209, "rate": 0.8442}, {"plan": 7975221299, "actual": 5960216147, "rate": 0.7473}, {"plan": 12589438265, "actual": 9871203109, "rate": 0.7841}]}];
-let NEGO = [{"type": "필수외주", "loc": "사내", "proc": "CNC", "name": "디아이", "total": 542824645.3295021, "m": [97121862.0, 85371958.58275127, 90324954.74675083, 70878207.0, 199127663.0, 0, 0, 0, 0, 0, 0, 0], "before": 0, "after": 0, "rate": 0}, {"type": "필수외주", "loc": "사내", "proc": "PSR", "name": "월드시스템", "total": 750734307.75, "m": [254456692.0, 135768330.25, 152712409.5, 93354340.0, 114442536.0, 0, 0, 0, 0, 0, 0, 0], "before": 0, "after": 0, "rate": 0}, {"type": "필수외주", "loc": "사내", "proc": "MARKING", "name": "KORNIC", "total": 36795900.0, "m": [9850980.0, 5533740.0, 8221620.0, 7414440.0, 5775120.0, 0, 0, 0, 0, 0, 0, 0], "before": 0, "after": 0, "rate": 0}, {"type": "필수외주", "loc": "사외", "proc": "CNC", "name": "KV TECH VINA", "total": 66682723.97000015, "m": [15333305.0, 12130268.110000134, 12311461.860000014, 9766834.0, 17140855.0, 0, 0, 0, 0, 0, 0, 0], "before": 428521374, "after": 411380519, "rate": 0.04}, {"type": "병행외주", "loc": "사외", "proc": "LASER", "name": "CSY TECH VINA", "total": 3792000.0, "m": [3792000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "before": 0, "after": 0, "rate": 0}, {"type": "병행외주", "loc": "사외", "proc": "LASER", "name": "JDI VINA", "total": 129543137.9999994, "m": [98029957.9999994, 31513180.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "before": 0, "after": 0, "rate": 0}, {"type": "병행외주", "loc": "사외", "proc": "LASER", "name": "HS VIỆT NAM", "total": 126833079.83999985, "m": [76650770.0, 30856282.679999948, 19326027.159999907, 0, 0, 0, 0, 0, 0, 0, 0, 0], "before": 0, "after": 0, "rate": 0}, {"type": "병행외주", "loc": "사외", "proc": "금도금", "name": "YT SOLUTION VINA", "total": 32386930.0, "m": [9637341.0, 10172908.0, 7261815.0, 1165369.0, 4149497.0, 0, 0, 0, 0, 0, 0, 0], "before": 0, "after": 0, "rate": 0}, {"type": "병행외주", "loc": "사외", "proc": "BBT", "name": "CSY TECH VINA", "total": 57501160.0, "m": [24714960.0, 10966240.0, 12685680.0, 6689400.0, 2444880.0, 0, 0, 0, 0, 0, 0, 0], "before": 48969600, "after": 46524720, "rate": 0.049926}, {"type": "병행외주", "loc": "사외", "proc": "타발", "name": "MVT VINA", "total": 50892240.0, "m": [16218902.0, 9974104.0, 13882740.0, 7230948.0, 3585546.0, 0, 0, 0, 0, 0, 0, 0], "before": 0, "after": 0, "rate": 0}, {"type": "병행외주", "loc": "사외", "proc": "타발", "name": "IB ENG VINA", "total": 27493310.0, "m": [7794110.0, 5797160.0, 6571520.0, 4147620.0, 3182900.0, 0, 0, 0, 0, 0, 0, 0], "before": 0, "after": 0, "rate": 0}, {"type": "필수외주", "loc": "사외", "proc": "최종검사", "name": "WORLD SOLUTION", "total": 23621500.0, "m": [6693050.0, 2094250.0, 7416500.0, 7316100.0, 101600.0, 0, 0, 0, 0, 0, 0, 0], "before": 69670300, "after": 69568700, "rate": 0.001458}, {"type": "병행외주", "loc": "사외", "proc": "타발", "name": "DIC VINA", "total": 51974573.0, "m": [0, 15858615.0, 17169556.0, 6257360.0, 12689042.0, 0, 0, 0, 0, 0, 0, 0], "before": 0, "after": 0, "rate": 0}, {"type": "병행외주", "loc": "사외", "proc": "LASER DRILL", "name": "HS VIỆT NAM", "total": 38143935.000000015, "m": [0, 0, 0, 10792670.000000015, 27351265.0, 0, 0, 0, 0, 0, 0, 0], "before": 287103652, "after": 259752387, "rate": 0.095266}, {"type": "병행외주", "loc": "사외", "proc": "LASER DRILL", "name": "JDI VINA", "total": 20676303.0, "m": [0, 0, 0, 0, 20676303.0, 0, 0, 0, 0, 0, 0, 0], "before": 207483035, "after": 186806732, "rate": 0.099653}, {"type": "병행외주", "loc": "사외", "proc": "타발", "name": "NFT FLEX KOVI", "total": 196224.0, "m": [0, 0, 0, 0, 196224.0, 0, 0, 0, 0, 0, 0, 0], "before": 0, "after": 0, "rate": 0}];
+let NEGO = [{"loc": "사내", "type": "필수외주", "proc": "CNC", "name": "디아이", "total": 542824645.3295021, "m": [97121862.0, 85371958.58275127, 90324954.74675083, 70878207.0, 199127663.0, 0, 0, 0, 0, 0, 0, 0], "before": 3419076636.0, "after": 3219948973.0, "rate": 0.058240187102960306}, {"loc": "사내", "type": "필수외주", "proc": "PSR", "name": "월드시스템", "total": 750734307.75, "m": [254456692.0, 135768330.25, 152712409.5, 93354340.0, 114442536.0, 0, 0, 0, 0, 0, 0, 0], "before": 3143714632.0, "after": 3029272096.0, "rate": 0.03640360191573522}, {"loc": "사내", "type": "필수외주", "proc": "MARKING", "name": "KORNIC", "total": 36795900.0, "m": [9850980.0, 5533740.0, 8221620.0, 7414440.0, 5775120.0, 0, 0, 0, 0, 0, 0, 0], "before": 460727040.0, "after": 454951920.0, "rate": 0.012534797176219525}, {"loc": "사외", "type": "필수외주", "proc": "CNC", "name": "JOOYEON VINA ELECTRONICS", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "필수외주", "proc": "CNC", "name": "KV TECH VINA", "total": 66682723.97000015, "m": [15333305.0, 12130268.110000134, 12311461.860000014, 9766834.0, 17140855.0, 0, 0, 0, 0, 0, 0, 0], "before": 428521374.0, "after": 411380519.0, "rate": 0.04000000009334426}, {"loc": "사외", "type": "병행외주", "proc": "LASER DRILL", "name": "CSY TECH VINA", "total": 3792000.0, "m": [3792000.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "LASER DRILL", "name": "JDI VINA", "total": 150219440.9999994, "m": [98029957.9999994, 31513180.0, 0.0, 0.0, 20676303.0, 0, 0, 0, 0, 0, 0, 0], "before": 207483035.0, "after": 186806732.0, "rate": 0.09965298126663702}, {"loc": "사외", "type": "병행외주", "proc": "LASER DRILL", "name": "HS VIỆT NAM", "total": 164977014.83999985, "m": [76650770.0, 30856282.679999948, 19326027.159999907, 10792670.000000015, 27351265.0, 0, 0, 0, 0, 0, 0, 0], "before": 287103652.0, "after": 259752387.0, "rate": 0.09526616888871897}, {"loc": "사외", "type": "병행외주", "proc": "LASER DRILL", "name": "JOOYEON VINA ELECTRONICS", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 1085363127.0, "after": 1085363127.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "동도금", "name": "ORCHEM VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "동도금", "name": "YMT VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "필수외주", "proc": "AOI", "name": "WORLD SOLUTION", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 60006000.0, "after": 60006000.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "AOI", "name": "SE JONG TECHNICAL VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "필수외주", "proc": "PSR", "name": "DONG HWAN ELECTRONIC VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "적층", "name": "디아이", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "필수외주", "proc": "금도금", "name": "YMT VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 11482170.0, "after": 11482170.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "플라스마", "name": "YT SOLUTION VINA", "total": 32386930.0, "m": [9637341.0, 10172908.0, 7261815.0, 1165369.0, 4149497.0, 0, 0, 0, 0, 0, 0, 0], "before": 82989945.0, "after": 78840448.0, "rate": 0.04999999698758684}, {"loc": "사외", "type": "병행외주", "proc": "플라스마", "name": "NEW PROTEC VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "자동가접", "name": "NEW PROTEC VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 7056000.0, "after": 7056000.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "BBT", "name": "CSY TECH VINA", "total": 57501160.0, "m": [24714960.0, 10966240.0, 12685680.0, 6689400.0, 2444880.0, 0, 0, 0, 0, 0, 0, 0], "before": 48969600.0, "after": 46524720.0, "rate": 0.04992648500294061}, {"loc": "사외", "type": "병행외주", "proc": "BBT", "name": "ASIA PRECESION VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 440496.0, "after": 440496.0, "rate": 0.0}, {"loc": "사외", "type": "필수외주", "proc": "Router", "name": "TECH WIN", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0, "after": 0, "rate": 0}, {"loc": "사외", "type": "필수외주", "proc": "Router", "name": "DIC VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0, "after": 0, "rate": 0}, {"loc": "사외", "type": "병행외주", "proc": "자동타발", "name": "NEW PROTEC VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "자동타발", "name": "DIC VINA", "total": 51974573.0, "m": [0.0, 15858615.0, 17169556.0, 6257360.0, 12689042.0, 0, 0, 0, 0, 0, 0, 0], "before": 256731780.0, "after": 244042738.0, "rate": 0.04942528735632179}, {"loc": "사외", "type": "병행외주", "proc": "수동타발", "name": "NFT FLEX KOVI", "total": 196224.0, "m": [0.0, 0.0, 0.0, 0.0, 196224.0, 0, 0, 0, 0, 0, 0, 0], "before": 3924480.0, "after": 3728256.0, "rate": 0.050000000000000044}, {"loc": "사외", "type": "병행외주", "proc": "수동타발", "name": "MVT VINA", "total": 50892240.0, "m": [16218902.0, 9974104.0, 13882740.0, 7230948.0, 3585546.0, 0, 0, 0, 0, 0, 0, 0], "before": 109706550.0, "after": 106121004.0, "rate": 0.03268306222372319}, {"loc": "사외", "type": "병행외주", "proc": "수동타발", "name": "IB ENG VINA", "total": 27493310.0, "m": [7794110.0, 5797160.0, 6571520.0, 4147620.0, 3182900.0, 0, 0, 0, 0, 0, 0, 0], "before": 89999000.0, "after": 86816100.0, "rate": 0.03536594851053898}, {"loc": "사외", "type": "병행외주", "proc": "수동타발", "name": "HAEYOUN INNOVATION VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 30439120.0, "after": 30439120.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "최종검사", "name": "T&T VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 461024450.0, "after": 461024450.0, "rate": 0.0}, {"loc": "사외", "type": "필수외주", "proc": "최종검사", "name": "WORLD SOLUTION", "total": 23621500.0, "m": [6693050.0, 2094250.0, 7416500.0, 7316100.0, 101600.0, 0, 0, 0, 0, 0, 0, 0], "before": 69670300.0, "after": 69568700.0, "rate": 0.0014582971510098686}];
+let NEGO_SUM = {"total_cumul": 1960091970, "inside_cumul": 1330354853, "outside_cumul": 629737117, "monthly": [620293930, 356037037, 347884284, 225013288, 410863431, 0, 0, 0, 0, 0, 0, 0], "monthly_inside": [361429534, 226674029, 251258984, 171646987, 319345319, 0, 0, 0, 0, 0, 0, 0], "monthly_outside": [258864396, 129363008, 96625300, 53366301, 91518112, 0, 0, 0, 0, 0, 0, 0]};
+
 
 const MONTHS_KO=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 const MONTHS_VI=['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
@@ -325,11 +327,12 @@ function sw(i){
   document.querySelectorAll('.synopex-pane').forEach((p,j)=>p.classList.toggle('on',j===i));
 }
 const N=v=>Math.round(v||0).toLocaleString();
-const NB=v=>{ // 억 단위
+const NB=v=>{ // 억 단위 (0도 표시)
+  if(v===null||v===undefined) return '-';
   const a=Math.abs(v||0);
   if(a>=1e9) return (v/1e9).toFixed(1)+'억';
   if(a>=1e6) return (v/1e6).toFixed(0)+'백만';
-  return N(v);
+  return N(v||0);
 };
 const Nf=(v,d=1)=>(parseFloat(v)||0).toFixed(d);
 const rateColor=r=>r>=1?'#1D9E75':r>=0.8?'#BA7517':'#C00000';
@@ -350,7 +353,7 @@ function buildSummary(){
   const totalSales=( s.sales_vnd||[] ).reduce((a,b)=>a+b,0);
   const totalCost =(s.cost_vat0 ||[]).reduce((a,b)=>a+b,0);
   const avgRatio  =(s.cost_ratio||[]).filter(v=>v>0).reduce((a,b)=>a+b,0)/(s.cost_ratio||[]).filter(v=>v>0).length;
-  const totalNego =NEGO.reduce((s,n)=>s+n.total,0);
+  const totalNego = (typeof NEGO_SUM!=='undefined') ? NEGO_SUM.total_cumul : NEGO.reduce((s,n)=>s+n.total,0);
 
   document.getElementById('k-sales').textContent=NB(totalSales);
   document.getElementById('k-cost').textContent=NB(totalCost);
@@ -368,12 +371,12 @@ function buildSummary(){
   rows.forEach(([label,arr])=>{
     const sum=arr.reduce((a,b)=>a+b,0);
     h+=`<tr><td style="font-weight:600">${t(label)}</td>`;
-    arr.forEach((v,i)=>h+=`<td class="r" style="color:${v>0?'inherit':'#ccc'}">${v>0?NB(v):'-'}</td>`);
+    arr.forEach((v,i)=>h+=`<td class="r" style="color:${v>0?'inherit':v===0&&i<activeIdx.length?'#aaa':'#ccc'}">${i<activeIdx.length?NB(v||0):'-'}</td>`);
     h+=`<td class="r" style="font-weight:700;color:#185FA5">${NB(sum)}</td></tr>`;
   });
   // 외주비 비율 행
   h+='<tr style="background:#EBF0FF"><td style="font-weight:600">외주비 비율</td>';
-  (s.cost_ratio||[]).forEach(v=>h+=`<td class="c">${v>0?(v*100).toFixed(2)+'%':'-'}</td>`);
+  (s.cost_ratio||[]).forEach((v,i)=>h+=`<td class="c" style="color:${v>0?'inherit':v===0&&i<activeIdx.length?'#aaa':'#ccc'}">${i<activeIdx.length?(v>0?(v*100).toFixed(2)+'%':'0.00%'):'-'}</td>`);
   h+='<td class="c">-</td></tr>';
   document.getElementById('summary-tbody').innerHTML=h;
 
@@ -529,52 +532,87 @@ function buildAchieve(){
 
 /* ═══ TAB 5 NEGO ═══ */
 function buildNego(){
-  const total=NEGO.reduce((s,n)=>s+n.total,0);
-  const cnt=NEGO.filter(n=>n.total>0).length;
-  document.getElementById('k-nego-total').textContent=NB(total);
-  document.getElementById('k-nego-cnt').textContent=`${cnt}개`;
-  // 평균 절감율 (외주비 대비)
-  const totalCost=( SUMMARY.cost_vat0||[]).reduce((a,b)=>a+b,0);
-  const rate=totalCost>0?total/totalCost:0;
-  document.getElementById('k-nego-rate').textContent=(rate*100).toFixed(2)+'%';
+  // ── KPI: NEGO 누적 절감 금액 (2.업체별 NEGO현황 시트 누적비용) ──
+  const negoTotal = NEGO_SUM.total_cumul;   // 1,960,091,970 = 19.60억
+  const cnt = NEGO.filter(n=>n.total>0).length;
+  document.getElementById('k-nego-total').textContent = NB(negoTotal);
+  if(document.getElementById('k-nego')) document.getElementById('k-nego').textContent = NB(negoTotal);
+  document.getElementById('k-nego-cnt').textContent   = `${cnt}개`;
+  // 절감율 = NEGO금액 / 전체 외주비
+  const totalCost = (SUMMARY.cost_vat0||[]).reduce((a,b)=>a+b,0);
+  const rate = totalCost>0 ? negoTotal/totalCost : 0;
+  document.getElementById('k-nego-rate').textContent = (rate*100).toFixed(2)+'%';
 
-  const sorted=NEGO.filter(n=>n.total>0).slice().sort((a,b)=>b.total-a.total).slice(0,15);
+  // ── 차트1: 업체별 NEGO 금액 상위 ──
+  const sorted = NEGO.filter(n=>n.total>0).slice().sort((a,b)=>b.total-a.total).slice(0,15);
   dc('c-nego');
-  charts['c-nego']=new Chart(document.getElementById('c-nego'),{type:'bar',
-    data:{labels:sorted.map(n=>n.name.length>12?n.name.slice(0,12)+'…':n.name),datasets:[{data:sorted.map(n=>n.total),backgroundColor:'#1D9E75',borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>`${NB(v.raw)}`}}},
-      scales:{x:{ticks:{font:{size:9},callback:v=>NB(v)},grid:{color:'rgba(0,0,0,.05)'}},y:{ticks:{font:{size:9}},grid:{display:false}}}}});
+  charts['c-nego'] = new Chart(document.getElementById('c-nego'),{
+    type:'bar',
+    data:{
+      labels: sorted.map(n=>n.name.length>14?n.name.slice(0,13)+'…':n.name),
+      datasets:[{
+        data: sorted.map(n=>n.total),
+        backgroundColor:'#1D9E75', borderRadius:4
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:v=>`NEGO: ${NB(v.raw)} VND`}}},
+      scales:{
+        x:{ticks:{font:{size:9},callback:v=>NB(v)},grid:{color:'rgba(0,0,0,.05)'}},
+        y:{ticks:{font:{size:9}},grid:{display:false}}
+      }}});
 
-  const activeLabels=activeIdx.map(i=>ML()[i]);
-  const negoMonth=activeIdx.map(i=>NEGO.reduce((s,n)=>s+(n.m[i]||0),0));
+  // ── 차트2: 월별 NEGO 금액 추이 (사내+사외, 누적선) ──
+  const activeLabels = activeIdx.map(i=>ML()[i]);
+  const monthInside  = activeIdx.map(i=>NEGO_SUM.monthly_inside[i]||0);
+  const monthOutside = activeIdx.map(i=>NEGO_SUM.monthly_outside[i]||0);
+  let cumul=0;
+  const negoCumul = activeIdx.map(i=>{cumul+=(NEGO_SUM.monthly[i]||0); return cumul;});
+
   dc('c-nego-trend');
-  charts['c-nego-trend']=new Chart(document.getElementById('c-nego-trend'),{type:'bar',
-    data:{labels:activeLabels,datasets:[{data:negoMonth,backgroundColor:'#1D9E75',borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:{font:{size:11}},grid:{display:false}},y:{ticks:{font:{size:10},callback:v=>NB(v)},grid:{color:'rgba(0,0,0,.05)'}}}}});
+  charts['c-nego-trend'] = new Chart(document.getElementById('c-nego-trend'),{
+    type:'bar',
+    data:{labels:activeLabels, datasets:[
+      {label:'사내외주', data:monthInside,  backgroundColor:'rgba(33,118,174,.75)', borderRadius:3, yAxisID:'y'},
+      {label:'사외외주', data:monthOutside, backgroundColor:'rgba(29,158,117,.75)', borderRadius:3, yAxisID:'y'},
+      {label:'누적',    data:negoCumul, type:'line',
+        borderColor:'#E8A020', backgroundColor:'rgba(232,160,32,.08)',
+        pointBackgroundColor:'#E8A020', pointRadius:4, borderWidth:2, fill:true, yAxisID:'y'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{font:{size:10},color:'#666'}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${NB(Math.round(ctx.raw))} VND`}}},
+      scales:{
+        x:{stacked:true, ticks:{font:{size:11}}, grid:{display:false}},
+        y:{stacked:false, ticks:{font:{size:10},callback:v=>NB(v)}, grid:{color:'rgba(0,0,0,.05)'}}
+      }}});
 
+  // ── 테이블 ──
   let h='';
   NEGO.filter(n=>n.total>0||n.m.some(v=>v>0)).forEach(n=>{
+    const dn = n.name.length>14?n.name.slice(0,13)+'…':n.name;
     h+=`<tr>
       <td class="c"><span class="badge ${n.loc==='사내'?'b-ok':'b-warn'}">${n.loc}</span></td>
       <td class="c"><span class="badge ${n.type==='필수외주'?'b-info':'b-purple'}">${n.type}</span></td>
-      <td>${n.proc}</td>
-      <td style="font-weight:500">${n.name}</td>`;
-    activeIdx.forEach(i=>{ h+=`<td class="r" style="color:${(n.m[i]||0)>0?'#1D9E75':'#ccc'}">${(n.m[i]||0)>0?NB(n.m[i]):'-'}</td>` });
-    h+=`<td class="r" style="color:#1D9E75;font-weight:700">${NB(n.total)}</td>`;
-    var nb2=n.before>0?n.before:(n.after>0?n.after+n.total:0);
-    var na2=n.after>0?n.after:(nb2>0?nb2-n.total:0);
-    var nr2=n.rate>0?n.rate:(nb2>0&&n.total>0?n.total/nb2:0);
-    h+=`<td class="r">${nb2>0?NB(nb2):'-'}</td>`;
-    h+=`<td class="r">${na2>0?NB(na2):'-'}</td>`;
-    h+=`<td class="c" style="color:${nr2>0.08?'#C00000':nr2>0?'#1D9E75':'#ccc'};font-weight:700">${nr2>0?(nr2*100).toFixed(2)+'%':'-'}</td>`;
+      <td>${n.proc}</td><td style="font-weight:500">${dn}</td>`;
+    activeIdx.forEach(i=>{
+      h+=`<td class="r" style="color:${(n.m[i]||0)>0?'#1D9E75':'#ccc'}">
+        ${(n.m[i]||0)>0?NB(n.m[i]):'-'}</td>`;
+    });
+    h+=`<td class="r" style="color:#1D9E75;font-weight:700">${n.total>0?NB(n.total):'-'}</td>`;
+    h+=`<td class="r">${n.before>0?NB(n.before):'-'}</td>`;
+    h+=`<td class="r">${n.after>0?NB(n.after):'-'}</td>`;
+    const nr = n.rate||0;
+    h+=`<td class="c" style="color:${nr>0.08?'#C00000':nr>0?'#1D9E75':'#ccc'};font-weight:700">
+      ${nr>0?(nr*100).toFixed(2)+'%':'-'}</td>`;
     h+=`</tr>`;
   });
-  document.getElementById('nego-tbody').innerHTML=h||`<tr><td colspan="8" style="text-align:center;padding:20px;color:#aaa">-</td></tr>`;
+  document.getElementById('nego-tbody').innerHTML = h ||
+    `<tr><td colspan="9" style="text-align:center;padding:20px;color:#aaa">-</td></tr>`;
 }
 
 
-// ── 월 헤더 동적 업데이트 ──────────────────────────
 function updateMonthHeaders(){
   const ML_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   const ML_VI = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
