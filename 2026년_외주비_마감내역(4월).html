@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏭</text></svg>">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026년 외주비 마감 내역 대시보드 (1~5월)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+
+:root{--dark:#1F3864;--mid:#2F5496;--mid-l:#DEEAF1;--green:#1D9E75;--green-l:#E2EFDA;--amber:#BA7517;--amber-l:#FFF2CC;--red:#C00000;--red-l:#FCE4D6;--border:#dee2e6;--bg:#f0f2f5;--card:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"맑은 고딕","Segoe UI","Noto Sans",sans-serif;background:var(--bg);color:#212529;font-size:13px}
+header{background:var(--dark);color:#fff;padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.logo{font-size:14px;font-weight:700;line-height:1.4}
+.logo sub{font-size:10px;font-weight:400;opacity:.6;display:block}
+.hdr-r{display:flex;align-items:center;gap:10px}
+.lang-toggle{display:flex;background:rgba(255,255,255,.1);border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.25)}
+.lang-btn{padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:transparent;color:rgba(255,255,255,.65);font-family:inherit;transition:all .2s}
+.lang-btn.active{background:rgba(255,255,255,.92);color:var(--dark);border-radius:16px}
+nav{background:#fff;border-bottom:2px solid var(--mid);display:flex;padding:0 20px;overflow-x:auto}
+.synopex-tab{padding:10px 14px;cursor:pointer;font-size:12px;font-weight:500;color:#666;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .15s}
+.synopex-tab.on{color:var(--mid);border-bottom-color:var(--mid)}
+.synopex-tab:hover:not(.on){background:#f5f7ff}
+.synopex-pane{display:none}
+.synopex-pane.on{display:block}
+main{padding:14px 20px;max-width:1440px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px;margin-bottom:13px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:13px}
+.kpi{background:var(--card);border-radius:8px;padding:12px 15px;border:1px solid var(--border);border-left:4px solid var(--mid);transition:transform .15s}
+.kpi:hover{transform:translateY(-1px)}
+.kv{font-size:18px;font-weight:700;margin-bottom:3px}.kl{font-size:10px;color:#6c757d}
+.card{background:var(--card);border-radius:8px;border:1px solid var(--border);padding:12px 15px;margin-bottom:12px}
+.card-title{font-size:11px;font-weight:600;color:#fff;background:var(--mid);padding:4px 11px;border-radius:4px;margin-bottom:10px;display:inline-flex;align-items:center;gap:6px}
+.card-title::before{content:"";width:5px;height:5px;background:#fff;border-radius:50%;opacity:.8}
+.tw{overflow-x:auto;border-radius:6px;border:1px solid var(--border)}
+.tw.sc{max-height:460px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+thead{position:sticky;top:0;z-index:5}
+th{background:var(--dark);color:#fff;padding:6px 7px;font-size:10.5px;font-weight:500;white-space:nowrap;text-align:center;border-right:1px solid rgba(255,255,255,.1)}
+td{border-bottom:1px solid #f1f3f5;padding:5px 7px;vertical-align:middle}
+td.r{text-align:right;font-variant-numeric:tabular-nums}td.c{text-align:center}
+tr:hover td{background:#f8f9ff}
+tr.grp td{background:var(--mid-l);color:var(--dark);font-weight:600;font-size:11px;padding:5px 12px}
+tr.total-row td{background:#EBF0FF;font-weight:700}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.b-ok{background:var(--green-l);color:#155724}.b-warn{background:var(--amber-l);color:#7c5103}
+.b-danger{background:var(--red-l);color:#842029}.b-info{background:var(--mid-l);color:#0c3547}
+.b-purple{background:#EDE7F6;color:#534AB7}
+.frow{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.frow label{font-size:11px;font-weight:500}
+select{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit}
+.ch{position:relative;width:100%}
+.bw{display:flex;align-items:center;gap:5px}.bb{flex:1;height:7px;background:#e9ecef;border-radius:4px;overflow:hidden;min-width:40px}
+.bf{height:100%;border-radius:4px}.bp{font-size:10px;font-weight:600;min-width:38px;text-align:right}
+.green{color:var(--green)}.amber{color:var(--amber)}.red{color:var(--red)}.blue{color:var(--mid)}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:#adb5bd;border-radius:3px}
+@media(max-width:768px){.g4{grid-template-columns:1fr 1fr}.g2,.g3{grid-template-columns:1fr}}
+
+</style></head><body>
+<header>
+  <div class="logo"><span id="h-title">2026년 외주비 마감 내역 대시보드</span>
+    <sub id="h-sub">기준: 2026-05-31 | SYNOPEX VIETNAM | 단위: VND</sub></div>
+  <div class="hdr-r" style="gap:10px">
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+      <div style="display:flex;gap:6px">
+        <button onclick="document.getElementById('xl-input').click()"
+          style="padding:5px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.3);
+          background:rgba(255,255,255,.1);color:#fff;font-size:11px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px">
+          📤 엑셀 업로드
+        </button>
+        <button onclick="document.getElementById('cost-gh-modal').style.display='flex'" id="cost-gh-btn"
+          style="padding:5px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.3);
+          background:rgba(255,255,255,.1);color:#fff;font-size:11px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px">
+          ☁ <span id="cost-gh-status-txt">GitHub 연동</span>
+        </button>
+      </div>
+      <input type="file" id="xl-input" accept=".xlsx,.xls" style="display:none" onchange="loadCostExcel(this)">
+      <div id="xl-status" style="font-size:11px;color:rgba(255,255,255,.6);font-weight:500;max-width:300px"></div>
+      <div id="cost-gh-sync-status" style="font-size:11px;color:rgba(255,255,255,.6);font-weight:500"></div>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">🇰🇷 한국어</button>
+      <button class="lang-btn" id="btn-vi" onclick="setLang('vi')">🇻🇳 Tiếng Việt</button>
+    </div>
+  </div>
+</header>
+<nav>
+  <div class="synopex-tab on" onclick="sw(0)" data-ko="① 종합 현황" data-vi="Tổng quan">① 종합 현황</div>
+  <div class="synopex-tab" onclick="sw(1)" data-ko="② 외주비 추이" data-vi="Xu hướng chi phí">② 외주비 추이</div>
+  <div class="synopex-tab" onclick="sw(2)" data-ko="③ 공정별 외주비" data-vi="Chi phí theo CĐ">③ 공정별 외주비</div>
+  <div class="synopex-tab" onclick="sw(3)" data-ko="④ 업체별 현황" data-vi="Theo nhà thầu">④ 업체별 현황</div>
+  <div class="synopex-tab" onclick="sw(4)" data-ko="⑤ 계획대비 실적" data-vi="KH vs Thực tế">⑤ 계획대비 실적</div>
+  <div class="synopex-tab" onclick="sw(5)" data-ko="⑥ NEGO 현황" data-vi="Tình trạng NEGO">⑥ NEGO 현황</div>
+  <div class="synopex-tab" onclick="sw(6)" style="color:#a371f7">⑦ ✨ AI 분석</div>
+</nav><main>
+<div class="synopex-pane on" id="t0">
+<!-- AI 섹션 -->
+<div class="g4">
+    <div class="kpi" style="border-left-color:#185FA5"><div class="kv" id="k-sales" style="color:#185FA5">0</div><div class="kl" data-ko="누적 매출(VND)" data-vi="Doanh thu lũy kế">누적 매출(VND)</div></div>
+    <div class="kpi" style="border-left-color:#C00000"><div class="kv" id="k-cost" style="color:#C00000">0</div><div class="kl" data-ko="누적 외주비(VND)" data-vi="Chi phí GC lũy kế">누적 외주비(VND)</div></div>
+    <div class="kpi" style="border-left-color:#BA7517"><div class="kv" id="k-ratio" style="color:#BA7517">0</div><div class="kl" data-ko="외주비 비율" data-vi="Tỷ lệ chi phí GC">외주비 비율</div></div>
+    <div class="kpi" style="border-left-color:#1D9E75"><div class="kv" id="k-nego" style="color:#1D9E75">0</div><div class="kl" data-ko="NEGO 절감액" data-vi="Tiết kiệm NEGO">NEGO 절감액</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-title" data-ko="월별 매출 vs 외주비 (VND)" data-vi="Doanh thu vs Chi phí GC theo tháng">월별 매출 vs 외주비 (VND)</div><div class="ch" style="height:250px"><canvas id="c-main"></canvas></div></div>
+    <div class="card"><div class="card-title" data-ko="필수외주 vs 병행외주 구성비" data-vi="Tỷ lệ GC bắt buộc vs song song">필수외주 vs 병행외주 구성비</div><div class="ch" style="height:250px"><canvas id="c-type"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-title" data-ko="월별 외주비 요약" data-vi="Tóm tắt chi phí GC theo tháng">월별 외주비 요약</div>
+    <div class="tw"><table><thead><tr>
+<th data-ko="구분" data-vi="Phân loại">구분</th>
+<th data-ko="1월" data-vi="T1">1월</th>
+<th data-ko="2월" data-vi="T2">2월</th>
+<th data-ko="3월" data-vi="T3">3월</th>
+<th data-ko="4월" data-vi="T4">4월</th>
+<th data-ko="5월" data-vi="T5">5월</th>
+<th data-ko="6월" data-vi="T6">6월</th>
+<th data-ko="7월" data-vi="T7">7월</th>
+<th data-ko="8월" data-vi="T8">8월</th>
+<th data-ko="9월" data-vi="T9">9월</th>
+<th data-ko="10월" data-vi="T10">10월</th>
+<th data-ko="11월" data-vi="T11">11월</th>
+<th data-ko="12월" data-vi="T12">12월</th>
+<th data-ko="누적합계" data-vi="Lũy kế">누적합계</th>
+</tr></thead><tbody id="summary-tbody"></tbody></table></div></div>
+</div>
+<div class="synopex-pane" id="t1">
+  <div class="g2">
+    <div class="card"><div class="card-title" data-ko="월별 외주비 추이 (VND)" data-vi="Xu hướng chi phí GC (VND)">월별 외주비 추이 (VND)</div><div class="ch" style="height:260px"><canvas id="c-trend"></canvas></div></div>
+    <div class="card"><div class="card-title" data-ko="외주비 비율 추이 (%)" data-vi="Xu hướng tỷ lệ chi phí GC (%)">외주비 비율 추이 (%)</div><div class="ch" style="height:260px"><canvas id="c-ratio-trend"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-title" data-ko="필수외주 / 병행외주 월별 추이" data-vi="Chi phí GC bắt buộc/song song theo tháng">필수외주 / 병행외주 월별 추이</div><div class="ch" style="height:230px"><canvas id="c-ep-trend"></canvas></div></div>
+</div>
+<div class="synopex-pane" id="t2">
+  <div class="frow">
+    <label data-ko="월 선택:" data-vi="Chọn tháng:">월 선택:</label>
+    <select id="f-month" onchange="renderProcCost()">
+      <option value="-1" data-ko="누적" data-vi="Lũy kế">누적</option>
+      <option value="0" data-ko="1월" data-vi="T1">1월</option>
+      <option value="1" data-ko="2월" data-vi="T2">2월</option>
+      <option value="2" data-ko="3월" data-vi="T3">3월</option>
+      <option value="3" data-ko="4월" data-vi="T4">4월</option>
+    </select>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-title" data-ko="공정별 외주비 (VND)" data-vi="Chi phí GC theo công đoạn">공정별 외주비 (VND)</div><div class="ch" style="height:280px"><canvas id="c-proc"></canvas></div></div>
+    <div class="card"><div class="card-title" data-ko="공정별 구성비" data-vi="Tỷ lệ theo công đoạn">공정별 구성비</div><div class="ch" style="height:280px"><canvas id="c-proc-pie"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-title" data-ko="공정별 외주비 상세 (VND)" data-vi="Chi tiết chi phí GC theo CĐ">공정별 외주비 상세 (VND)</div>
+    <div class="tw sc"><table><thead><tr>
+<th data-ko="공정" data-vi="Công đoạn">공정</th>
+<th id="proc-month-headers" colspan="4"><!-- 동적 --></th>
+<th data-ko="누적합계" data-vi="Lũy kế">누적합계</th>
+<th data-ko="비중" data-vi="Tỷ lệ">비중</th>
+</tr></thead><tbody id="proc-tbody"></tbody></table></div></div>
+</div>
+<div class="synopex-pane" id="t3">
+  <div class="frow">
+    <label data-ko="구분:" data-vi="Phân loại:">구분:</label>
+    <select id="f-vtype" onchange="renderVendor()">
+      <option value="" data-ko="전체" data-vi="Tất cả">전체</option>
+      <option value="필수외주" data-ko="필수외주" data-vi="GC bắt buộc">필수외주</option>
+      <option value="병행외주" data-ko="병행외주" data-vi="GC song song">병행외주</option>
+    </select>
+    <label data-ko="위치:" data-vi="Vị trí:">위치:</label>
+    <select id="f-vloc" onchange="renderVendor()">
+      <option value="" data-ko="전체" data-vi="Tất cả">전체</option>
+      <option value="사내" data-ko="사내" data-vi="Nội bộ">사내</option>
+      <option value="사외" data-ko="사외" data-vi="Bên ngoài">사외</option>
+    </select>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-title" data-ko="업체별 외주비 TOP10" data-vi="Top 10 nhà thầu">업체별 외주비 TOP 10</div><div class="ch" style="height:280px"><canvas id="c-vendor"></canvas></div></div>
+    <div class="card"><div class="card-title" data-ko="사내/사외 구성비" data-vi="Tỷ lệ nội bộ/bên ngoài">사내 / 사외 구성비</div><div class="ch" style="height:280px"><canvas id="c-inout"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-title" data-ko="업체별 외주비 상세" data-vi="Chi tiết theo nhà thầu">업체별 외주비 상세</div>
+    <div class="tw sc"><table><thead><tr>
+<th data-ko="구분" data-vi="Loại">구분</th>
+<th data-ko="위치" data-vi="Vị trí">위치</th>
+<th data-ko="공정" data-vi="CĐ">공정</th>
+<th data-ko="업체명" data-vi="Nhà thầu">업체명</th>
+<th id="vendor-month-headers" colspan="4"><!-- 동적 --></th>
+<th data-ko="누적합계" data-vi="Lũy kế">누적합계</th>
+</tr></thead><tbody id="vendor-tbody"></tbody></table></div></div>
+</div>
+<div class="synopex-pane" id="t4">
+  <div class="g2">
+    <div class="card"><div class="card-title" data-ko="1월 계획대비 실적 달성율" data-vi="Tỷ lệ đạt KH tháng 1">1월 계획대비 실적 달성율</div><div class="ch" style="height:260px"><canvas id="c-ach1"></canvas></div></div>
+    <div class="card"><div class="card-title" data-ko="2월 계획대비 실적 달성율" data-vi="Tỷ lệ đạt KH tháng 2">2월 계획대비 실적 달성율</div><div class="ch" style="height:260px"><canvas id="c-ach2"></canvas></div></div>
+    <div class="card" style="margin-bottom:12px"><div style="font-size:11px;color:#666;margin-bottom:4px">3월 계획대비 달성율</div><div style="height:260px"><canvas id="c-ach3"></canvas></div></div>
+    <div class="card" style="margin-bottom:12px"><div style="font-size:11px;color:#666;margin-bottom:4px">4월 계획대비 달성율</div><div style="height:260px"><canvas id="c-ach4"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-title" data-ko="공정별 계획대비 실적 상세 (1~3월)" data-vi="Chi tiết KH vs Thực tế theo CĐ (T1~T3)">공정별 계획대비 실적 상세 (1~3월)</div>
+    <div class="tw sc"><table><thead><tr>
+      <th rowspan="2" data-ko="공정" data-vi="Công đoạn">공정</th>
+      <th colspan="3">1월</th>
+      <th colspan="3">2월</th>
+      <th colspan="3">3월</th>
+      <th colspan="3">4월</th>
+    </tr><tr>
+      <th data-ko="계획" data-vi="Kế hoạch">계획</th>
+      <th data-ko="실적" data-vi="Thực tế">실적</th>
+      <th data-ko="달성율" data-vi="Tỷ lệ đạt">달성율</th>
+      <th data-ko="계획" data-vi="Kế hoạch">계획</th>
+      <th data-ko="실적" data-vi="Thực tế">실적</th>
+      <th data-ko="달성율" data-vi="Tỷ lệ đạt">달성율</th>
+      <th data-ko="계획" data-vi="Kế hoạch">계획</th>
+      <th data-ko="실적" data-vi="Thực tế">실적</th>
+      <th data-ko="달성율" data-vi="Tỷ lệ đạt">달성율</th>
+      <th data-ko="계획" data-vi="Kế hoạch">계획</th>
+      <th data-ko="실적" data-vi="Thực tế">실적</th>
+      <th data-ko="달성율" data-vi="Tỷ lệ đạt">달성율</th>
+    </tr></thead><tbody id="ach-tbody"></tbody></table></div></div>
+</div>
+<div class="synopex-pane" id="t5">
+  <div class="g3">
+    <div class="kpi" style="border-left-color:#1D9E75"><div class="kv" id="k-nego-total" style="color:#1D9E75">0</div><div class="kl" data-ko="누적 NEGO 절감액" data-vi="Tổng tiết kiệm NEGO">누적 NEGO 절감액</div></div>
+    <div class="kpi" style="border-left-color:#185FA5"><div class="kv" id="k-nego-cnt" style="color:#185FA5">0</div><div class="kl" data-ko="NEGO 적용 업체수" data-vi="Số nhà thầu NEGO">NEGO 적용 업체수</div></div>
+    <div class="kpi" style="border-left-color:#BA7517"><div class="kv" id="k-nego-rate" style="color:#BA7517">0</div><div class="kl" data-ko="평균 절감율" data-vi="Tỷ lệ tiết kiệm TB">평균 절감율</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-title" data-ko="업체별 NEGO 절감액" data-vi="Tiết kiệm NEGO theo nhà thầu">업체별 NEGO 절감액</div><div class="ch" style="height:260px"><canvas id="c-nego"></canvas></div></div>
+    <div class="card"><div class="card-title" data-ko="월별 NEGO 절감 추이" data-vi="Xu hướng tiết kiệm NEGO theo tháng">월별 NEGO 절감 추이</div><div class="ch" style="height:260px"><canvas id="c-nego-trend"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-title" data-ko="NEGO 상세 현황" data-vi="Chi tiết tình trạng NEGO">NEGO 상세 현황</div>
+    <div class="tw sc"><table><thead><tr>
+<th data-ko="위치" data-vi="Vị trí">위치</th>
+<th data-ko="구분" data-vi="Loại">구분</th>
+<th data-ko="공정" data-vi="CĐ">공정</th>
+<th data-ko="업체명" data-vi="Nhà thầu">업체명</th>
+<th id="nego-month-headers" colspan="4"><!-- 동적 --></th>
+<th data-ko="누적 절감액" data-vi="Lũy kế tiết kiệm">누적 절감액</th>
+<th data-ko="NEGO 전" data-vi="Trước NEGO">NEGO 전</th>
+<th data-ko="NEGO 후" data-vi="Sau NEGO">NEGO 후</th>
+<th data-ko="절감율(%)" data-vi="Tỷ lệ tiết kiệm">절감율(%)</th>
+</tr></thead><tbody id="nego-tbody"></tbody></table></div></div>
+</div>
+<div class="synopex-pane" id="t6">
+  <div style="background:#1a1050;border:1px solid rgba(163,113,247,.3);border-radius:10px;padding:18px;margin-bottom:14px">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px">
+      <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:14px">
+        <div style="font-size:11px;font-weight:700;color:#a371f7;letter-spacing:.1em;margin-bottom:8px">✨ AI COST INSIGHT ENGINE</div>
+        <div id="ai-cost-summary" style="font-size:11px;color:rgba(255,255,255,.75);line-height:1.8">AI 분석 버튼을 클릭하면 외주비 절감 인사이트를 분석합니다</div>
+        <div style="margin-top:8px;display:flex;gap:5px;flex-wrap:wrap" id="ai-cost-chips"></div>
+      </div>
+      <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:14px;display:flex;flex-direction:column;justify-content:center;gap:8px">
+        <div style="font-size:11px;font-weight:700;color:#a371f7">AI 분석 실행</div>
+        <button onclick="runCostAI()" id="costAIBtn"
+          style="width:100%;padding:10px;border-radius:8px;border:none;min-height:44px;
+          background:linear-gradient(135deg,#6e40c9,#a371f7);color:#fff;
+          font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">
+          ✨ AI 분석 실행
+        </button>
+        <div style="font-size:10px;color:rgba(255,255,255,.4);text-align:center" id="ai-cost-status">외주비 절감·NEGO 분석</div>
+      </div>
+      <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:14px">
+        <div style="font-size:11px;font-weight:700;color:#a371f7;margin-bottom:8px">분석 상태</div>
+        <div style="font-size:11px;line-height:2.2;color:rgba(255,255,255,.7)">
+          ▸ 비용 분석: <span id="ai-st1" style="color:rgba(255,255,255,.4)">대기</span><br>
+          ▸ 절감 기회: <span id="ai-st2" style="color:rgba(255,255,255,.4)">대기</span><br>
+          ▸ 핵심 공정: <span id="ai-st3" style="color:rgba(255,255,255,.4)">-</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="ai-cost-detail" style="display:none">
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title">✨ AI 외주비 분석 — 공정별 절감 기회</div>
+      <div id="ai-cost-result" style="font-size:12px;line-height:1.8;color:#333"></div>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title">🎯 절감 우선순위 TOP 3</div>
+      <div id="ai-cost-priority"></div>
+    </div>
+    <div style="font-size:10px;color:#999;padding:4px 2px">
+      ⚠ Claude AI가 외주비 데이터 기반으로 분석한 내용입니다. 실제 의사결정 시 현장 확인 후 활용하세요.
+    </div>
+  </div>
+</div>
+</main>
+<footer style="background:var(--dark);color:rgba(255,255,255,.5);text-align:center;padding:10px;font-size:10px;margin-top:20px">SYNOPEX VIETNAM — 2026년 외주비 마감 내역 대시보드 | Chi phí nhà thầu 2026 | 기준: 2026-05-31</footer>
+<script>
+let SUMMARY = {"sales_vnd": [216728555919.39996, 113629550680.79999, 152397349603.19998, 144977274945.55798, 106881613009.30049, 0, 0, 0, 0, 0, 0, 0], "cost_vat0": [12032329002.0, 7372325464.0, 7900128209.0, 5960216147.0, 9871203109.0, 0, 0, 0, 0, 0, 0, 0], "cost_ratio": [0.0555, 0.0649, 0.0518, 0.0411, 0.0924, 0, 0, 0, 0, 0, 0, 0], "essential": [7373461644.0, 4673249006.0, 5372749885.0, 4230549090.0, 7274247531.0, 0, 0, 0, 0, 0, 0, 0], "parallel": [4658867358.0, 2699076458.0, 2527378324.0, 1729667057.0, 2596955578.0, 0, 0, 0, 0, 0, 0, 0], "sales_usd": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "exchange": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]};
+let PROC_COST = {"CNC": [2021415041.0, 1808539064.0, 1833353979.0, 1548647689.0, 3631329492.0, 0, 0, 0, 0, 0, 0, 0], "PSR": [4582750709.0, 2427216151.0, 2758432858.0, 2051501184.0, 3029272096.0, 0, 0, 0, 0, 0, 0, 0], "MARKING": [632801180.0, 371912340.0, 587777640.0, 510846040.0, 454951920.0, 0, 0, 0, 0, 0, 0, 0], "LASER": [1748366051.0, 630041975.0000002, 387791745.0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "동도금": [0.0, 0.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "AOI": [10476500.0, 289426500.0, 33696000.0, 21747500.0, 60006000.0, 0, 0, 0, 0, 0, 0, 0], "금도금": [197696094.0, 196707647.0, 154739655.0, 25852931.0, 90322618.0, 0, 0, 0, 0, 0, 0, 0], "자동가접": [164400.0, 0.0, 182400.0, 0.0, 7056000.0, 0, 0, 0, 0, 0, 0, 0], "BBT": [604998880.0, 212069240.0, 242170920.0, 129298872.0, 46965216.0, 0, 0, 0, 0, 0, 0, 0], "Router": [21503664.0, 29231156.0, 47954768.00000001, 26766767.0, 17637153.0, 0, 0, 0, 0, 0, 0, 0], "타발": [1263594698.0, 742811111.0, 893641014.0, 470360972.0, 471147218.0, 0, 0, 0, 0, 0, 0, 0], "최종검사": [948561785.0, 664370280.0, 826644880.0, 619459420.0, 530593150.0, 0, 0, 0, 0, 0, 0, 0], "적층": [0, 0, 133742350.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "LASER DRILL": [0, 0, 0, 555734772.0, 1531922246.0, 0, 0, 0, 0, 0, 0, 0]};
+let VENDORS = [{"type": "필수외주", "loc": "사내", "proc": "CNC", "name": "디아이", "total": 9242899891.0, "m": [1653415705.0, 1517412624.0, 1537878909.0, 1314243680.0, 3219948973.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사내", "proc": "PSR", "name": "월드시스템", "total": 14849172998.0, "m": [4582750709.0, 2427216151.0, 2758432858.0, 2051501184.0, 3029272096.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사내", "proc": "MARKING", "name": "KORNIC", "total": 2558289120.0, "m": [632801180.0, 371912340.0, 587777640.0, 510846040.0, 454951920.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "CNC", "name": "JOOYEON VINA ELECTRONICS", "total": 0.0, "m": [0.0, 0.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "CNC", "name": "KV TECH VINA", "total": 1600385374.0, "m": [367999336.0, 291126440.0, 295475070.0, 234404009.0, 411380519.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER", "name": "CSY TECH VINA", "total": 34128000.0, "m": [34128000.0, 0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER", "name": "JDI VINA", "total": 1198561458.0000002, "m": [906649900.0, 291911558.0000003, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER", "name": "HS VIỆT NAM", "total": 1144157362.0, "m": [680225444.0, 273924537.0, 190007381.0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER", "name": "JOOYEON VINA ELECTRONICS", "total": 389352951.0, "m": [127362707.0, 64205880.0, 197784364.0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "동도금", "name": "ORCHEM VINA", "total": 0.0, "m": [0.0, 0.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "동도금", "name": "YMT VINA", "total": 0.0, "m": [0.0, 0.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "AOI", "name": "WORLD SOLUTION", "total": 128842000.0, "m": [10476500.0, 2916000.0, 33696000.0, 21747500.0, 60006000.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "AOI", "name": "SE JONG TECHNICAL VINA", "total": 286510500.0, "m": [0.0, 286510500.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "PSR", "name": "DONG HWAN ELECTRONIC VINA", "total": 0.0, "m": [0.0, 0.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "금도금", "name": "YMT VINA", "total": 49967190.0, "m": [14586600.0, 3422370.0, 16765140.0, 3710910.0, 11482170.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "금도금", "name": "YT SOLUTION VINA", "total": 615351755.0, "m": [183109494.0, 193285277.0, 137974515.0, 22142021.0, 78840448.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "금도금", "name": "NEW PROTEC VINA", "total": 0.0, "m": [0.0, 0.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "자동가접", "name": "NEW PROTEC VINA", "total": 7402800.0, "m": [164400.0, 0.0, 182400.0, 0.0, 7056000.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "BBT", "name": "CSY TECH VINA", "total": 1228888360.0, "m": [602688480.0, 209471560.0, 242170920.0, 128032680.0, 46524720.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "BBT", "name": "ASIA PRECESION VINA", "total": 6614768.0, "m": [2310400.0, 2597680.0, 0, 1266192.0, 440496.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "Router", "name": "TECH WIN", "total": 143093508.0, "m": [21503664.0, 29231156.0, 47954768.00000001, 26766767.0, 17637153.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "Router", "name": "DIC VINA", "total": 0.0, "m": [0.0, 0.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "타발", "name": "NEW PROTEC VINA", "total": 0.0, "m": [0.0, 0.0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "타발", "name": "DIC VINA", "total": 1618135717.0, "m": [618531720.0, 305001735.0, 330214484.0, 120345040.0, 244042738.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "타발", "name": "NFT FLEX KOVI", "total": 3728256.0, "m": [0.0, 0.0, 0, 0.0, 3728256.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "타발", "name": "MVT VINA", "total": 1431091030.0, "m": [444441568.0, 281344056.0, 385108450.0, 214075952.0, 106121004.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "타발", "name": "IB ENG VINA", "total": 733639930.0, "m": [200621410.0, 156465320.0, 177431040.0, 112306060.0, 86816100.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "타발", "name": "HAEYOUN INNOVATION VINA", "total": 54960080.0, "m": [0.0, 0.0, 887040.0, 23633920.0, 30439120.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "최종검사", "name": "T&T VINA", "total": 3238022440.0, "m": [858633835.0, 634358355.0, 731875380.0, 552130420.0, 461024450.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "필수외주", "loc": "사외", "proc": "최종검사", "name": "WORLD SOLUTION", "total": 351607075.0, "m": [89927950.0, 30011925.0, 94769500.0, 67329000.0, 69568700.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "적층", "name": "디아이", "total": 133742350.0, "m": [0, 0, 133742350.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER DRILL", "name": "CSY TECH VINA", "total": 0.0, "m": [0, 0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER DRILL", "name": "JDI VINA", "total": 186806732.0, "m": [0, 0, 0, 0.0, 186806732.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER DRILL", "name": "HS VIỆT NAM", "total": 358744501.0, "m": [0, 0, 0, 98992114.0, 259752387.0, 0, 0, 0, 0, 0, 0, 0]}, {"type": "병행외주", "loc": "사외", "proc": "LASER DRILL", "name": "JOOYEON VINA ELECTRONICS", "total": 1542105785.0, "m": [0, 0, 0, 456742658.0, 1085363127.0, 0, 0, 0, 0, 0, 0, 0]}];
+let ACHIEVE = [{"proc": "CNC", "data": [{"plan": 3066836995, "actual": 2021415041, "rate": 0.6591}, {"plan": 1949343660, "actual": 1808539064, "rate": 0.9278}, {"plan": 2154198009, "actual": 1833353979, "rate": 0.8511}, {"plan": 2238438232, "actual": 1548647689, "rate": 0.6918}, {"plan": 3401124139, "actual": 3631329492, "rate": 1.0677}]}, {"proc": "LASER DRILL", "data": [{"plan": 2577490400, "actual": 1748366051, "rate": 0.6783}, {"plan": 739325144, "actual": 630041975, "rate": 0.8522}, {"plan": 473214979, "actual": 387791745, "rate": 0.8195}, {"plan": 627999345, "actual": 555734772, "rate": 0.8849}, {"plan": 2917791332, "actual": 1531922246, "rate": 0.525}]}, {"proc": "AOI", "data": [{"plan": 56573902, "actual": 10476500, "rate": 0.1852}, {"plan": 283360500, "actual": 289426500, "rate": 1.0214}, {"plan": 0, "actual": 33696000, "rate": 0.0}, {"plan": 44222168, "actual": 21747500, "rate": 0.4918}, {"plan": 0, "actual": 60006000, "rate": 0.0}]}, {"proc": "PSR", "data": [{"plan": 4816981085, "actual": 4582750709, "rate": 0.9514}, {"plan": 3871710298, "actual": 2427216151, "rate": 0.6269}, {"plan": 2588983228, "actual": 2758432858, "rate": 1.0655}, {"plan": 2740871343, "actual": 2051501184, "rate": 0.7485}, {"plan": 3185293036, "actual": 3029272096, "rate": 0.951}]}, {"proc": "금도금", "data": [{"plan": 42000000, "actual": 14586600, "rate": 0.3473}, {"plan": 8547277, "actual": 3422370, "rate": 0.4004}, {"plan": 15739843, "actual": 16765140, "rate": 1.0651}, {"plan": 11755889, "actual": 3710910, "rate": 0.3157}, {"plan": 3840413, "actual": 11482170, "rate": 2.9898}]}, {"proc": "플라스마", "data": [{"plan": 368435500, "actual": 183109494, "rate": 0.497}, {"plan": 299967258, "actual": 193285277, "rate": 0.6444}, {"plan": 136800000, "actual": 137974515, "rate": 1.0086}, {"plan": 68400000, "actual": 22142021, "rate": 0.3237}, {"plan": 34200000, "actual": 78840448, "rate": 2.3053}]}, {"proc": "MARKING", "data": [{"plan": 742381180, "actual": 632801180, "rate": 0.8524}, {"plan": 428888525, "actual": 371912340, "rate": 0.8672}, {"plan": 650457517, "actual": 587777640, "rate": 0.9036}, {"plan": 713974277, "actual": 510846040, "rate": 0.7155}, {"plan": 776327001, "actual": 454951920, "rate": 0.586}]}, {"proc": "자동가접", "data": [{"plan": 37282192, "actual": 164400, "rate": 0.0044}]}, {"proc": "BBT", "data": [{"plan": 624164472, "actual": 604998880, "rate": 0.9693}, {"plan": 208650141, "actual": 212069240, "rate": 1.0164}, {"plan": 56921129, "actual": 242170920, "rate": 4.2545}, {"plan": 91229562, "actual": 129298872, "rate": 1.4173}, {"plan": 0, "actual": 46965216, "rate": 0.0}]}, {"proc": "Router", "data": [{"plan": 49235090, "actual": 21503664, "rate": 0.4368}, {"plan": 35840485, "actual": 29231156, "rate": 0.8156}, {"plan": 42128420, "actual": 47954768, "rate": 1.1383}, {"plan": 42128420, "actual": 26766767, "rate": 0.6354}, {"plan": 42128420, "actual": 17637153, "rate": 0.4187}]}, {"proc": "자동타발", "data": [{"plan": 537677416, "actual": 618531720, "rate": 1.1504}, {"plan": 305001735, "actual": 305001735, "rate": 1.0}, {"plan": 330214484, "actual": 330214484, "rate": 1.0}, {"plan": 120345040, "actual": 120345040, "rate": 1.0}, {"plan": 302178067, "actual": 244042738, "rate": 0.8076}]}, {"proc": "수동타발", "data": [{"plan": 928177483, "actual": 645062978, "rate": 0.695}, {"plan": 584678507, "actual": 437809376, "rate": 0.7488}, {"plan": 500286250, "actual": 563426530, "rate": 1.1262}, {"plan": 413204234, "actual": 350015932, "rate": 0.8471}, {"plan": 1550935990, "actual": 227104480, "rate": 0.1464}]}, {"proc": "최종검사", "data": [{"plan": 1079628723, "actual": 948561785, "rate": 0.8786}, {"plan": 663875023, "actual": 664370280, "rate": 1.0007}, {"plan": 1806001726, "actual": 826644880, "rate": 0.4577}, {"plan": 862652789, "actual": 619459420, "rate": 0.7181}, {"plan": 375619867, "actual": 530593150, "rate": 1.4126}]}, {"proc": "TTL", "data": [{"plan": 14926864439, "actual": 12032329002, "rate": 0.8061}, {"plan": 9379188553, "actual": 7372325464, "rate": 0.786}, {"plan": 9358625585, "actual": 7900128209, "rate": 0.8442}, {"plan": 7975221299, "actual": 5960216147, "rate": 0.7473}, {"plan": 12589438265, "actual": 9871203109, "rate": 0.7841}]}];
+let NEGO = [{"loc": "사내", "type": "필수외주", "proc": "CNC", "name": "디아이", "total": 542824645.3295021, "m": [97121862.0, 85371958.58275127, 90324954.74675083, 70878207.0, 199127663.0, 0, 0, 0, 0, 0, 0, 0], "before": 3419076636.0, "after": 3219948973.0, "rate": 0.058240187102960306}, {"loc": "사내", "type": "필수외주", "proc": "PSR", "name": "월드시스템", "total": 750734307.75, "m": [254456692.0, 135768330.25, 152712409.5, 93354340.0, 114442536.0, 0, 0, 0, 0, 0, 0, 0], "before": 3143714632.0, "after": 3029272096.0, "rate": 0.03640360191573522}, {"loc": "사내", "type": "필수외주", "proc": "MARKING", "name": "KORNIC", "total": 36795900.0, "m": [9850980.0, 5533740.0, 8221620.0, 7414440.0, 5775120.0, 0, 0, 0, 0, 0, 0, 0], "before": 460727040.0, "after": 454951920.0, "rate": 0.012534797176219525}, {"loc": "사외", "type": "필수외주", "proc": "CNC", "name": "JOOYEON VINA ELECTRONICS", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "필수외주", "proc": "CNC", "name": "KV TECH VINA", "total": 66682723.97000015, "m": [15333305.0, 12130268.110000134, 12311461.860000014, 9766834.0, 17140855.0, 0, 0, 0, 0, 0, 0, 0], "before": 428521374.0, "after": 411380519.0, "rate": 0.04000000009334426}, {"loc": "사외", "type": "병행외주", "proc": "LASER DRILL", "name": "CSY TECH VINA", "total": 3792000.0, "m": [3792000.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "LASER DRILL", "name": "JDI VINA", "total": 150219440.9999994, "m": [98029957.9999994, 31513180.0, 0.0, 0.0, 20676303.0, 0, 0, 0, 0, 0, 0, 0], "before": 207483035.0, "after": 186806732.0, "rate": 0.09965298126663702}, {"loc": "사외", "type": "병행외주", "proc": "LASER DRILL", "name": "HS VIỆT NAM", "total": 164977014.83999985, "m": [76650770.0, 30856282.679999948, 19326027.159999907, 10792670.000000015, 27351265.0, 0, 0, 0, 0, 0, 0, 0], "before": 287103652.0, "after": 259752387.0, "rate": 0.09526616888871897}, {"loc": "사외", "type": "병행외주", "proc": "LASER DRILL", "name": "JOOYEON VINA ELECTRONICS", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 1085363127.0, "after": 1085363127.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "동도금", "name": "ORCHEM VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "동도금", "name": "YMT VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "필수외주", "proc": "AOI", "name": "WORLD SOLUTION", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 60006000.0, "after": 60006000.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "AOI", "name": "SE JONG TECHNICAL VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "필수외주", "proc": "PSR", "name": "DONG HWAN ELECTRONIC VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "적층", "name": "디아이", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "필수외주", "proc": "금도금", "name": "YMT VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 11482170.0, "after": 11482170.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "플라스마", "name": "YT SOLUTION VINA", "total": 32386930.0, "m": [9637341.0, 10172908.0, 7261815.0, 1165369.0, 4149497.0, 0, 0, 0, 0, 0, 0, 0], "before": 82989945.0, "after": 78840448.0, "rate": 0.04999999698758684}, {"loc": "사외", "type": "병행외주", "proc": "플라스마", "name": "NEW PROTEC VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "자동가접", "name": "NEW PROTEC VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 7056000.0, "after": 7056000.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "BBT", "name": "CSY TECH VINA", "total": 57501160.0, "m": [24714960.0, 10966240.0, 12685680.0, 6689400.0, 2444880.0, 0, 0, 0, 0, 0, 0, 0], "before": 48969600.0, "after": 46524720.0, "rate": 0.04992648500294061}, {"loc": "사외", "type": "병행외주", "proc": "BBT", "name": "ASIA PRECESION VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 440496.0, "after": 440496.0, "rate": 0.0}, {"loc": "사외", "type": "필수외주", "proc": "Router", "name": "TECH WIN", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0, "after": 0, "rate": 0}, {"loc": "사외", "type": "필수외주", "proc": "Router", "name": "DIC VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0, "after": 0, "rate": 0}, {"loc": "사외", "type": "병행외주", "proc": "자동타발", "name": "NEW PROTEC VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 0.0, "after": 0.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "자동타발", "name": "DIC VINA", "total": 51974573.0, "m": [0.0, 15858615.0, 17169556.0, 6257360.0, 12689042.0, 0, 0, 0, 0, 0, 0, 0], "before": 256731780.0, "after": 244042738.0, "rate": 0.04942528735632179}, {"loc": "사외", "type": "병행외주", "proc": "수동타발", "name": "NFT FLEX KOVI", "total": 196224.0, "m": [0.0, 0.0, 0.0, 0.0, 196224.0, 0, 0, 0, 0, 0, 0, 0], "before": 3924480.0, "after": 3728256.0, "rate": 0.050000000000000044}, {"loc": "사외", "type": "병행외주", "proc": "수동타발", "name": "MVT VINA", "total": 50892240.0, "m": [16218902.0, 9974104.0, 13882740.0, 7230948.0, 3585546.0, 0, 0, 0, 0, 0, 0, 0], "before": 109706550.0, "after": 106121004.0, "rate": 0.03268306222372319}, {"loc": "사외", "type": "병행외주", "proc": "수동타발", "name": "IB ENG VINA", "total": 27493310.0, "m": [7794110.0, 5797160.0, 6571520.0, 4147620.0, 3182900.0, 0, 0, 0, 0, 0, 0, 0], "before": 89999000.0, "after": 86816100.0, "rate": 0.03536594851053898}, {"loc": "사외", "type": "병행외주", "proc": "수동타발", "name": "HAEYOUN INNOVATION VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 30439120.0, "after": 30439120.0, "rate": 0.0}, {"loc": "사외", "type": "병행외주", "proc": "최종검사", "name": "T&T VINA", "total": 0.0, "m": [0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0], "before": 461024450.0, "after": 461024450.0, "rate": 0.0}, {"loc": "사외", "type": "필수외주", "proc": "최종검사", "name": "WORLD SOLUTION", "total": 23621500.0, "m": [6693050.0, 2094250.0, 7416500.0, 7316100.0, 101600.0, 0, 0, 0, 0, 0, 0, 0], "before": 69670300.0, "after": 69568700.0, "rate": 0.0014582971510098686}];
+let NEGO_SUM = {"total_cumul": 1960091970, "inside_cumul": 1330354853, "outside_cumul": 629737117, "monthly": [620293930, 356037037, 347884284, 225013288, 410863431, 0, 0, 0, 0, 0, 0, 0], "monthly_inside": [361429534, 226674029, 251258984, 171646987, 319345319, 0, 0, 0, 0, 0, 0, 0], "monthly_outside": [258864396, 129363008, 96625300, 53366301, 91518112, 0, 0, 0, 0, 0, 0, 0]};
+
+
+const MONTHS_KO=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+const MONTHS_VI=['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
+const COLORS=['#1F3864','#2F5496','#1D9E75','#BA7517','#C00000','#534AB7','#D85A30','#0F6E56','#888','#EF9F27','#E91E63','#009688'];
+let LANG='ko';
+const ML=()=>LANG==='ko'?MONTHS_KO:MONTHS_VI;
+const t=k=>LANG==='ko'?k:({
+  '매출(VND)':'Doanh thu(VND)','외주비(VND)':'Chi phí GC(VND)',
+  '필수외주':'GC bắt buộc','병행외주':'GC song song',
+  '사내외주':'GC nội bộ','사외외주':'GC bên ngoài',
+  '누적합계':'Lũy kế','외주비 비율':'Tỷ lệ chi phí',
+  '계획':'Kế hoạch','실적':'Thực tế','달성율':'Tỷ lệ đạt',
+  '사내':'Nội bộ','사외':'Bên ngoài','전체':'Tất cả',
+}[k]||k);
+
+function setLang(lang){
+  LANG=lang;
+  document.getElementById('btn-ko').classList.toggle('active',lang==='ko');
+  document.getElementById('btn-vi').classList.toggle('active',lang==='vi');
+  document.querySelectorAll('[data-ko]').forEach(el=>{
+    const txt=lang==='ko'?el.dataset.ko:(el.dataset.vi||el.dataset.ko);
+    if(!txt)return;
+    if(el.childElementCount===0){el.textContent=txt;return;}
+    const tn=[...el.childNodes].filter(n=>n.nodeType===3&&n.textContent.trim());
+    if(tn.length)tn[tn.length-1].textContent=' '+txt;
+  });
+  document.querySelectorAll('select option[data-ko]').forEach(o=>{
+    o.textContent=lang==='ko'?o.dataset.ko:(o.dataset.vi||o.dataset.ko);
+  });
+  document.getElementById('h-title').textContent=lang==='ko'?'2026년 외주비 마감 내역 대시보드':'Bảng chi phí nhà thầu 2026';
+  document.getElementById('h-sub').textContent=lang==='ko'?'기준: 2026-05-31 | SYNOPEX VIETNAM | 단위: VND':'Chuẩn: 2026-03-31 | SYNOPEX VIETNAM | Đơn vị: VND';
+  buildAll();
+}
+function sw(i){
+  document.querySelectorAll('.synopex-tab').forEach((tb,j)=>tb.classList.toggle('on',j===i));
+  document.querySelectorAll('.synopex-pane').forEach((p,j)=>p.classList.toggle('on',j===i));
+}
+const N=v=>Math.round(v||0).toLocaleString();
+const NB=v=>{ // 억 단위 (0도 표시)
+  if(v===null||v===undefined) return '-';
+  const a=Math.abs(v||0);
+  if(a>=1e9) return (v/1e9).toFixed(1)+'억';
+  if(a>=1e6) return (v/1e6).toFixed(0)+'백만';
+  return N(v||0);
+};
+const Nf=(v,d=1)=>(parseFloat(v)||0).toFixed(d);
+const rateColor=r=>r>=1?'#1D9E75':r>=0.8?'#BA7517':'#C00000';
+const rateBadge=r=>{
+  const p=(r*100).toFixed(1)+'%';
+  return r>=1?`<span class="badge b-ok">${p}</span>`:r>=0.8?`<span class="badge b-warn">${p}</span>`:`<span class="badge b-danger">${p}</span>`;
+};
+
+// 실적 있는 월 인덱스
+let activeIdx = SUMMARY.cost_vat0 ? SUMMARY.cost_vat0.map((v,i)=>v>0?i:-1).filter(i=>i>=0) : [0,1,2];
+
+let charts={};
+function dc(id){ if(charts[id]){charts[id].destroy();delete charts[id];} }
+
+/* ═══ TAB 0 종합현황 ═══ */
+function buildSummary(){
+  const s=SUMMARY;
+  const totalSales=( s.sales_vnd||[] ).reduce((a,b)=>a+b,0);
+  const totalCost =(s.cost_vat0 ||[]).reduce((a,b)=>a+b,0);
+  const avgRatio  =(s.cost_ratio||[]).filter(v=>v>0).reduce((a,b)=>a+b,0)/(s.cost_ratio||[]).filter(v=>v>0).length;
+  const totalNego = (typeof NEGO_SUM!=='undefined') ? NEGO_SUM.total_cumul : NEGO.reduce((s,n)=>s+n.total,0);
+
+  document.getElementById('k-sales').textContent=NB(totalSales);
+  document.getElementById('k-cost').textContent=NB(totalCost);
+  document.getElementById('k-ratio').textContent=(avgRatio*100).toFixed(2)+'%';
+  document.getElementById('k-nego').textContent=NB(totalNego);
+
+  // 요약 테이블
+  const rows=[
+    ['매출(VND)', s.sales_vnd||[]],
+    ['외주비(VND)', s.cost_vat0||[]],
+    ['필수외주', s.essential||[]],
+    ['병행외주', s.parallel||[]],
+  ];
+  let h='';
+  rows.forEach(([label,arr])=>{
+    const sum=arr.reduce((a,b)=>a+b,0);
+    h+=`<tr><td style="font-weight:600">${t(label)}</td>`;
+    arr.forEach((v,i)=>h+=`<td class="r" style="color:${v>0?'inherit':v===0&&i<activeIdx.length?'#aaa':'#ccc'}">${i<activeIdx.length?NB(v||0):'-'}</td>`);
+    h+=`<td class="r" style="font-weight:700;color:#185FA5">${NB(sum)}</td></tr>`;
+  });
+  // 외주비 비율 행
+  h+='<tr style="background:#EBF0FF"><td style="font-weight:600">외주비 비율</td>';
+  (s.cost_ratio||[]).forEach((v,i)=>h+=`<td class="c" style="color:${v>0?'inherit':v===0&&i<activeIdx.length?'#aaa':'#ccc'}">${i<activeIdx.length?(v>0?(v*100).toFixed(2)+'%':'0.00%'):'-'}</td>`);
+  h+='<td class="c">-</td></tr>';
+  document.getElementById('summary-tbody').innerHTML=h;
+
+  // 메인 차트
+  const labels=activeIdx.map(i=>ML()[i]);
+  const salesData=activeIdx.map(i=>(s.sales_vnd||[])[i]||0);
+  const costData =activeIdx.map(i=>(s.cost_vat0||[])[i]||0);
+  dc('c-main');
+  charts['c-main']=new Chart(document.getElementById('c-main'),{type:'bar',
+    data:{labels,datasets:[
+      {label:t('매출(VND)'),data:salesData,backgroundColor:'#DEEAF1',borderColor:'#2F5496',borderWidth:1.5,borderRadius:3,yAxisID:'y'},
+      {label:t('외주비(VND)'),data:costData,backgroundColor:'#FCE4D6',borderColor:'#C00000',borderWidth:1.5,borderRadius:3,yAxisID:'y'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10}}}},
+      scales:{x:{ticks:{font:{size:11}},grid:{display:false}},y:{ticks:{font:{size:10},callback:v=>NB(v)},grid:{color:'rgba(0,0,0,.05)'}}}}});
+
+  // 도넛
+  const ess=(s.essential||[]).reduce((a,b)=>a+b,0);
+  const par=(s.parallel||[]).reduce((a,b)=>a+b,0);
+  dc('c-type');
+  charts['c-type']=new Chart(document.getElementById('c-type'),{type:'doughnut',
+    data:{labels:[t('필수외주'),t('병행외주')],datasets:[{data:[ess,par],backgroundColor:['#2F5496','#BA7517'],borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:10}},
+      tooltip:{callbacks:{label:v=>`${v.label}: ${NB(v.raw)} (${(v.raw/(ess+par)*100).toFixed(1)}%)`}}}}});
+}
+
+/* ═══ TAB 1 추이 ═══ */
+function buildTrend(){
+  const s=SUMMARY;
+  const labels=activeIdx.map(i=>ML()[i]);
+  dc('c-trend');
+  charts['c-trend']=new Chart(document.getElementById('c-trend'),{type:'line',
+    data:{labels,datasets:[
+      {label:t('외주비(VND)'),data:activeIdx.map(i=>(s.cost_vat0||[])[i]||0),borderColor:'#C00000',backgroundColor:'rgba(192,0,0,.08)',fill:true,tension:.3,pointRadius:4},
+      {label:t('필수외주'),data:activeIdx.map(i=>(s.essential||[])[i]||0),borderColor:'#2F5496',tension:.3,pointRadius:4,borderDash:[5,5]},
+      {label:t('병행외주'),data:activeIdx.map(i=>(s.parallel||[])[i]||0),borderColor:'#BA7517',tension:.3,pointRadius:4,borderDash:[5,5]},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10}}}},
+      scales:{x:{ticks:{font:{size:11}},grid:{display:false}},y:{ticks:{font:{size:10},callback:v=>NB(v)},grid:{color:'rgba(0,0,0,.05)'}}}}});
+
+  dc('c-ratio-trend');
+  charts['c-ratio-trend']=new Chart(document.getElementById('c-ratio-trend'),{type:'line',
+    data:{labels,datasets:[{label:'외주비 비율(%)',data:activeIdx.map(i=>((s.cost_ratio||[])[i]||0)*100),borderColor:'#534AB7',backgroundColor:'rgba(83,74,183,.08)',fill:true,tension:.3,pointRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10}}}},
+      scales:{x:{ticks:{font:{size:11}},grid:{display:false}},y:{ticks:{font:{size:10},callback:v=>v.toFixed(2)+'%'},grid:{color:'rgba(0,0,0,.05)'}}}}});
+
+  dc('c-ep-trend');
+  charts['c-ep-trend']=new Chart(document.getElementById('c-ep-trend'),{type:'bar',
+    data:{labels,datasets:[
+      {label:t('필수외주'),data:activeIdx.map(i=>(s.essential||[])[i]||0),backgroundColor:'#2F5496',borderRadius:3,stack:'s'},
+      {label:t('병행외주'),data:activeIdx.map(i=>(s.parallel||[])[i]||0),backgroundColor:'#BA7517',borderRadius:3,stack:'s'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10}}}},
+      scales:{x:{stacked:true,ticks:{font:{size:11}},grid:{display:false}},y:{stacked:true,ticks:{font:{size:10},callback:v=>NB(v)},grid:{color:'rgba(0,0,0,.05)'}}}}});
+}
+
+/* ═══ TAB 2 공정별 ═══ */
+function renderProcCost(){
+  const mi=parseInt(document.getElementById('f-month').value);
+  const entries=Object.entries(PROC_COST).map(([proc,arr])=>{
+    const val=mi===-1?arr.reduce((a,b)=>a+b,0):(arr[mi]||0);
+    return {proc,val,arr};
+  }).filter(e=>e.val>0).sort((a,b)=>b.val-a.val);
+
+  const total=entries.reduce((s,e)=>s+e.val,0);
+  const top=entries.slice(0,15);
+
+  dc('c-proc');
+  charts['c-proc']=new Chart(document.getElementById('c-proc'),{type:'bar',
+    data:{labels:top.map(e=>e.proc),datasets:[{data:top.map(e=>e.val),backgroundColor:top.map((_,i)=>COLORS[i%COLORS.length]),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>`${NB(v.raw)} (${(v.raw/total*100).toFixed(1)}%)`}}},
+      scales:{x:{ticks:{font:{size:9},callback:v=>NB(v)},grid:{color:'rgba(0,0,0,.05)'}},y:{ticks:{font:{size:10}},grid:{display:false}}}}});
+
+  dc('c-proc-pie');
+  charts['c-proc-pie']=new Chart(document.getElementById('c-proc-pie'),{type:'doughnut',
+    data:{labels:top.map(e=>e.proc),datasets:[{data:top.map(e=>e.val),backgroundColor:COLORS,borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:9},padding:6,boxWidth:10}}}}});
+
+  let h='';
+  entries.forEach(e=>{
+    h+=`<tr><td style="font-weight:500">${e.proc}</td>`;
+    activeIdx.forEach(i=>{ h+=`<td class="r" style="color:${(e.arr[i]||0)>0?'inherit':'#ccc'}">${(e.arr[i]||0)>0?NB(e.arr[i]):'-'}</td>`; });
+    const s=e.arr.reduce((a,b)=>a+b,0);
+    const pct=(total>0?s/total*100:0).toFixed(1);
+    h+=`<td class="r" style="color:#185FA5;font-weight:600">${NB(s)}</td>`;
+    h+=`<td class="c"><div class="bw"><div class="bb"><div class="bf" style="width:${pct}%;background:#2F5496"></div></div><span class="bp">${pct}%</span></div></td></tr>`;
+  });
+  if(entries.length){
+    h+=`<tr class="total-row"><td>TTL</td>`;
+    activeIdx.forEach(i=>{ h+=`<td class="r">${NB(Object.values(PROC_COST).reduce((s,arr)=>s+(arr[i]||0),0))}</td>`; });
+    h+=`<td class="r" style="color:#185FA5">${NB(total)}</td><td class="c">100%</td></tr>`;
+  }
+  document.getElementById('proc-tbody').innerHTML=h;
+}
+
+/* ═══ TAB 3 업체별 ═══ */
+function renderVendor(){
+  const ft=document.getElementById('f-vtype').value;
+  const fl=document.getElementById('f-vloc').value;
+  let data=VENDORS.filter(v=>(!ft||v.type===ft)&&(!fl||v.loc===fl)).sort((a,b)=>b.total-a.total);
+
+  const top10=data.slice(0,10);
+  dc('c-vendor');
+  charts['c-vendor']=new Chart(document.getElementById('c-vendor'),{type:'bar',
+    data:{labels:top10.map(v=>v.name.length>12?v.name.slice(0,12)+'…':v.name),datasets:[{data:top10.map(v=>v.total),backgroundColor:top10.map((_,i)=>COLORS[i%COLORS.length]),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>`${NB(v.raw)}`}}},
+      scales:{x:{ticks:{font:{size:9},callback:v=>NB(v)},grid:{color:'rgba(0,0,0,.05)'}},y:{ticks:{font:{size:9}},grid:{display:false}}}}});
+
+  const inTotal=VENDORS.filter(v=>v.loc==='사내').reduce((s,v)=>s+v.total,0);
+  const outTotal=VENDORS.filter(v=>v.loc==='사외').reduce((s,v)=>s+v.total,0);
+  dc('c-inout');
+  charts['c-inout']=new Chart(document.getElementById('c-inout'),{type:'doughnut',
+    data:{labels:[t('사내외주'),t('사외외주')],datasets:[{data:[inTotal,outTotal],backgroundColor:['#2F5496','#BA7517'],borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:10}}}}});
+
+  let h='';
+  data.forEach(v=>{
+    h+=`<tr>
+      <td class="c"><span class="badge ${v.type==='필수외주'?'b-info':'b-purple'}">${v.type}</span></td>
+      <td class="c"><span class="badge ${v.loc==='사내'?'b-ok':'b-warn'}">${v.loc}</span></td>
+      <td>${v.proc}</td>
+      <td style="font-weight:500">${v.name}</td>`;
+    activeIdx.forEach(i=>{ h+=`<td class="r" style="color:${(v.m[i]||0)>0?'inherit':'#ccc'}">${(v.m[i]||0)>0?NB(v.m[i]):'-'}</td>`; });
+    h+=`<td class="r" style="color:#185FA5;font-weight:600">${NB(v.total)}</td></tr>`;
+  });
+  document.getElementById('vendor-tbody').innerHTML=h||`<tr><td colspan="8" style="text-align:center;padding:20px;color:#aaa">-</td></tr>`;
+}
+
+/* ═══ TAB 4 계획대비 실적 ═══ */
+function buildAchieve(){
+  const labels=ACHIEVE.map(a=>a.proc);
+  for(let mi=0;mi<4;mi++){
+    dc(`c-ach${mi+1}`);
+    const rates=ACHIEVE.map(a=>a.data[mi]?.rate||0);
+    charts[`c-ach${mi+1}`]=new Chart(document.getElementById(`c-ach${mi+1}`),{type:'bar',
+      data:{labels,datasets:[{data:rates.map(r=>r*100),backgroundColor:rates.map(r=>r>=1?'#1D9E75':r>=0.8?'#BA7517':'#C00000'),borderRadius:3}]},
+      options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>`${v.raw.toFixed(1)}%`}},annotation:{annotations:{l100:{type:'line',xMin:100,xMax:100,borderColor:'#1F3864',borderWidth:1.5,borderDash:[5,5]}}}},
+        scales:{x:{min:0,max:200,ticks:{font:{size:9},callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.05)'}},y:{ticks:{font:{size:9}},grid:{display:false}}}}});
+  }
+  let h='';
+  ACHIEVE.forEach(a=>{
+    h+=`<tr><td style="font-weight:500">${a.proc}</td>`;
+    a.data.forEach(m=>{
+      h+=`<td class="r">${NB(m.plan)}</td>`;
+      h+=`<td class="r">${NB(m.actual)}</td>`;
+      h+=`<td class="c">${m.rate>0?rateBadge(m.rate):'-'}</td>`;
+    });
+    h+='</tr>';
+  });
+  document.getElementById('ach-tbody').innerHTML=h;
+}
+
+/* ═══ TAB 5 NEGO ═══ */
+function buildNego(){
+  // ── KPI: NEGO 누적 절감 금액 (2.업체별 NEGO현황 시트 누적비용) ──
+  const negoTotal = NEGO_SUM.total_cumul;   // 1,960,091,970 = 19.60억
+  const cnt = NEGO.filter(n=>n.total>0).length;
+  document.getElementById('k-nego-total').textContent = NB(negoTotal);
+  if(document.getElementById('k-nego')) document.getElementById('k-nego').textContent = NB(negoTotal);
+  document.getElementById('k-nego-cnt').textContent   = `${cnt}개`;
+  // 절감율 = NEGO금액 / 전체 외주비
+  const totalCost = (SUMMARY.cost_vat0||[]).reduce((a,b)=>a+b,0);
+  const rate = totalCost>0 ? negoTotal/totalCost : 0;
+  document.getElementById('k-nego-rate').textContent = (rate*100).toFixed(2)+'%';
+
+  // ── 차트1: 업체별 NEGO 금액 상위 ──
+  const sorted = NEGO.filter(n=>n.total>0).slice().sort((a,b)=>b.total-a.total).slice(0,15);
+  dc('c-nego');
+  charts['c-nego'] = new Chart(document.getElementById('c-nego'),{
+    type:'bar',
+    data:{
+      labels: sorted.map(n=>n.name.length>14?n.name.slice(0,13)+'…':n.name),
+      datasets:[{
+        data: sorted.map(n=>n.total),
+        backgroundColor:'#1D9E75', borderRadius:4
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:v=>`NEGO: ${NB(v.raw)} VND`}}},
+      scales:{
+        x:{ticks:{font:{size:9},callback:v=>NB(v)},grid:{color:'rgba(0,0,0,.05)'}},
+        y:{ticks:{font:{size:9}},grid:{display:false}}
+      }}});
+
+  // ── 차트2: 월별 NEGO 금액 추이 (사내+사외, 누적선) ──
+  const activeLabels = activeIdx.map(i=>ML()[i]);
+  const monthInside  = activeIdx.map(i=>NEGO_SUM.monthly_inside[i]||0);
+  const monthOutside = activeIdx.map(i=>NEGO_SUM.monthly_outside[i]||0);
+  let cumul=0;
+  const negoCumul = activeIdx.map(i=>{cumul+=(NEGO_SUM.monthly[i]||0); return cumul;});
+
+  dc('c-nego-trend');
+  charts['c-nego-trend'] = new Chart(document.getElementById('c-nego-trend'),{
+    type:'bar',
+    data:{labels:activeLabels, datasets:[
+      {label:'사내외주', data:monthInside,  backgroundColor:'rgba(33,118,174,.75)', borderRadius:3, yAxisID:'y'},
+      {label:'사외외주', data:monthOutside, backgroundColor:'rgba(29,158,117,.75)', borderRadius:3, yAxisID:'y'},
+      {label:'누적',    data:negoCumul, type:'line',
+        borderColor:'#E8A020', backgroundColor:'rgba(232,160,32,.08)',
+        pointBackgroundColor:'#E8A020', pointRadius:4, borderWidth:2, fill:true, yAxisID:'y'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{font:{size:10},color:'#666'}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${NB(Math.round(ctx.raw))} VND`}}},
+      scales:{
+        x:{stacked:true, ticks:{font:{size:11}}, grid:{display:false}},
+        y:{stacked:false, ticks:{font:{size:10},callback:v=>NB(v)}, grid:{color:'rgba(0,0,0,.05)'}}
+      }}});
+
+  // ── 테이블 ──
+  let h='';
+  NEGO.filter(n=>n.total>0||n.m.some(v=>v>0)).forEach(n=>{
+    const dn = n.name.length>14?n.name.slice(0,13)+'…':n.name;
+    h+=`<tr>
+      <td class="c"><span class="badge ${n.loc==='사내'?'b-ok':'b-warn'}">${n.loc}</span></td>
+      <td class="c"><span class="badge ${n.type==='필수외주'?'b-info':'b-purple'}">${n.type}</span></td>
+      <td>${n.proc}</td><td style="font-weight:500">${dn}</td>`;
+    activeIdx.forEach(i=>{
+      h+=`<td class="r" style="color:${(n.m[i]||0)>0?'#1D9E75':'#ccc'}">
+        ${(n.m[i]||0)>0?NB(n.m[i]):'-'}</td>`;
+    });
+    h+=`<td class="r" style="color:#1D9E75;font-weight:700">${n.total>0?NB(n.total):'-'}</td>`;
+    h+=`<td class="r">${n.before>0?NB(n.before):'-'}</td>`;
+    h+=`<td class="r">${n.after>0?NB(n.after):'-'}</td>`;
+    const nr = n.rate||0;
+    h+=`<td class="c" style="color:${nr>0.08?'#C00000':nr>0?'#1D9E75':'#ccc'};font-weight:700">
+      ${nr>0?(nr*100).toFixed(2)+'%':'-'}</td>`;
+    h+=`</tr>`;
+  });
+  document.getElementById('nego-tbody').innerHTML = h ||
+    `<tr><td colspan="9" style="text-align:center;padding:20px;color:#aaa">-</td></tr>`;
+}
+
+
+function updateMonthHeaders(){
+  const ML_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  const ML_VI = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
+  const thHtml = activeIdx.map(i =>
+    `<th data-ko="${ML_KO[i]}" data-vi="${ML_VI[i]}">${ML_KO[i]}</th>`
+  ).join('\n');
+  ['proc-month-headers','vendor-month-headers','nego-month-headers'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.outerHTML = thHtml;
+  });
+}
+
+function buildAll(){
+  updateMonthHeaders();
+  buildSummary();buildTrend();renderProcCost();renderVendor();buildAchieve();buildNego();
+}
+buildAll();
+
+
+
+// ══════════════════════════════════════════
+// 외주비 대시보드 추가 기능 (엑셀/GitHub/AI)
+// ══════════════════════════════════════════
+var _COST_LU = 'https://bssy4msokyy3hvsphelxiuyzta0nwxml.lambda-url.ap-southeast-1.on.aws/';
+var _COST_GH_TOKEN = localStorage.getItem('cost_gh_token') || '';
+var _COST_GH_RAW = 'https://raw.githubusercontent.com/min984719-byte/kimsungmin/main/data/cost_data.json';
+var _COST_GH_API = 'https://api.github.com/repos/min984719-byte/kimsungmin/contents/data/cost_data.json';
+
+function saveCostGHToken() {
+  var t = document.getElementById('cost-gh-token').value.trim();
+  if(t) localStorage.setItem('cost_gh_token', t); else localStorage.removeItem('cost_gh_token');
+  _COST_GH_TOKEN = t;
+  document.getElementById('cost-gh-modal').style.display = 'none';
+  if(t) { document.getElementById('cost-gh-status-txt').textContent='연동됨 ✅'; if(SUMMARY.cost_vat0.some(function(v){return v>0;})) pushCostToGH(); }
+}
+function disconnectCostGH() {
+  _COST_GH_TOKEN=''; localStorage.removeItem('cost_gh_token');
+  document.getElementById('cost-gh-status-txt').textContent='GitHub 연동';
+  document.getElementById('cost-gh-modal').style.display='none';
+}
+function testCostGH() {
+  var tok=document.getElementById('cost-gh-token').value.trim();
+  var el=document.getElementById('cost-gh-test-result');
+  if(!tok){el.textContent='❌ 토큰 입력'; el.style.color='#f85149'; return;}
+  el.textContent='테스트 중...'; el.style.color='#8b949e';
+  fetch('https://api.github.com/repos/min984719-byte/kimsungmin',{headers:{'Authorization':'token '+tok,'Accept':'application/vnd.github.v3+json'}})
+  .then(function(r){ el.textContent=r.ok?'✅ 연결 성공!':'❌ 실패'; el.style.color=r.ok?'#56d364':'#f85149'; })
+  .catch(function(){ el.textContent='❌ 네트워크 오류'; el.style.color='#f85149'; });
+}
+function pushCostToGH() {
+  if(!_COST_GH_TOKEN) return;
+  var st=document.getElementById('cost-gh-sync-status');
+  st.textContent='저장 중...'; st.style.color='rgba(255,255,255,.5)';
+  var content=btoa(unescape(encodeURIComponent(JSON.stringify({SUMMARY:SUMMARY,PROC_COST:PROC_COST,VENDORS:VENDORS,ACHIEVE:ACHIEVE,NEGO:NEGO,saved:new Date().toISOString()}))));
+  var hdrs={'Authorization':'token '+_COST_GH_TOKEN,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};
+  fetch(_COST_GH_API,{headers:hdrs}).then(function(r){return r.ok?r.json():null;})
+  .then(function(ex){
+    var body={message:'외주비 업데이트 '+new Date().toLocaleString('ko-KR'),content:content,branch:'main'};
+    if(ex&&ex.sha) body.sha=ex.sha;
+    return fetch(_COST_GH_API,{method:'PUT',headers:hdrs,body:JSON.stringify(body)});
+  }).then(function(r){
+    var t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+    st.textContent=r&&r.ok?'☁ 저장됨 '+t:'⚠ 저장 실패'; st.style.color=r&&r.ok?'#56d364':'#d29922';
+  }).catch(function(){ st.textContent='⚠ 저장 실패'; st.style.color='#d29922'; });
+}
+function pullCostFromGH() {
+  fetch(_COST_GH_RAW+'?t='+Date.now()).then(function(r){return r.ok?r.json():null;})
+  .then(function(d){
+    if(!d||!d.SUMMARY) return;
+    var ghTotal=(d.SUMMARY.cost_vat0||[]).reduce(function(a,b){return a+b;},0);
+    if(ghTotal<=0) return;
+    // GitHub 데이터가 로컬보다 최신인지 확인
+    var localBackup = localStorage.getItem('cost_data_backup');
+    if(localBackup) {
+      try {
+        var localSaved = JSON.parse(localBackup).saved;
+        if(localSaved && d.saved && new Date(d.saved) <= new Date(localSaved)) return; // 로컬이 더 최신
+      } catch(e) {}
+    }
+    SUMMARY=d.SUMMARY; PROC_COST=d.PROC_COST; VENDORS=d.VENDORS; ACHIEVE=d.ACHIEVE; NEGO=d.NEGO;
+    activeIdx=SUMMARY.cost_vat0?SUMMARY.cost_vat0.map(function(v,i){return v>0?i:-1;}).filter(function(i){return i>=0;}):[]; 
+    Object.keys(charts).forEach(function(k){try{if(charts[k])charts[k].destroy();}catch(e){}});
+    charts={}; buildAll();
+    var t=new Date(d.saved).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    document.getElementById('cost-gh-sync-status').textContent='🔄 동기화됨 '+t;
+    document.getElementById('cost-gh-sync-status').style.color='#39d0c5';
+    if(_COST_GH_TOKEN) document.getElementById('cost-gh-status-txt').textContent='연동됨 ✅';
+  }).catch(function(){});
+}
+function loadCostExcel(input) {
+  var file=input.files[0]; if(!file) return;
+  var st=document.getElementById('xl-status');
+  st.textContent='⏳ 읽는 중...'; st.style.color='rgba(255,255,255,.5)';
+
+  var reader=new FileReader();
+  reader.onload=function(e) {
+    try {
+      var wb=XLSX.read(e.target.result,{type:'array'});
+      if(!wb.Sheets['data']){st.textContent='❌ data 시트 없음';return;}
+      var rows=XLSX.utils.sheet_to_json(wb.Sheets['data'],{header:1,defval:null,raw:true});
+      var nv=function(v){if(v==null)return 0;try{return parseFloat(v)||0;}catch(ex){return 0;}};
+
+      // ── 헤더 행 자동 감지 ──────────────────────────────
+      var hdrRow=-1, colMonth=-1, colLoc=-1, colType=-1;
+      var colProc=-1, colVendor=-1, colCost=-1, colNego=-1, colSales=-1;
+      for(var hi=0;hi<5;hi++){
+        var hr=rows[hi]; if(!hr) continue;
+        for(var ci=0;ci<hr.length;ci++){
+          var v=hr[ci]?String(hr[ci]).trim():'';
+          if(v==='Tháng') colMonth=ci;
+          if(v==='구분'&&colLoc<0) colLoc=ci;
+          if(v==='구분2') colType=ci;
+          if(v==='공정명'&&colProc<0) colProc=ci;
+          if(v==='외주사명') colVendor=ci;
+          if(v.includes('chưa VAT')||v.includes('Phí gia')) colCost=ci;
+          if(v==='NEGO절감액'||v==='절감액'||v.includes('tiết kiệm')||v.includes('giảm giá')||v.includes('NEGO')||v==='Số tiền giảm được') colNego=ci;
+          if(v.includes('bán hàng')||v.includes('Doanh thu')||v.includes('bán')) colSales=ci;
+        }
+        if(colMonth>=0&&colProc>=0) {
+          hdrRow=hi;
+          console.log('헤더감지 rows['+hi+']:', {월:colMonth,구분:colLoc,구분2:colType,공정:colProc,업체:colVendor,비용:colCost,nego:colNego,매출:colSales});
+          break;
+        }
+      }
+      if(hdrRow<0||colMonth<0){
+        st.textContent='❌ 헤더 인식 실패'; st.style.color='#f85149'; return;
+      }
+      console.log('컬럼 매핑:', {월:colMonth,구분:colLoc,구분2:colType,공정:colProc,업체:colVendor,비용:colCost,nego:colNego,매출:colSales});
+
+      // ── 데이터 파싱 ────────────────────────────────────
+      var newS={sales_vnd:new Array(12).fill(0),cost_vat0:new Array(12).fill(0),
+        cost_ratio:new Array(12).fill(0),essential:new Array(12).fill(0),
+        parallel:new Array(12).fill(0),sales_usd:new Array(12).fill(0),exchange:new Array(12).fill(0)};
+      var newP={},vMap={},nMap={};
+
+      for(var i=hdrRow+1;i<rows.length;i++){
+        var row=rows[i];
+        if(!row||row[colMonth]==null) continue;
+        var month=parseInt(row[colMonth])-1;
+        if(isNaN(month)||month<0||month>=12) continue;
+
+        // 매출은 공정명 없는 소계 행
+        if(colSales>=0&&row[colSales]&&!row[colProc]){
+          newS.sales_vnd[month]=nv(row[colSales]);
+          continue;
+        }
+        if(!row[colProc]) continue;
+
+        var loc   = String(row[colLoc]  ||'');
+        var type_ = String(row[colType] ||'');
+        var proc  = String(row[colProc] ||'');
+        var name  = colVendor>=0 ? String(row[colVendor]||'') : '';
+        var cost  = colCost>=0  ? nv(row[colCost])  : 0;
+        var nego  = colNego>=0  ? nv(row[colNego])  : 0;
+
+        newS.cost_vat0[month]+=cost;
+        if(type_.indexOf('필수')>=0) newS.essential[month]+=cost;
+        else newS.parallel[month]+=cost;
+
+        if(!newP[proc]) newP[proc]=new Array(12).fill(0);
+        newP[proc][month]+=cost;
+
+        var vk=loc+'|'+type_+'|'+proc+'|'+name;
+        if(!vMap[vk]) vMap[vk]={type:type_,loc:loc,proc:proc,name:name,total:0,m:new Array(12).fill(0)};
+        vMap[vk].m[month]+=cost; vMap[vk].total+=cost;
+
+        if(nego>0){
+          if(!nMap[vk]) nMap[vk]={type:type_,loc:loc,proc:proc,name:name,total:0,m:new Array(12).fill(0),before:0,after:0,rate:0};
+          nMap[vk].m[month]+=nego; nMap[vk].total+=nego;
+        }
+      }
+
+      // 비율 계산
+      for(var j=0;j<12;j++){
+        var s2=newS.sales_vnd[j],c2=newS.cost_vat0[j];
+        newS.cost_ratio[j]=s2>0?Math.round(c2/s2*10000)/10000:0;
+      }
+
+      // 4.계획대비 시트
+      var newA=[],aSheet=wb.Sheets['4.공정별 계획대비 실적'];
+      if(aSheet){
+        var aRows=XLSX.utils.sheet_to_json(aSheet,{header:1,defval:null,raw:true});
+        for(var ai=5;ai<aRows.length;ai++){
+          var ar=aRows[ai]; if(!ar||!ar[1]) continue;
+          var ap=String(ar[1]).trim();
+          if(!ap||ap.indexOf('합계')>=0||ap.indexOf('Grand')>=0) continue;
+          var data=[];
+          for(var mi=0;mi<6;mi++){
+            var base=2+mi*3,pl=nv(ar[base]),ac=nv(ar[base+1]);
+            if(pl===0&&ac===0) break;
+            var rt=ar[base+2]?nv(ar[base+2]):(pl>0?ac/pl:0);
+            data.push({plan:Math.round(pl),actual:Math.round(ac),rate:Math.round(rt*10000)/10000});
+          }
+          if(data.length) newA.push({proc:ap,data:data});
+        }
+      }
+
+      // Detail 시트 NEGO before/after
+      // Detail 시트 NEGO before/after 처리 (시트명 다중 시도)
+      var dSheetName = ['Detail','NEGO Detail','nego','5.NEGO'].find(function(sn){return wb.Sheets[sn];});
+      var dSheet = dSheetName ? wb.Sheets[dSheetName] : null;
+      if(dSheet){
+        var dRows=XLSX.utils.sheet_to_json(dSheet,{header:1,defval:null,raw:true});
+        // 헤더 행 건너뛰기 (업체명 컬럼 자동 감지)
+        var dHdrRow=0, dColName=-1, dColProc=-1, dColBefore=-1, dColAfter=-1, dColRate=-1;
+        for(var dhi=0;dhi<4;dhi++){
+          var dhr=dRows[dhi]; if(!dhr) continue;
+          for(var dci=0;dci<dhr.length;dci++){
+            var dv=dhr[dci]?String(dhr[dci]).trim():'';
+            if(dv==='외주사명'||dv==='업체명'||dv==='nhà thầu') dColName=dci;
+            if((dv==='공정명'||dv==='공정')&&dColProc<0) dColProc=dci;
+            if(dv.includes('NEGO전')||dv.includes('before')||dv.includes('trước')) dColBefore=dci;
+            if(dv.includes('NEGO후')||dv.includes('after')||dv.includes('sau')) dColAfter=dci;
+            if(dv.includes('율')||dv.includes('%')||dv.includes('tỷ lệ')) dColRate=dci;
+          }
+          if(dColName>=0&&dColProc>=0){dHdrRow=dhi+1; break;}
+        }
+        // 헤더 감지 실패 시 기본값 적용 (col 순서: NO/업체/공정/NEGO전/NEGO후/절감/율)
+        if(dColName<0){ dColName=2; dColProc=3; dColBefore=4; dColAfter=5; dColRate=7; dHdrRow=2; }
+        console.log('Detail 시트('+dSheetName+') 헤더:', {name:dColName,proc:dColProc,before:dColBefore,after:dColAfter,rate:dColRate,start:dHdrRow});
+        for(var di=dHdrRow;di<dRows.length;di++){
+          var dr=dRows[di]; if(!dr) continue;
+          var dn=String(dr[dColName]||'').trim();
+          if(!dn||dn==='합계'||dn==='Total'||dn==='nan') continue;
+          var dp2=String(dr[dColProc]||'').trim();
+          var db=Math.round(nv(dr[dColBefore]));
+          var da=Math.round(nv(dr[dColAfter]));
+          var dr2=dColRate>=0?Math.round(nv(dr[dColRate])*1000000)/1000000:0;
+          Object.values(nMap).forEach(function(n){
+            if(n.name===dn&&n.proc===dp2){
+              n.before=db; n.after=da; n.rate=dr2;
+            }
+          });
+        }
+      } else {
+        // Detail 시트 없으면 nMap에서 직접 계산 (before = after + total)
+        Object.values(nMap).forEach(function(n){
+          if(n.total>0 && n.before===0){
+            // VENDORS에서 동일 업체/공정 비용으로 before 추정
+            var vk2=n.loc+'|'+n.type+'|'+n.proc+'|'+n.name;
+            if(vMap[vk2]){ n.before=vMap[vk2].total; n.after=vMap[vk2].total-n.total; }
+          }
+        });
+      }
+
+      // 파싱 결과 검증
+      var totalCost=newS.cost_vat0.reduce(function(a,b){return a+b;},0);
+      console.log('=== 파싱결과 ===');
+      console.log('총비용:', totalCost);
+      console.log('월별비용:', newS.cost_vat0.map(function(v,i){return v>0?(i+1)+'월:'+Math.round(v/1e8)+'억':'';}).filter(Boolean));
+      console.log('공정수:', Object.keys(newP).length);
+      console.log('activeIdx:', newS.cost_vat0.map(function(v,i){return v>0?i:-1;}).filter(function(i){return i>=0;}));
+      console.log('파싱완료: 총비용='+totalCost+', 공정수='+Object.keys(newP).length);
+      if(totalCost<=0){st.textContent='❌ 비용 데이터 없음';st.style.color='#f85149';return;}
+
+      SUMMARY=newS; PROC_COST=newP; VENDORS=Object.values(vMap);
+      if(newA.length) ACHIEVE=newA; NEGO=Object.values(nMap);
+      activeIdx=newS.cost_vat0.map(function(v,i){return v>0?i:-1;}).filter(function(i){return i>=0;});
+
+      Object.keys(charts).forEach(function(k){try{if(charts[k])charts[k].destroy();}catch(ex){}});
+      charts={}; buildAll();
+
+      var cnt=activeIdx.length;
+      var mns=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+      var monthStr=cnt>0?mns[activeIdx[0]]+'~'+mns[activeIdx[cnt-1]]:'없음';
+      var totalBil=Math.round(SUMMARY.cost_vat0.reduce(function(a,b){return a+b;},0)/1e8);
+      st.textContent='✅ '+monthStr+' | 총'+totalBil+'억VND ('+cnt+'개월)';
+      st.style.color='#56d364';
+      st.title='월별: '+activeIdx.map(function(i){return mns[i]+':'+Math.round(SUMMARY.cost_vat0[i]/1e8)+'억';}).join(', ');
+
+      // localStorage 저장
+      try{
+        localStorage.setItem('cost_data_backup',JSON.stringify({
+          SUMMARY:SUMMARY,PROC_COST:PROC_COST,VENDORS:VENDORS,ACHIEVE:ACHIEVE,NEGO:NEGO,
+          saved:new Date().toISOString()
+        }));
+      }catch(le){}
+
+      if(_COST_GH_TOKEN) setTimeout(pushCostToGH,500);
+
+    }catch(err){
+      console.error('엑셀 오류:',err);
+      st.textContent='❌ '+err.message; st.style.color='#f85149';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+// ═══ 외주비 AI 분석 ═══
+// _COST_LU already defined above
+
+async function runCostAI() {
+  const btn = document.getElementById('costAIBtn');
+  btn.disabled = true; btn.textContent = '⏳ 분석 중...';
+  const setSt = (id,t,c) => { const e=document.getElementById(id); if(e){e.textContent=t;e.style.color=c;} };
+  setSt('ai-st1','분석 중...','#f0c040');
+  setSt('ai-st2','분석 중...','#f0c040');
+
+  try {
+    const totalCost  = (SUMMARY.cost_vat0||[]).reduce((a,b)=>a+b,0);
+    const totalSales = (SUMMARY.sales_vnd||[]).reduce((a,b)=>a+b,0);
+    const totalNego  = NEGO.reduce((s,n)=>s+n.total,0);
+    const avgRatio   = totalSales>0 ? (totalCost/totalSales*100).toFixed(2) : 0;
+
+    // 공정별 비용 요약
+    const procSummary = Object.entries(PROC_COST).map(([proc,arr])=>{
+      const total = arr.reduce((a,b)=>a+b,0);
+      return {proc, total, pct:(totalCost>0?total/totalCost*100:0).toFixed(1)};
+    }).filter(p=>p.total>0).sort((a,b)=>b.total-a.total).slice(0,10);
+
+    // NEGO 현황 상세 (이미 적용된 업체 포함)
+    const negoDetail = NEGO.filter(n=>n.total>0)
+      .sort((a,b)=>b.total-a.total)
+      .map(n=>({
+        업체: n.name, 공정: n.proc, 유형: n.type,
+        절감액: Math.round(n.total/1e6)+'백만VND',
+        절감율: (n.rate*100).toFixed(1)+'%',
+        상태: '적용중'
+      }));
+
+    // NEGO 미적용 업체 (total=0인데 비용 있는 업체)
+    const noNego = VENDORS.filter(v=>{
+      const hasNego = NEGO.some(n=>n.name===v.name&&n.proc===v.proc&&n.total>0);
+      return !hasNego && v.total>0;
+    }).sort((a,b)=>b.total-a.total).slice(0,5)
+      .map(v=>({업체:v.name, 공정:v.proc, 누적비용:Math.round(v.total/1e6)+'백만VND', 상태:'NEGO미적용'}));
+
+    // Lambda 전송 데이터 - 공정별 외주비 + NEGO 현황 포함
+    const procs = procSummary.map(p=>({
+      공정명: p.proc,
+      가동율: p.pct+'%',       // 비중
+      기준시간_분: Math.round(p.total/1e6),  // 백만VND
+      실운행_분: 0,
+      비가동_분: 0,
+      계획비가동_분: Math.round(
+        (NEGO.filter(n=>n.proc===p.proc).reduce((s,n)=>s+n.total,0))/1e6
+      ),  // NEGO 절감액(백만VND)
+      운영유실_분: 0,
+      설비유실_분: 0
+    }));
+
+    // NEGO 현황을 period에 포함
+    const negoSummary = '【적용중NEGO】' + negoDetail.slice(0,5).map(n=>
+      n.공정+'('+n.업체+'):'+n.절감율+' '+n.절감액
+    ).join(', ')
+    + ' 【NEGO미적용】' + noNego.map(n=>n.공정+'('+n.업체+'):'+n.누적비용).join(', ');
+
+    const period = '2026년1~4월 총외주비:'+Math.round(totalCost/1e8)+'억VND 매출비:'+avgRatio+'% NEGO절감:'+Math.round(totalNego/1e8)+'억VND ' + negoSummary;
+
+    setSt('ai-st1','분석 중...','#f0c040');
+    const r1 = await fetch(_COST_LU, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({procs, period, mode:'loss', _cost_mode:true})
+    });
+    if(!r1.ok) throw new Error('Lambda 오류:'+r1.status);
+    const res1 = await r1.json();
+    if(res1.error) throw new Error(res1.error);
+    setSt('ai-st1','완료','#56d364');
+
+    setSt('ai-st2','분석 중...','#f0c040');
+    const r2 = await fetch(_COST_LU, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({procs, period, mode:'avail', _cost_mode:true})
+    });
+    const res2 = r2.ok ? await r2.json() : {};
+    setSt('ai-st2','완료','#56d364');
+
+    renderCostAI(res1.loss, res2.avail);
+
+  } catch(e) {
+    setSt('ai-st1','오류: '+e.message,'#f85149');
+    console.error('외주비 AI 오류:', e);
+  }
+  btn.disabled=false; btn.textContent='✨ AI 재분석';
+}
+
+function renderCostAI(loss, avail) {
+  const sumEl    = document.getElementById('ai-cost-summary');
+  const chips    = document.getElementById('ai-cost-chips');
+  const detail   = document.getElementById('ai-cost-detail');
+  const result   = document.getElementById('ai-cost-result');
+  const priority = document.getElementById('ai-cost-priority');
+  const status   = document.getElementById('ai-cost-status');
+
+  if(sumEl && loss) sumEl.textContent = loss.summary || '';
+  if(chips && loss) {
+    chips.innerHTML = (loss.top3_causes||[]).map(c=>
+      '<span style="background:rgba(248,81,73,.2);color:#ff9999;padding:2px 8px;border-radius:10px;font-size:10px;border:1px solid rgba(248,81,73,.3)">'+c+'</span>'
+    ).join('');
+  }
+  detail.style.display = 'block';
+
+  if(result && loss && loss.processes) {
+    let h = '<table style="width:100%;border-collapse:collapse;font-size:11px">';
+    h += '<thead><tr style="background:#f8f9ff"><th style="padding:6px 10px;text-align:left">공정명</th>';
+    h += '<th style="padding:6px 10px">손실유형</th><th style="padding:6px 10px;text-align:left">근본원인</th>';
+    h += '<th style="padding:6px 10px">영향도</th><th style="padding:6px 10px;text-align:left">절감 대책</th></tr></thead><tbody>';
+    loss.processes.forEach((p,i) => {
+      const ic = p.impact==='high'?'#C00000':p.impact==='medium'?'#BA7517':'#1D9E75';
+      h += '<tr style="background:'+(i%2===0?'#fff':'#f8f9ff')+';border-bottom:1px solid #f0f0f0">'
+        +'<td style="padding:6px 10px;font-weight:600">'+p.name+'</td>'
+        +'<td style="padding:6px 10px;text-align:center"><span style="background:#EDE7F6;color:#534AB7;padding:2px 7px;border-radius:8px;font-size:10px">'+p.loss_type+'</span></td>'
+        +'<td style="padding:6px 10px;color:#555;font-size:10px">'+p.root_cause+'</td>'
+        +'<td style="padding:6px 10px;text-align:center;color:'+ic+';font-weight:700">'+p.impact+'</td>'
+        +'<td style="padding:6px 10px;color:#1D9E75;font-size:10px">'+p.countermeasure+'</td></tr>';
+    });
+    h += '</tbody></table>';
+    result.innerHTML = h;
+  }
+
+  if(priority && loss && loss.improvement_priority) {
+    priority.innerHTML = loss.improvement_priority.map(x=>{
+      const c = x.rank===1?'#C00000':x.rank===2?'#BA7517':'#2F5496';
+      return '<div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:#f8f9ff;border-radius:8px;margin-bottom:6px;border-left:3px solid '+c+'">'
+        +'<div style="width:22px;height:22px;border-radius:50%;background:'+c+';color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+x.rank+'</div>'
+        +'<div><div style="font-size:12px;font-weight:700;color:#333">'+x.proc+' — '+x.action+'</div>'
+        +'<div style="font-size:11px;color:#1D9E75;margin-top:2px">💰 '+x.expected_gain+'</div></div></div>';
+    }).join('');
+  }
+
+  if(status) status.textContent = '마지막 분석: '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+  const st3 = document.getElementById('ai-st3');
+  if(st3) { st3.textContent=(loss&&loss.bottleneck)||'-'; st3.style.color='#f85149'; }
+}
+
+if(_COST_GH_TOKEN) document.getElementById('cost-gh-status-txt').textContent='연동됨 ✅';
+window.addEventListener('load', function() {
+  // localStorage에서 먼저 복원
+  try {
+    var backup = localStorage.getItem('cost_data_backup');
+    if(backup) {
+      var d = JSON.parse(backup);
+      var localTotal = (d.SUMMARY&&d.SUMMARY.cost_vat0||[]).reduce(function(a,b){return a+b;},0);
+      if(localTotal > 0) {
+        SUMMARY=d.SUMMARY; PROC_COST=d.PROC_COST; VENDORS=d.VENDORS;
+        ACHIEVE=d.ACHIEVE; NEGO=d.NEGO;
+        activeIdx=SUMMARY.cost_vat0.map(function(v,i){return v>0?i:-1;}).filter(function(i){return i>=0;});
+        Object.keys(charts).forEach(function(k){try{if(charts[k])charts[k].destroy();}catch(e){}});
+        charts={}; buildAll();
+        var t = new Date(d.saved).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+        document.getElementById('cost-gh-sync-status').textContent='💾 로컬 복원됨 '+t;
+        document.getElementById('cost-gh-sync-status').style.color='#79c0ff';
+        console.log('localStorage에서 복원 완료');
+      }
+    }
+  } catch(le) { console.warn('localStorage 복원 실패:', le); }
+
+  // GitHub 토큰 있으면 GitHub에서도 동기화 (더 최신 데이터면 덮어씀)
+  if(_COST_GH_TOKEN) {
+    document.getElementById('cost-gh-status-txt').textContent='연동됨 ✅';
+    // 자동 pull 비활성화 - 수동으로만 동기화
+  }
+});
+
+</script>
+<div id="cost-gh-modal" onclick="if(event.target===this)this.style.display='none'"
+  style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center">
+  <div onclick="event.stopPropagation()"
+    style="background:#1c2128;border:1px solid #30363d;border-radius:14px;padding:24px;max-width:460px;width:92%">
+    <div style="font-size:14px;font-weight:700;color:#e6edf3;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #30363d">
+      ☁ GitHub 공유 연동 설정
+    </div>
+    <div style="background:rgba(57,208,197,.08);border:1px solid rgba(57,208,197,.3);border-radius:8px;padding:12px;margin-bottom:14px;font-size:11px;color:#8b949e;line-height:1.7">
+      📌 엑셀 업로드 후 <strong style="color:#39d0c5">GitHub 자동 저장</strong> → 팀원 접속 시 <strong style="color:#39d0c5">자동 로드</strong><br>
+      <span style="color:#d29922">⚠ 토큰은 이 기기 브라우저에만 저장됩니다.</span>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:600;color:#8b949e;margin-bottom:5px">
+        GitHub Token
+        <a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank"
+          style="font-size:10px;color:#39d0c5;margin-left:8px">▶ 토큰 발급</a>
+      </div>
+      <input id="cost-gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+        style="width:100%;padding:8px 10px;border:1px solid #30363d;border-radius:6px;
+        background:#0d1117;color:#e6edf3;font-family:monospace;font-size:12px;box-sizing:border-box">
+    </div>
+    <div style="background:#161b22;border:1px solid #30363d;border-radius:6px;padding:8px;font-size:10px;color:#8b949e;margin-bottom:14px">
+      저장: <code style="color:#39d0c5">min984719-byte/kimsungmin / data/cost_data.json</code>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
+      <button onclick="testCostGH()"
+        style="padding:6px 14px;border-radius:6px;border:1px solid #39d0c5;background:transparent;color:#39d0c5;font-size:11px;cursor:pointer;font-family:inherit">
+        연결 테스트
+      </button>
+      <span id="cost-gh-test-result" style="font-size:11px;color:#8b949e"></span>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="pullCostFromGH()"
+        style="padding:6px 16px;border-radius:6px;border:1px solid #39d0c5;background:transparent;color:#39d0c5;font-size:11px;cursor:pointer;font-family:inherit">
+        🔄 데이터 불러오기
+      </button>
+      <button onclick="disconnectCostGH()"
+        style="padding:6px 16px;border-radius:6px;border:1px solid #f85149;background:transparent;color:#f85149;font-size:11px;cursor:pointer;font-family:inherit">
+        연동 해제
+      </button>
+      <button onclick="document.getElementById('cost-gh-modal').style.display='none'"
+        style="padding:6px 16px;border-radius:6px;border:1px solid #30363d;background:transparent;color:#8b949e;font-size:11px;cursor:pointer;font-family:inherit">
+        취소
+      </button>
+      <button onclick="saveCostGHToken()"
+        style="padding:6px 16px;border-radius:6px;border:none;background:#39d0c5;color:#0d1117;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">
+        저장 및 연동
+      </button>
+    </div>
+  </div>
+</div>
+</body></html>
