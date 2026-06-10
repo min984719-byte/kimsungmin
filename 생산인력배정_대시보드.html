@@ -820,9 +820,16 @@ function loadExcel(input){
         var PROCS={},DATA=[],cur='';
         for(var i=6;i<rows.length;i++){
           var r=rows[i]; if(!r) continue;
-          if(r[0]&&typeof r[0]==='string'&&r[0].trim()) cur=r[0].trim();
-          else if(r[1]&&typeof r[1]==='string'&&r[1].trim()&&!cur) cur=r[1].trim();
+          // col[0] 우선, 없으면 col[1] — !cur 조건 제거 (생산관리 등 항상 감지)
+          if(r[0]&&typeof r[0]==='string'&&r[0].trim()){
+            cur=r[0].trim();
+          } else if(r[1]&&typeof r[1]==='string'&&r[1].trim()&&
+                    r[2]&&typeof r[2]==='string'&&r[2].trim()===r[1].trim()){
+            // col[1]==col[2] 인 경우 = 생산관리처럼 독립 행
+            cur=r[1].trim();
+          }
           var sub=r[2]?String(r[2]).trim():''; if(!sub) continue;
+          // col[14]>0 인 행 = 공정 대표행
           if(r[14]!==null&&typeof r[14]==='number'&&r[14]>0&&cur&&!PROCS[cur])
             PROCS[cur]={direct:nv(r[12]),indirect:nv(r[13]),total:nv(r[14])};
           var pi=PROCS[cur]||{direct:0,indirect:0,total:0};
@@ -834,15 +841,30 @@ function loadExcel(input){
         }
         return{data:DATA,procs:PROCS};
       }
-      var sn6=wb.SheetNames.find(function(s){return s.indexOf('6')>=0&&s.indexOf('필요')>=0;});
-      var sn7=wb.SheetNames.find(function(s){return s.indexOf('7')>=0&&s.indexOf('필요')>=0;});
+      var sn6=wb.SheetNames.find(function(s){return s==='필요인력-6월';})
+            ||wb.SheetNames.find(function(s){return s.indexOf('6')>=0&&(s.indexOf('필요')>=0||s.indexOf('인력')>=0);});
+      var sn7=wb.SheetNames.find(function(s){return s==='필요인력-7월';})
+            ||wb.SheetNames.find(function(s){return s.indexOf('7')>=0&&(s.indexOf('필요')>=0||s.indexOf('인력')>=0);});
+      console.log('시트 탐색: 6월='+sn6+', 7월='+sn7);
       var mn=wb.SheetNames.find(function(s){return s==='main';});
       if(sn6){var r6=parseWS(wb.Sheets[sn6]);D6=r6.data;P6=r6.procs;}
       if(sn7){var r7=parseWS(wb.Sheets[sn7]);D7=r7.data;P7=r7.procs;}
       if(mn){
         var mr=XLSX.utils.sheet_to_json(wb.Sheets[mn],{header:1,defval:null,raw:true});
         var pk={'생산PCS':4,'생산면적':5,'생산매출':6,'필요인력':8,'현인력':9,'충원인력':10};
-        Object.keys(pk).forEach(function(k){var r=mr[pk[k]];if(r)PR[k]={m1:nv(r[2]),m2:nv(r[3])};});
+        Object.keys(pk).forEach(function(k){
+          var r=mr[pk[k]];
+          if(r) PR[k]={m1:nv(r[2]),m2:nv(r[3]||r[2])};  // m2 없으면 m1 fallback
+        });
+        // 7월 필요인력이 비어있으면 필요인력-7월 시트 합계로 계산
+        if(sn7){
+          var p7vals=Object.values(r7?r7.procs:{});
+          var gt7=p7vals.reduce(function(s,p){return s+p.total;},0);
+          if(gt7>0&&(!PR['필요인력']||!PR['필요인력'].m2||PR['필요인력'].m2===0)){
+            if(!PR['필요인력']) PR['필요인력']={m1:0,m2:0};
+            PR['필요인력'].m2=Math.round(gt7*100)/100;
+          }
+        }
         MO={};
         for(var i=16;i<32;i++){
           if(!mr[i]||!mr[i][1])continue;
@@ -855,6 +877,8 @@ function loadExcel(input){
         }
       }
       st.textContent=file.name;
+      // 현재 선택된 월 기준으로 재렌더링 (7월 선택 상태면 7월 데이터 반영)
+      setSM(SM, document.getElementById(SM===7?'sb7':'sb6'));
       rAll();
     }catch(err){
       st.textContent='❌ '+err.message;
