@@ -265,8 +265,8 @@ textarea::placeholder{color:var(--txt3);font-size:15px}
       <div class="ep-hdr-l">
         <span style="font-size:20px">📖</span>
         <div>
-          <div class="ep-title">베트남어 단어 세부 설명</div>
-          <div class="ep-sub">단어를 입력하면 AI가 뜻·발음·예문·관련 표현을 상세히 설명합니다</div>
+          <div class="ep-title">단어 세부 설명 <span style="font-size:11px;color:var(--teal3);font-weight:400">— 번역 완료 시 자동 표시</span></div>
+          <div class="ep-sub">번역하면 자동 설명 | 베트남어 직접 입력 후 1.2초 대기 | 빠른단어 클릭</div>
         </div>
       </div>
     </div>
@@ -359,6 +359,8 @@ function doTranslate(srcId, tgtId){
       tgtEl.value=d.result||o.t;
       updCnt(tgtId==='ta-ko'?'cnt-ko':'cnt-vi',tgtEl.value.length);
       toast('번역 완료! ✅');
+      // 번역 완료 후 결과 텍스트 자동 단어설명
+      autoExplain(tgtEl.value, srcLang);
     } else {
       tgtEl.value='❌ 오류 (HTTP '+o.s+')\n'+o.t;
     }
@@ -371,6 +373,17 @@ function doTranslate(srcId, tgtId){
 }
 
 // ── 단어 설명 ──
+// 번역 결과 자동 단어설명
+function autoExplain(text, srcLang){
+  // 번역 결과(베트남어 또는 한국어)를 그대로 단어설명에 입력
+  var word = text.trim();
+  if(!word || word.startsWith("❌") || word.startsWith("⏳")) return;
+  // 너무 길면 첫 줄(핵심 단어)만 사용
+  if(word.length > 60) word = word.split("\n")[0].trim();
+  document.getElementById("ep-input").value = word;
+  explainWord(word);
+}
+
 function explainWord(word){
   if(!word||!word.trim()) return;
   word=word.trim();
@@ -520,6 +533,20 @@ window.addEventListener('load', function(){
   // Ctrl+Enter
   document.getElementById('ta-ko').addEventListener('keydown',function(e){if(e.ctrlKey&&e.key==='Enter')doTranslate('ta-ko','ta-vi');});
   document.getElementById('ta-vi').addEventListener('keydown',function(e){if(e.ctrlKey&&e.key==='Enter')doTranslate('ta-vi','ta-ko');});
+  // 베트남어 직접 입력 → 1.2초 후 자동 단어설명
+  var _viTimer=null;
+  document.getElementById('ta-vi').addEventListener('input',function(){
+    clearTimeout(_viTimer);
+    var val=(this.value||'').trim();
+    if(!val||val.startsWith('⏳')) return;
+    _viTimer=setTimeout(function(){
+      var word=val.length>80?val.split('\n')[0].trim():val;
+      if(word){
+        document.getElementById('ep-input').value=word;
+        explainWord(word);
+      }
+    },1200);
+  });
 
   // 단어 설명 버튼
   document.getElementById('btn-explain').addEventListener('click',function(){
