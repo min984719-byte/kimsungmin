@@ -616,36 +616,48 @@ async function translate(srcLang){
   statusEl.style.display="flex";
   tgtEl.value=""; tgtEl.placeholder="번역 중...";
 
+  var payload={mode:"translate",text:src,src_lang:srcLang,tgt_lang:srcLang==="ko"?"vi":"ko"};
+  console.log("[번역요청]",JSON.stringify(payload));
+
   try{
     var res=await fetch(LAMBDA,{
       method:"POST",
       headers:{"Content-Type":"text/plain"},
-      body:JSON.stringify({
-        mode:"translate",
-        text:src,
-        src_lang:srcLang,
-        tgt_lang:srcLang==="ko"?"vi":"ko"
-      })
+      body:JSON.stringify(payload)
     });
-    if(!res.ok) throw new Error("HTTP "+res.status);
-    var data=await res.json();
-    if(data.error) throw new Error(data.error);
-    var result=data.result||data.message||data.content||"";
+    console.log("[HTTP상태]",res.status,res.statusText);
+
+    var raw=await res.text();
+    console.log("[Lambda응답 raw]",raw);
+
+    if(!res.ok) throw new Error("HTTP "+res.status+": "+raw);
+
+    var data;
+    try{ data=JSON.parse(raw); }
+    catch(pe){ throw new Error("JSON파싱실패: "+raw.slice(0,200)); }
+
+    console.log("[파싱결과]",data);
+    if(data.error) throw new Error("Lambda오류: "+data.error);
+
+    var result=data.result||data.message||data.content||data.text||"";
     if(result){
       tgtEl.value=result;
       showToast("번역 완료! ✅");
       onInput(srcLang==="ko"?"vi":"ko");
-    } else throw new Error("빈 응답");
+    } else {
+      throw new Error("결과없음: "+JSON.stringify(data));
+    }
   }catch(e){
-    console.warn("번역오류:",e.message);
-    fallbackTranslate(src,srcLang,tgtEl);
+    console.error("[번역오류]",e.message);
+    // 에러 내용을 결과창에 표시
+    tgtEl.value="❌ 오류: "+e.message+"\n\n[F12 Console에서 상세 확인 가능]";
+    showToast("번역 오류 — 결과창 확인");
   }finally{
     statusEl.style.display="none";
-    tgtEl.placeholder=srcLang==="ko"
-      ?"Nhập tiếng Việt để dịch sang tiếng Hàn..."
-      :"번역 결과가 여기에 표시됩니다.";
+    tgtEl.placeholder=srcLang==="ko"?"Nhập tiếng Việt...":"번역 결과가 여기에 표시됩니다.";
   }
 }
+
 
 function fallbackTranslate(src,srcLang,tgtEl){
   var result=src,found=[];
