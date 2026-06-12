@@ -608,60 +608,60 @@ function onInput(lang){
   document.getElementById('cnt-'+lang).textContent = val.length+'자';
 }
 
-async function translate(srcLang){
-  var srcEl=document.getElementById(srcLang==="ko"?"txt-ko":"txt-vi");
-  var tgtEl=document.getElementById(srcLang==="ko"?"txt-vi":"txt-ko");
+function translate(srcLang){
+  var koEl=document.getElementById("txt-ko");
+  var viEl=document.getElementById("txt-vi");
+  var srcEl=srcLang==="ko"?koEl:viEl;
+  var tgtEl=srcLang==="ko"?viEl:koEl;
   var src=(srcEl.value||"").trim();
+
+  // 입력 없으면 포커스
   if(!src){
-    var which=srcLang==="ko"?"왼쪽 한국어":"오른쪽 베트남어";
-    showToast(which+" 입력창에 텍스트를 입력하세요");
-    document.getElementById("txt-"+srcLang).focus();
+    srcEl.focus();
+    srcEl.style.borderColor="var(--red3)";
+    setTimeout(function(){srcEl.style.borderColor="";},2000);
+    showToast((srcLang==="ko"?"왼쪽 한국어":"오른쪽 베트남어")+" 입력창에 텍스트를 입력하세요");
     return;
   }
-  var statusEl=document.getElementById("ai-status");
-  statusEl.style.display="flex";
-  tgtEl.value=""; tgtEl.placeholder="번역 중...";
 
-  var payload={mode:"translate",text:src,src_lang:srcLang,tgt_lang:srcLang==="ko"?"vi":"ko"};
-  console.log("[번역요청]",JSON.stringify(payload));
+  tgtEl.value="⏳ 번역 중...";
+  document.getElementById("ai-status").style.display="flex";
 
-  try{
-    var res=await fetch(LAMBDA,{
-      method:"POST",
-      headers:{"Content-Type":"text/plain"},
-      body:JSON.stringify(payload)
+  var body=JSON.stringify({mode:"translate",text:src,src_lang:srcLang,tgt_lang:srcLang==="ko"?"vi":"ko"});
+
+  fetch(LAMBDA,{method:"POST",headers:{"Content-Type":"text/plain"},body:body})
+  .then(function(res){
+    return res.text().then(function(raw){
+      return {status:res.status,raw:raw};
     });
-    console.log("[HTTP상태]",res.status,res.statusText);
-
-    var raw=await res.text();
-    console.log("[Lambda응답 raw]",raw);
-
-    if(!res.ok) throw new Error("HTTP "+res.status+": "+raw);
-
+  })
+  .then(function(obj){
+    document.getElementById("ai-status").style.display="none";
+    console.log("Lambda응답",obj.status,obj.raw);
+    if(obj.status!==200){
+      tgtEl.value="❌ 오류 (HTTP "+obj.status+")\n\n"+obj.raw;
+      return;
+    }
     var data;
-    try{ data=JSON.parse(raw); }
-    catch(pe){ throw new Error("JSON파싱실패: "+raw.slice(0,200)); }
-
-    console.log("[파싱결과]",data);
-    if(data.error) throw new Error("Lambda오류: "+data.error);
-
+    try{data=JSON.parse(obj.raw);}catch(e){
+      tgtEl.value="❌ JSON파싱오류\n\n"+obj.raw;
+      return;
+    }
     var result=data.result||data.message||data.content||data.text||"";
     if(result){
       tgtEl.value=result;
       showToast("번역 완료! ✅");
       onInput(srcLang==="ko"?"vi":"ko");
     } else {
-      throw new Error("결과없음: "+JSON.stringify(data));
+      tgtEl.value="❌ 결과없음\n\n"+JSON.stringify(data);
     }
-  }catch(e){
-    console.error("[번역오류]",e.message);
-    // 에러 내용을 결과창에 표시
-    tgtEl.value="❌ 오류: "+e.message+"\n\n[F12 Console에서 상세 확인 가능]";
-    showToast("번역 오류 — 결과창 확인");
-  }finally{
-    statusEl.style.display="none";
-    tgtEl.placeholder=srcLang==="ko"?"Nhập tiếng Việt...":"번역 결과가 여기에 표시됩니다.";
-  }
+  })
+  .catch(function(err){
+    document.getElementById("ai-status").style.display="none";
+    console.error("fetch오류",err);
+    tgtEl.value="❌ 네트워크오류\n\n"+err.message;
+    showToast("네트워크 오류");
+  });
 }
 
 
