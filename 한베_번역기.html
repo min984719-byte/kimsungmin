@@ -6,777 +6,454 @@
 <title>한국어 ↔ 베트남어 번역기 — SYNOPEX VIETNAM</title>
 <style>
 :root{
-  --bg:#0f1923; --bg2:#16232f; --bg3:#1d2f3e; --bg4:#243648;
-  --blue1:#1F3864; --blue2:#2176AE; --blue3:#4A9FD4;
-  --teal1:#0d5c46; --teal2:#1D9E75; --teal3:#3dd68c;
-  --amber2:#E8A020; --red2:#C00000; --red3:#ff6b6b;
-  --purple2:#7B2FBE; --purple3:#b57bee;
-  --txt1:#e8f4fd; --txt2:#94afc8; --txt3:#5a7a96;
-  --border:#1e3448; --shadow:0 4px 24px rgba(0,0,0,.5);
-  --vn:#da251d; /* 베트남 빨강 */
-  --kr:#003478; /* 한국 파랑 */
+  --bg:#0f1923;--bg2:#16232f;--bg3:#1d2f3e;
+  --blue:#2176AE;--teal:#1D9E75;--red:#C00000;
+  --txt1:#e8f4fd;--txt2:#94afc8;--txt3:#5a7a96;
+  --border:#1e3448;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--txt1);font-family:'Malgun Gothic','맑은 고딕',sans-serif;min-height:100vh}
+body{background:var(--bg);color:var(--txt1);font-family:'Malgun Gothic',Arial,sans-serif;min-height:100vh}
 
-/* 헤더 */
-.hdr{
-  background:linear-gradient(135deg,var(--blue1) 0%,#0a1520 100%);
-  border-bottom:1px solid var(--border);
-  padding:0 24px; height:58px;
-  display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:100;box-shadow:var(--shadow)
-}
-.hdr-title{display:flex;align-items:center;gap:12px}
-.hdr-title h1{font-size:16px;font-weight:700}
-.hdr-title .sub{font-size:11px;color:var(--txt2);margin-top:2px}
-.flag{font-size:22px}
-.hdr-right{display:flex;align-items:center;gap:8px}
-.badge-kr{background:var(--kr);color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700}
-.badge-vn{background:var(--vn);color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700}
+.hdr{background:#1F3864;padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.hdr h1{font-size:15px;font-weight:700}
+.hdr-sub{font-size:11px;color:var(--txt2);margin-top:2px}
 
-/* 메인 레이아웃 */
-.wrap{max-width:1200px;margin:0 auto;padding:24px 20px}
+.wrap{max-width:1100px;margin:0 auto;padding:20px}
 
-/* 번역 패널 */
-.trans-panel{
-  display:grid;grid-template-columns:1fr 56px 1fr;
-  gap:0;margin-bottom:28px;
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:14px;overflow:hidden;box-shadow:var(--shadow)
-}
-.lang-header{
-  padding:12px 18px;display:flex;align-items:center;gap:8px;
-  font-size:12px;font-weight:700;border-bottom:1px solid var(--border)
-}
-.lang-header.ko{background:linear-gradient(90deg,rgba(0,52,120,.4),transparent)}
-.lang-header.vi{background:linear-gradient(90deg,rgba(218,37,29,.2),transparent)}
-.lang-dot-ko{width:10px;height:10px;border-radius:50%;background:var(--kr);flex-shrink:0}
-.lang-dot-vi{width:10px;height:10px;border-radius:50%;background:var(--vn);flex-shrink:0}
-.textarea-wrap{padding:14px}
-.trans-textarea{
-  width:100%;min-height:130px;resize:vertical;
-  background:transparent;border:none;outline:none;
-  color:var(--txt1);font-size:14px;line-height:1.7;
-  font-family:'Malgun Gothic','맑은 고딕',sans-serif
-}
-.trans-textarea::placeholder{color:var(--txt3)}
-.trans-result{
-  width:100%;min-height:130px;padding:0;
-  background:transparent;border:none;
-  color:var(--teal3);font-size:14px;line-height:1.7;
-  font-family:'Malgun Gothic','맑은 고딕',sans-serif;
-  white-space:pre-wrap;cursor:pointer
-}
-.trans-result:hover{color:var(--blue3)}
+/* 번역 박스 */
+.trans-wrap{display:grid;grid-template-columns:1fr auto 1fr;gap:0;background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px}
+.trans-side{display:flex;flex-direction:column}
+.side-hdr{padding:10px 16px;font-size:12px;font-weight:700;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.side-hdr.ko{background:rgba(0,52,120,.3)}
+.side-hdr.vi{background:rgba(218,37,29,.15)}
+textarea{width:100%;min-height:140px;resize:vertical;background:transparent;border:none;outline:none;color:var(--txt1);font-size:14px;line-height:1.7;font-family:inherit;padding:14px 16px}
+textarea::placeholder{color:var(--txt3)}
+.side-foot{padding:8px 12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.btn{padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--txt2);font-size:11px;cursor:pointer;font-family:inherit}
+.btn:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:700}
+.btn.primary:hover{opacity:.85}
+.cnt{font-size:10px;color:var(--txt3);margin-left:auto}
 
-/* 중앙 스왑 버튼 */
-.swap-col{
-  display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:10px;
-  border-left:1px solid var(--border);border-right:1px solid var(--border);
-  background:var(--bg3)
-}
-.btn-swap{
-  width:38px;height:38px;border-radius:50%;
-  background:var(--blue2);border:none;color:#fff;
-  font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:.2s
-}
-.btn-swap:hover{background:var(--blue3);transform:rotate(180deg)}
-.btn-trans{
-  padding:8px 0;width:42px;
-  background:var(--teal2);border:none;color:#fff;
-  font-size:10px;font-weight:700;cursor:pointer;border-radius:6px;
-  transition:.2s;writing-mode:vertical-rl;letter-spacing:1px
-}
-.btn-trans:hover{background:var(--teal3)}
+/* 중앙 버튼 */
+.mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:0 8px;border-left:1px solid var(--border);border-right:1px solid var(--border);background:var(--bg3);min-width:52px}
+.btn-swap{width:36px;height:36px;border-radius:50%;background:var(--blue);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.btn-swap:hover{opacity:.8;transform:rotate(180deg);transition:.3s}
+.btn-dir{writing-mode:vertical-rl;padding:8px 4px;font-size:10px;font-weight:700;background:var(--teal);border:none;color:#fff;border-radius:6px;cursor:pointer;letter-spacing:1px}
+.btn-dir.vi{background:#da251d}
 
-/* 하단 버튼 */
-.trans-actions{
-  padding:10px 18px;border-top:1px solid var(--border);
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap
-}
-.trans-actions-r{
-  padding:10px 18px;border-top:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px
-}
-.btn-sm{
-  padding:5px 12px;border-radius:6px;border:1px solid var(--border);
-  background:var(--bg3);color:var(--txt2);font-size:11px;cursor:pointer;
-  font-family:inherit;transition:.15s
-}
-.btn-sm:hover{background:var(--bg4);color:var(--txt1)}
-.btn-sm.primary{background:var(--blue2);color:#fff;border-color:var(--blue2)}
-.btn-sm.primary:hover{background:var(--blue3)}
-.char-count{font-size:10px;color:var(--txt3)}
+/* 사전 */
+.sec-title{font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.sec-title::before{content:'●';color:var(--blue);font-size:7px}
+.search{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--txt1);padding:9px 14px;border-radius:8px;font-size:13px;font-family:inherit;outline:none;margin-bottom:12px}
+.search:focus{border-color:var(--blue)}
+.cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.cat{padding:4px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--txt2);font-size:11px;cursor:pointer;font-family:inherit}
+.cat.on,.cat:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:24px}
+.card{background:var(--bg2);border:1px solid var(--border);border-left:3px solid transparent;border-radius:10px;padding:13px;cursor:pointer}
+.card:hover,.card.on{border-left-color:var(--blue);background:var(--bg3)}
+.card-ko{font-size:13px;font-weight:700;margin-bottom:4px}
+.card-vi{font-size:12px;color:#3dd68c;margin-bottom:6px}
+.card-cat{display:inline-block;padding:2px 7px;border-radius:8px;font-size:10px;background:rgba(33,118,174,.2);color:#4A9FD4}
 
-/* 섹션 타이틀 */
-.sec-title{
-  font-size:12px;font-weight:700;color:var(--txt2);
-  margin-bottom:12px;display:flex;align-items:center;gap:6px
-}
-.sec-title::before{content:'●';color:var(--blue2);font-size:8px}
+/* 상세 */
+.detail{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px;display:none}
+.detail.show{display:block}
+.detail-top{display:flex;justify-content:space-between;margin-bottom:14px}
+.detail-ko{font-size:20px;font-weight:700}
+.detail-vi{font-size:16px;color:#3dd68c;margin-top:4px}
+.detail-body{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.detail-body{grid-template-columns:1fr}}
+.dsec{background:var(--bg3);border-radius:8px;padding:12px}
+.dsec-t{font-size:10px;font-weight:700;color:var(--txt2);margin-bottom:8px;text-transform:uppercase}
+.dsec p{font-size:12px;line-height:1.8;color:var(--txt2)}
+.dsec b{color:var(--txt1)}
+.ex{margin-bottom:7px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.ex:last-child{border:none;margin:0;padding:0}
+.ex-ko{font-size:12px}
+.ex-vi{font-size:12px;color:#3dd68c}
+.btn-x{background:none;border:none;color:var(--txt2);font-size:18px;cursor:pointer}
 
-/* 사전 카드 그리드 */
-.dict-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
-  gap:10px;margin-bottom:28px
-}
-.dict-card{
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:10px;padding:14px;cursor:pointer;
-  transition:.2s;border-left:3px solid transparent
-}
-.dict-card:hover{border-left-color:var(--blue2);background:var(--bg3)}
-.dict-card.active{border-left-color:var(--teal2);background:var(--bg3)}
-.dict-kw{font-size:13px;font-weight:700;color:var(--txt1);margin-bottom:4px}
-.dict-vi{font-size:12px;color:var(--teal3);margin-bottom:6px}
-.dict-cat{
-  display:inline-block;padding:2px 7px;border-radius:8px;
-  font-size:10px;font-weight:600;
-  background:rgba(33,118,174,.2);color:var(--blue3)
-}
-
-/* 단어 상세 패널 */
-.detail-panel{
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:12px;padding:20px;margin-bottom:28px;
-  display:none
-}
-.detail-panel.show{display:block}
-.detail-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
-.detail-ko{font-size:22px;font-weight:700;color:var(--txt1)}
-.detail-vi{font-size:18px;color:var(--teal3);margin-top:4px;font-weight:600}
-.detail-cats{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.detail-cat{
-  padding:3px 9px;border-radius:10px;font-size:11px;font-weight:600;
-  background:rgba(33,118,174,.2);color:var(--blue3)
-}
-.detail-body{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:640px){.detail-body{grid-template-columns:1fr}}
-.detail-section{background:var(--bg3);border-radius:8px;padding:12px}
-.detail-section-title{font-size:10px;font-weight:700;color:var(--txt2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
-.detail-section p{font-size:12px;line-height:1.8;color:var(--txt2)}
-.detail-section b{color:var(--txt1)}
-.example-row{margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)}
-.example-row:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
-.example-ko{font-size:12px;color:var(--txt1);margin-bottom:2px}
-.example-vi{font-size:12px;color:var(--teal3)}
-.btn-close{background:none;border:none;color:var(--txt2);font-size:18px;cursor:pointer;padding:4px}
-.btn-close:hover{color:var(--txt1)}
-
-/* 검색바 */
-.search-bar{
-  display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap
-}
-.search-input{
-  flex:1;min-width:200px;background:var(--bg2);border:1px solid var(--border);
-  color:var(--txt1);padding:9px 14px;border-radius:8px;font-size:13px;
-  font-family:inherit;outline:none
-}
-.search-input:focus{border-color:var(--blue2)}
-.cat-filter{display:flex;gap:6px;flex-wrap:wrap}
-.cat-btn{
-  padding:5px 12px;border-radius:8px;border:1px solid var(--border);
-  background:var(--bg3);color:var(--txt2);font-size:11px;cursor:pointer;
-  font-family:inherit;transition:.15s
-}
-.cat-btn:hover,.cat-btn.on{background:var(--blue2);color:#fff;border-color:var(--blue2)}
-
-/* 즐겨찾기 */
-.fav-section{margin-bottom:28px}
-.fav-chips{display:flex;gap:7px;flex-wrap:wrap}
-.fav-chip{
-  padding:5px 12px;border-radius:20px;
-  background:rgba(123,47,190,.2);border:1px solid rgba(123,47,190,.4);
-  color:var(--purple3);font-size:11px;cursor:pointer;transition:.15s
-}
-.fav-chip:hover{background:rgba(123,47,190,.35)}
-.fav-empty{font-size:12px;color:var(--txt3)}
-
-/* 토스트 */
-.toast{
-  position:fixed;bottom:24px;right:24px;
-  background:var(--bg3);border:1px solid var(--teal2);
-  color:var(--teal3);padding:10px 18px;border-radius:8px;
-  font-size:12px;opacity:0;transition:.3s;pointer-events:none;z-index:999
-}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg3);border:1px solid var(--teal);color:#3dd68c;padding:9px 16px;border-radius:8px;font-size:12px;opacity:0;transition:.3s;pointer-events:none;z-index:999}
 .toast.show{opacity:1}
-
-/* AI 번역 상태 */
-.ai-status{
-  display:flex;align-items:center;gap:6px;font-size:11px;color:var(--txt3)
-}
-.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--teal2);animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.loading-dots::after{content:'.';animation:dots 1.2s infinite}
-@keyframes dots{0%{content:'.'} 33%{content:'..'} 66%{content:'...'} 100%{content:'.'}}
+.spinner{display:none;width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
 </style>
 </head>
 <body>
 
 <div class="hdr">
-  <div class="hdr-title">
-    <span class="flag">🌏</span>
-    <div>
-      <h1>한국어 ↔ 베트남어 번역기</h1>
-      <div class="sub">SYNOPEX VIETNAM | 생산현장 전문용어 포함</div>
+  <div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:22px">🌏</span>
+      <div>
+        <h1>한국어 ↔ 베트남어 번역기</h1>
+        <div class="hdr-sub">SYNOPEX VIETNAM | 생산현장 전문용어 포함</div>
+      </div>
     </div>
   </div>
-  <div class="hdr-right">
-    <span class="badge-kr">🇰🇷 한국어</span>
-    <span style="color:var(--txt3);font-size:12px">↔</span>
-    <span class="badge-vn">🇻🇳 Tiếng Việt</span>
+  <div style="display:flex;gap:6px">
+    <span style="background:#003478;color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700">🇰🇷 한국어</span>
+    <span style="background:#da251d;color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700">🇻🇳 Tiếng Việt</span>
   </div>
-</div>
-
-<!-- 긴급 디버그 바 -->
-<div id="debug-bar" style="background:#243648;border-bottom:1px solid #1e3448;padding:8px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-  <span style="font-size:11px;color:#94afc8">🔧 디버그:</span>
-  <button onclick="quickTest()" style="background:#2176AE;color:#fff;border:none;padding:5px 12px;border-radius:5px;font-size:11px;cursor:pointer">
-    ① txt-ko 값 확인
-  </button>
-  <button onclick="quickTranslate()" style="background:#1D9E75;color:#fff;border:none;padding:5px 12px;border-radius:5px;font-size:11px;cursor:pointer">
-    ② 직접 번역 테스트
-  </button>
-  <span id="debug-out" style="font-size:11px;color:#3dd68c;flex:1"></span>
 </div>
 
 <div class="wrap">
 
-  <!-- 번역 입력 패널 -->
-  <div class="trans-panel">
-    <!-- 한국어 입력 -->
-    <div>
-      <div class="lang-header ko">
-        <span class="lang-dot-ko"></span>
-        <span>한국어</span>
-        <span style="font-size:10px;color:var(--txt3);font-weight:400;margin-left:auto">Korean</span>
+  <div class="trans-wrap">
+    <!-- 한국어 -->
+    <div class="trans-side">
+      <div class="side-hdr ko">
+        <span style="width:10px;height:10px;border-radius:50%;background:#003478;display:inline-block"></span>
+        한국어 Korean
       </div>
-      <div class="textarea-wrap">
-        <textarea id="txt-ko" class="trans-textarea" placeholder="번역할 한국어를 입력하세요...
-예) 공정별 가동율 현황을 확인해 주세요." oninput="onInput('ko')" id="ta-ko-bind"></textarea>
-      </div>
-      <div class="trans-actions">
-        <button class="btn-sm" onclick="clearText('ko')">✕ 지우기</button>
-        <button class="btn-sm" onclick="copyText('ko')">📋 복사</button>
-        <button class="btn-sm" onclick="pasteText('ko')">📥 붙여넣기</button>
-        <button class="btn-sm primary" id="btn-ko-main">🚀 한→베 번역</button>
-        <span class="char-count" id="cnt-ko">0자</span>
+      <textarea id="ta-ko" placeholder="번역할 한국어를 입력하세요...
+예) 공정별 가동율 현황을 확인해 주세요."></textarea>
+      <div class="side-foot">
+        <button class="btn" id="btn-clear-ko">✕ 지우기</button>
+        <button class="btn" id="btn-copy-ko">📋 복사</button>
+        <span class="cnt" id="cnt-ko">0자</span>
+        <button class="btn primary" id="btn-trans-ko">🚀 한→베 번역</button>
       </div>
     </div>
 
-    <!-- 스왑 -->
-    <div class="swap-col">
-      <button class="btn-trans" id="btn-ko-center" title="한국어→베트남어" style="font-size:9px;padding:6px 3px">🇰🇷→🇻🇳</button>
-      <button class="btn-swap" onclick="swapLang()" title="언어 전환">⇄</button>
-      <button class="btn-trans" id="btn-vi-center" title="베트남어→한국어" style="background:var(--vn);font-size:9px;padding:6px 3px">🇻🇳→🇰🇷</button>
+    <!-- 중앙 -->
+    <div class="mid">
+      <button class="btn-dir" id="btn-dir-ko">KR→VN</button>
+      <button class="btn-swap" id="btn-swap">⇄</button>
+      <button class="btn-dir vi" id="btn-dir-vi">VN→KR</button>
     </div>
 
-    <!-- 베트남어 결과 -->
-    <div>
-      <div class="lang-header vi">
-        <span class="lang-dot-vi"></span>
-        <span>Tiếng Việt</span>
-        <span style="font-size:10px;color:var(--txt3);font-weight:400;margin-left:auto">Vietnamese</span>
+    <!-- 베트남어 -->
+    <div class="trans-side">
+      <div class="side-hdr vi">
+        <span style="width:10px;height:10px;border-radius:50%;background:#da251d;display:inline-block"></span>
+        Tiếng Việt 베트남어
+        <span class="spinner" id="spinner"></span>
       </div>
-      <div class="textarea-wrap">
-        <textarea id="txt-vi" class="trans-textarea" placeholder="Nhập tiếng Việt để dịch sang tiếng Hàn...
-또는 번역 결과가 여기에 표시됩니다." oninput="onInput('vi')"></textarea>
-      </div>
-      <div class="trans-actions">
-        <button class="btn-sm" onclick="clearText('vi')">✕ 지우기</button>
-        <button class="btn-sm" onclick="copyText('vi')">📋 복사</button>
-        <div id="ai-status" class="ai-status" style="display:none;margin-left:auto">
-          <span class="ai-dot"></span><span>AI 번역 중<span class="loading-dots"></span></span>
-        </div>
-        <button class="btn-sm primary" id="btn-vi-main">🚀 베→한 번역</button>
+      <textarea id="ta-vi" placeholder="Nhập tiếng Việt để dịch sang tiếng Hàn...
+또는 번역 결과가 여기에 표시됩니다."></textarea>
+      <div class="side-foot">
+        <button class="btn" id="btn-clear-vi">✕ 지우기</button>
+        <button class="btn" id="btn-copy-vi">📋 복사</button>
+        <span class="cnt" id="cnt-vi">0자</span>
+        <button class="btn primary" id="btn-trans-vi" style="background:#da251d;border-color:#da251d">🚀 베→한 번역</button>
       </div>
     </div>
   </div>
 
-  <!-- 즐겨찾기 -->
-  <div class="fav-section">
-    <div class="sec-title">⭐ 최근 검색 / 즐겨찾기</div>
-    <div class="fav-chips" id="fav-chips">
-      <span class="fav-empty">단어를 즐겨찾기하면 여기에 표시됩니다.</span>
-    </div>
-  </div>
-
-  <!-- 단어 상세 패널 -->
-  <div class="detail-panel" id="detail-panel">
+  <!-- 전문용어 사전 -->
+  <div class="sec-title">📖 전문용어 사전</div>
+  <input class="search" id="search" placeholder="🔍 단어 검색 (한국어 또는 베트남어)...">
+  <div class="cats" id="cats"></div>
+  <div class="detail" id="detail">
     <div class="detail-top">
       <div>
         <div class="detail-ko" id="d-ko"></div>
         <div class="detail-vi" id="d-vi"></div>
-        <div class="detail-cats" id="d-cats"></div>
       </div>
-      <div style="display:flex;gap:6px;align-items:flex-start">
-        <button class="btn-sm" id="d-fav-btn" onclick="toggleFav()">☆ 즐겨찾기</button>
-        <button class="btn-close" onclick="closeDetail()">✕</button>
-      </div>
+      <button class="btn-x" id="btn-detail-close">✕</button>
     </div>
     <div class="detail-body" id="d-body"></div>
   </div>
-
-  <!-- 사전 검색 -->
-  <div class="sec-title">📖 전문용어 사전  <span style="font-weight:400;font-size:10px;color:var(--txt3)">(단어 클릭 시 상세 설명)</span></div>
-  <div class="search-bar">
-    <input type="text" class="search-input" id="search-input"
-      placeholder="🔍 단어 검색 (한국어 또는 베트남어)..."
-      oninput="filterDict()">
-    <div class="cat-filter" id="cat-filter"></div>
-  </div>
-  <div class="dict-grid" id="dict-grid"></div>
+  <div class="grid" id="grid"></div>
 
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const LAMBDA = 'https://bssy4msokyy3hvsphelxiuyzta0nwxml.lambda-url.ap-southeast-1.on.aws/';
+var LAMBDA = 'https://bssy4msokyy3hvsphelxiuyzta0nwxml.lambda-url.ap-southeast-1.on.aws/';
 
-// ══════════════════════════════════════════════════════════
-// 전문 용어 사전 데이터
-// ══════════════════════════════════════════════════════════
-const DICT = [
-  // 생산관리
-  {ko:'가동율',      vi:'Tỷ lệ hoạt động',   cat:'생산관리',
-   def_ko:'설비가 실제로 가동된 시간의 비율. 기준시간 대비 실가동시간',
-   def_vi:'Tỷ lệ thời gian máy móc thực sự hoạt động so với thời gian tiêu chuẩn',
+// ── 사전 데이터 ──
+var DICT = [
+  {ko:'가동율',vi:'Tỷ lệ hoạt động',cat:'생산관리',
+   defKo:'설비가 실제로 가동된 시간 비율. 기준시간 대비 실가동시간',
+   defVi:'Tỷ lệ thời gian máy thực sự hoạt động so với thời gian tiêu chuẩn',
    formula:'가동율(%) = 실가동시간 ÷ 기준시간 × 100',
-   examples:[
-     {ko:'공정별 가동율을 확인해 주세요.',vi:'Vui lòng kiểm tra tỷ lệ hoạt động theo công đoạn.'},
-     {ko:'이번 주 레이저 가동율이 낮습니다.',vi:'Tỷ lệ hoạt động của laser tuần này thấp.'},
-   ]},
-  {ko:'공정계획',    vi:'Kế hoạch công đoạn', cat:'생산관리',
-   def_ko:'각 공정에 배포되는 일별/주별 생산 투입 계획량',
-   def_vi:'Kế hoạch sản xuất theo ngày/tuần được phân phối cho từng công đoạn',
-   formula:'공정투입량 = 납품목표(PNL) × 라우팅(1/0) − 재공(WIP)',
-   examples:[
-     {ko:'공정계획을 오전 중으로 배포해 주세요.',vi:'Vui lòng phân phối kế hoạch công đoạn trước buổi sáng.'},
-   ]},
-  {ko:'납기일',      vi:'Ngày giao hàng',     cat:'납품/출하',
-   def_ko:'고객에게 제품을 납품해야 하는 기한',
-   def_vi:'Thời hạn giao sản phẩm cho khách hàng',
+   ex:[{ko:'공정별 가동율을 확인해 주세요.',vi:'Vui lòng kiểm tra tỷ lệ hoạt động theo công đoạn.'}]},
+  {ko:'공정계획',vi:'Kế hoạch công đoạn',cat:'생산관리',
+   defKo:'각 공정에 배포되는 일별/주별 생산 투입 계획량',
+   defVi:'Kế hoạch sản xuất theo ngày/tuần được phân phối cho từng công đoạn',
+   formula:'공정투입량 = 납품목표(PNL) × 라우팅 − 재공(WIP)',
+   ex:[{ko:'공정계획을 오전 중으로 배포해 주세요.',vi:'Vui lòng phân phối kế hoạch công đoạn trước buổi sáng.'}]},
+  {ko:'납기일',vi:'Ngày giao hàng',cat:'납품/출하',
+   defKo:'고객에게 제품을 납품해야 하는 기한',
+   defVi:'Thời hạn giao sản phẩm cho khách hàng',
    formula:'D-Day = 납기일 − 오늘',
-   examples:[
-     {ko:'납기일이 3일 남았습니다.',vi:'Còn 3 ngày đến ngày giao hàng.'},
-     {ko:'납기일을 준수해 주세요.',vi:'Vui lòng đảm bảo đúng ngày giao hàng.'},
-   ]},
-  {ko:'재공(WIP)',   vi:'Hàng tồn đang sản xuất (WIP)', cat:'생산관리',
-   def_ko:'공정 진행 중인 반제품. 투입 계획량 산출 시 차감 필요',
-   def_vi:'Bán thành phẩm đang trong quá trình sản xuất. Cần trừ khi tính toán kế hoạch đầu vào',
+   ex:[{ko:'납기일이 3일 남았습니다.',vi:'Còn 3 ngày đến ngày giao hàng.'}]},
+  {ko:'재공(WIP)',vi:'Hàng tồn đang sản xuất',cat:'생산관리',
+   defKo:'공정 진행 중인 반제품. 투입 계획량 산출 시 차감',
+   defVi:'Bán thành phẩm đang trong quá trình sản xuất',
    formula:'실투입필요 = 납품목표 − 완성재고 − 공정재공',
-   examples:[
-     {ko:'현재 동도금 공정 재공이 몇 패널입니까?',vi:'Hiện tại có bao nhiêu panel tồn kho trong công đoạn mạ đồng?'},
-   ]},
-  {ko:'CAPA(생산능력)',vi:'Năng lực sản xuất (CAPA)', cat:'생산관리',
-   def_ko:'설비 또는 공정의 최대 처리 가능 수량. ST+인수인계+수량체크 포함 실적 기반',
-   def_vi:'Số lượng tối đa có thể xử lý của thiết bị hoặc công đoạn. Dựa trên thực tế bao gồm ST+bàn giao+kiểm đếm',
+   ex:[{ko:'동도금 공정 재공이 몇 패널입니까?',vi:'Có bao nhiêu panel tồn kho trong công đoạn mạ đồng?'}]},
+  {ko:'CAPA',vi:'Năng lực sản xuất',cat:'생산관리',
+   defKo:'설비 또는 공정의 최대 처리 가능 수량',
+   defVi:'Số lượng tối đa có thể xử lý của thiết bị hoặc công đoạn',
    formula:'일 CAPA = 실제 하루 처리량(PNL) 평균',
-   examples:[
-     {ko:'레이저 공정 CAPA가 부족합니다.',vi:'Năng lực sản xuất của công đoạn laser không đủ.'},
-   ]},
-  {ko:'부하율',      vi:'Tỷ lệ tải',          cat:'생산관리',
-   def_ko:'CAPA 대비 필요 생산량의 비율. 100% 초과 시 NECK 공정',
-   def_vi:'Tỷ lệ sản lượng cần thiết so với CAPA. Khi vượt 100% là công đoạn NECK',
+   ex:[{ko:'레이저 공정 CAPA가 부족합니다.',vi:'Năng lực sản xuất của công đoạn laser không đủ.'}]},
+  {ko:'부하율',vi:'Tỷ lệ tải',cat:'생산관리',
+   defKo:'CAPA 대비 필요 생산량 비율. 100% 초과 시 NECK',
+   defVi:'Tỷ lệ sản lượng cần thiết so với CAPA',
    formula:'부하율(%) = 필요량 ÷ CAPA × 100',
-   examples:[
-     {ko:'타발 공정 부하율이 115%입니다. 조치가 필요합니다.',vi:'Tỷ lệ tải của công đoạn dập là 115%. Cần có biện pháp xử lý.'},
-   ]},
-  {ko:'NECK 공정',  vi:'Công đoạn nút thắt (NECK)', cat:'생산관리',
-   def_ko:'부하율이 100%를 초과하여 생산 흐름의 병목이 되는 공정',
-   def_vi:'Công đoạn có tỷ lệ tải vượt 100%, trở thành điểm nghẽn của dòng sản xuất',
-   formula:'NECK = 부하율 ≥ 90% 이상 공정',
-   examples:[
-     {ko:'이번 주 NECK 공정은 수가접입니다.',vi:'Công đoạn NECK tuần này là hàn tay.'},
-   ]},
-  {ko:'우선순위',    vi:'Thứ tự ưu tiên',      cat:'생산계획',
-   def_ko:'납기일 기준 긴급 순서. EDD(Earliest Due Date) 방식이 기본',
-   def_vi:'Thứ tự khẩn cấp dựa trên ngày giao hàng. Phương pháp EDD (Ngày đến hạn sớm nhất) là cơ bản',
+   ex:[{ko:'타발 공정 부하율이 115%입니다.',vi:'Tỷ lệ tải của công đoạn dập là 115%.'}]},
+  {ko:'NECK 공정',vi:'Công đoạn nút thắt',cat:'생산관리',
+   defKo:'부하율이 100% 초과하여 생산의 병목이 되는 공정',
+   defVi:'Công đoạn có tỷ lệ tải vượt 100%, điểm nghẽn sản xuất',
+   formula:'NECK = 부하율 ≥ 90% 공정',
+   ex:[{ko:'이번 주 NECK 공정은 수가접입니다.',vi:'Công đoạn NECK tuần này là hàn tay.'}]},
+  {ko:'우선순위',vi:'Thứ tự ưu tiên',cat:'생산계획',
+   defKo:'납기일 기준 긴급 순서 (EDD 방식)',
+   defVi:'Thứ tự khẩn cấp dựa trên ngày giao hàng',
    formula:'우선순위 = RANK(D-Day, 오름차순)',
-   examples:[
-     {ko:'우선순위 1번 모델을 먼저 투입해 주세요.',vi:'Vui lòng đưa vào sản xuất model có thứ tự ưu tiên số 1 trước.'},
-   ]},
-  // FPCB 공정
-  {ko:'동도금',      vi:'Mạ đồng',            cat:'FPCB공정',
-   def_ko:'블랙홀 및 전기동도금 공정. Via Hole 내벽에 동을 도금하는 공정',
-   def_vi:'Công đoạn mạ đồng black hole và điện phân. Mạ đồng lên thành lỗ Via Hole',
+   ex:[{ko:'우선순위 1번 모델을 먼저 투입해 주세요.',vi:'Vui lòng đưa vào sản xuất model ưu tiên số 1 trước.'}]},
+  {ko:'동도금',vi:'Mạ đồng',cat:'FPCB공정',
+   defKo:'블랙홀 및 전기동도금 공정. Via Hole 내벽에 동을 도금',
+   defVi:'Công đoạn mạ đồng black hole và điện phân lên thành lỗ Via Hole',
    formula:'',
-   examples:[
-     {ko:'동도금 공정에서 두께 불량이 발생했습니다.',vi:'Xảy ra lỗi độ dày tại công đoạn mạ đồng.'},
-   ]},
-  {ko:'가접',        vi:'Dán tạm / Hàn tạm',  cat:'FPCB공정',
-   def_ko:'COVERLAY, SUS, EPOXY 등을 임시로 붙이는 공정. 수동가접/자동가접으로 구분',
-   def_vi:'Công đoạn dán tạm COVERLAY, SUS, EPOXY. Phân loại thành hàn tay và hàn tự động',
+   ex:[{ko:'동도금 공정에서 두께 불량이 발생했습니다.',vi:'Xảy ra lỗi độ dày tại công đoạn mạ đồng.'}]},
+  {ko:'가접',vi:'Dán tạm / Hàn tạm',cat:'FPCB공정',
+   defKo:'COVERLAY, SUS, EPOXY를 임시로 붙이는 공정',
+   defVi:'Công đoạn dán tạm COVERLAY, SUS, EPOXY',
    formula:'',
-   examples:[
-     {ko:'1차 COVERLAY 가접이 완료되었습니다.',vi:'Đã hoàn thành dán tạm COVERLAY lần 1.'},
-   ]},
-  {ko:'적층',        vi:'Ép nóng / Tích hợp', cat:'FPCB공정',
-   def_ko:'COVERLAY, EPOXY 등을 열압착으로 영구 접합하는 공정',
-   def_vi:'Công đoạn ép nhiệt vĩnh cửu COVERLAY, EPOXY bằng nhiệt',
+   ex:[{ko:'1차 COVERLAY 가접이 완료되었습니다.',vi:'Đã hoàn thành dán tạm COVERLAY lần 1.'}]},
+  {ko:'적층',vi:'Ép nóng / Tích hợp',cat:'FPCB공정',
+   defKo:'COVERLAY, EPOXY를 열압착으로 영구 접합하는 공정',
+   defVi:'Công đoạn ép nhiệt vĩnh cửu COVERLAY, EPOXY',
    formula:'',
-   examples:[
-     {ko:'적층 후 박리 불량이 발생했습니다.',vi:'Xảy ra lỗi bong tróc sau khi ép.'},
-   ]},
-  {ko:'타발',        vi:'Dập khuôn',          cat:'FPCB공정',
-   def_ko:'금형을 사용하여 FPCB를 원하는 형태로 절단하는 공정. 수동/자동 타발로 구분',
-   def_vi:'Công đoạn cắt FPCB thành hình dạng mong muốn bằng khuôn. Phân loại thành dập tay và dập tự động',
+   ex:[{ko:'적층 후 박리 불량이 발생했습니다.',vi:'Xảy ra lỗi bong tróc sau khi ép.'}]},
+  {ko:'타발',vi:'Dập khuôn',cat:'FPCB공정',
+   defKo:'금형으로 FPCB를 원하는 형태로 절단하는 공정',
+   defVi:'Công đoạn cắt FPCB thành hình dạng mong muốn bằng khuôn',
    formula:'',
-   examples:[
-     {ko:'타발 금형이 마모되어 교체가 필요합니다.',vi:'Khuôn dập bị mòn, cần thay thế.'},
-   ]},
-  {ko:'AOI',         vi:'Kiểm tra AOI',       cat:'FPCB공정',
-   def_ko:'Automated Optical Inspection. 광학 자동 검사 장비로 패턴 불량을 검출',
-   def_vi:'Kiểm tra quang học tự động. Phát hiện lỗi mẫu bằng thiết bị kiểm tra quang học tự động',
+   ex:[{ko:'타발 금형이 마모되어 교체가 필요합니다.',vi:'Khuôn dập bị mòn, cần thay thế.'}]},
+  {ko:'AOI',vi:'Kiểm tra AOI',cat:'FPCB공정',
+   defKo:'Automated Optical Inspection. 광학 자동 검사 장비',
+   defVi:'Kiểm tra quang học tự động. Phát hiện lỗi mẫu mạch',
    formula:'',
-   examples:[
-     {ko:'AOI에서 단선 불량이 검출되었습니다.',vi:'Phát hiện lỗi đứt mạch tại AOI.'},
-   ]},
-  {ko:'BBT',         vi:'Kiểm tra mạch BBT', cat:'FPCB공정',
-   def_ko:'Bare Board Test. 회로 단선/단락을 전기적으로 검사하는 공정',
-   def_vi:'Kiểm tra mạch trần. Công đoạn kiểm tra điện để phát hiện đứt mạch/ngắn mạch',
+   ex:[{ko:'AOI에서 단선 불량이 검출되었습니다.',vi:'Phát hiện lỗi đứt mạch tại AOI.'}]},
+  {ko:'BBT',vi:'Kiểm tra mạch BBT',cat:'FPCB공정',
+   defKo:'Bare Board Test. 회로 단선/단락 전기 검사',
+   defVi:'Kiểm tra mạch trần. Phát hiện đứt mạch/ngắn mạch',
    formula:'',
-   examples:[
-     {ko:'BBT 불량율이 목표 대비 높습니다.',vi:'Tỷ lệ lỗi BBT cao hơn so với mục tiêu.'},
-   ]},
-  // 인사/관리
-  {ko:'필요인력',    vi:'Nhân lực cần thiết', cat:'인력관리',
-   def_ko:'생산 목표 달성을 위해 필요한 인원수. 직접인원+간접인원으로 구분',
-   def_vi:'Số lượng nhân viên cần thiết để đạt mục tiêu sản xuất. Phân loại thành nhân viên trực tiếp và gián tiếp',
+   ex:[{ko:'BBT 불량율이 목표 대비 높습니다.',vi:'Tỷ lệ lỗi BBT cao hơn mục tiêu.'}]},
+  {ko:'필요인력',vi:'Nhân lực cần thiết',cat:'인력관리',
+   defKo:'생산 목표 달성을 위해 필요한 인원수',
+   defVi:'Số lượng nhân viên cần thiết để đạt mục tiêu sản xuất',
    formula:'필요인원 = 생산량(PNL) × ST ÷ 근무시간',
-   examples:[
-     {ko:'7월 수가접 공정 필요인력은 61명입니다.',vi:'Nhân lực cần thiết cho công đoạn hàn tay tháng 7 là 61 người.'},
-   ]},
-  {ko:'직접인원',    vi:'Nhân viên trực tiếp',cat:'인력관리',
-   def_ko:'생산 공정에 직접 투입되어 가공 작업을 수행하는 인원',
-   def_vi:'Nhân viên trực tiếp tham gia vào công đoạn sản xuất và thực hiện công việc gia công',
-   formula:'',
-   examples:[
-     {ko:'직접인원 GAP이 +20명입니다. 충원이 필요합니다.',vi:'GAP nhân viên trực tiếp là +20 người. Cần tuyển dụng thêm.'},
-   ]},
-  {ko:'GAP(인력)',   vi:'GAP nhân lực',       cat:'인력관리',
-   def_ko:'필요인원과 현재 인원의 차이. (+)는 부족, (-)는 여유',
-   def_vi:'Chênh lệch giữa nhân lực cần thiết và nhân lực hiện tại. (+) là thiếu, (-) là dư',
-   formula:'GAP = 필요인원 − 현재인원',
-   examples:[
-     {ko:'타발 공정 GAP이 +8명으로 충원이 시급합니다.',vi:'GAP công đoạn dập là +8 người, cần tuyển gấp.'},
-   ]},
-  // 외주비
-  {ko:'외주비',      vi:'Chi phí nhà thầu',   cat:'비용관리',
-   def_ko:'외부 업체에 공정 작업을 위탁하고 지불하는 비용',
-   def_vi:'Chi phí trả cho công ty bên ngoài khi ủy thác công đoạn sản xuất',
+   ex:[{ko:'7월 수가접 필요인력은 61명입니다.',vi:'Nhân lực cần thiết cho hàn tay tháng 7 là 61 người.'}]},
+  {ko:'외주비',vi:'Chi phí nhà thầu',cat:'비용관리',
+   defKo:'외부 업체에 공정을 위탁하고 지불하는 비용',
+   defVi:'Chi phí trả cho công ty bên ngoài khi ủy thác công đoạn',
    formula:'외주비 비율(%) = 외주비 ÷ 매출 × 100',
-   examples:[
-     {ko:'5월 외주비가 전월 대비 10% 증가했습니다.',vi:'Chi phí nhà thầu tháng 5 tăng 10% so với tháng trước.'},
-   ]},
-  {ko:'NEGO(협상)',  vi:'Đàm phán giá (NEGO)',cat:'비용관리',
-   def_ko:'외주 단가 인하 협상. NEGO 절감액 = 협상 전 금액 − 협상 후 금액',
-   def_vi:'Đàm phán giảm đơn giá nhà thầu. Số tiền tiết kiệm NEGO = Trước đàm phán − Sau đàm phán',
-   formula:'절감액 = NEGO전 금액 − NEGO후 금액',
-   examples:[
-     {ko:'누적 NEGO 절감액이 19.6억 VND입니다.',vi:'Tổng số tiền tiết kiệm NEGO là 19,6 tỷ VND.'},
-   ]},
-  // 품질
-  {ko:'불량율',      vi:'Tỷ lệ lỗi',          cat:'품질',
-   def_ko:'전체 생산량 중 불량품이 차지하는 비율',
-   def_vi:'Tỷ lệ sản phẩm lỗi trong tổng sản lượng sản xuất',
+   ex:[{ko:'5월 외주비가 전월 대비 10% 증가했습니다.',vi:'Chi phí nhà thầu tháng 5 tăng 10% so với tháng trước.'}]},
+  {ko:'불량율',vi:'Tỷ lệ lỗi',cat:'품질',
+   defKo:'전체 생산량 중 불량품이 차지하는 비율',
+   defVi:'Tỷ lệ sản phẩm lỗi trong tổng sản lượng',
    formula:'불량율(%) = 불량수량 ÷ 검사수량 × 100',
-   examples:[
-     {ko:'이번 달 불량율 목표는 0.5% 이하입니다.',vi:'Mục tiêu tỷ lệ lỗi tháng này là dưới 0,5%.'},
-   ]},
-  {ko:'수율(Yield)', vi:'Tỷ lệ đạt (Yield)',  cat:'품질',
-   def_ko:'투입 수량 대비 양품 수량의 비율. 100% − 불량율',
-   def_vi:'Tỷ lệ sản phẩm đạt yêu cầu so với số lượng đầu vào. 100% − Tỷ lệ lỗi',
+   ex:[{ko:'이번 달 불량율 목표는 0.5% 이하입니다.',vi:'Mục tiêu tỷ lệ lỗi tháng này là dưới 0,5%.'}]},
+  {ko:'수율(Yield)',vi:'Tỷ lệ đạt (Yield)',cat:'품질',
+   defKo:'투입 수량 대비 양품 수량 비율',
+   defVi:'Tỷ lệ sản phẩm đạt yêu cầu so với số lượng đầu vào',
    formula:'수율(%) = 양품수량 ÷ 투입수량 × 100',
-   examples:[
-     {ko:'AOI 공정 수율이 99.5%입니다.',vi:'Tỷ lệ đạt của công đoạn AOI là 99,5%.'},
-   ]},
+   ex:[{ko:'AOI 공정 수율이 99.5%입니다.',vi:'Tỷ lệ đạt của công đoạn AOI là 99,5%.'}]},
 ];
 
-const CATS = [...new Set(DICT.map(d=>d.cat))];
-let curCat = '전체';
-let curDetail = null;
-let favs = JSON.parse(localStorage.getItem('trans_favs')||'[]');
+var curCat = '전체';
+var curIdx = -1;
 
-// ── 카테고리 필터 렌더 ──
-function renderCats(){
-  const wrap = document.getElementById('cat-filter');
-  wrap.innerHTML = ['전체',...CATS].map(c=>
-    `<button class="cat-btn${c===curCat?' on':''}" onclick="setCat('${c}')">${c}</button>`
-  ).join('');
+// ── 번역 핵심 함수 ──
+function doTranslate(srcId, tgtId) {
+  var srcEl = document.getElementById(srcId);
+  var tgtEl = document.getElementById(tgtId);
+  var spinEl = document.getElementById('spinner');
+  var srcLang = srcId === 'ta-ko' ? 'ko' : 'vi';
+  var src = srcEl.value.trim();
+
+  if (!src) {
+    srcEl.focus();
+    srcEl.style.outline = '2px solid #C00000';
+    setTimeout(function() { srcEl.style.outline = ''; }, 1500);
+    toast('텍스트를 입력하세요');
+    return;
+  }
+
+  tgtEl.value = '⏳ 번역 중...';
+  if (spinEl) spinEl.style.display = 'inline-block';
+
+  var payload = JSON.stringify({
+    mode: 'translate',
+    text: src,
+    src_lang: srcLang,
+    tgt_lang: srcLang === 'ko' ? 'vi' : 'ko'
+  });
+
+  fetch(LAMBDA, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: payload
+  })
+  .then(function(res) {
+    return res.text().then(function(txt) {
+      return { status: res.status, txt: txt };
+    });
+  })
+  .then(function(obj) {
+    if (spinEl) spinEl.style.display = 'none';
+    if (obj.status === 200) {
+      var data = JSON.parse(obj.txt);
+      tgtEl.value = data.result || obj.txt;
+      updateCnt(tgtId === 'ta-ko' ? 'cnt-ko' : 'cnt-vi', tgtEl.value.length);
+      toast('번역 완료! ✅');
+    } else {
+      tgtEl.value = '❌ 오류 (HTTP ' + obj.status + ')\n' + obj.txt;
+    }
+  })
+  .catch(function(err) {
+    if (spinEl) spinEl.style.display = 'none';
+    tgtEl.value = '❌ ' + err.message;
+  });
 }
-function setCat(cat){ curCat=cat; renderCats(); filterDict(); }
 
-// ── 사전 렌더 ──
-function filterDict(){
-  const q = document.getElementById('search-input').value.trim().toLowerCase();
-  const grid = document.getElementById('dict-grid');
-  const filtered = DICT.filter(d=>{
-    const catOk = curCat==='전체' || d.cat===curCat;
-    const qOk = !q || d.ko.toLowerCase().includes(q) || d.vi.toLowerCase().includes(q);
+function updateCnt(id, n) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = n + '자';
+}
+
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function() { el.classList.remove('show'); }, 2000);
+}
+
+// ── 사전 ──
+function getCats() {
+  var cats = ['전체'];
+  DICT.forEach(function(d) { if (cats.indexOf(d.cat) < 0) cats.push(d.cat); });
+  return cats;
+}
+
+function renderCats() {
+  var el = document.getElementById('cats');
+  el.innerHTML = getCats().map(function(c) {
+    return '<button class="cat' + (c === curCat ? ' on' : '') + '" data-cat="' + c + '">' + c + '</button>';
+  }).join('');
+}
+
+function renderGrid() {
+  var q = document.getElementById('search').value.trim().toLowerCase();
+  var el = document.getElementById('grid');
+  var filtered = DICT.filter(function(d, i) {
+    var catOk = curCat === '전체' || d.cat === curCat;
+    var qOk = !q || d.ko.toLowerCase().includes(q) || d.vi.toLowerCase().includes(q);
     return catOk && qOk;
   });
-  grid.innerHTML = filtered.map((d,i)=>`
-    <div class="dict-card${curDetail&&curDetail.ko===d.ko?' active':''}"
-         onclick="showDetail(${DICT.indexOf(d)})">
-      <div class="dict-kw">${highlight(d.ko,q)}</div>
-      <div class="dict-vi">${highlight(d.vi,q)}</div>
-      <span class="dict-cat">${d.cat}</span>
-    </div>`
-  ).join('') || '<div style="color:var(--txt3);font-size:12px;padding:10px">검색 결과가 없습니다.</div>';
-}
-function highlight(text, q){
-  if(!q) return text;
-  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi');
-  return text.replace(re,'<mark style="background:rgba(33,118,174,.35);color:var(--blue3);border-radius:2px">$1</mark>');
+  if (!filtered.length) {
+    el.innerHTML = '<div style="color:var(--txt3);font-size:12px;padding:10px">검색 결과 없음</div>';
+    return;
+  }
+  el.innerHTML = filtered.map(function(d) {
+    var i = DICT.indexOf(d);
+    return '<div class="card' + (i === curIdx ? ' on' : '') + '" data-idx="' + i + '">'
+      + '<div class="card-ko">' + d.ko + '</div>'
+      + '<div class="card-vi">' + d.vi + '</div>'
+      + '<span class="card-cat">' + d.cat + '</span>'
+      + '</div>';
+  }).join('');
 }
 
-// ── 단어 상세 ──
-function showDetail(idx){
-  const d = DICT[idx];
-  curDetail = d;
+function showDetail(idx) {
+  var d = DICT[idx];
+  curIdx = idx;
   document.getElementById('d-ko').textContent = d.ko;
   document.getElementById('d-vi').textContent = d.vi;
-  document.getElementById('d-cats').innerHTML =
-    `<span class="detail-cat">${d.cat}</span>`;
-
-  const favBtn = document.getElementById('d-fav-btn');
-  favBtn.textContent = favs.includes(d.ko) ? '★ 즐겨찾기됨' : '☆ 즐겨찾기';
-  favBtn.style.color = favs.includes(d.ko) ? 'var(--amber2)' : '';
-
-  let body = `
-    <div class="detail-section">
-      <div class="detail-section-title">🇰🇷 한국어 설명</div>
-      <p>${d.def_ko||'—'}</p>
-      ${d.formula?`<p style="margin-top:8px"><b>계산식:</b> ${d.formula}</p>`:''}
-    </div>
-    <div class="detail-section">
-      <div class="detail-section-title">🇻🇳 Giải thích tiếng Việt</div>
-      <p>${d.def_vi||'—'}</p>
-    </div>`;
-  if(d.examples && d.examples.length){
-    body += `
-    <div class="detail-section" style="grid-column:1/-1">
-      <div class="detail-section-title">💬 예문 / Ví dụ</div>
-      ${d.examples.map(e=>`
-        <div class="example-row">
-          <div class="example-ko">🇰🇷 ${e.ko}</div>
-          <div class="example-vi">🇻🇳 ${e.vi}</div>
-        </div>`).join('')}
-    </div>`;
+  var body = '<div class="dsec"><div class="dsec-t">🇰🇷 한국어 설명</div><p>' + d.defKo
+    + (d.formula ? '<br><br><b>계산식:</b> ' + d.formula : '') + '</p></div>'
+    + '<div class="dsec"><div class="dsec-t">🇻🇳 Giải thích</div><p>' + d.defVi + '</p></div>';
+  if (d.ex && d.ex.length) {
+    body += '<div class="dsec" style="grid-column:1/-1"><div class="dsec-t">💬 예문</div>'
+      + d.ex.map(function(e) {
+          return '<div class="ex"><div class="ex-ko">🇰🇷 ' + e.ko + '</div><div class="ex-vi">🇻🇳 ' + e.vi + '</div></div>';
+        }).join('') + '</div>';
   }
   document.getElementById('d-body').innerHTML = body;
-  document.getElementById('detail-panel').classList.add('show');
-  // 스크롤
-  document.getElementById('detail-panel').scrollIntoView({behavior:'smooth',block:'nearest'});
-  // 카드 활성화 표시
-  filterDict();
-}
-function closeDetail(){
-  document.getElementById('detail-panel').classList.remove('show');
-  curDetail=null; filterDict();
+  document.getElementById('detail').classList.add('show');
+  renderGrid();
 }
 
-// ── 즐겨찾기 ──
-function toggleFav(){
-  if(!curDetail) return;
-  const ko = curDetail.ko;
-  if(favs.includes(ko)) favs = favs.filter(f=>f!==ko);
-  else favs.unshift(ko);
-  localStorage.setItem('trans_favs', JSON.stringify(favs));
-  renderFavs();
-  const favBtn = document.getElementById('d-fav-btn');
-  favBtn.textContent = favs.includes(ko) ? '★ 즐겨찾기됨' : '☆ 즐겨찾기';
-  favBtn.style.color = favs.includes(ko) ? 'var(--amber2)' : '';
-  showToast(favs.includes(ko) ? '즐겨찾기에 추가됨' : '즐겨찾기 해제');
-}
-function renderFavs(){
-  const wrap = document.getElementById('fav-chips');
-  if(!favs.length){
-    wrap.innerHTML='<span class="fav-empty">단어를 즐겨찾기하면 여기에 표시됩니다.</span>';
-    return;
-  }
-  wrap.innerHTML = favs.map(f=>`
-    <span class="fav-chip" onclick="quickSearch('${f}')">${f}</span>`
-  ).join('');
-}
-function quickSearch(kw){
-  document.getElementById('search-input').value = kw;
-  filterDict();
-  // 해당 단어 상세 열기
-  const idx = DICT.findIndex(d=>d.ko===kw);
-  if(idx>=0) showDetail(idx);
-}
+// ── 이벤트 연결 ──
+window.addEventListener('load', function() {
 
-// ── 번역 기능 ──
-function onInput(lang){
-  const txt = document.getElementById(lang==='ko'?'txt-ko':'txt-vi');
-  const val = txt.value||txt.textContent||'';
-  document.getElementById('cnt-'+lang).textContent = val.length+'자';
-}
+  // 번역 버튼
+  document.getElementById('btn-trans-ko').addEventListener('click', function() { doTranslate('ta-ko', 'ta-vi'); });
+  document.getElementById('btn-trans-vi').addEventListener('click', function() { doTranslate('ta-vi', 'ta-ko'); });
+  document.getElementById('btn-dir-ko').addEventListener('click', function() { doTranslate('ta-ko', 'ta-vi'); });
+  document.getElementById('btn-dir-vi').addEventListener('click', function() { doTranslate('ta-vi', 'ta-ko'); });
 
-function translate(srcLang){
-  var srcEl=document.getElementById("txt-"+(srcLang==="ko"?"ko":"vi"));
-  var tgtEl=document.getElementById("txt-"+(srcLang==="ko"?"vi":"ko"));
-  var src=(srcEl&&srcEl.value||"").trim();
-  if(!src){
-    srcEl&&srcEl.focus();
-    showToast((srcLang==="ko"?"왼쪽 한국어":"오른쪽 베트남어")+" 입력창에 텍스트를 입력하세요");
-    return;
-  }
-
-  if(!tgtEl){console.error("tgtEl null! id=txt-"+(srcLang==="ko"?"vi":"ko"));return;}
-  tgtEl.value="⏳ 번역 중...";
-  var aiSt=document.getElementById("ai-status"); if(aiSt) aiSt.style.display="flex";
-
-  fetch(LAMBDA,{
-    method:"POST",
-    headers:{"Content-Type":"text/plain"},
-    body:JSON.stringify({mode:"translate",text:src,src_lang:srcLang,tgt_lang:srcLang==="ko"?"vi":"ko"})
-  })
-  .then(function(r){return r.text().then(function(t){return{s:r.status,t:t};});})
-  .then(function(o){
-    var st1=document.getElementById("ai-status"); if(st1) st1.style.display="none";
-    if(o.s===200){
-      var d=JSON.parse(o.t);
-      tgtEl.value=d.result||o.t;
-      var dout=document.getElementById("debug-out"); if(dout) dout.textContent="✅ 번역완료";
-      showToast("번역 완료! ✅");
-      onInput(srcLang==="ko"?"vi":"ko");
-    } else {
-      tgtEl.value="❌ 오류 HTTP "+o.s+"\n"+o.t;
-      var dout2=document.getElementById("debug-out"); if(dout2) dout2.textContent="❌ HTTP "+o.s;
-    }
-  })
-  .catch(function(e){
-    var st2=document.getElementById("ai-status"); if(st2) st2.style.display="none";
-    tgtEl.value="❌ 오류: "+e.message;
-    var dout3=document.getElementById("debug-out"); if(dout3) dout3.textContent="❌ "+e.message;
+  // 스왑
+  document.getElementById('btn-swap').addEventListener('click', function() {
+    var ko = document.getElementById('ta-ko').value;
+    var vi = document.getElementById('ta-vi').value;
+    document.getElementById('ta-ko').value = vi;
+    document.getElementById('ta-vi').value = ko;
+    updateCnt('cnt-ko', vi.length);
+    updateCnt('cnt-vi', ko.length);
   });
-}
 
-
-function fallbackTranslate(src,srcLang,tgtEl){
-  var result=src,found=[];
-  DICT.forEach(function(d){
-    if(srcLang==="ko"&&src.includes(d.ko)){result=result.split(d.ko).join(d.vi);found.push(d.ko+"→"+d.vi);}
-    else if(srcLang==="vi"&&src.includes(d.vi)){result=result.split(d.vi).join(d.ko);found.push(d.vi+"→"+d.ko);}
+  // 지우기/복사
+  document.getElementById('btn-clear-ko').addEventListener('click', function() { document.getElementById('ta-ko').value = ''; updateCnt('cnt-ko', 0); });
+  document.getElementById('btn-clear-vi').addEventListener('click', function() { document.getElementById('ta-vi').value = ''; updateCnt('cnt-vi', 0); });
+  document.getElementById('btn-copy-ko').addEventListener('click', function() {
+    var v = document.getElementById('ta-ko').value;
+    if (v) navigator.clipboard.writeText(v).then(function() { toast('복사됨!'); });
   });
-  if(found.length>0){
-    tgtEl.value=result+"\n[사전 번역: "+found.join(", ")+"]";
-    showToast("사전 기반 번역");
-  }else{
-    tgtEl.value="Lambda translate 모드 미지원\n아래 가이드대로 Lambda 코드를 업데이트해 주세요.";
-    showToast("Lambda 업데이트 필요 👇");
-  }
-  onInput(srcLang==="ko"?"vi":"ko");
-}
+  document.getElementById('btn-copy-vi').addEventListener('click', function() {
+    var v = document.getElementById('ta-vi').value;
+    if (v) navigator.clipboard.writeText(v).then(function() { toast('복사됨!'); });
+  });
 
+  // 글자수
+  document.getElementById('ta-ko').addEventListener('input', function() { updateCnt('cnt-ko', this.value.length); });
+  document.getElementById('ta-vi').addEventListener('input', function() { updateCnt('cnt-vi', this.value.length); });
 
-function addRecent(text){
-  // 사전에 없는 단어면 최근 검색에 칩으로 추가
-  if(!favs.includes(text)){
-    const recent = JSON.parse(sessionStorage.getItem('recent')||'[]');
-    if(!recent.includes(text)) recent.unshift(text);
-    sessionStorage.setItem('recent',JSON.stringify(recent.slice(0,5)));
-  }
-}
-
-function swapLang(){
-  const ko = document.getElementById('txt-ko').value;
-  const vi = document.getElementById('txt-vi').value;
-  document.getElementById('txt-ko').value = vi;
-  document.getElementById('txt-vi').value = ko;
-  onInput('ko'); onInput('vi');
-}
-
-function clearText(lang){
-  document.getElementById('txt-'+lang).value='';
-  document.getElementById('cnt-'+lang).textContent='0자';
-}
-async function pasteText(lang){
-  try{
-    const text = await navigator.clipboard.readText();
-    document.getElementById('txt-ko').value = text;
-    onInput('ko');
-  } catch(e){ showToast('붙여넣기 권한이 필요합니다'); }
-}
-function copyText(lang){
-  const v=document.getElementById('txt-'+lang).value;
-  if(!v) return;
-  navigator.clipboard.writeText(v).then(()=>showToast('복사됨!')).catch(()=>{});
-}
-function copyResult(){
-  const v=document.getElementById('txt-vi').value;
-  if(!v) return;
-  navigator.clipboard.writeText(v).then(()=>showToast('결과 복사됨!')).catch(()=>{});
-}
-
-// ── 토스트 ──
-let toastTimer;
-function showToast(msg){
-  const el=document.getElementById('toast');
-  el.textContent=msg; el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>el.classList.remove('show'),2000);
-}
-
-// ── 초기화 ──
-renderCats();
-filterDict();
-renderFavs();
-
-// ─── 긴급 디버그 함수 ───
-function quickTest(){
-  var el=document.getElementById("txt-ko");
-  var out=document.getElementById("debug-out");
-  if(!el){out.textContent="❌ txt-ko 엘리먼트 없음!";return;}
-  var val=el.value;
-  out.textContent="txt-ko.value=\""+val.slice(0,30)+"\" ("+val.length+"자)";
-}
-function quickTranslate(){
-  var out=document.getElementById("debug-out");
-  var txt=document.getElementById("txt-ko").value||"안녕하세요";
-  out.textContent="⏳ 호출중...";
-  fetch(LAMBDA,{
-    method:"POST",
-    headers:{"Content-Type":"text/plain"},
-    body:JSON.stringify({mode:"translate",text:txt,src_lang:"ko",tgt_lang:"vi"})
-  })
-  .then(function(r){return r.text().then(function(t){return {s:r.status,t:t};});})
-  .then(function(o){
-    if(o.s===200){
-      var d=JSON.parse(o.t);
-      out.textContent="✅ 성공: "+(d.result||o.t).slice(0,60);
-      document.getElementById("txt-vi").value=d.result||o.t;
-    } else {
-      out.textContent="❌ HTTP "+o.s+": "+o.t.slice(0,80);
-    }
-  })
-  .catch(function(e){out.textContent="❌ "+e.message;});
-}
-
-// ─── 버튼 이벤트 직접 연결 (onclick 대체) ───
-document.addEventListener("DOMContentLoaded", function(){
-  function bind(id, fn){
-    var el = document.getElementById(id);
-    if(el) el.addEventListener("click", fn);
-  }
-  bind("btn-ko-main",   function(){ translate("ko"); });
-  bind("btn-ko-center", function(){ translate("ko"); });
-  bind("btn-vi-center", function(){ translate("vi"); });
-  bind("btn-vi-main",   function(){ translate("vi"); });
   // Ctrl+Enter
-  var ta = document.getElementById("txt-ko");
-  if(ta) ta.addEventListener("keydown", function(e){
-    if(e.ctrlKey && e.key==="Enter") translate("ko");
+  document.getElementById('ta-ko').addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'Enter') doTranslate('ta-ko', 'ta-vi');
   });
-var dout_init=document.getElementById("debug-out"); if(dout_init) dout_init.textContent="버튼 연결 완료 ✅";
+  document.getElementById('ta-vi').addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'Enter') doTranslate('ta-vi', 'ta-ko');
+  });
+
+  // 사전 카테고리
+  document.getElementById('cats').addEventListener('click', function(e) {
+    if (e.target.dataset.cat) {
+      curCat = e.target.dataset.cat;
+      renderCats();
+      renderGrid();
+    }
+  });
+
+  // 사전 검색
+  document.getElementById('search').addEventListener('input', renderGrid);
+
+  // 카드 클릭
+  document.getElementById('grid').addEventListener('click', function(e) {
+    var card = e.target.closest('.card');
+    if (card) showDetail(parseInt(card.dataset.idx));
+  });
+
+  // 상세 닫기
+  document.getElementById('btn-detail-close').addEventListener('click', function() {
+    document.getElementById('detail').classList.remove('show');
+    curIdx = -1;
+    renderGrid();
+  });
+
+  // 초기 렌더
+  renderCats();
+  renderGrid();
 });
 </script>
 </body>
