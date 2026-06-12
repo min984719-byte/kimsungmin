@@ -1,17 +1,6 @@
 {
   "stops": [],
-  "breaks": [
-    {
-      "id": "B1776912967445",
-      "proc": "적층",
-      "name": "H/P",
-      "cnt": "1",
-      "start": "2026-04-01",
-      "date": "",
-      "status": "수리중",
-      "reason": ""
-    }
-  ],
-  "updated": "2026-06-11T00:31:19.284Z",
+  "breaks": [],
+  "updated": "2026-06-12T17:22:57.067Z",
   "updatedBy": "ko"
 }
