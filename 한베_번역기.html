@@ -251,15 +251,16 @@ body{background:var(--bg);color:var(--txt1);font-family:'Malgun Gothic','맑은 
         <button class="btn-sm" onclick="clearText('ko')">✕ 지우기</button>
         <button class="btn-sm" onclick="copyText('ko')">📋 복사</button>
         <button class="btn-sm" onclick="pasteText('ko')">📥 붙여넣기</button>
+        <button class="btn-sm primary" onclick="translate('ko')" style="margin-left:auto">🚀 한→베 번역</button>
         <span class="char-count" id="cnt-ko">0자</span>
       </div>
     </div>
 
     <!-- 스왑 -->
     <div class="swap-col">
-      <button class="btn-trans" onclick="translate('ko')" title="한→베">KR→VN</button>
-      <button class="btn-swap" onclick="swapLang()" title="언어 전환 (swap)">⇄</button>
-      <button class="btn-trans" onclick="translate('vi')" style="background:var(--vn)" title="베→한">VN→KR</button>
+      <button class="btn-trans" onclick="translate('ko')" title="한국어→베트남어" style="font-size:9px;padding:6px 3px">🇰🇷→🇻🇳</button>
+      <button class="btn-swap" onclick="swapLang()" title="언어 전환">⇄</button>
+      <button class="btn-trans" onclick="translate('vi')" title="베트남어→한국어" style="background:var(--vn);font-size:9px;padding:6px 3px">🇻🇳→🇰🇷</button>
     </div>
 
     <!-- 베트남어 결과 -->
@@ -279,7 +280,7 @@ body{background:var(--bg);color:var(--txt1);font-family:'Malgun Gothic','맑은 
         <div id="ai-status" class="ai-status" style="display:none;margin-left:auto">
           <span class="ai-dot"></span><span>AI 번역 중<span class="loading-dots"></span></span>
         </div>
-        <button class="btn-sm primary" onclick="translate('vi')" style="margin-left:auto">🚀 번역 실행</button>
+        <button class="btn-sm primary" onclick="translate('vi')" style="margin-left:auto">🚀 베→한 번역</button>
       </div>
     </div>
   </div>
@@ -611,7 +612,12 @@ async function translate(srcLang){
   var srcEl=document.getElementById(srcLang==="ko"?"txt-ko":"txt-vi");
   var tgtEl=document.getElementById(srcLang==="ko"?"txt-vi":"txt-ko");
   var src=(srcEl.value||"").trim();
-  if(!src){showToast("번역할 텍스트를 입력하세요");return;}
+  if(!src){
+    var which=srcLang==="ko"?"왼쪽 한국어":"오른쪽 베트남어";
+    showToast(which+" 입력창에 텍스트를 입력하세요");
+    document.getElementById("txt-"+srcLang).focus();
+    return;
+  }
   var statusEl=document.getElementById("ai-status");
   statusEl.style.display="flex";
   tgtEl.value=""; tgtEl.placeholder="번역 중...";
