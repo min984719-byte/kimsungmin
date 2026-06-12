@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Lambda 번역 테스트</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:700px;margin:40px auto;padding:20px;background:#0f1923;color:#e8f4fd}
+h2{color:#4A9FD4}
+.box{background:#16232f;border:1px solid #1e3448;border-radius:8px;padding:16px;margin:12px 0}
+textarea{width:100%;background:#1d2f3e;border:1px solid #2176AE;color:#e8f4fd;padding:10px;border-radius:6px;font-size:13px;resize:vertical}
+button{background:#2176AE;color:#fff;border:none;padding:10px 20px;border-radius:6px;font-size:13px;cursor:pointer;margin:4px}
+button:hover{background:#4A9FD4}
+.result{white-space:pre-wrap;font-size:12px;color:#3dd68c;min-height:60px}
+.error{color:#ff6b6b}
+.step{color:#ffc94d;font-size:11px;margin-bottom:8px}
+</style>
+</head>
+<body>
+<h2>🔧 Lambda 번역 테스트</h2>
+
+<div class="box">
+  <div class="step">STEP 1 — Lambda URL 확인</div>
+  <input id="url" type="text" value="https://bssy4msokyy3hvsphelxiuyzta0nwxml.lambda-url.ap-southeast-1.on.aws/" 
+    style="width:100%;background:#1d2f3e;border:1px solid #1e3448;color:#e8f4fd;padding:8px;border-radius:4px;font-size:11px">
+</div>
+
+<div class="box">
+  <div class="step">STEP 2 — 번역 테스트</div>
+  <textarea id="txt" rows="3" placeholder="번역할 텍스트 입력...">안녕하세요. 가동율을 확인해 주세요.</textarea>
+  <br>
+  <button onclick="test('ko','vi')">🇰🇷→🇻🇳 한→베 번역</button>
+  <button onclick="test('vi','ko')">🇻🇳→🇰🇷 베→한 번역</button>
+  <button onclick="testRaw()">📡 RAW 응답 확인</button>
+</div>
+
+<div class="box">
+  <div class="step">결과</div>
+  <div id="result" class="result">여기에 결과가 표시됩니다...</div>
+</div>
+
+<div class="box">
+  <div class="step">STEP 3 — Lambda 기존 모드 테스트 (avail)</div>
+  <button onclick="testAvail()">기존 avail 모드 테스트</button>
+  <div id="avail-result" class="result" style="margin-top:8px"></div>
+</div>
+
+<script>
+var LAMBDA = document.getElementById('url').value;
+
+function log(msg, isError){
+  var el = document.getElementById('result');
+  el.className = 'result' + (isError?' error':'');
+  el.textContent = msg;
+  console.log(msg);
+}
+
+function test(src, tgt){
+  LAMBDA = document.getElementById('url').value;
+  var txt = document.getElementById('txt').value.trim();
+  if(!txt){ log('텍스트를 입력하세요'); return; }
+  
+  log('⏳ Lambda 호출 중...\nURL: '+LAMBDA+'\n요청: '+JSON.stringify({mode:'translate',text:txt,src_lang:src,tgt_lang:tgt}));
+  
+  fetch(LAMBDA, {
+    method: 'POST',
+    headers: {'Content-Type': 'text/plain'},
+    body: JSON.stringify({mode:'translate', text:txt, src_lang:src, tgt_lang:tgt})
+  })
+  .then(function(res){
+    log('📡 HTTP 상태: '+res.status+' '+res.statusText);
+    return res.text().then(function(raw){ return {status:res.status, raw:raw}; });
+  })
+  .then(function(obj){
+    var msg = '📡 HTTP: '+obj.status+'\n\n📄 응답 원문:\n'+obj.raw;
+    try{
+      var data = JSON.parse(obj.raw);
+      msg += '\n\n✅ 파싱 성공:\n'+JSON.stringify(data,null,2);
+      if(data.result) msg += '\n\n🎯 번역 결과:\n'+data.result;
+      if(data.error)  msg += '\n\n❌ Lambda 오류: '+data.error;
+    }catch(e){
+      msg += '\n\n⚠️ JSON 파싱 실패: '+e.message;
+    }
+    log(msg, obj.status!==200);
+  })
+  .catch(function(err){
+    log('❌ fetch 오류:\n'+err.message+'\n\n→ CORS 문제일 가능성 높음', true);
+  });
+}
+
+function testRaw(){
+  LAMBDA = document.getElementById('url').value;
+  log('⏳ RAW 테스트...');
+  fetch(LAMBDA, {
+    method: 'POST',
+    headers: {'Content-Type': 'text/plain'},
+    body: '{"mode":"translate","text":"안녕","src_lang":"ko","tgt_lang":"vi"}'
+  })
+  .then(function(r){ return r.text().then(function(t){return {s:r.status,t:t};}); })
+  .then(function(o){ log('HTTP '+o.s+'\n\n'+o.t, o.s!==200); })
+  .catch(function(e){ log('❌ '+e.message, true); });
+}
+
+function testAvail(){
+  LAMBDA = document.getElementById('url').value;
+  var el = document.getElementById('avail-result');
+  el.textContent = '⏳ 기존 avail 테스트...';
+  fetch(LAMBDA, {
+    method: 'POST',
+    headers: {'Content-Type': 'text/plain'},
+    body: JSON.stringify({
+      procs: [{n:'레이저',r:0.85,b:480,u:408,p:40,o:20,e:12}],
+      period: '2026-06',
+      mode: 'avail'
+    })
+  })
+  .then(function(r){ return r.text().then(function(t){return {s:r.status,t:t};}); })
+  .then(function(o){ el.textContent='HTTP '+o.s+'\n'+o.t.slice(0,500); el.className='result'+(o.s!==200?' error':''); })
+  .catch(function(e){ el.textContent='❌ '+e.message; el.className='result error'; });
+}
+</script>
+</body>
+</html>
