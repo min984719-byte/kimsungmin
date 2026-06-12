@@ -245,7 +245,7 @@ body{background:var(--bg);color:var(--txt1);font-family:'Malgun Gothic','맑은 
       </div>
       <div class="textarea-wrap">
         <textarea id="txt-ko" class="trans-textarea" placeholder="번역할 한국어를 입력하세요...
-예) 공정별 가동율 현황을 확인해 주세요." oninput="onInput('ko')"></textarea>
+예) 공정별 가동율 현황을 확인해 주세요." oninput="onInput('ko')" onkeydown="if(event.ctrlKey&&event.key==='Enter')translate('ko')"></textarea>
       </div>
       <div class="trans-actions">
         <button class="btn-sm" onclick="clearText('ko')">✕ 지우기</button>
@@ -257,9 +257,9 @@ body{background:var(--bg);color:var(--txt1);font-family:'Malgun Gothic','맑은 
 
     <!-- 스왑 -->
     <div class="swap-col">
-      <button class="btn-trans" onclick="translate('ko')">번역→</button>
-      <button class="btn-swap" onclick="swapLang()" title="언어 전환">⇄</button>
-      <button class="btn-trans" onclick="translate('vi')" style="background:var(--vn)">←번역</button>
+      <button class="btn-trans" onclick="translate('ko')" title="한→베">KR→VN</button>
+      <button class="btn-swap" onclick="swapLang()" title="언어 전환 (swap)">⇄</button>
+      <button class="btn-trans" onclick="translate('vi')" style="background:var(--vn)" title="베→한">VN→KR</button>
     </div>
 
     <!-- 베트남어 결과 -->
@@ -270,18 +270,16 @@ body{background:var(--bg);color:var(--txt1);font-family:'Malgun Gothic','맑은 
         <span style="font-size:10px;color:var(--txt3);font-weight:400;margin-left:auto">Vietnamese</span>
       </div>
       <div class="textarea-wrap">
-        <div id="txt-vi" class="trans-result" onclick="copyResult()" title="클릭하여 복사">
-          <span style="color:var(--txt3);font-size:13px">번역 결과가 여기에 표시됩니다.<br><span style="font-size:11px">Kết quả dịch sẽ hiển thị ở đây.</span></span>
-        </div>
+        <textarea id="txt-vi" class="trans-textarea" placeholder="Nhập tiếng Việt để dịch sang tiếng Hàn...
+또는 번역 결과가 여기에 표시됩니다." oninput="onInput('vi')"></textarea>
       </div>
-      <div class="trans-actions-r">
-        <div id="ai-status" class="ai-status" style="display:none">
+      <div class="trans-actions">
+        <button class="btn-sm" onclick="clearText('vi')">✕ 지우기</button>
+        <button class="btn-sm" onclick="copyText('vi')">📋 복사</button>
+        <div id="ai-status" class="ai-status" style="display:none;margin-left:auto">
           <span class="ai-dot"></span><span>AI 번역 중<span class="loading-dots"></span></span>
         </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn-sm" onclick="copyResult()">📋 결과 복사</button>
-          <button class="btn-sm primary" onclick="translate('ko')">🚀 번역 실행</button>
-        </div>
+        <button class="btn-sm primary" onclick="translate('vi')" style="margin-left:auto">🚀 번역 실행</button>
       </div>
     </div>
   </div>
@@ -611,46 +609,80 @@ function onInput(lang){
 
 async function translate(srcLang){
   const srcEl = document.getElementById(srcLang==='ko'?'txt-ko':'txt-vi');
-  const src = srcEl.value||srcEl.textContent||'';
-  if(!src.trim()){ showToast('번역할 텍스트를 입력하세요'); return; }
-
   const tgtEl = document.getElementById(srcLang==='ko'?'txt-vi':'txt-ko');
+  const src = (srcEl.value||'').trim();
+  if(!src){ showToast('번역할 텍스트를 입력하세요'); return; }
+
   const statusEl = document.getElementById('ai-status');
   statusEl.style.display='flex';
+  tgtEl.value='';
+  tgtEl.placeholder='번역 중...';
+
+  const prompt = srcLang==='ko'
+    ? '다음 한국어 텍스트를 자연스러운 베트남어로 번역하세요. FPCB 제조 현장 전문용어를 정확히 번역하고 번역문만 출력하세요.\n\n' + src
+    : '다음 베트남어 텍스트를 자연스러운 한국어로 번역하세요. FPCB 제조 현장 전문용어를 정확히 번역하고 번역문만 출력하세요.\n\n' + src;
 
   try{
-    const prompt = srcLang==='ko'
-      ? `다음 한국어 텍스트를 베트남어로 번역해주세요. FPCB 제조 현장 전문 용어를 정확히 번역하고, 번역문만 출력하세요:\n\n${src}`
-      : `다음 베트남어 텍스트를 한국어로 번역해주세요. FPCB 제조 현장 전문 용어를 정확히 번역하고, 번역문만 출력하세요:\n\n${src}`;
-
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
+    // Lambda를 통해 Claude API 호출 (CORS 우회)
+    const res = await fetch(LAMBDA, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-6',
-        max_tokens:1000,
-        system:'당신은 한국어-베트남어 전문 번역가입니다. FPCB 제조업 전문 용어에 특화되어 있습니다. 번역문만 출력하고 설명은 하지 마세요.',
-        messages:[{role:'user',content:prompt}]
+        mode: 'translate',
+        prompt: prompt,
+        src_lang: srcLang,
+        tgt_lang: srcLang==='ko'?'vi':'ko'
       })
     });
+
+    if(!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    const result = data.content?.[0]?.text || '번역 오류';
-    if(srcLang==='ko'){
-      tgtEl.textContent = result;
-    } else {
+
+    // Lambda 응답에서 텍스트 추출
+    const result = data.result || data.message || data.content || data.answer || data.text;
+    if(result){
       tgtEl.value = result;
+      tgtEl.placeholder = '';
+      showToast('번역 완료! ✅');
+      onInput(srcLang==='ko'?'vi':'ko');
+    } else {
+      // Lambda가 번역 모드를 지원하지 않으면 내장 사전으로 대체
+      fallbackTranslate(src, srcLang, tgtEl);
     }
-    showToast('번역 완료! ✅');
-    // 최근 검색에 추가
-    addRecent(src.trim().split('\n')[0].slice(0,20));
   } catch(e){
-    tgtEl.textContent||tgtEl.value;
-    if(srcLang==='ko') tgtEl.textContent='번역 오류: '+e.message;
-    showToast('번역 오류 발생');
+    // Lambda 실패 시 내장 사전으로 부분 번역
+    fallbackTranslate(src, srcLang, tgtEl);
   } finally{
     statusEl.style.display='none';
+    tgtEl.placeholder = srcLang==='ko'
+      ? 'Nhập tiếng Việt để dịch sang tiếng Hàn...'
+      : '번역 결과가 여기에 표시됩니다.';
   }
 }
+
+// 내장 사전 기반 폴백 번역
+function fallbackTranslate(src, srcLang, tgtEl){
+  let result = src;
+  let found = [];
+  DICT.forEach(d=>{
+    if(srcLang==='ko' && src.includes(d.ko)){
+      result = result.split(d.ko).join(d.vi);
+      found.push(d.ko + ' → ' + d.vi);
+    } else if(srcLang==='vi' && src.includes(d.vi)){
+      result = result.split(d.vi).join(d.ko);
+      found.push(d.vi + ' → ' + d.ko);
+    }
+  });
+  if(found.length > 0){
+    tgtEl.value = result + '\n\n[사전 기반 번역: ' + found.join(', ') + ']';
+    showToast('사전 기반 부분 번역 (Lambda 미연결)');
+  } else {
+    tgtEl.value = '❌ Lambda 연결 필요\n\n아래 사전에서 단어를 검색하거나\nLambda URL을 확인해 주세요.';
+    showToast('Lambda 연결을 확인하세요');
+  }
+  onInput(srcLang==='ko'?'vi':'ko');
+}
+
 
 function addRecent(text){
   // 사전에 없는 단어면 최근 검색에 칩으로 추가
@@ -663,15 +695,15 @@ function addRecent(text){
 
 function swapLang(){
   const ko = document.getElementById('txt-ko').value;
-  const vi = document.getElementById('txt-vi').textContent;
-  document.getElementById('txt-ko').value = vi==='번역 결과가 여기에 표시됩니다.\nKết quả dịch sẽ hiển thị ở đây.'?'':vi;
-  document.getElementById('txt-vi').textContent = ko||'번역 결과가 여기에 표시됩니다.\nKết quả dịch sẽ hiển thị ở đây.';
+  const vi = document.getElementById('txt-vi').value;
+  document.getElementById('txt-ko').value = vi;
+  document.getElementById('txt-vi').value = ko;
   onInput('ko'); onInput('vi');
 }
 
 function clearText(lang){
-  if(lang==='ko') document.getElementById('txt-ko').value='';
-  document.getElementById('cnt-ko').textContent='0자';
+  document.getElementById('txt-'+lang).value='';
+  document.getElementById('cnt-'+lang).textContent='0자';
 }
 async function pasteText(lang){
   try{
@@ -681,12 +713,13 @@ async function pasteText(lang){
   } catch(e){ showToast('붙여넣기 권한이 필요합니다'); }
 }
 function copyText(lang){
-  const v=document.getElementById('txt-ko').value;
+  const v=document.getElementById('txt-'+lang).value;
+  if(!v) return;
   navigator.clipboard.writeText(v).then(()=>showToast('복사됨!')).catch(()=>{});
 }
 function copyResult(){
-  const v=document.getElementById('txt-vi').textContent;
-  if(!v||v.includes('번역 결과가')) return;
+  const v=document.getElementById('txt-vi').value;
+  if(!v) return;
   navigator.clipboard.writeText(v).then(()=>showToast('결과 복사됨!')).catch(()=>{});
 }
 
