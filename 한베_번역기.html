@@ -232,6 +232,18 @@ body{background:var(--bg);color:var(--txt1);font-family:'Malgun Gothic','맑은 
   </div>
 </div>
 
+<!-- 긴급 디버그 바 -->
+<div id="debug-bar" style="background:#243648;border-bottom:1px solid #1e3448;padding:8px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+  <span style="font-size:11px;color:#94afc8">🔧 디버그:</span>
+  <button onclick="quickTest()" style="background:#2176AE;color:#fff;border:none;padding:5px 12px;border-radius:5px;font-size:11px;cursor:pointer">
+    ① txt-ko 값 확인
+  </button>
+  <button onclick="quickTranslate()" style="background:#1D9E75;color:#fff;border:none;padding:5px 12px;border-radius:5px;font-size:11px;cursor:pointer">
+    ② 직접 번역 테스트
+  </button>
+  <span id="debug-out" style="font-size:11px;color:#3dd68c;flex:1"></span>
+</div>
+
 <div class="wrap">
 
   <!-- 번역 입력 패널 -->
@@ -734,6 +746,36 @@ function showToast(msg){
 renderCats();
 filterDict();
 renderFavs();
+
+// ─── 긴급 디버그 함수 ───
+function quickTest(){
+  var el=document.getElementById("txt-ko");
+  var out=document.getElementById("debug-out");
+  if(!el){out.textContent="❌ txt-ko 엘리먼트 없음!";return;}
+  var val=el.value;
+  out.textContent="txt-ko.value=\""+val.slice(0,30)+"\" ("+val.length+"자)";
+}
+function quickTranslate(){
+  var out=document.getElementById("debug-out");
+  var txt=document.getElementById("txt-ko").value||"안녕하세요";
+  out.textContent="⏳ 호출중...";
+  fetch(LAMBDA,{
+    method:"POST",
+    headers:{"Content-Type":"text/plain"},
+    body:JSON.stringify({mode:"translate",text:txt,src_lang:"ko",tgt_lang:"vi"})
+  })
+  .then(function(r){return r.text().then(function(t){return {s:r.status,t:t};});})
+  .then(function(o){
+    if(o.s===200){
+      var d=JSON.parse(o.t);
+      out.textContent="✅ 성공: "+(d.result||o.t).slice(0,60);
+      document.getElementById("txt-vi").value=d.result||o.t;
+    } else {
+      out.textContent="❌ HTTP "+o.s+": "+o.t.slice(0,80);
+    }
+  })
+  .catch(function(e){out.textContent="❌ "+e.message;});
+}
 </script>
 </body>
 </html>
