@@ -6,158 +6,304 @@
 <title>한국어 ↔ 베트남어 번역기 — SYNOPEX VIETNAM</title>
 <style>
 :root{
-  --bg:#0f1923;--bg2:#16232f;--bg3:#1d2f3e;
-  --blue:#2176AE;--teal:#1D9E75;--red:#C00000;
+  --bg:#0f1923;--bg2:#16232f;--bg3:#1d2f3e;--bg4:#243648;
+  --blue:#2176AE;--blue3:#4A9FD4;
+  --teal:#1D9E75;--teal3:#3dd68c;
+  --red:#C00000;--vn:#da251d;--kr:#003478;
+  --amber:#E8A020;--purple:#7B2FBE;
   --txt1:#e8f4fd;--txt2:#94afc8;--txt3:#5a7a96;
   --border:#1e3448;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--txt1);font-family:'Malgun Gothic',Arial,sans-serif;min-height:100vh}
 
-.hdr{background:#1F3864;padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
-.hdr h1{font-size:15px;font-weight:700}
+/* 헤더 */
+.hdr{
+  background:linear-gradient(135deg,var(--kr) 0%,#0a1828 100%);
+  padding:0 24px;height:58px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;
+  box-shadow:0 4px 20px rgba(0,0,0,.5)
+}
+.hdr-l{display:flex;align-items:center;gap:14px}
+.hdr-title{font-size:16px;font-weight:700}
 .hdr-sub{font-size:11px;color:var(--txt2);margin-top:2px}
+.flag-badge{padding:4px 12px;border-radius:14px;font-size:11px;font-weight:700}
+.flag-ko{background:var(--kr);color:#fff}
+.flag-vi{background:var(--vn);color:#fff}
 
-.wrap{max-width:1100px;margin:0 auto;padding:20px}
+/* 메인 레이아웃 */
+.wrap{max-width:1300px;margin:0 auto;padding:28px 24px}
 
-/* 번역 박스 */
-.trans-wrap{display:grid;grid-template-columns:1fr auto 1fr;gap:0;background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px}
-.trans-side{display:flex;flex-direction:column}
-.side-hdr{padding:10px 16px;font-size:12px;font-weight:700;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
-.side-hdr.ko{background:rgba(0,52,120,.3)}
-.side-hdr.vi{background:rgba(218,37,29,.15)}
-textarea{width:100%;min-height:140px;resize:vertical;background:transparent;border:none;outline:none;color:var(--txt1);font-size:14px;line-height:1.7;font-family:inherit;padding:14px 16px}
-textarea::placeholder{color:var(--txt3)}
-.side-foot{padding:8px 12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.btn{padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--txt2);font-size:11px;cursor:pointer;font-family:inherit}
-.btn:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
-.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:700}
-.btn.primary:hover{opacity:.85}
-.cnt{font-size:10px;color:var(--txt3);margin-left:auto}
-
-/* 중앙 버튼 */
-.mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:0 8px;border-left:1px solid var(--border);border-right:1px solid var(--border);background:var(--bg3);min-width:52px}
-.btn-swap{width:36px;height:36px;border-radius:50%;background:var(--blue);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.btn-swap:hover{opacity:.8;transform:rotate(180deg);transition:.3s}
-.btn-dir{writing-mode:vertical-rl;padding:8px 4px;font-size:10px;font-weight:700;background:var(--teal);border:none;color:#fff;border-radius:6px;cursor:pointer;letter-spacing:1px}
-.btn-dir.vi{background:#da251d}
-
-/* 사전 */
-.sec-title{font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.sec-title::before{content:'●';color:var(--blue);font-size:7px}
-.search{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--txt1);padding:9px 14px;border-radius:8px;font-size:13px;font-family:inherit;outline:none;margin-bottom:12px}
-.search:focus{border-color:var(--blue)}
-.cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.cat{padding:4px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--txt2);font-size:11px;cursor:pointer;font-family:inherit}
-.cat.on,.cat:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:24px}
-.card{background:var(--bg2);border:1px solid var(--border);border-left:3px solid transparent;border-radius:10px;padding:13px;cursor:pointer}
-.card:hover,.card.on{border-left-color:var(--blue);background:var(--bg3)}
-.card-ko{font-size:13px;font-weight:700;margin-bottom:4px}
-.card-vi{font-size:12px;color:#3dd68c;margin-bottom:6px}
-.card-cat{display:inline-block;padding:2px 7px;border-radius:8px;font-size:10px;background:rgba(33,118,174,.2);color:#4A9FD4}
-
-/* 상세 */
-.detail{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px;display:none}
-.detail.show{display:block}
-.detail-top{display:flex;justify-content:space-between;margin-bottom:14px}
-.detail-ko{font-size:20px;font-weight:700}
-.detail-vi{font-size:16px;color:#3dd68c;margin-top:4px}
-.detail-body{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:600px){.detail-body{grid-template-columns:1fr}}
-.dsec{background:var(--bg3);border-radius:8px;padding:12px}
-.dsec-t{font-size:10px;font-weight:700;color:var(--txt2);margin-bottom:8px;text-transform:uppercase}
-.dsec p{font-size:12px;line-height:1.8;color:var(--txt2)}
-.dsec b{color:var(--txt1)}
-.ex{margin-bottom:7px;padding-bottom:7px;border-bottom:1px solid var(--border)}
-.ex:last-child{border:none;margin:0;padding:0}
-.ex-ko{font-size:12px}
-.ex-vi{font-size:12px;color:#3dd68c}
-.btn-x{background:none;border:none;color:var(--txt2);font-size:18px;cursor:pointer}
-
-.toast{position:fixed;bottom:20px;right:20px;background:var(--bg3);border:1px solid var(--teal);color:#3dd68c;padding:9px 16px;border-radius:8px;font-size:12px;opacity:0;transition:.3s;pointer-events:none;z-index:999}
-.toast.show{opacity:1}
-.spinner{display:none;width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1s infinite}
+/* 번역 패널 — 크게 */
+.trans-panel{
+  display:grid;grid-template-columns:1fr 64px 1fr;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:16px;overflow:hidden;
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+  margin-bottom:32px
+}
+.t-side{display:flex;flex-direction:column;min-height:320px}
+.t-hdr{
+  padding:14px 20px;display:flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:700;border-bottom:1px solid var(--border)
+}
+.t-hdr.ko{background:linear-gradient(90deg,rgba(0,52,120,.4),transparent)}
+.t-hdr.vi{background:linear-gradient(90deg,rgba(218,37,29,.2),transparent)}
+.dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.dot-ko{background:var(--kr)}
+.dot-vi{background:var(--vn)}
+textarea{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--txt1);font-size:16px;line-height:1.8;
+  font-family:'Malgun Gothic',Arial,sans-serif;
+  padding:20px 22px;resize:none;min-height:260px
+}
+textarea::placeholder{color:var(--txt3);font-size:15px}
+.t-foot{
+  padding:12px 16px;border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  background:var(--bg3)
+}
+.btn{
+  padding:7px 16px;border-radius:7px;border:1px solid var(--border);
+  background:var(--bg2);color:var(--txt2);font-size:12px;
+  cursor:pointer;font-family:inherit;transition:.15s
+}
+.btn:hover{background:var(--bg4);color:var(--txt1)}
+.btn.primary{
+  background:var(--blue);color:#fff;border-color:var(--blue);
+  font-weight:700;font-size:13px;padding:8px 20px
+}
+.btn.primary:hover{background:var(--blue3)}
+.btn.pri-vn{background:var(--vn);border-color:var(--vn);color:#fff;font-weight:700;font-size:13px;padding:8px 20px}
+.btn.pri-vn:hover{opacity:.85}
+.cnt{font-size:11px;color:var(--txt3);margin-left:auto}
+.spinner{
+  display:none;width:8px;height:8px;border-radius:50%;
+  background:var(--teal);animation:pulse 1s infinite;margin-left:6px
+}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* 중앙 */
+.t-mid{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:12px;
+  border-left:1px solid var(--border);border-right:1px solid var(--border);
+  background:var(--bg3)
+}
+.btn-swap{
+  width:44px;height:44px;border-radius:50%;
+  background:var(--blue);border:none;color:#fff;
+  font-size:20px;cursor:pointer;transition:.3s;
+  display:flex;align-items:center;justify-content:center
+}
+.btn-swap:hover{transform:rotate(180deg);background:var(--blue3)}
+.btn-dir{
+  width:48px;padding:10px 0;font-size:10px;font-weight:700;
+  border:none;color:#fff;border-radius:7px;cursor:pointer;
+  writing-mode:vertical-rl;letter-spacing:1px;font-family:inherit
+}
+.btn-dir.ko{background:var(--blue)}
+.btn-dir.vi{background:var(--vn)}
+.btn-dir:hover{opacity:.8}
+
+/* 단어 설명 패널 */
+.explain-panel{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 4px 20px rgba(0,0,0,.3)
+}
+.ep-hdr{
+  padding:14px 20px;display:flex;align-items:center;
+  justify-content:space-between;border-bottom:1px solid var(--border);
+  background:linear-gradient(90deg,rgba(29,158,117,.15),transparent)
+}
+.ep-hdr-l{display:flex;align-items:center;gap:10px}
+.ep-title{font-size:13px;font-weight:700}
+.ep-sub{font-size:11px;color:var(--txt2)}
+.ep-body{padding:20px;min-height:200px}
+.ep-input-row{display:flex;gap:10px;margin-bottom:16px}
+.ep-input{
+  flex:1;background:var(--bg3);border:1px solid var(--border);
+  color:var(--txt1);padding:10px 14px;border-radius:8px;
+  font-size:14px;font-family:inherit;outline:none
+}
+.ep-input:focus{border-color:var(--teal)}
+.btn-explain{
+  background:var(--teal);color:#fff;border:none;
+  padding:10px 20px;border-radius:8px;font-size:13px;
+  font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap
+}
+.btn-explain:hover{background:var(--teal3)}
+
+/* 단어 결과 카드 */
+.word-result{display:none}
+.word-result.show{display:block}
+.word-top{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  margin-bottom:16px;flex-wrap:wrap;gap:10px
+}
+.word-ko{font-size:24px;font-weight:700}
+.word-vi{font-size:20px;color:var(--teal3);font-weight:600;margin-top:4px}
+.word-ro{font-size:14px;color:var(--txt2);margin-top:4px}
+.word-cats{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.wcat{
+  padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;
+  background:rgba(33,118,174,.2);color:var(--blue3)
+}
+.word-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:16px}
+.wsec{background:var(--bg3);border-radius:10px;padding:14px}
+.wsec-t{font-size:10px;font-weight:700;color:var(--txt2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
+.wsec p{font-size:13px;line-height:1.8;color:var(--txt2)}
+.wsec b{color:var(--txt1)}
+.wsec ul{padding-left:16px}
+.wsec li{font-size:13px;color:var(--txt2);line-height:1.9;margin-bottom:2px}
+.wsec li b{color:var(--txt1)}
+.ex-row{padding:9px 0;border-bottom:1px solid var(--border)}
+.ex-row:last-child{border:none;padding-bottom:0}
+.ex-ko{font-size:13px;color:var(--txt1);margin-bottom:3px}
+.ex-vi{font-size:13px;color:var(--teal3)}
+
+/* 빠른 단어 버튼 */
+.quick-words{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+.qw{
+  padding:5px 13px;border-radius:18px;border:1px solid var(--border);
+  background:var(--bg3);color:var(--txt2);font-size:12px;cursor:pointer;
+  font-family:inherit;transition:.15s
+}
+.qw:hover{background:rgba(29,158,117,.2);border-color:var(--teal);color:var(--teal3)}
+
+/* 로딩/에러 */
+.ep-loading{color:var(--txt2);font-size:13px;padding:20px 0;display:none}
+.ep-loading.show{display:block}
+.ep-error{color:var(--red);font-size:13px;padding:10px 0;display:none}
+.ep-error.show{display:block}
+
+/* 토스트 */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--bg3);border:1px solid var(--teal);
+  color:var(--teal3);padding:10px 18px;border-radius:8px;
+  font-size:12px;opacity:0;transition:.3s;pointer-events:none;z-index:999
+}
+.toast.show{opacity:1}
 </style>
 </head>
 <body>
 
 <div class="hdr">
-  <div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <span style="font-size:22px">🌏</span>
-      <div>
-        <h1>한국어 ↔ 베트남어 번역기</h1>
-        <div class="hdr-sub">SYNOPEX VIETNAM | 생산현장 전문용어 포함</div>
-      </div>
+  <div class="hdr-l">
+    <span style="font-size:26px">🌏</span>
+    <div>
+      <div class="hdr-title">한국어 ↔ 베트남어 번역기</div>
+      <div class="hdr-sub">SYNOPEX VIETNAM | AI 번역 + 단어 세부 설명</div>
     </div>
   </div>
-  <div style="display:flex;gap:6px">
-    <span style="background:#003478;color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700">🇰🇷 한국어</span>
-    <span style="background:#da251d;color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700">🇻🇳 Tiếng Việt</span>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span class="flag-badge flag-ko">🇰🇷 한국어</span>
+    <span style="color:var(--txt3)">↔</span>
+    <span class="flag-badge flag-vi">🇻🇳 Tiếng Việt</span>
   </div>
 </div>
 
 <div class="wrap">
 
-  <div class="trans-wrap">
+  <!-- ══ 번역 패널 ══ -->
+  <div class="trans-panel">
+
     <!-- 한국어 -->
-    <div class="trans-side">
-      <div class="side-hdr ko">
-        <span style="width:10px;height:10px;border-radius:50%;background:#003478;display:inline-block"></span>
-        한국어 Korean
+    <div class="t-side">
+      <div class="t-hdr ko">
+        <span class="dot dot-ko"></span>
+        <span>한국어</span>
+        <span style="font-size:11px;color:var(--txt3);font-weight:400;margin-left:auto">Korean</span>
       </div>
       <textarea id="ta-ko" placeholder="번역할 한국어를 입력하세요...
-예) 공정별 가동율 현황을 확인해 주세요."></textarea>
-      <div class="side-foot">
+
+예) 공정별 가동율 현황을 확인해 주세요.
+예) 이번 주 타발 공정 NECK이 발생했습니다."></textarea>
+      <div class="t-foot">
         <button class="btn" id="btn-clear-ko">✕ 지우기</button>
         <button class="btn" id="btn-copy-ko">📋 복사</button>
         <span class="cnt" id="cnt-ko">0자</span>
-        <button class="btn primary" id="btn-trans-ko">🚀 한→베 번역</button>
+        <button class="btn primary" id="btn-trans-ko">🚀 한 → 베 번역</button>
       </div>
     </div>
 
     <!-- 중앙 -->
-    <div class="mid">
-      <button class="btn-dir" id="btn-dir-ko">KR→VN</button>
-      <button class="btn-swap" id="btn-swap">⇄</button>
+    <div class="t-mid">
+      <button class="btn-dir ko" id="btn-dir-ko">KR→VN</button>
+      <button class="btn-swap" id="btn-swap" title="양쪽 텍스트 전환">⇄</button>
       <button class="btn-dir vi" id="btn-dir-vi">VN→KR</button>
     </div>
 
     <!-- 베트남어 -->
-    <div class="trans-side">
-      <div class="side-hdr vi">
-        <span style="width:10px;height:10px;border-radius:50%;background:#da251d;display:inline-block"></span>
-        Tiếng Việt 베트남어
+    <div class="t-side">
+      <div class="t-hdr vi">
+        <span class="dot dot-vi"></span>
+        <span>Tiếng Việt</span>
         <span class="spinner" id="spinner"></span>
+        <span style="font-size:11px;color:var(--txt3);font-weight:400;margin-left:auto">Vietnamese</span>
       </div>
       <textarea id="ta-vi" placeholder="Nhập tiếng Việt để dịch sang tiếng Hàn...
+
 또는 번역 결과가 여기에 표시됩니다."></textarea>
-      <div class="side-foot">
+      <div class="t-foot">
         <button class="btn" id="btn-clear-vi">✕ 지우기</button>
         <button class="btn" id="btn-copy-vi">📋 복사</button>
         <span class="cnt" id="cnt-vi">0자</span>
-        <button class="btn primary" id="btn-trans-vi" style="background:#da251d;border-color:#da251d">🚀 베→한 번역</button>
+        <button class="btn pri-vn" id="btn-trans-vi">🚀 베 → 한 번역</button>
       </div>
     </div>
+
   </div>
 
-  <!-- 전문용어 사전 -->
-  <div class="sec-title">📖 전문용어 사전</div>
-  <input class="search" id="search" placeholder="🔍 단어 검색 (한국어 또는 베트남어)...">
-  <div class="cats" id="cats"></div>
-  <div class="detail" id="detail">
-    <div class="detail-top">
-      <div>
-        <div class="detail-ko" id="d-ko"></div>
-        <div class="detail-vi" id="d-vi"></div>
+  <!-- ══ 단어 세부 설명 패널 ══ -->
+  <div class="explain-panel">
+    <div class="ep-hdr">
+      <div class="ep-hdr-l">
+        <span style="font-size:20px">📖</span>
+        <div>
+          <div class="ep-title">베트남어 단어 세부 설명</div>
+          <div class="ep-sub">단어를 입력하면 AI가 뜻·발음·예문·관련 표현을 상세히 설명합니다</div>
+        </div>
       </div>
-      <button class="btn-x" id="btn-detail-close">✕</button>
     </div>
-    <div class="detail-body" id="d-body"></div>
+    <div class="ep-body">
+
+      <!-- 빠른 단어 -->
+      <div style="font-size:11px;color:var(--txt2);margin-bottom:8px">자주 쓰는 단어:</div>
+      <div class="quick-words" id="quick-words"></div>
+
+      <!-- 입력 -->
+      <div class="ep-input-row">
+        <input class="ep-input" id="ep-input"
+          placeholder="베트남어 또는 한국어 단어 입력 (예: Tỷ lệ hoạt động, 가동율, CAPA...)">
+        <button class="btn-explain" id="btn-explain">🔍 단어 설명</button>
+      </div>
+
+      <!-- 로딩 -->
+      <div class="ep-loading" id="ep-loading">⏳ AI가 단어를 분석 중입니다...</div>
+      <div class="ep-error" id="ep-error"></div>
+
+      <!-- 결과 -->
+      <div class="word-result" id="word-result">
+        <div class="word-top">
+          <div>
+            <div class="word-ko" id="wr-ko"></div>
+            <div class="word-vi" id="wr-vi"></div>
+            <div class="word-ro" id="wr-ro"></div>
+            <div class="word-cats" id="wr-cats"></div>
+          </div>
+          <button class="btn" id="btn-result-copy">📋 설명 복사</button>
+        </div>
+        <div class="word-grid" id="wr-grid"></div>
+        <div id="wr-examples"></div>
+      </div>
+
+    </div>
   </div>
-  <div class="grid" id="grid"></div>
 
 </div>
 
@@ -166,294 +312,244 @@ textarea::placeholder{color:var(--txt3)}
 <script>
 var LAMBDA = 'https://bssy4msokyy3hvsphelxiuyzta0nwxml.lambda-url.ap-southeast-1.on.aws/';
 
-// ── 사전 데이터 ──
-var DICT = [
-  {ko:'가동율',vi:'Tỷ lệ hoạt động',cat:'생산관리',
-   defKo:'설비가 실제로 가동된 시간 비율. 기준시간 대비 실가동시간',
-   defVi:'Tỷ lệ thời gian máy thực sự hoạt động so với thời gian tiêu chuẩn',
-   formula:'가동율(%) = 실가동시간 ÷ 기준시간 × 100',
-   ex:[{ko:'공정별 가동율을 확인해 주세요.',vi:'Vui lòng kiểm tra tỷ lệ hoạt động theo công đoạn.'}]},
-  {ko:'공정계획',vi:'Kế hoạch công đoạn',cat:'생산관리',
-   defKo:'각 공정에 배포되는 일별/주별 생산 투입 계획량',
-   defVi:'Kế hoạch sản xuất theo ngày/tuần được phân phối cho từng công đoạn',
-   formula:'공정투입량 = 납품목표(PNL) × 라우팅 − 재공(WIP)',
-   ex:[{ko:'공정계획을 오전 중으로 배포해 주세요.',vi:'Vui lòng phân phối kế hoạch công đoạn trước buổi sáng.'}]},
-  {ko:'납기일',vi:'Ngày giao hàng',cat:'납품/출하',
-   defKo:'고객에게 제품을 납품해야 하는 기한',
-   defVi:'Thời hạn giao sản phẩm cho khách hàng',
-   formula:'D-Day = 납기일 − 오늘',
-   ex:[{ko:'납기일이 3일 남았습니다.',vi:'Còn 3 ngày đến ngày giao hàng.'}]},
-  {ko:'재공(WIP)',vi:'Hàng tồn đang sản xuất',cat:'생산관리',
-   defKo:'공정 진행 중인 반제품. 투입 계획량 산출 시 차감',
-   defVi:'Bán thành phẩm đang trong quá trình sản xuất',
-   formula:'실투입필요 = 납품목표 − 완성재고 − 공정재공',
-   ex:[{ko:'동도금 공정 재공이 몇 패널입니까?',vi:'Có bao nhiêu panel tồn kho trong công đoạn mạ đồng?'}]},
-  {ko:'CAPA',vi:'Năng lực sản xuất',cat:'생산관리',
-   defKo:'설비 또는 공정의 최대 처리 가능 수량',
-   defVi:'Số lượng tối đa có thể xử lý của thiết bị hoặc công đoạn',
-   formula:'일 CAPA = 실제 하루 처리량(PNL) 평균',
-   ex:[{ko:'레이저 공정 CAPA가 부족합니다.',vi:'Năng lực sản xuất của công đoạn laser không đủ.'}]},
-  {ko:'부하율',vi:'Tỷ lệ tải',cat:'생산관리',
-   defKo:'CAPA 대비 필요 생산량 비율. 100% 초과 시 NECK',
-   defVi:'Tỷ lệ sản lượng cần thiết so với CAPA',
-   formula:'부하율(%) = 필요량 ÷ CAPA × 100',
-   ex:[{ko:'타발 공정 부하율이 115%입니다.',vi:'Tỷ lệ tải của công đoạn dập là 115%.'}]},
-  {ko:'NECK 공정',vi:'Công đoạn nút thắt',cat:'생산관리',
-   defKo:'부하율이 100% 초과하여 생산의 병목이 되는 공정',
-   defVi:'Công đoạn có tỷ lệ tải vượt 100%, điểm nghẽn sản xuất',
-   formula:'NECK = 부하율 ≥ 90% 공정',
-   ex:[{ko:'이번 주 NECK 공정은 수가접입니다.',vi:'Công đoạn NECK tuần này là hàn tay.'}]},
-  {ko:'우선순위',vi:'Thứ tự ưu tiên',cat:'생산계획',
-   defKo:'납기일 기준 긴급 순서 (EDD 방식)',
-   defVi:'Thứ tự khẩn cấp dựa trên ngày giao hàng',
-   formula:'우선순위 = RANK(D-Day, 오름차순)',
-   ex:[{ko:'우선순위 1번 모델을 먼저 투입해 주세요.',vi:'Vui lòng đưa vào sản xuất model ưu tiên số 1 trước.'}]},
-  {ko:'동도금',vi:'Mạ đồng',cat:'FPCB공정',
-   defKo:'블랙홀 및 전기동도금 공정. Via Hole 내벽에 동을 도금',
-   defVi:'Công đoạn mạ đồng black hole và điện phân lên thành lỗ Via Hole',
-   formula:'',
-   ex:[{ko:'동도금 공정에서 두께 불량이 발생했습니다.',vi:'Xảy ra lỗi độ dày tại công đoạn mạ đồng.'}]},
-  {ko:'가접',vi:'Dán tạm / Hàn tạm',cat:'FPCB공정',
-   defKo:'COVERLAY, SUS, EPOXY를 임시로 붙이는 공정',
-   defVi:'Công đoạn dán tạm COVERLAY, SUS, EPOXY',
-   formula:'',
-   ex:[{ko:'1차 COVERLAY 가접이 완료되었습니다.',vi:'Đã hoàn thành dán tạm COVERLAY lần 1.'}]},
-  {ko:'적층',vi:'Ép nóng / Tích hợp',cat:'FPCB공정',
-   defKo:'COVERLAY, EPOXY를 열압착으로 영구 접합하는 공정',
-   defVi:'Công đoạn ép nhiệt vĩnh cửu COVERLAY, EPOXY',
-   formula:'',
-   ex:[{ko:'적층 후 박리 불량이 발생했습니다.',vi:'Xảy ra lỗi bong tróc sau khi ép.'}]},
-  {ko:'타발',vi:'Dập khuôn',cat:'FPCB공정',
-   defKo:'금형으로 FPCB를 원하는 형태로 절단하는 공정',
-   defVi:'Công đoạn cắt FPCB thành hình dạng mong muốn bằng khuôn',
-   formula:'',
-   ex:[{ko:'타발 금형이 마모되어 교체가 필요합니다.',vi:'Khuôn dập bị mòn, cần thay thế.'}]},
-  {ko:'AOI',vi:'Kiểm tra AOI',cat:'FPCB공정',
-   defKo:'Automated Optical Inspection. 광학 자동 검사 장비',
-   defVi:'Kiểm tra quang học tự động. Phát hiện lỗi mẫu mạch',
-   formula:'',
-   ex:[{ko:'AOI에서 단선 불량이 검출되었습니다.',vi:'Phát hiện lỗi đứt mạch tại AOI.'}]},
-  {ko:'BBT',vi:'Kiểm tra mạch BBT',cat:'FPCB공정',
-   defKo:'Bare Board Test. 회로 단선/단락 전기 검사',
-   defVi:'Kiểm tra mạch trần. Phát hiện đứt mạch/ngắn mạch',
-   formula:'',
-   ex:[{ko:'BBT 불량율이 목표 대비 높습니다.',vi:'Tỷ lệ lỗi BBT cao hơn mục tiêu.'}]},
-  {ko:'필요인력',vi:'Nhân lực cần thiết',cat:'인력관리',
-   defKo:'생산 목표 달성을 위해 필요한 인원수',
-   defVi:'Số lượng nhân viên cần thiết để đạt mục tiêu sản xuất',
-   formula:'필요인원 = 생산량(PNL) × ST ÷ 근무시간',
-   ex:[{ko:'7월 수가접 필요인력은 61명입니다.',vi:'Nhân lực cần thiết cho hàn tay tháng 7 là 61 người.'}]},
-  {ko:'외주비',vi:'Chi phí nhà thầu',cat:'비용관리',
-   defKo:'외부 업체에 공정을 위탁하고 지불하는 비용',
-   defVi:'Chi phí trả cho công ty bên ngoài khi ủy thác công đoạn',
-   formula:'외주비 비율(%) = 외주비 ÷ 매출 × 100',
-   ex:[{ko:'5월 외주비가 전월 대비 10% 증가했습니다.',vi:'Chi phí nhà thầu tháng 5 tăng 10% so với tháng trước.'}]},
-  {ko:'불량율',vi:'Tỷ lệ lỗi',cat:'품질',
-   defKo:'전체 생산량 중 불량품이 차지하는 비율',
-   defVi:'Tỷ lệ sản phẩm lỗi trong tổng sản lượng',
-   formula:'불량율(%) = 불량수량 ÷ 검사수량 × 100',
-   ex:[{ko:'이번 달 불량율 목표는 0.5% 이하입니다.',vi:'Mục tiêu tỷ lệ lỗi tháng này là dưới 0,5%.'}]},
-  {ko:'수율(Yield)',vi:'Tỷ lệ đạt (Yield)',cat:'품질',
-   defKo:'투입 수량 대비 양품 수량 비율',
-   defVi:'Tỷ lệ sản phẩm đạt yêu cầu so với số lượng đầu vào',
-   formula:'수율(%) = 양품수량 ÷ 투입수량 × 100',
-   ex:[{ko:'AOI 공정 수율이 99.5%입니다.',vi:'Tỷ lệ đạt của công đoạn AOI là 99,5%.'}]},
+// 빠른 단어 목록
+var QUICK_WORDS = [
+  'Tỷ lệ hoạt động','Mạ đồng','Dập khuôn','Công đoạn nút thắt',
+  'Năng lực sản xuất','Kế hoạch','Nhân lực','Kiểm tra AOI',
+  'Ngày giao hàng','Chi phí nhà thầu','가동율','NECK 공정','재공','타발'
 ];
 
-var curCat = '전체';
-var curIdx = -1;
+// ── 유틸 ──
+function toast(msg){
+  var el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(function(){el.classList.remove('show');},2200);
+}
+function updCnt(id,n){var el=document.getElementById(id);if(el)el.textContent=n+'자';}
 
-// ── 번역 핵심 함수 ──
-function doTranslate(srcId, tgtId) {
-  var srcEl = document.getElementById(srcId);
-  var tgtEl = document.getElementById(tgtId);
-  var spinEl = document.getElementById('spinner');
-  var srcLang = srcId === 'ta-ko' ? 'ko' : 'vi';
-  var src = srcEl.value.trim();
+// ── 번역 ──
+function doTranslate(srcId, tgtId){
+  var srcEl=document.getElementById(srcId);
+  var tgtEl=document.getElementById(tgtId);
+  var spinEl=document.getElementById('spinner');
+  var srcLang=srcId==='ta-ko'?'ko':'vi';
+  var src=(srcEl.value||'').trim();
 
-  if (!src) {
+  if(!src){
     srcEl.focus();
-    srcEl.style.outline = '2px solid #C00000';
-    setTimeout(function() { srcEl.style.outline = ''; }, 1500);
-    toast('텍스트를 입력하세요');
+    srcEl.style.outline='2px solid var(--vn)';
+    setTimeout(function(){srcEl.style.outline='';},1500);
+    toast((srcLang==='ko'?'왼쪽 한국어':'오른쪽 베트남어')+'에 텍스트를 입력하세요');
     return;
   }
 
-  tgtEl.value = '⏳ 번역 중...';
-  if (spinEl) spinEl.style.display = 'inline-block';
+  tgtEl.value='⏳ 번역 중...';
+  if(spinEl) spinEl.style.display='inline-block';
 
-  var payload = JSON.stringify({
-    mode: 'translate',
-    text: src,
-    src_lang: srcLang,
-    tgt_lang: srcLang === 'ko' ? 'vi' : 'ko'
-  });
-
-  fetch(LAMBDA, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: payload
+  fetch(LAMBDA,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({mode:'translate',text:src,src_lang:srcLang,tgt_lang:srcLang==='ko'?'vi':'ko'})
   })
-  .then(function(res) {
-    return res.text().then(function(txt) {
-      return { status: res.status, txt: txt };
-    });
-  })
-  .then(function(obj) {
-    if (spinEl) spinEl.style.display = 'none';
-    if (obj.status === 200) {
-      var data = JSON.parse(obj.txt);
-      tgtEl.value = data.result || obj.txt;
-      updateCnt(tgtId === 'ta-ko' ? 'cnt-ko' : 'cnt-vi', tgtEl.value.length);
+  .then(function(res){return res.text().then(function(t){return{s:res.status,t:t};});})
+  .then(function(o){
+    if(spinEl) spinEl.style.display='none';
+    if(o.s===200){
+      var d=JSON.parse(o.t);
+      tgtEl.value=d.result||o.t;
+      updCnt(tgtId==='ta-ko'?'cnt-ko':'cnt-vi',tgtEl.value.length);
       toast('번역 완료! ✅');
     } else {
-      tgtEl.value = '❌ 오류 (HTTP ' + obj.status + ')\n' + obj.txt;
+      tgtEl.value='❌ 오류 (HTTP '+o.s+')\n'+o.t;
     }
   })
-  .catch(function(err) {
-    if (spinEl) spinEl.style.display = 'none';
-    tgtEl.value = '❌ ' + err.message;
+  .catch(function(e){
+    if(spinEl) spinEl.style.display='none';
+    tgtEl.value='❌ 오류: '+e.message;
+    toast('번역 오류');
   });
 }
 
-function updateCnt(id, n) {
-  var el = document.getElementById(id);
-  if (el) el.textContent = n + '자';
-}
+// ── 단어 설명 ──
+function explainWord(word){
+  if(!word||!word.trim()) return;
+  word=word.trim();
+  document.getElementById('ep-input').value=word;
 
-function toast(msg) {
-  var el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(function() { el.classList.remove('show'); }, 2000);
-}
+  var loadEl=document.getElementById('ep-loading');
+  var errEl=document.getElementById('ep-error');
+  var resEl=document.getElementById('word-result');
+  loadEl.className='ep-loading show';
+  errEl.className='ep-error';
+  resEl.className='word-result';
 
-// ── 사전 ──
-function getCats() {
-  var cats = ['전체'];
-  DICT.forEach(function(d) { if (cats.indexOf(d.cat) < 0) cats.push(d.cat); });
-  return cats;
-}
+  var prompt=(
+    '다음 단어에 대해 JSON 형식으로 상세 설명하세요.\n'
+    +'단어: '+word+'\n\n'
+    +'JSON 형식:\n'
+    +'{\n'
+    +'"ko": "한국어 뜻",\n'
+    +'"vi": "베트남어 표기",\n'
+    +'"romanization": "발음 (로마자)",\n'
+    +'"pronunciation_tip": "발음 요령 (한국어로)",\n'
+    +'"categories": ["분류1","분류2"],\n'
+    +'"definition_ko": "한국어 상세 설명 (2-3문장)",\n'
+    +'"definition_vi": "베트남어 설명 (2-3문장)",\n'
+    +'"usage_context": "사용 맥락 (언제, 어디서 쓰는지)",\n'
+    +'"related_words": [{"word":"관련단어","meaning":"뜻"},{"word":"관련단어2","meaning":"뜻2"}],\n'
+    +'"examples": [\n'
+    +'  {"ko":"한국어 예문1","vi":"베트남어 예문1"},\n'
+    +'  {"ko":"한국어 예문2","vi":"베트남어 예문2"},\n'
+    +'  {"ko":"한국어 예문3","vi":"베트남어 예문3"}\n'
+    +'],\n'
+    +'"fpcb_context": "FPCB 제조 현장에서의 특별한 사용법 또는 주의사항 (없으면 빈 문자열)"\n'
+    +'}\n\n'
+    +'JSON만 출력하세요. 설명 없이.'
+  );
 
-function renderCats() {
-  var el = document.getElementById('cats');
-  el.innerHTML = getCats().map(function(c) {
-    return '<button class="cat' + (c === curCat ? ' on' : '') + '" data-cat="' + c + '">' + c + '</button>';
-  }).join('');
-}
-
-function renderGrid() {
-  var q = document.getElementById('search').value.trim().toLowerCase();
-  var el = document.getElementById('grid');
-  var filtered = DICT.filter(function(d, i) {
-    var catOk = curCat === '전체' || d.cat === curCat;
-    var qOk = !q || d.ko.toLowerCase().includes(q) || d.vi.toLowerCase().includes(q);
-    return catOk && qOk;
+  fetch(LAMBDA,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({mode:'translate',text:prompt,src_lang:'ko',tgt_lang:'vi_explain'})
+  })
+  .then(function(res){return res.text().then(function(t){return{s:res.status,t:t};});})
+  .then(function(o){
+    loadEl.className='ep-loading';
+    if(o.s!==200){
+      errEl.textContent='❌ 오류 (HTTP '+o.s+'): '+o.t;
+      errEl.className='ep-error show';
+      return;
+    }
+    var data=JSON.parse(o.t);
+    // Lambda가 result 필드에 텍스트 반환
+    var raw=data.result||o.t;
+    var info;
+    try{
+      // JSON 파싱
+      raw=raw.replace(/```json|```/g,'').trim();
+      info=JSON.parse(raw);
+    }catch(e){
+      errEl.textContent='❌ 파싱 오류: '+e.message;
+      errEl.className='ep-error show';
+      return;
+    }
+    renderWordResult(info);
+  })
+  .catch(function(e){
+    loadEl.className='ep-loading';
+    errEl.textContent='❌ 오류: '+e.message;
+    errEl.className='ep-error show';
   });
-  if (!filtered.length) {
-    el.innerHTML = '<div style="color:var(--txt3);font-size:12px;padding:10px">검색 결과 없음</div>';
-    return;
-  }
-  el.innerHTML = filtered.map(function(d) {
-    var i = DICT.indexOf(d);
-    return '<div class="card' + (i === curIdx ? ' on' : '') + '" data-idx="' + i + '">'
-      + '<div class="card-ko">' + d.ko + '</div>'
-      + '<div class="card-vi">' + d.vi + '</div>'
-      + '<span class="card-cat">' + d.cat + '</span>'
-      + '</div>';
-  }).join('');
 }
 
-function showDetail(idx) {
-  var d = DICT[idx];
-  curIdx = idx;
-  document.getElementById('d-ko').textContent = d.ko;
-  document.getElementById('d-vi').textContent = d.vi;
-  var body = '<div class="dsec"><div class="dsec-t">🇰🇷 한국어 설명</div><p>' + d.defKo
-    + (d.formula ? '<br><br><b>계산식:</b> ' + d.formula : '') + '</p></div>'
-    + '<div class="dsec"><div class="dsec-t">🇻🇳 Giải thích</div><p>' + d.defVi + '</p></div>';
-  if (d.ex && d.ex.length) {
-    body += '<div class="dsec" style="grid-column:1/-1"><div class="dsec-t">💬 예문</div>'
-      + d.ex.map(function(e) {
-          return '<div class="ex"><div class="ex-ko">🇰🇷 ' + e.ko + '</div><div class="ex-vi">🇻🇳 ' + e.vi + '</div></div>';
-        }).join('') + '</div>';
+function renderWordResult(info){
+  document.getElementById('wr-ko').textContent=info.ko||'';
+  document.getElementById('wr-vi').textContent=info.vi||'';
+  document.getElementById('wr-ro').textContent=info.romanization?'🔊 '+info.romanization+(info.pronunciation_tip?' — '+info.pronunciation_tip:''):'';
+
+  var cats=info.categories||[];
+  document.getElementById('wr-cats').innerHTML=cats.map(function(c){
+    return '<span class="wcat">'+c+'</span>';
+  }).join('');
+
+  // 그리드 섹션
+  var sections=[];
+  if(info.definition_ko)
+    sections.push({t:'🇰🇷 한국어 설명',html:'<p>'+info.definition_ko+'</p>'});
+  if(info.definition_vi)
+    sections.push({t:'🇻🇳 Giải thích tiếng Việt',html:'<p>'+info.definition_vi+'</p>'});
+  if(info.usage_context)
+    sections.push({t:'📌 사용 맥락',html:'<p>'+info.usage_context+'</p>'});
+  if(info.related_words&&info.related_words.length)
+    sections.push({t:'🔗 관련 단어',html:'<ul>'+info.related_words.map(function(w){
+      return '<li><b>'+w.word+'</b> — '+w.meaning+'</li>';
+    }).join('')+'</ul>'});
+  if(info.fpcb_context)
+    sections.push({t:'🏭 FPCB 현장 사용법',html:'<p>'+info.fpcb_context+'</p>'});
+
+  document.getElementById('wr-grid').innerHTML=sections.map(function(s){
+    return '<div class="wsec"><div class="wsec-t">'+s.t+'</div>'+s.html+'</div>';
+  }).join('');
+
+  // 예문
+  var exHtml='';
+  if(info.examples&&info.examples.length){
+    exHtml='<div class="wsec"><div class="wsec-t">💬 예문 / Ví dụ</div>'
+      +info.examples.map(function(e){
+        return '<div class="ex-row"><div class="ex-ko">🇰🇷 '+e.ko+'</div><div class="ex-vi">🇻🇳 '+e.vi+'</div></div>';
+      }).join('')+'</div>';
   }
-  document.getElementById('d-body').innerHTML = body;
-  document.getElementById('detail').classList.add('show');
-  renderGrid();
+  document.getElementById('wr-examples').innerHTML=exHtml;
+
+  // 결과 보이기
+  document.getElementById('word-result').className='word-result show';
+  document.getElementById('word-result').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 // ── 이벤트 연결 ──
-window.addEventListener('load', function() {
+window.addEventListener('load', function(){
 
   // 번역 버튼
-  document.getElementById('btn-trans-ko').addEventListener('click', function() { doTranslate('ta-ko', 'ta-vi'); });
-  document.getElementById('btn-trans-vi').addEventListener('click', function() { doTranslate('ta-vi', 'ta-ko'); });
-  document.getElementById('btn-dir-ko').addEventListener('click', function() { doTranslate('ta-ko', 'ta-vi'); });
-  document.getElementById('btn-dir-vi').addEventListener('click', function() { doTranslate('ta-vi', 'ta-ko'); });
+  document.getElementById('btn-trans-ko').addEventListener('click',function(){doTranslate('ta-ko','ta-vi');});
+  document.getElementById('btn-trans-vi').addEventListener('click',function(){doTranslate('ta-vi','ta-ko');});
+  document.getElementById('btn-dir-ko').addEventListener('click',function(){doTranslate('ta-ko','ta-vi');});
+  document.getElementById('btn-dir-vi').addEventListener('click',function(){doTranslate('ta-vi','ta-ko');});
 
   // 스왑
-  document.getElementById('btn-swap').addEventListener('click', function() {
-    var ko = document.getElementById('ta-ko').value;
-    var vi = document.getElementById('ta-vi').value;
-    document.getElementById('ta-ko').value = vi;
-    document.getElementById('ta-vi').value = ko;
-    updateCnt('cnt-ko', vi.length);
-    updateCnt('cnt-vi', ko.length);
+  document.getElementById('btn-swap').addEventListener('click',function(){
+    var ko=document.getElementById('ta-ko').value;
+    var vi=document.getElementById('ta-vi').value;
+    document.getElementById('ta-ko').value=vi;
+    document.getElementById('ta-vi').value=ko;
+    updCnt('cnt-ko',vi.length); updCnt('cnt-vi',ko.length);
   });
 
   // 지우기/복사
-  document.getElementById('btn-clear-ko').addEventListener('click', function() { document.getElementById('ta-ko').value = ''; updateCnt('cnt-ko', 0); });
-  document.getElementById('btn-clear-vi').addEventListener('click', function() { document.getElementById('ta-vi').value = ''; updateCnt('cnt-vi', 0); });
-  document.getElementById('btn-copy-ko').addEventListener('click', function() {
-    var v = document.getElementById('ta-ko').value;
-    if (v) navigator.clipboard.writeText(v).then(function() { toast('복사됨!'); });
+  document.getElementById('btn-clear-ko').addEventListener('click',function(){document.getElementById('ta-ko').value='';updCnt('cnt-ko',0);});
+  document.getElementById('btn-clear-vi').addEventListener('click',function(){document.getElementById('ta-vi').value='';updCnt('cnt-vi',0);});
+  document.getElementById('btn-copy-ko').addEventListener('click',function(){
+    var v=document.getElementById('ta-ko').value;
+    if(v) navigator.clipboard.writeText(v).then(function(){toast('복사됨!');});
   });
-  document.getElementById('btn-copy-vi').addEventListener('click', function() {
-    var v = document.getElementById('ta-vi').value;
-    if (v) navigator.clipboard.writeText(v).then(function() { toast('복사됨!'); });
+  document.getElementById('btn-copy-vi').addEventListener('click',function(){
+    var v=document.getElementById('ta-vi').value;
+    if(v) navigator.clipboard.writeText(v).then(function(){toast('복사됨!');});
   });
 
   // 글자수
-  document.getElementById('ta-ko').addEventListener('input', function() { updateCnt('cnt-ko', this.value.length); });
-  document.getElementById('ta-vi').addEventListener('input', function() { updateCnt('cnt-vi', this.value.length); });
+  document.getElementById('ta-ko').addEventListener('input',function(){updCnt('cnt-ko',this.value.length);});
+  document.getElementById('ta-vi').addEventListener('input',function(){updCnt('cnt-vi',this.value.length);});
 
   // Ctrl+Enter
-  document.getElementById('ta-ko').addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.key === 'Enter') doTranslate('ta-ko', 'ta-vi');
-  });
-  document.getElementById('ta-vi').addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.key === 'Enter') doTranslate('ta-vi', 'ta-ko');
-  });
+  document.getElementById('ta-ko').addEventListener('keydown',function(e){if(e.ctrlKey&&e.key==='Enter')doTranslate('ta-ko','ta-vi');});
+  document.getElementById('ta-vi').addEventListener('keydown',function(e){if(e.ctrlKey&&e.key==='Enter')doTranslate('ta-vi','ta-ko');});
 
-  // 사전 카테고리
-  document.getElementById('cats').addEventListener('click', function(e) {
-    if (e.target.dataset.cat) {
-      curCat = e.target.dataset.cat;
-      renderCats();
-      renderGrid();
-    }
+  // 단어 설명 버튼
+  document.getElementById('btn-explain').addEventListener('click',function(){
+    var w=document.getElementById('ep-input').value;
+    explainWord(w);
+  });
+  document.getElementById('ep-input').addEventListener('keydown',function(e){
+    if(e.key==='Enter') explainWord(this.value);
   });
 
-  // 사전 검색
-  document.getElementById('search').addEventListener('input', renderGrid);
-
-  // 카드 클릭
-  document.getElementById('grid').addEventListener('click', function(e) {
-    var card = e.target.closest('.card');
-    if (card) showDetail(parseInt(card.dataset.idx));
+  // 설명 복사
+  document.getElementById('btn-result-copy').addEventListener('click',function(){
+    var ko=document.getElementById('wr-ko').textContent;
+    var vi=document.getElementById('wr-vi').textContent;
+    var ro=document.getElementById('wr-ro').textContent;
+    var def=document.getElementById('wr-grid').textContent;
+    navigator.clipboard.writeText(ko+' / '+vi+'\n'+ro+'\n\n'+def).then(function(){toast('설명 복사됨!');});
   });
 
-  // 상세 닫기
-  document.getElementById('btn-detail-close').addEventListener('click', function() {
-    document.getElementById('detail').classList.remove('show');
-    curIdx = -1;
-    renderGrid();
+  // 빠른 단어 버튼 렌더
+  var qw=document.getElementById('quick-words');
+  qw.innerHTML=QUICK_WORDS.map(function(w){
+    return '<button class="qw" data-word="'+w+'">'+w+'</button>';
+  }).join('');
+  qw.addEventListener('click',function(e){
+    if(e.target.dataset.word) explainWord(e.target.dataset.word);
   });
-
-  // 초기 렌더
-  renderCats();
-  renderGrid();
 });
 </script>
 </body>
