@@ -608,79 +608,54 @@ function onInput(lang){
 }
 
 async function translate(srcLang){
-  const srcEl = document.getElementById(srcLang==='ko'?'txt-ko':'txt-vi');
-  const tgtEl = document.getElementById(srcLang==='ko'?'txt-vi':'txt-ko');
-  const src = (srcEl.value||'').trim();
-  if(!src){ showToast('번역할 텍스트를 입력하세요'); return; }
-
-  const statusEl = document.getElementById('ai-status');
-  statusEl.style.display='flex';
-  tgtEl.value='';
-  tgtEl.placeholder='번역 중...';
-
-  const prompt = srcLang==='ko'
-    ? '다음 한국어 텍스트를 자연스러운 베트남어로 번역하세요. FPCB 제조 현장 전문용어를 정확히 번역하고 번역문만 출력하세요.\n\n' + src
-    : '다음 베트남어 텍스트를 자연스러운 한국어로 번역하세요. FPCB 제조 현장 전문용어를 정확히 번역하고 번역문만 출력하세요.\n\n' + src;
-
+  var srcEl=document.getElementById(srcLang==="ko"?"txt-ko":"txt-vi");
+  var tgtEl=document.getElementById(srcLang==="ko"?"txt-vi":"txt-ko");
+  var src=(srcEl.value||"").trim();
+  if(!src){showToast("번역할 텍스트를 입력하세요");return;}
+  var statusEl=document.getElementById("ai-status");
+  statusEl.style.display="flex";
+  tgtEl.value=""; tgtEl.placeholder="번역 중...";
+  var sysP="You are a Korean-Vietnamese translator specializing in FPCB manufacturing. Output only the translation.";
+  var userP=srcLang==="ko"
+    ?"다음 한국어를 베트남어로 번역하세요. 번역문만 출력:\n\n"+src
+    :"다음 베트남어를 한국어로 번역하세요. 번역문만 출력:\n\n"+src;
   try{
-    // Lambda를 통해 Claude API 호출 (CORS 우회)
-    const res = await fetch(LAMBDA, {
-      method: 'POST',
-      headers: {'Content-Type': 'text/plain'},
-      body: JSON.stringify({
-        mode: 'translate',
-        prompt: prompt,
-        src_lang: srcLang,
-        tgt_lang: srcLang==='ko'?'vi':'ko'
-      })
+    var res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,
+        system:sysP,messages:[{role:"user",content:userP}]})
     });
-
-    if(!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-
-    // Lambda 응답에서 텍스트 추출
-    const result = data.result || data.message || data.content || data.answer || data.text;
-    if(result){
-      tgtEl.value = result;
-      tgtEl.placeholder = '';
-      showToast('번역 완료! ✅');
-      onInput(srcLang==='ko'?'vi':'ko');
-    } else {
-      // Lambda가 번역 모드를 지원하지 않으면 내장 사전으로 대체
-      fallbackTranslate(src, srcLang, tgtEl);
-    }
-  } catch(e){
-    // Lambda 실패 시 내장 사전으로 부분 번역
-    fallbackTranslate(src, srcLang, tgtEl);
-  } finally{
-    statusEl.style.display='none';
-    tgtEl.placeholder = srcLang==='ko'
-      ? 'Nhập tiếng Việt để dịch sang tiếng Hàn...'
-      : '번역 결과가 여기에 표시됩니다.';
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    var data=await res.json();
+    var result=data.content&&data.content[0]?data.content[0].text:"";
+    if(result){tgtEl.value=result;showToast("번역 완료! ✅");onInput(srcLang==="ko"?"vi":"ko");}
+    else throw new Error("빈 응답");
+  }catch(e){
+    fallbackTranslate(src,srcLang,tgtEl);
+    console.error("번역오류:",e.message);
+  }finally{
+    statusEl.style.display="none";
+    tgtEl.placeholder=srcLang==="ko"
+      ?"Nhập tiếng Việt để dịch sang tiếng Hàn...\n또는 번역 결과가 여기에 표시됩니다."
+      :"번역 결과가 여기에 표시됩니다.";
   }
 }
 
-// 내장 사전 기반 폴백 번역
-function fallbackTranslate(src, srcLang, tgtEl){
-  let result = src;
-  let found = [];
-  DICT.forEach(d=>{
-    if(srcLang==='ko' && src.includes(d.ko)){
-      result = result.split(d.ko).join(d.vi);
-      found.push(d.ko + ' → ' + d.vi);
-    } else if(srcLang==='vi' && src.includes(d.vi)){
-      result = result.split(d.vi).join(d.ko);
-      found.push(d.vi + ' → ' + d.ko);
-    }
+function fallbackTranslate(src,srcLang,tgtEl){
+  var result=src,found=[];
+  DICT.forEach(function(d){
+    if(srcLang==="ko"&&src.includes(d.ko)){result=result.split(d.ko).join(d.vi);found.push(d.ko+"→"+d.vi);}
+    else if(srcLang==="vi"&&src.includes(d.vi)){result=result.split(d.vi).join(d.ko);found.push(d.vi+"→"+d.ko);}
   });
-  if(found.length > 0){
-    tgtEl.value = result + '\n\n[사전 기반 번역: ' + found.join(', ') + ']';
-    showToast('사전 기반 부분 번역 (Lambda 미연결)');
-  } else {
-    tgtEl.value = '❌ Lambda 연결 필요\n\n아래 사전에서 단어를 검색하거나\nLambda URL을 확인해 주세요.';
-    showToast('Lambda 연결을 확인하세요');
+  if(found.length>0){
+    tgtEl.value=result+"\n\n[사전기반 부분번역: "+found.join(", ")+"]";
+    showToast("사전 기반 번역");
+  }else{
+    tgtEl.value="❌ 번역 오류\n아래 전문용어 사전에서 단어를 검색해 보세요.";
+    showToast("번역 실패 — 사전을 이용하세요");
   }
-  onInput(srcLang==='ko'?'vi':'ko');
+  onInput(srcLang==="ko"?"vi":"ko");
 }
 
 
