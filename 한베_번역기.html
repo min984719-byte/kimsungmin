@@ -383,34 +383,11 @@ function explainWord(word){
   errEl.className='ep-error';
   resEl.className='word-result';
 
-  var prompt=(
-    '다음 단어에 대해 JSON 형식으로 상세 설명하세요.\n'
-    +'단어: '+word+'\n\n'
-    +'JSON 형식:\n'
-    +'{\n'
-    +'"ko": "한국어 뜻",\n'
-    +'"vi": "베트남어 표기",\n'
-    +'"romanization": "발음 (로마자)",\n'
-    +'"pronunciation_tip": "발음 요령 (한국어로)",\n'
-    +'"categories": ["분류1","분류2"],\n'
-    +'"definition_ko": "한국어 상세 설명 (2-3문장)",\n'
-    +'"definition_vi": "베트남어 설명 (2-3문장)",\n'
-    +'"usage_context": "사용 맥락 (언제, 어디서 쓰는지)",\n'
-    +'"related_words": [{"word":"관련단어","meaning":"뜻"},{"word":"관련단어2","meaning":"뜻2"}],\n'
-    +'"examples": [\n'
-    +'  {"ko":"한국어 예문1","vi":"베트남어 예문1"},\n'
-    +'  {"ko":"한국어 예문2","vi":"베트남어 예문2"},\n'
-    +'  {"ko":"한국어 예문3","vi":"베트남어 예문3"}\n'
-    +'],\n'
-    +'"fpcb_context": "FPCB 제조 현장에서의 특별한 사용법 또는 주의사항 (없으면 빈 문자열)"\n'
-    +'}\n\n'
-    +'JSON만 출력하세요. 설명 없이.'
-  );
-
+  // Lambda의 build_explain_prompt가 프롬프트 생성 — 단어만 전달
   fetch(LAMBDA,{
     method:'POST',
     headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({mode:'translate',text:prompt,src_lang:'ko',tgt_lang:'vi_explain'})
+    body:JSON.stringify({mode:'translate',text:word,src_lang:'ko',tgt_lang:'vi_explain'})
   })
   .then(function(res){return res.text().then(function(t){return{s:res.status,t:t};});})
   .then(function(o){
@@ -421,15 +398,11 @@ function explainWord(word){
       return;
     }
     var data=JSON.parse(o.t);
-    // Lambda가 result 필드에 텍스트 반환
-    var raw=data.result||o.t;
+    var raw=(data.result||o.t).replace(/```json|```/g,'').trim();
     var info;
-    try{
-      // JSON 파싱
-      raw=raw.replace(/```json|```/g,'').trim();
-      info=JSON.parse(raw);
-    }catch(e){
-      errEl.textContent='❌ 파싱 오류: '+e.message;
+    try{ info=JSON.parse(raw); }
+    catch(e){
+      errEl.textContent='❌ 파싱 오류: '+e.message+'\n\n'+raw.slice(0,200);
       errEl.className='ep-error show';
       return;
     }
@@ -442,49 +415,73 @@ function explainWord(word){
   });
 }
 
+
 function renderWordResult(info){
-  document.getElementById('wr-ko').textContent=info.ko||'';
-  document.getElementById('wr-vi').textContent=info.vi||'';
-  document.getElementById('wr-ro').textContent=info.romanization?'🔊 '+info.romanization+(info.pronunciation_tip?' — '+info.pronunciation_tip:''):'';
+  document.getElementById('wr-ko').textContent=(info.ko||'')+(info.ko_alternatives&&info.ko_alternatives.length?' / '+info.ko_alternatives.join(', '):'');
+  document.getElementById('wr-vi').textContent=info.vi||info.word_input||'';
+  document.getElementById('wr-ro').textContent=info.pronunciation?'🔊 '+info.pronunciation:'';
 
   var cats=info.categories||[];
   document.getElementById('wr-cats').innerHTML=cats.map(function(c){
     return '<span class="wcat">'+c+'</span>';
   }).join('');
 
-  // 그리드 섹션
-  var sections=[];
-  if(info.definition_ko)
-    sections.push({t:'🇰🇷 한국어 설명',html:'<p>'+info.definition_ko+'</p>'});
-  if(info.definition_vi)
-    sections.push({t:'🇻🇳 Giải thích tiếng Việt',html:'<p>'+info.definition_vi+'</p>'});
-  if(info.usage_context)
-    sections.push({t:'📌 사용 맥락',html:'<p>'+info.usage_context+'</p>'});
-  if(info.related_words&&info.related_words.length)
-    sections.push({t:'🔗 관련 단어',html:'<ul>'+info.related_words.map(function(w){
-      return '<li><b>'+w.word+'</b> — '+w.meaning+'</li>';
-    }).join('')+'</ul>'});
-  if(info.fpcb_context)
-    sections.push({t:'🏭 FPCB 현장 사용법',html:'<p>'+info.fpcb_context+'</p>'});
+  var gridHtml='';
 
-  document.getElementById('wr-grid').innerHTML=sections.map(function(s){
-    return '<div class="wsec"><div class="wsec-t">'+s.t+'</div>'+s.html+'</div>';
-  }).join('');
+  // 단어별 분석 테이블 (핵심)
+  if(info.word_breakdown&&info.word_breakdown.length){
+    var rows=info.word_breakdown.map(function(w){
+      return '<tr>'
+        +'<td style="padding:8px 12px;font-weight:700;color:var(--teal3);border-bottom:1px solid var(--border)">'+w.word+'</td>'
+        +'<td style="padding:8px 12px;color:var(--txt1);border-bottom:1px solid var(--border)">'+w.meaning+'</td>'
+        +'<td style="padding:8px 12px;color:var(--txt2);font-size:11px;border-bottom:1px solid var(--border)">'+(w.note||'')+'</td>'
+        +'</tr>';
+    }).join('');
+    gridHtml+='<div class="wsec" style="grid-column:1/-1">'
+      +'<div class="wsec-t">🔍 단어별 분석</div>'
+      +'<table style="width:100%;border-collapse:collapse">'
+      +'<thead><tr>'
+      +'<th style="padding:6px 12px;text-align:left;color:var(--txt2);font-size:11px;border-bottom:2px solid var(--border)">베트남어</th>'
+      +'<th style="padding:6px 12px;text-align:left;color:var(--txt2);font-size:11px;border-bottom:2px solid var(--border)">한국어 의미</th>'
+      +'<th style="padding:6px 12px;text-align:left;color:var(--txt2);font-size:11px;border-bottom:2px solid var(--border)">참고</th>'
+      +'</tr></thead>'
+      +'<tbody>'+rows+'</tbody>'
+      +'</table></div>';
+  }
+
+  // 의미 설명
+  if(info.full_meaning)
+    gridHtml+='<div class="wsec"><div class="wsec-t">📖 전체 의미</div><p>'+info.full_meaning+'</p></div>';
+  if(info.fpcb_meaning)
+    gridHtml+='<div class="wsec"><div class="wsec-t">🏭 FPCB 현장 의미</div><p>'+info.fpcb_meaning+'</p></div>';
+
+  // 관련 단어
+  if(info.related_words&&info.related_words.length){
+    var rwHtml=info.related_words.map(function(w){
+      return '<li><b style="color:var(--teal3)">'+w.vi+'</b> → <b>'+w.ko+'</b>'+(w.desc?' <span style="color:var(--txt2);font-size:11px">('+w.desc+')</span>':'')+'</li>';
+    }).join('');
+    gridHtml+='<div class="wsec"><div class="wsec-t">🔗 관련 단어</div><ul>'+rwHtml+'</ul></div>';
+  }
+
+  document.getElementById('wr-grid').innerHTML=gridHtml;
 
   // 예문
   var exHtml='';
   if(info.examples&&info.examples.length){
-    exHtml='<div class="wsec"><div class="wsec-t">💬 예문 / Ví dụ</div>'
+    exHtml='<div class="wsec" style="margin-top:12px"><div class="wsec-t">💬 예문 / Ví dụ</div>'
       +info.examples.map(function(e){
-        return '<div class="ex-row"><div class="ex-ko">🇰🇷 '+e.ko+'</div><div class="ex-vi">🇻🇳 '+e.vi+'</div></div>';
+        return '<div class="ex-row">'
+          +'<div class="ex-vi">🇻🇳 '+e.vi+'</div>'
+          +'<div class="ex-ko">🇰🇷 '+e.ko+'</div>'
+          +'</div>';
       }).join('')+'</div>';
   }
   document.getElementById('wr-examples').innerHTML=exHtml;
 
-  // 결과 보이기
   document.getElementById('word-result').className='word-result show';
   document.getElementById('word-result').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
+
 
 // ── 이벤트 연결 ──
 window.addEventListener('load', function(){
