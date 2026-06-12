@@ -615,29 +615,34 @@ async function translate(srcLang){
   var statusEl=document.getElementById("ai-status");
   statusEl.style.display="flex";
   tgtEl.value=""; tgtEl.placeholder="번역 중...";
-  var sysP="You are a Korean-Vietnamese translator specializing in FPCB manufacturing. Output only the translation.";
-  var userP=srcLang==="ko"
-    ?"다음 한국어를 베트남어로 번역하세요. 번역문만 출력:\n\n"+src
-    :"다음 베트남어를 한국어로 번역하세요. 번역문만 출력:\n\n"+src;
+
   try{
-    var res=await fetch("https://api.anthropic.com/v1/messages",{
+    var res=await fetch(LAMBDA,{
       method:"POST",
-      headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-access":"true"},
-      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,
-        system:sysP,messages:[{role:"user",content:userP}]})
+      headers:{"Content-Type":"text/plain"},
+      body:JSON.stringify({
+        mode:"translate",
+        text:src,
+        src_lang:srcLang,
+        tgt_lang:srcLang==="ko"?"vi":"ko"
+      })
     });
     if(!res.ok) throw new Error("HTTP "+res.status);
     var data=await res.json();
-    var result=data.content&&data.content[0]?data.content[0].text:"";
-    if(result){tgtEl.value=result;showToast("번역 완료! ✅");onInput(srcLang==="ko"?"vi":"ko");}
-    else throw new Error("빈 응답");
+    if(data.error) throw new Error(data.error);
+    var result=data.result||data.message||data.content||"";
+    if(result){
+      tgtEl.value=result;
+      showToast("번역 완료! ✅");
+      onInput(srcLang==="ko"?"vi":"ko");
+    } else throw new Error("빈 응답");
   }catch(e){
+    console.warn("번역오류:",e.message);
     fallbackTranslate(src,srcLang,tgtEl);
-    console.error("번역오류:",e.message);
   }finally{
     statusEl.style.display="none";
     tgtEl.placeholder=srcLang==="ko"
-      ?"Nhập tiếng Việt để dịch sang tiếng Hàn...\n또는 번역 결과가 여기에 표시됩니다."
+      ?"Nhập tiếng Việt để dịch sang tiếng Hàn..."
       :"번역 결과가 여기에 표시됩니다.";
   }
 }
@@ -649,11 +654,11 @@ function fallbackTranslate(src,srcLang,tgtEl){
     else if(srcLang==="vi"&&src.includes(d.vi)){result=result.split(d.vi).join(d.ko);found.push(d.vi+"→"+d.ko);}
   });
   if(found.length>0){
-    tgtEl.value=result+"\n\n[사전기반 부분번역: "+found.join(", ")+"]";
+    tgtEl.value=result+"\n[사전 번역: "+found.join(", ")+"]";
     showToast("사전 기반 번역");
   }else{
-    tgtEl.value="❌ 번역 오류\n아래 전문용어 사전에서 단어를 검색해 보세요.";
-    showToast("번역 실패 — 사전을 이용하세요");
+    tgtEl.value="Lambda translate 모드 미지원\n아래 가이드대로 Lambda 코드를 업데이트해 주세요.";
+    showToast("Lambda 업데이트 필요 👇");
   }
   onInput(srcLang==="ko"?"vi":"ko");
 }
