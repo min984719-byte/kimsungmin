@@ -257,22 +257,22 @@ body{background:var(--bg);color:var(--txt1);font-family:'Malgun Gothic','맑은 
       </div>
       <div class="textarea-wrap">
         <textarea id="txt-ko" class="trans-textarea" placeholder="번역할 한국어를 입력하세요...
-예) 공정별 가동율 현황을 확인해 주세요." oninput="onInput('ko')" onkeydown="if(event.ctrlKey&&event.key==='Enter')translate('ko')"></textarea>
+예) 공정별 가동율 현황을 확인해 주세요." oninput="onInput('ko')" id="ta-ko-bind"></textarea>
       </div>
       <div class="trans-actions">
         <button class="btn-sm" onclick="clearText('ko')">✕ 지우기</button>
         <button class="btn-sm" onclick="copyText('ko')">📋 복사</button>
         <button class="btn-sm" onclick="pasteText('ko')">📥 붙여넣기</button>
-        <button class="btn-sm primary" onclick="translate('ko')" style="margin-left:auto">🚀 한→베 번역</button>
+        <button class="btn-sm primary" id="btn-ko-main">🚀 한→베 번역</button>
         <span class="char-count" id="cnt-ko">0자</span>
       </div>
     </div>
 
     <!-- 스왑 -->
     <div class="swap-col">
-      <button class="btn-trans" onclick="translate('ko')" title="한국어→베트남어" style="font-size:9px;padding:6px 3px">🇰🇷→🇻🇳</button>
+      <button class="btn-trans" id="btn-ko-center" title="한국어→베트남어" style="font-size:9px;padding:6px 3px">🇰🇷→🇻🇳</button>
       <button class="btn-swap" onclick="swapLang()" title="언어 전환">⇄</button>
-      <button class="btn-trans" onclick="translate('vi')" title="베트남어→한국어" style="background:var(--vn);font-size:9px;padding:6px 3px">🇻🇳→🇰🇷</button>
+      <button class="btn-trans" id="btn-vi-center" title="베트남어→한국어" style="background:var(--vn);font-size:9px;padding:6px 3px">🇻🇳→🇰🇷</button>
     </div>
 
     <!-- 베트남어 결과 -->
@@ -292,7 +292,7 @@ body{background:var(--bg);color:var(--txt1);font-family:'Malgun Gothic','맑은 
         <div id="ai-status" class="ai-status" style="display:none;margin-left:auto">
           <span class="ai-dot"></span><span>AI 번역 중<span class="loading-dots"></span></span>
         </div>
-        <button class="btn-sm primary" onclick="translate('vi')" style="margin-left:auto">🚀 베→한 번역</button>
+        <button class="btn-sm primary" id="btn-vi-main">🚀 베→한 번역</button>
       </div>
     </div>
   </div>
@@ -762,6 +762,25 @@ function quickTranslate(){
   })
   .catch(function(e){out.textContent="❌ "+e.message;});
 }
+
+// ─── 버튼 이벤트 직접 연결 (onclick 대체) ───
+document.addEventListener("DOMContentLoaded", function(){
+  function bind(id, fn){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener("click", fn);
+  }
+  bind("btn-ko-main",   function(){ translate("ko"); });
+  bind("btn-ko-center", function(){ translate("ko"); });
+  bind("btn-vi-center", function(){ translate("vi"); });
+  bind("btn-vi-main",   function(){ translate("vi"); });
+  // Ctrl+Enter
+  var ta = document.getElementById("txt-ko");
+  if(ta) ta.addEventListener("keydown", function(e){
+    if(e.ctrlKey && e.key==="Enter") translate("ko");
+  });
+  var debug_out = document.getElementById("debug-out");
+  if(debug_out) debug_out.textContent = "버튼 연결 완료 ✅";
+});
 </script>
 </body>
 </html>
