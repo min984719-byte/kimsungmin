@@ -624,17 +624,15 @@ function translate(srcLang){
   var srcEl=document.getElementById("txt-"+(srcLang==="ko"?"ko":"vi"));
   var tgtEl=document.getElementById("txt-"+(srcLang==="ko"?"vi":"ko"));
   var src=(srcEl&&srcEl.value||"").trim();
-  var out=document.getElementById("debug-out");
-
   if(!src){
     srcEl&&srcEl.focus();
     showToast((srcLang==="ko"?"왼쪽 한국어":"오른쪽 베트남어")+" 입력창에 텍스트를 입력하세요");
     return;
   }
 
+  if(!tgtEl){console.error("tgtEl null! id=txt-"+(srcLang==="ko"?"vi":"ko"));return;}
   tgtEl.value="⏳ 번역 중...";
-  if(out) out.textContent="⏳ 번역 호출 중...";
-  document.getElementById("ai-status").style.display="flex";
+  var aiSt=document.getElementById("ai-status"); if(aiSt) aiSt.style.display="flex";
 
   fetch(LAMBDA,{
     method:"POST",
@@ -643,22 +641,22 @@ function translate(srcLang){
   })
   .then(function(r){return r.text().then(function(t){return{s:r.status,t:t};});})
   .then(function(o){
-    document.getElementById("ai-status").style.display="none";
+    var st1=document.getElementById("ai-status"); if(st1) st1.style.display="none";
     if(o.s===200){
       var d=JSON.parse(o.t);
       tgtEl.value=d.result||o.t;
-      if(out) out.textContent="✅ 번역완료";
+      var dout=document.getElementById("debug-out"); if(dout) dout.textContent="✅ 번역완료";
       showToast("번역 완료! ✅");
       onInput(srcLang==="ko"?"vi":"ko");
     } else {
       tgtEl.value="❌ 오류 HTTP "+o.s+"\n"+o.t;
-      if(out) out.textContent="❌ HTTP "+o.s;
+      var dout2=document.getElementById("debug-out"); if(dout2) dout2.textContent="❌ HTTP "+o.s;
     }
   })
   .catch(function(e){
-    document.getElementById("ai-status").style.display="none";
+    var st2=document.getElementById("ai-status"); if(st2) st2.style.display="none";
     tgtEl.value="❌ 오류: "+e.message;
-    if(out) out.textContent="❌ "+e.message;
+    var dout3=document.getElementById("debug-out"); if(dout3) dout3.textContent="❌ "+e.message;
   });
 }
 
@@ -778,8 +776,7 @@ document.addEventListener("DOMContentLoaded", function(){
   if(ta) ta.addEventListener("keydown", function(e){
     if(e.ctrlKey && e.key==="Enter") translate("ko");
   });
-  var debug_out = document.getElementById("debug-out");
-  if(debug_out) debug_out.textContent = "버튼 연결 완료 ✅";
+var dout_init=document.getElementById("debug-out"); if(dout_init) dout_init.textContent="버튼 연결 완료 ✅";
 });
 </script>
 </body>
