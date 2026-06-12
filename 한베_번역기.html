@@ -621,58 +621,44 @@ function onInput(lang){
 }
 
 function translate(srcLang){
-  var koEl=document.getElementById("txt-ko");
-  var viEl=document.getElementById("txt-vi");
-  var srcEl=srcLang==="ko"?koEl:viEl;
-  var tgtEl=srcLang==="ko"?viEl:koEl;
-  var src=(srcEl.value||"").trim();
+  var srcEl=document.getElementById("txt-"+(srcLang==="ko"?"ko":"vi"));
+  var tgtEl=document.getElementById("txt-"+(srcLang==="ko"?"vi":"ko"));
+  var src=(srcEl&&srcEl.value||"").trim();
+  var out=document.getElementById("debug-out");
 
-  // 입력 없으면 포커스
   if(!src){
-    srcEl.focus();
-    srcEl.style.borderColor="var(--red3)";
-    setTimeout(function(){srcEl.style.borderColor="";},2000);
+    srcEl&&srcEl.focus();
     showToast((srcLang==="ko"?"왼쪽 한국어":"오른쪽 베트남어")+" 입력창에 텍스트를 입력하세요");
     return;
   }
 
   tgtEl.value="⏳ 번역 중...";
+  if(out) out.textContent="⏳ 번역 호출 중...";
   document.getElementById("ai-status").style.display="flex";
 
-  var body=JSON.stringify({mode:"translate",text:src,src_lang:srcLang,tgt_lang:srcLang==="ko"?"vi":"ko"});
-
-  fetch(LAMBDA,{method:"POST",headers:{"Content-Type":"text/plain"},body:body})
-  .then(function(res){
-    return res.text().then(function(raw){
-      return {status:res.status,raw:raw};
-    });
+  fetch(LAMBDA,{
+    method:"POST",
+    headers:{"Content-Type":"text/plain"},
+    body:JSON.stringify({mode:"translate",text:src,src_lang:srcLang,tgt_lang:srcLang==="ko"?"vi":"ko"})
   })
-  .then(function(obj){
+  .then(function(r){return r.text().then(function(t){return{s:r.status,t:t};});})
+  .then(function(o){
     document.getElementById("ai-status").style.display="none";
-    console.log("Lambda응답",obj.status,obj.raw);
-    if(obj.status!==200){
-      tgtEl.value="❌ 오류 (HTTP "+obj.status+")\n\n"+obj.raw;
-      return;
-    }
-    var data;
-    try{data=JSON.parse(obj.raw);}catch(e){
-      tgtEl.value="❌ JSON파싱오류\n\n"+obj.raw;
-      return;
-    }
-    var result=data.result||data.message||data.content||data.text||"";
-    if(result){
-      tgtEl.value=result;
+    if(o.s===200){
+      var d=JSON.parse(o.t);
+      tgtEl.value=d.result||o.t;
+      if(out) out.textContent="✅ 번역완료";
       showToast("번역 완료! ✅");
       onInput(srcLang==="ko"?"vi":"ko");
     } else {
-      tgtEl.value="❌ 결과없음\n\n"+JSON.stringify(data);
+      tgtEl.value="❌ 오류 HTTP "+o.s+"\n"+o.t;
+      if(out) out.textContent="❌ HTTP "+o.s;
     }
   })
-  .catch(function(err){
+  .catch(function(e){
     document.getElementById("ai-status").style.display="none";
-    console.error("fetch오류",err);
-    tgtEl.value="❌ 네트워크오류\n\n"+err.message;
-    showToast("네트워크 오류");
+    tgtEl.value="❌ 오류: "+e.message;
+    if(out) out.textContent="❌ "+e.message;
   });
 }
 
