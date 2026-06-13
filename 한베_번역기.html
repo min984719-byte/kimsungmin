@@ -375,11 +375,15 @@ function doTranslate(srcId, tgtId){
 // ── 단어 설명 ──
 // 번역 결과 자동 단어설명
 function autoExplain(text, srcLang){
-  // 번역 결과(베트남어 또는 한국어)를 그대로 단어설명에 입력
-  var word = text.trim();
+  var word = (text||"").trim();
   if(!word || word.startsWith("❌") || word.startsWith("⏳")) return;
-  // 너무 길면 첫 줄(핵심 단어)만 사용
-  if(word.length > 60) word = word.split("\n")[0].trim();
+  // 50자 초과 긴 문장은 단어설명 스킵 (Lambda에서 번역으로 처리됨)
+  if(word.length > 50){
+    // 첫 줄이 짧으면 첫 줄만 사용
+    var firstLine = word.split("\n")[0].trim();
+    if(firstLine.length > 50) return;
+    word = firstLine;
+  }
   document.getElementById("ep-input").value = word;
   explainWord(word);
 }
@@ -413,10 +417,20 @@ function explainWord(word){
     var data=JSON.parse(o.t);
     var raw=(data.result||o.t).replace(/```json|```/g,'').trim();
     var info;
-    try{ info=JSON.parse(raw); }
-    catch(e){
-      errEl.textContent='❌ 파싱 오류: '+e.message+'\n\n'+raw.slice(0,200);
-      errEl.className='ep-error show';
+    try{
+      // JSON 앞뒤 불필요한 텍스트 제거 후 파싱
+      var jsonMatch=raw.match(/\{[\s\S]*\}/);
+      if(jsonMatch) raw=jsonMatch[0];
+      info=JSON.parse(raw);
+    } catch(e){
+      // 파싱 실패 시 단순 텍스트로 결과 표시
+      document.getElementById('wr-ko').textContent='';
+      document.getElementById('wr-vi').textContent=document.getElementById('ep-input').value;
+      document.getElementById('wr-ro').textContent='';
+      document.getElementById('wr-cats').innerHTML='';
+      document.getElementById('wr-grid').innerHTML='<div class="wsec" style="grid-column:1/-1"><div class="wsec-t">📄 AI 응답</div><p style="white-space:pre-wrap">'+raw+'</p></div>';
+      document.getElementById('wr-examples').innerHTML='';
+      document.getElementById('word-result').className='word-result show';
       return;
     }
     renderWordResult(info);
@@ -540,8 +554,8 @@ window.addEventListener('load', function(){
     var val=(this.value||'').trim();
     if(!val||val.startsWith('⏳')) return;
     _viTimer=setTimeout(function(){
-      var word=val.length>80?val.split('\n')[0].trim():val;
-      if(word){
+      var word=val.length>50?val.split('\n')[0].trim():val;
+      if(word && word.length<=50){
         document.getElementById('ep-input').value=word;
         explainWord(word);
       }
