@@ -474,6 +474,7 @@ function renderWordResult(info){
       return '<tr>'
         +'<td style="padding:6px 10px;font-weight:700;color:var(--teal3);border-bottom:1px solid var(--border);font-size:12px">'+w.word+'</td>'
         +'<td style="padding:6px 10px;color:var(--txt1);border-bottom:1px solid var(--border);font-size:12px">'+w.meaning+'</td>'
+        +'<td style="padding:6px 10px;color:#4A9FD4;border-bottom:1px solid var(--border);font-size:12px">'+(w.vi||'—')+'</td>'
         +'<td style="padding:6px 10px;color:var(--txt2);font-size:11px;border-bottom:1px solid var(--border)">'+(w.note||'')+'</td>'
         +'</tr>';
     }).join('');
@@ -481,8 +482,9 @@ function renderWordResult(info){
       +'<div class="wsec-t">🔍 단어별 분석</div>'
       +'<table style="width:100%;border-collapse:collapse">'
       +'<thead><tr>'
-      +'<th style="padding:6px 12px;text-align:left;color:var(--txt2);font-size:11px;border-bottom:2px solid var(--border)">베트남어</th>'
+      +'<th style="padding:6px 12px;text-align:left;color:var(--txt2);font-size:11px;border-bottom:2px solid var(--border)">단어/코드</th>'
       +'<th style="padding:6px 12px;text-align:left;color:var(--txt2);font-size:11px;border-bottom:2px solid var(--border)">한국어 의미</th>'
+      +'<th style="padding:6px 12px;text-align:left;color:#4A9FD4;font-size:11px;border-bottom:2px solid var(--border)">베트남어 표기</th>'
       +'<th style="padding:6px 12px;text-align:left;color:var(--txt2);font-size:11px;border-bottom:2px solid var(--border)">참고</th>'
       +'</tr></thead>'
       +'<tbody>'+rows+'</tbody>'
