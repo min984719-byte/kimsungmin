@@ -312,6 +312,91 @@ textarea::placeholder{color:var(--txt3);font-size:15px}
 <script>
 var LAMBDA = 'https://bssy4msokyy3hvsphelxiuyzta0nwxml.lambda-url.ap-southeast-1.on.aws/';
 
+var TERM_MAP_KO_VI = `
+[FPCB 전문용어 한→베 매핑 — 반드시 적용]
+치수검사 → kiểm tra kích thước
+치수 → kích thước
+검사 → kiểm tra
+가동율 → tỷ lệ hoạt động
+설비가동율 → tỷ lệ hoạt động thiết bị
+공정계획 → kế hoạch công đoạn
+납기일 → ngày giao hàng
+납품 → giao hàng
+재공(WIP) → hàng tồn đang sản xuất (WIP)
+필요인력 → nhân lực cần thiết
+직접인원 → nhân viên trực tiếp
+간접인원 → nhân viên gián tiếp
+동도금 → mạ đồng
+가접 → dán tạm
+적층 → ép nóng
+타발 → dập khuôn
+수가접 → hàn tay (thủ công)
+자동가접 → hàn tự động
+금도금 → mạ vàng
+노광 → phơi sáng
+회로(E/T) → khắc mạch (E/T)
+AOI → kiểm tra AOI
+BBT → kiểm tra mạch BBT
+최종검사 → kiểm tra lần cuối
+출하검사 → kiểm tra xuất hàng
+포장 → đóng gói
+NECK 공정 → công đoạn nút thắt (NECK)
+부하율 → tỷ lệ tải
+CAPA → năng lực sản xuất (CAPA)
+수율(Yield) → tỷ lệ đạt (Yield)
+불량율 → tỷ lệ lỗi
+불량 → lỗi / không đạt tiêu chuẩn
+외주비 → chi phí nhà thầu
+우선순위 → thứ tự ưu tiên
+생산계획 → kế hoạch sản xuất
+패널(PNL) → tấm (PNL)
+NEGO(협상) → đàm phán giá (NEGO)
+D-Day → ngày đến hạn (D-Day)
+담당자 → người phụ trách
+계속 → tiếp tục / liên tục
+해주다 → làm giúp / thực hiện
+안 해주다 → không làm / từ chối làm
+확인해봐 → kiểm tra xem / xác nhận
+변경 → thay đổi
+가능 → có thể
+부탁드립니다 → xin vui lòng / nhờ bạn
+서브탑 → sub top
+치수불량 → lỗi kích thước
+두께 → độ dày
+두께불량 → lỗi độ dày
+`;
+var TERM_MAP_VI_KO = `
+[FPCB 전문용어 베→한 매핑 — 반드시 적용]
+tỷ lệ hoạt động → 가동율
+kế hoạch công đoạn → 공정계획
+ngày giao hàng → 납기일
+hàng tồn đang sản xuất → 재공(WIP)
+nhân lực cần thiết → 필요인력
+mạ đồng → 동도금
+dán tạm → 가접
+ép nóng → 적층
+dập khuôn → 타발
+kiểm tra kích thước → 치수검사
+kích thước → 치수
+kiểm tra AOI → AOI 검사
+kiểm tra mạch BBT → BBT 검사
+lỗi kích thước → 치수불량
+độ dày → 두께
+lỗi độ dày → 두께불량
+công đoạn nút thắt → NECK 공정
+năng lực sản xuất → CAPA
+chi phí nhà thầu → 외주비
+người phụ trách → 담당자
+không làm → 안 해줌
+từ chối → 거절
+tiếp tục → 계속
+thay đổi → 변경
+có thể → 가능
+xin vui lòng → 부탁드립니다
+sub top → 서브탑
+`;
+
+
 // 빠른 단어 목록
 var QUICK_WORDS = [
   'Tỷ lệ hoạt động','Mạ đồng','Dập khuôn','Công đoạn nút thắt',
@@ -346,10 +431,21 @@ function doTranslate(srcId, tgtId){
   tgtEl.value='⏳ 번역 중...';
   if(spinEl) spinEl.style.display='inline-block';
 
+  // 전문용어 매핑 포함 완성 프롬프트
+  var termMap=srcLang==='ko'?TERM_MAP_KO_VI:TERM_MAP_VI_KO;
+  var dir=srcLang==='ko'?'한국어를 자연스러운 베트남어로':'베트남어를 자연스러운 한국어로';
+  var fullPrompt='당신은 SYNOPEX VIETNAM FPCB 제조공장 전문 번역가입니다.\n'
+    +termMap+'\n'
+    +'[번역 규칙]\n'
+    +'1. 위 전문용어 매핑을 반드시 우선 적용하세요\n'
+    +'2. 현지 공장에서 실제 사용하는 자연스러운 표현으로 번역하세요\n'
+    +'3. 직장 업무 수준 격식체 유지\n'
+    +'4. 번역문만 출력하세요\n\n'
+    +'다음 '+dir+' 번역하세요:\n'+src;
   fetch(LAMBDA,{
     method:'POST',
     headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({mode:'translate',text:src,src_lang:srcLang,tgt_lang:srcLang==='ko'?'vi':'ko'})
+    body:JSON.stringify({mode:'translate',text:fullPrompt,src_lang:srcLang,tgt_lang:srcLang==='ko'?'vi':'ko'})
   })
   .then(function(res){return res.text().then(function(t){return{s:res.status,t:t};});})
   .then(function(o){
