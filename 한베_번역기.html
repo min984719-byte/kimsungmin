@@ -144,9 +144,9 @@ textarea::placeholder{color:var(--txt3);font-size:15px}
   display:flex;align-items:flex-start;justify-content:space-between;
   margin-bottom:16px;flex-wrap:wrap;gap:10px
 }
-.word-ko{font-size:24px;font-weight:700}
-.word-vi{font-size:20px;color:var(--teal3);font-weight:600;margin-top:4px}
-.word-ro{font-size:14px;color:var(--txt2);margin-top:4px}
+.word-ko{font-size:16px;font-weight:700;line-height:1.5}
+.word-vi{font-size:13px;color:var(--teal3);font-weight:600;margin-top:4px}
+.word-ro{font-size:12px;color:var(--txt2);margin-top:3px}
 .word-cats{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .wcat{
   padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;
@@ -155,15 +155,15 @@ textarea::placeholder{color:var(--txt3);font-size:15px}
 .word-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:16px}
 .wsec{background:var(--bg3);border-radius:10px;padding:14px}
 .wsec-t{font-size:10px;font-weight:700;color:var(--txt2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
-.wsec p{font-size:13px;line-height:1.8;color:var(--txt2)}
+.wsec p{font-size:12px;line-height:1.7;color:var(--txt2)}
 .wsec b{color:var(--txt1)}
 .wsec ul{padding-left:16px}
-.wsec li{font-size:13px;color:var(--txt2);line-height:1.9;margin-bottom:2px}
+.wsec li{font-size:12px;color:var(--txt2);line-height:1.7;margin-bottom:1px}
 .wsec li b{color:var(--txt1)}
 .ex-row{padding:9px 0;border-bottom:1px solid var(--border)}
 .ex-row:last-child{border:none;padding-bottom:0}
-.ex-ko{font-size:13px;color:var(--txt1);margin-bottom:3px}
-.ex-vi{font-size:13px;color:var(--teal3)}
+.ex-ko{font-size:12px;color:var(--txt1);margin-bottom:2px}
+.ex-vi{font-size:12px;color:var(--teal3)}
 
 /* 빠른 단어 버튼 */
 .quick-words{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
@@ -377,13 +377,9 @@ function doTranslate(srcId, tgtId){
 function autoExplain(text, srcLang){
   var word = (text||"").trim();
   if(!word || word.startsWith("❌") || word.startsWith("⏳")) return;
-  // 50자 초과 긴 문장은 단어설명 스킵 (Lambda에서 번역으로 처리됨)
-  if(word.length > 50){
-    // 첫 줄이 짧으면 첫 줄만 사용
-    var firstLine = word.split("\n")[0].trim();
-    if(firstLine.length > 50) return;
-    word = firstLine;
-  }
+  // 첫 줄만 사용 (여러 줄인 경우)
+  word = word.split("\n")[0].trim();
+  if(!word) return;
   document.getElementById("ep-input").value = word;
   explainWord(word);
 }
@@ -459,9 +455,9 @@ function renderWordResult(info){
   if(info.word_breakdown&&info.word_breakdown.length){
     var rows=info.word_breakdown.map(function(w){
       return '<tr>'
-        +'<td style="padding:8px 12px;font-weight:700;color:var(--teal3);border-bottom:1px solid var(--border)">'+w.word+'</td>'
-        +'<td style="padding:8px 12px;color:var(--txt1);border-bottom:1px solid var(--border)">'+w.meaning+'</td>'
-        +'<td style="padding:8px 12px;color:var(--txt2);font-size:11px;border-bottom:1px solid var(--border)">'+(w.note||'')+'</td>'
+        +'<td style="padding:6px 10px;font-weight:700;color:var(--teal3);border-bottom:1px solid var(--border);font-size:12px">'+w.word+'</td>'
+        +'<td style="padding:6px 10px;color:var(--txt1);border-bottom:1px solid var(--border);font-size:12px">'+w.meaning+'</td>'
+        +'<td style="padding:6px 10px;color:var(--txt2);font-size:11px;border-bottom:1px solid var(--border)">'+(w.note||'')+'</td>'
         +'</tr>';
     }).join('');
     gridHtml+='<div class="wsec" style="grid-column:1/-1">'
