@@ -1,334 +1,335 @@
 {
   "avail": {
-    "summary": "SYNOPEX VIETNAM의 전체 평균 가동율은 47.4%로 심각한 수준의 과잉 설비 상태를 나타내고 있으며, 노광(18.5%), 동도금(25.1%), 회로(34.4%) 공정에서 수주 부족에 따른 의도적 비가동이 두드러진다. 금도금(81%), 자동가접(74.9%), 타발(68.3%) 공정만이 상대적으로 정상 가동 중이며, 나머지 대부분 공정의 계획비가동이 전체 손실의 60% 이상을 차지한다.",
+    "summary": "SYNOPEX VIETNAM은 평균 가동율 46.9%로 심각한 저가동 상태이며, 노광(18.7%), 동도금(25.9%), 회로(38.1%) 등 주요 공정에서 수주부족으로 인한 의도적 비가동이 광범위하게 발생 중입니다. 금도금(84.1%), 자동가접(73.4%), BBT(57.3%) 등 후공정은 상대적으로 건전하나, 전체적으로 CAPA 과잉 상태에서 수주 확대 및 설비 재배치가 시급합니다.",
     "overall_trend": "declining",
-    "predicted_avg": 43.8,
+    "predicted_avg": 42.3,
     "risk_procs": [
       "노광",
       "동도금",
       "회로",
       "AOI",
+      "수가접",
       "적층"
     ],
     "processes": [
       {
         "name": "노광",
-        "current_rate": 18.5,
-        "predicted_rate": 16.2,
+        "current_rate": 18.7,
+        "predicted_rate": 16.5,
         "trend": "down",
-        "trend_reason": "계획비가동 83,720분(최고 수준) + 운영유실 34,070분으로 수주 심각 부족",
+        "trend_reason": "계획비가동 185,430으로 전체 최고 수준, 운영유실도 71,487로 높아 수주부족 심화",
         "risk_level": "high",
         "main_loss": "계획비가동",
-        "action": "긴급 수주 확대 또는 설비 1-2대 감축, 타 거래처 공정 위탁 검토"
+        "action": "긴급 수주 확보 및 설비 축소/판매 검토, 타 라인으로 물량 재배치"
       },
       {
         "name": "동도금",
-        "current_rate": 25.1,
-        "predicted_rate": 22.3,
+        "current_rate": 25.9,
+        "predicted_rate": 22.1,
         "trend": "down",
-        "trend_reason": "계획비가동 46,730분으로 두 번째 높은 수준의 의도적 비가동",
+        "trend_reason": "가동율 2번째 저수준, 계획비가동 98,118로 의도적 비가동 명확",
         "risk_level": "high",
         "main_loss": "계획비가동",
-        "action": "선택 설비 재배치 또는 외주 전환, 수주처 개발 전담팀 배치"
+        "action": "설비 통합 또는 외주 검토, 수주 다변화 전략 추진"
       },
       {
         "name": "회로",
-        "current_rate": 34.4,
-        "predicted_rate": 31.8,
+        "current_rate": 38.1,
+        "predicted_rate": 35.2,
         "trend": "down",
-        "trend_reason": "계획비가동 36,370분 + 저가동율로 설비 과잉 명확",
+        "trend_reason": "계획비가동 74,500 + 운영유실 11,370으로 복합 손실 발생",
         "risk_level": "high",
         "main_loss": "계획비가동",
-        "action": "고부가 제품군 개발 또는 설비 감축, 자동가접 연계 라인 통합 검토"
+        "action": "생산 스케줄 최적화 및 설비 가동 효율성 개선, 수주처 개발"
       },
       {
         "name": "AOI",
-        "current_rate": 46.4,
-        "predicted_rate": 43.5,
+        "current_rate": 45,
+        "predicted_rate": 40.8,
         "trend": "down",
-        "trend_reason": "계획비가동 96,152분(전체 최고)으로 검사 수량 부족 심각",
+        "trend_reason": "계획비가동 213,841로 전체 2번째 규모, 검사 공정의 과도한 CAPA",
         "risk_level": "high",
         "main_loss": "계획비가동",
-        "action": "인라인 검사 자동화 도입 또는 설비 임차료 절감, 타 거래처 검사 수주"
-      },
-      {
-        "name": "적층",
-        "current_rate": 45.4,
-        "predicted_rate": 41.2,
-        "trend": "down",
-        "trend_reason": "운영유실 123,505분(전체 최고 + 계획비가동 39,360분 중복으로 병목 심각",
-        "risk_level": "high",
-        "main_loss": "운영유실",
-        "action": "공정 안정성 개선(금형/프레스 점검), 기술 인력 보강, 금도금과의 병렬 처리 라인 확보"
+        "action": "검사 자동화 통합 또는 설비 축소, 외부 검사 아웃소싱 고려"
       },
       {
         "name": "수가접",
-        "current_rate": 43.1,
-        "predicted_rate": 39.8,
+        "current_rate": 40.9,
+        "predicted_rate": 37.5,
         "trend": "down",
-        "trend_reason": "운영유실 24,960분으로 공정 능력 미흡, 계획비가동 34,650분",
-        "risk_level": "medium",
+        "trend_reason": "운영유실 57,220으로 높아 작업 효율성 문제 동시 존재",
+        "risk_level": "high",
         "main_loss": "운영유실",
-        "action": "작업 표준화 및 숙련도 향상 교육, 설비 투자 검토"
+        "action": "작업 프로세스 재설계 및 숙련도 강화, 설비 유지보수 개선"
       },
       {
-        "name": "금도금",
-        "current_rate": 81,
-        "predicted_rate": 82.1,
-        "trend": "up",
-        "trend_reason": "병목공정으로 작동 중, 운영유실 5,730분 관리 가능 수준",
-        "risk_level": "low",
+        "name": "적층",
+        "current_rate": 45.3,
+        "predicted_rate": 41.2,
+        "trend": "down",
+        "trend_reason": "운영유실 266,220으로 전체 최악, 기술적 손실 심각",
+        "risk_level": "high",
         "main_loss": "운영유실",
-        "action": "현 상태 유지, 수주 증가 시 추가 설비 투자 준비"
-      },
-      {
-        "name": "자동가접",
-        "current_rate": 74.9,
-        "predicted_rate": 76.5,
-        "trend": "up",
-        "trend_reason": "병목공정, 가동율 양호하나 설비유실 15,687분 점검 필요",
-        "risk_level": "low",
-        "main_loss": "설비유실",
-        "action": "예방보전 강화, 현재 수주량 충당 설비 확보 만족"
-      },
-      {
-        "name": "타발",
-        "current_rate": 68.3,
-        "predicted_rate": 69.7,
-        "trend": "up",
-        "trend_reason": "상대적으로 높은 가동율, 계획비가동 59,420분은 수주 분산 필요",
-        "risk_level": "medium",
-        "main_loss": "계획비가동",
-        "action": "수주처 다변화로 가동율 향상, 설비 효율화"
+        "action": "공정 기술 재검토 및 품질 관리 강화, 설비 현대화 투자 검토"
       },
       {
         "name": "레이저",
-        "current_rate": 53.7,
-        "predicted_rate": 51.2,
-        "trend": "down",
-        "trend_reason": "계획비가동 31,660분 + 설비유실 36,850분 이중 손실",
+        "current_rate": 50.8,
+        "predicted_rate": 48.5,
+        "trend": "stable",
+        "trend_reason": "평균 이상이나 계획비가동 70,600으로 여전히 과잉 상태",
         "risk_level": "medium",
         "main_loss": "설비유실",
-        "action": "레이저 유지보수 기술 고도화, 설비 노후화 평가 후 교체 검토"
+        "action": "설비 유지보수 최적화, 수주량에 맞춘 운영 조정"
       },
       {
         "name": "가이드",
-        "current_rate": 52,
-        "predicted_rate": 49.3,
+        "current_rate": 46.2,
+        "predicted_rate": 42.8,
         "trend": "down",
-        "trend_reason": "운영유실 28,985분으로 공정 이상 신호, 계획비가동도 병행",
+        "trend_reason": "운영유실 77,215로 높은 수준, 운영 안정성 문제",
         "risk_level": "medium",
         "main_loss": "운영유실",
-        "action": "공정 능력 재검토, 작업 난이도 개선, 설비 캘리브레이션"
+        "action": "작업 표준화 및 작업자 훈련 강화, 설비 정기 검사 체계화"
       },
       {
-        "name": "BBT",
-        "current_rate": 56.8,
-        "predicted_rate": 54.5,
-        "trend": "down",
-        "trend_reason": "계획비가동 41,115분으로 후공정 수주 부족 반영",
-        "risk_level": "medium",
+        "name": "금도금",
+        "current_rate": 84.1,
+        "predicted_rate": 85.2,
+        "trend": "up",
+        "trend_reason": "전체 공정 중 유일하게 건전한 가동율 유지, 운영유실 최소",
+        "risk_level": "low",
         "main_loss": "계획비가동",
-        "action": "금도금·자동가접과 연계 수주 확대, 설비 활용도 제고"
+        "action": "현재 운영 체계 유지 및 모범 사례 타공정 전파"
+      },
+      {
+        "name": "자동가접",
+        "current_rate": 73.4,
+        "predicted_rate": 75.1,
+        "trend": "up",
+        "trend_reason": "후공정 중 우수한 가동율, 운영유실 최소화",
+        "risk_level": "low",
+        "main_loss": "계획비가동",
+        "action": "현재 수준 유지, 설비 유실 감소를 위한 예방 정비 강화"
       },
       {
         "name": "SUB",
-        "current_rate": 42.5,
-        "predicted_rate": 40.1,
-        "trend": "down",
-        "trend_reason": "계획비가동 19,265분, 상대적으로 손실 규모 작음",
+        "current_rate": 41.6,
+        "predicted_rate": 39.2,
+        "trend": "stable",
+        "trend_reason": "운영유실 최소(600)로 효율성 양호, 계획비가동이 주요 손실 원인",
         "risk_level": "medium",
         "main_loss": "계획비가동",
-        "action": "기존 고객 수주 확대 또는 신규 공정 개발"
+        "action": "수주 확보에 집중, 설비 통합 또는 용도 전환 검토"
+      },
+      {
+        "name": "BBT",
+        "current_rate": 57.3,
+        "predicted_rate": 58.9,
+        "trend": "up",
+        "trend_reason": "상대적으로 건전한 가동율, 운영유실 낮음",
+        "risk_level": "low",
+        "main_loss": "계획비가동",
+        "action": "현재 성과 유지, 추가 수주 기회 발굴"
+      },
+      {
+        "name": "타발",
+        "current_rate": 66.7,
+        "predicted_rate": 68.5,
+        "trend": "up",
+        "trend_reason": "후공정으로서 양호한 가동율 유지",
+        "risk_level": "low",
+        "main_loss": "계획비가동",
+        "action": "현재 운영 체계 유지, 전공정 수주 확대 시 추진력 확보"
       }
     ]
   },
   "loss": {
-    "summary": "SYNOPEX VIETNAM은 평균 가동율 47.3%로 심각한 CAPA 과잉 상태이며, 노광(18.5%), 동도금(25.1%), 회로(34.4%) 공정이 병목이다. 계획비가동 총 546,462분(평균 42%)은 수주부족에 따른 의도적 비가동으로, 설비 재배치 및 수주 확대 전략이 긴급하다.",
+    "summary": "SYNOPEX VIETNAM은 전체 14개 공정 중 노광(18.7%), 동도금(25.9%), 회로(38.1%) 공정이 심각한 저가동율을 보이며, 총 1,308,339분의 손실이 발생 중입니다. 특히 AOI, 노광, 타발 공정의 계획비가동이 전체 손실의 50% 이상을 차지하여 수주부족으로 인한 의도적 비가동이 주요 원인으로 판단됩니다.",
     "bottleneck": "노광",
-    "total_loss_min": 569117,
+    "total_loss_min": 1308339,
     "top3_causes": [
-      "CAPA 과잉에 따른 계획비가동(평균 42.1%)",
-      "운영유실 - 적층공정 123,505분 이상 편차",
-      "설비유실 - 레이저 36,850분, 설비 신뢰성 저하"
+      "CAPA과잉에 따른 의도적 계획비가동(수주부족)",
+      "운영유실(특히 적층공정 266,220분)",
+      "설비신뢰성 저하(레이저 76,630분)"
     ],
     "processes": [
       {
         "name": "적층",
-        "loss_min": 177260,
-        "loss_rate": 54.6,
-        "loss_type": "운영유실",
+        "loss_min": 380040,
+        "loss_rate": "54.7%",
+        "loss_type": "운영유실+계획비가동",
         "loss_category": "운영유실",
-        "root_cause": "장시간 가열/냉각 대기, 라미네이션 성불량",
+        "root_cause": "공정 불안정성(266,220분 운영유실), 작업자 역량부족, 설비 조정시간 과다",
         "impact": "high",
-        "immediate_action": "적층 프로세스 온도 곡선 재최적화, 배치 스케줄 개선",
-        "countermeasure": "신형 라미네이터 도입, 예측정비 시스템 구축"
+        "immediate_action": "적층공정 작업표준화 및 작업자 재교육, 설비 정밀도 검사",
+        "countermeasure": "적층공정 전담팀 구성, 자동화 수준 상향, 공정능력 개선(Cpk 분석)"
       },
       {
         "name": "노광",
-        "loss_min": 128950,
-        "loss_rate": 81.5,
+        "loss_min": 269707,
+        "loss_rate": "81.3%",
         "loss_type": "CAPA과잉비가동",
-        "loss_category": "계획비가동+운영유실",
-        "root_cause": "수주부족 및 설비 과잉(CAPA 442% 이상)",
+        "loss_category": "계획비가동",
+        "root_cause": "수주부족으로 인한 의도적 생산중단, 설비과잉보유",
         "impact": "high",
-        "immediate_action": "노광 라인 1대 휴지, 타공정 노광 시간 최적화",
-        "countermeasure": "LED/고정밀 제품 수주 확대, 외주 활용"
+        "immediate_action": "수주 기반 일일 생산계획 재수립, CAPA 자산재배치 검토",
+        "countermeasure": "신규 고객사 개발/수주확대, 유휴설비 타산업 용도 전환 또는 임차 재배치"
       },
       {
         "name": "AOI",
-        "loss_min": 102947,
-        "loss_rate": 53.6,
+        "loss_min": 227091,
+        "loss_rate": "55%",
         "loss_type": "CAPA과잉비가동",
         "loss_category": "계획비가동",
-        "root_cause": "검사 라인 설비 과다(대당 2.1배)",
+        "root_cause": "후공정 폰딩 미흡으로 인한 의도적 비가동",
         "impact": "high",
-        "immediate_action": "AOI 검사기 1대 매각/폐기, 수동검사 병행",
-        "countermeasure": "자동화 검사 도입(AI기반), 설비 재배치"
+        "immediate_action": "적층-가이드 공정 운영유실 해소 우선추진, AOI 투입물량 재조율",
+        "countermeasure": "적층공정 운영 효율화(266,220분 운영유실 개선), 공정간 로드밸런싱"
       },
       {
         "name": "타발",
-        "loss_min": 83150,
-        "loss_rate": 31.7,
+        "loss_min": 190868,
+        "loss_rate": "33.3%",
         "loss_type": "CAPA과잉비가동",
         "loss_category": "계획비가동",
-        "root_cause": "최종 공정 수주 변동성, 설비 과다",
-        "impact": "medium",
-        "immediate_action": "타발 금형 재활용 범위 확대(Setup time 단축)",
-        "countermeasure": "패널화 제품 비율 확대, 외주 연계"
+        "root_cause": "후공정(금도금) 저가동에 따른 의도적 감산",
+        "impact": "high",
+        "immediate_action": "금도금 공정 현황분석(84.1% 가동율), 타발-금도금 간 로드밸런싱",
+        "countermeasure": "타발 설비 외부임대 또는 다중화 생산 모델 도입"
       },
       {
         "name": "레이저",
-        "loss_min": 70040,
-        "loss_rate": 46.3,
-        "loss_type": "설비고장|CAPA과잉비가동",
-        "loss_category": "설비유실+계획비가동",
-        "root_cause": "레이저 헤드 정렬 이상(36,850분), 예방정비 부족",
-        "impact": "high",
-        "immediate_action": "레이저 정렬 전수 점검, 예방정비 주기 단축(월 1회→2주 1회)",
-        "countermeasure": "신형 CO2/펄스 레이저 도입, 상태기반정비 센서 추가"
+        "loss_min": 150210,
+        "loss_rate": "49.2%",
+        "loss_type": "설비유실+계획비가동",
+        "loss_category": "설비유실",
+        "root_cause": "설비신뢰성 저하(76,630분 설비유실), 예방보전 부족",
+        "impact": "medium",
+        "immediate_action": "레이저 설비 정밀검사 및 정밀도 조정, 예방정비 주기 단축",
+        "countermeasure": "설비 수명 판단 및 신규 투자 검토, 국내 유사장비 벤치마킹"
       },
       {
         "name": "수가접",
-        "loss_min": 59610,
-        "loss_rate": 56.9,
-        "loss_type": "운영유실",
+        "loss_min": 131090,
+        "loss_rate": "59.1%",
+        "loss_type": "운영유실+계획비가동",
         "loss_category": "운영유실",
-        "root_cause": "접착제 경화 시간, 작업자 숙련도 편차",
+        "root_cause": "운영유실 57,220분(운영효율 저하), 품질검사 재작업",
         "impact": "medium",
-        "immediate_action": "접착 온도/시간 자동화 설정 도입, 작업 표준화",
-        "countermeasure": "자동가접 라인 증설, 수동공정 최소화"
-      },
-      {
-        "name": "동도금",
-        "loss_min": 54447,
-        "loss_rate": 74.9,
-        "loss_type": "CAPA과잉비가동",
-        "loss_category": "계획비가동",
-        "root_cause": "수주 편차에 따른 라인 유휴",
-        "impact": "high",
-        "immediate_action": "동도금 탱크 1개 축소 운영, 배치 크기 통합",
-        "countermeasure": "도금 공정 타사 외주화, 선택적 내재화"
+        "immediate_action": "공정 운영 효율성 감시 강화, 재작업 원인 분석",
+        "countermeasure": "자동화 수준 확대(자동가접 73.4% 참고), 작업자 숙련도 관리"
       },
       {
         "name": "가이드",
-        "loss_min": 48135,
-        "loss_rate": 48,
-        "loss_type": "운영유실",
+        "loss_min": 115736,
+        "loss_rate": "53.8%",
+        "loss_type": "운영유실+계획비가동",
         "loss_category": "운영유실",
-        "root_cause": "기계적 치우침 조정, 작은 배치 준비 시간",
+        "root_cause": "운영유실 77,215분(높은 설비 조정시간), 공정난이도 높음",
         "impact": "medium",
-        "immediate_action": "가이드 자동 정렬 시스템 도입, 배치 크기 최소화",
-        "countermeasure": "설정 변경 자동화 모듈 개발"
+        "immediate_action": "공정 SOP 재정비, 장비 정밀도 관리 강화",
+        "countermeasure": "자동화/반자동화 도입, 공정모니터링 시스템 구축"
+      },
+      {
+        "name": "동도금",
+        "loss_min": 112600,
+        "loss_rate": "74.1%",
+        "loss_type": "CAPA과잉비가동",
+        "loss_category": "계획비가동",
+        "root_cause": "노광공정 저가동의 연쇄적 영향, 공정간 CAPA 미스매치",
+        "impact": "high",
+        "immediate_action": "상류공정(노광) 개선과 연계, 병렬 생산라인 구성 검토",
+        "countermeasure": "공정간 CAPA 벨런싱 기반 설비배치 변경, 모듈식 설비 재배치"
       },
       {
         "name": "회로",
-        "loss_min": 47686,
-        "loss_rate": 65.6,
+        "loss_min": 93996,
+        "loss_rate": "61.9%",
         "loss_type": "CAPA과잉비가동",
         "loss_category": "계획비가동",
-        "root_cause": "에칭 라인 과다 보유(수주 대비 3배)",
-        "impact": "high",
-        "immediate_action": "회로 공정 일일 스케줄 통합(주 3일 가동 시나리오)",
-        "countermeasure": "공정 통합/라인 폐지, HDI 고부가 제품 수주 집중"
+        "root_cause": "상류공정 저가동의 연쇄 영향, 공정간 CAPA 미스매치",
+        "impact": "medium",
+        "immediate_action": "노광-동도금-회로 공정간 로드밸런싱 재수립",
+        "countermeasure": "설비 재배치 또는 일부 폐기(CAPA 정상화)"
       },
       {
         "name": "BBT",
-        "loss_min": 43811,
-        "loss_rate": 43.2,
-        "loss_type": "CAPA과잉비가동",
+        "loss_min": 90870,
+        "loss_rate": "42.7%",
+        "loss_type": "계획비가동",
         "loss_category": "계획비가동",
-        "root_cause": "후공정 검사 설비 과잉",
-        "impact": "low",
-        "immediate_action": "BBT 라인 주 4일 운영 변경",
-        "countermeasure": "통합검사 공정화"
+        "root_cause": "후공정 저가동의 연쇄 영향, 수주부족",
+        "impact": "medium",
+        "immediate_action": "전체 CAPA 최적화 전략 속에서 위치 재설정",
+        "countermeasure": "최종공정부터 역산식 수요계획 수립"
       },
       {
         "name": "자동가접",
-        "loss_min": 33277,
-        "loss_rate": 25.1,
-        "loss_type": "설비고장",
+        "loss_min": 69973,
+        "loss_rate": "26.6%",
+        "loss_type": "계획비가동+설비유실",
         "loss_category": "설비유실",
-        "root_cause": "자동장비 납땜 불량(15,687분), 티칭 데이터 부정확",
-        "impact": "medium",
-        "immediate_action": "솔더 점도/온도 교정, 픽앤플레이스 티칭 전수 재검증",
-        "countermeasure": "비전시스템 고도화, 납땜 온도 프로파일 AI 최적화"
+        "root_cause": "설비신뢰성 부족(20,958분), 운영효율은 상대적으로 양호",
+        "impact": "low",
+        "immediate_action": "자동가접 설비 정밀검사, 예방보전 강화",
+        "countermeasure": "설비 신뢰성 개선으로 73.4% → 85% 이상 달성"
       },
       {
         "name": "SUB",
-        "loss_min": 20285,
-        "loss_rate": 57.5,
-        "loss_type": "CAPA과잉비가동",
+        "loss_min": 42865,
+        "loss_rate": "58.4%",
+        "loss_type": "계획비가동",
         "loss_category": "계획비가동",
-        "root_cause": "기판 사이즈 다양화에 따른 소량 배치",
+        "root_cause": "후공정 대기로 인한 계획비가동(운영유실 600분 최소)",
         "impact": "low",
-        "immediate_action": "SUB 공정 중심 배치 운영, 표준 제품 쏠림 조정",
-        "countermeasure": "제품 로드맵 정렬"
+        "immediate_action": "SUB-BBT 공정간 연계성 검토, 일일 투입물량 조율",
+        "countermeasure": "공정 효율화를 통한 자동 해소 예상"
       },
       {
         "name": "금도금",
-        "loss_min": 12480,
-        "loss_rate": 19,
-        "loss_type": "CAPA과잉비가dongdan",
+        "loss_min": 21670,
+        "loss_rate": "15.9%",
+        "loss_type": "계획비가동",
         "loss_category": "계획비가동",
-        "root_cause": "최종 공정으로 선행공정 병목 전파",
-        "impact": "medium",
-        "immediate_action": "금도금 탱크 소형 유닛으로 전환",
-        "countermeasure": "선행공정 개선 효과 대기, 연동 스케줄링"
+        "root_cause": "상대적으로 가장 안정적, 타발공정의 의도적 감산에 의한 투입부족",
+        "impact": "low",
+        "immediate_action": "특별조치 불필요, 상류공정 개선 시 자동 정상화",
+        "countermeasure": "타발 공정 능력 향상 시 자동 해소"
       }
     ],
     "improvement_priority": [
       {
         "rank": 1,
         "proc": "노광",
-        "action": "설비 1대 폐지/휴지, 수주 기반 주 단위 가동 스케줄 전환",
-        "expected_gain": "비가동 회수 128,950분(주당 18,421분), 인건비 월 480만원 절감"
+        "action": "수주기반 생산계획 재수립 + 신규고객 개발(월 +50% 수주목표)",
+        "expected_gain": "가동율 18.7% → 60% 이상 달성 시 월 480시간 가동능력 확보"
       },
       {
         "rank": 2,
         "proc": "적층",
-        "action": "온도곡선 최적화 & 예측정비 시스템 구축, 프로세스 능력도 Cpk 1.67→2.0 개선",
-        "expected_gain": "운영유실 123,505분 중 40% 회수(49,402분), 양품율 2~3% 개선"
+        "action": "운영유실 근본원인 분석(품질/조정시간) + 자동화 수준 상향",
+        "expected_gain": "운영유실 266,220분 → 100,000분 이하로 감소, 가동율 45.3% → 60% 달성"
       },
       {
         "rank": 3,
-        "proc": "동도금 + 회로",
-        "action": "동도금 탱크 2개→1개 축소, 회로 에칭 라인 1대 폐지",
-        "expected_gain": "계획비가동 83,100분 회수, 월간 유틸리티비(전력/화학약품) 15% 절감"
+        "proc": "레이저",
+        "action": "설비신뢰성 개선 (PPM 목표수립, 예방정비 강화) + 필요시 신규투자",
+        "expected_gain": "설비유실 76,630분 → 30,000분 이하 감소, 전체 CAPA 10% 개선"
       },
       {
         "rank": 4,
-        "proc": "AOI + 자동가접",
-        "action": "검사기 1대 매각, 자동가접 솔더 프로파일 AI 최적화",
-        "expected_gain": "설비유실 19,980분 회수, 불량률 3% 감소"
+        "proc": "공정간 로드밸런싱",
+        "action": "상류공정(노광/동도금/회로) CAPA 정상화 → 중류공정(적층/가이드) 투입물량 증가",
+        "expected_gain": "후공정 계획비가동 자동 해소, 전체 가동율 40% → 55% 달상"
       },
       {
         "rank": 5,
-        "proc": "수주 전략 수립",
-        "action": "LED/고정밀/HDI 등 고마진 제품 수주 확대, 월간 +15% 물량 시나리오",
-        "expected_gain": "평균 가동율 47.3%→62% 달성, 일일 생산성 31% 증대"
+        "proc": "CAPA 구조최적화",
+        "action": "초과설비 임차/폐기 검토 + 모듈식 설비배치로 유연성 확보",
+        "expected_gain": "설비 유지비용 20% 감소, 수주변동성 대응 능력 강화"
       }
     ]
   },
-  "saved_at": "2026-06-08T07:29:46.445Z"
+  "saved_at": "2026-06-15T07:14:22.356Z"
 }
