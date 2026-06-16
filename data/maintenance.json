@@ -29,8 +29,18 @@
       "date": "",
       "status": "수리중",
       "reason": ""
+    },
+    {
+      "id": "B1781585455256",
+      "proc": "레이저",
+      "name": "SHEET",
+      "cnt": "1",
+      "start": "",
+      "date": "",
+      "status": "수리중",
+      "reason": ""
     }
   ],
-  "updated": "2026-06-16T04:50:47.470Z",
+  "updated": "2026-06-16T04:50:55.366Z",
   "updatedBy": "ko"
 }
