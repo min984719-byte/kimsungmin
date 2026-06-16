@@ -19,7 +19,18 @@
       "reason": "capa 여유"
     }
   ],
-  "breaks": [],
-  "updated": "2026-06-12T17:28:59.537Z",
+  "breaks": [
+    {
+      "id": "B1781585447364",
+      "proc": "레이저",
+      "name": "RTR",
+      "cnt": "1",
+      "start": "",
+      "date": "",
+      "status": "수리중",
+      "reason": ""
+    }
+  ],
+  "updated": "2026-06-16T04:50:47.470Z",
   "updatedBy": "ko"
 }
